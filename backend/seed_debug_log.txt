@@ -1,0 +1,9 @@
+Starting seed_permissions...
+Loaded 13 permissions
+Seeding role: ADMIN
+Seeding role: TOURNAMENT_MANAGER
+Seeding role: REFEREE
+Seeding role: COACH
+Seeding role: PARENT
+Seeding role: FIELD_OWNER
+Permissions seeded successfully!

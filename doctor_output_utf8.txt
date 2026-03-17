@@ -1,0 +1,39 @@
+﻿[тИЪ] Flutter (Channel stable, 3.41.4, on Microsoft Windows [Version 10.0.26100.7462], locale ru-RU) [483ms]
+    тАв Flutter version 3.41.4 on channel stable at C:\Users\Asus\flutter
+    тАв Upstream repository https://github.com/flutter/flutter.git
+    тАв Framework revision ff37bef603 (9 days ago), 2026-03-03 16:03:22 -0800
+    тАв Engine revision e4b8dca3f1
+    тАв Dart version 3.11.1
+    тАв DevTools version 2.54.1
+    тАв Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[тИЪ] Windows Version (╨К┬а┬й╨Д╨░┬о╨▒┬о╨┤╨▓ Windows 11 тАЮ┬о┬м┬а╨╕┬н╨┐╨┐ 64-bit, 24H2, 2009) [1┬а071ms]
+
+[!] Android toolchain - develop for Android devices (Android SDK version 35.0.0) [541ms]
+    тАв Android SDK at C:\Users\Asus\AppData\Local\Android\sdk
+    тАв Emulator version 35.2.10.0 (build_id 12414864) (CL:N/A)
+    X cmdline-tools component is missing.
+      Try installing or updating Android Studio.
+      Alternatively, download the tools from https://developer.android.com/studio#command-line-tools-only and make sure to set the ANDROID_HOME environment variable.
+      See https://developer.android.com/studio/command-line for more details.
+    X Android license status unknown.
+      Run `flutter doctor --android-licenses` to accept the SDK licenses.
+      See https://flutter.dev/to/windows-android-setup for more details.
+
+[тИЪ] Chrome - develop for the web [279ms]
+    тАв Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[X] Visual Studio - develop Windows apps [278ms]
+    X Visual Studio not installed; this is necessary to develop Windows apps.
+      Download at https://visualstudio.microsoft.com/downloads/.
+      Please install the "Desktop development with C++" workload, including all of its default components
+
+[тИЪ] Connected device (3 available) [152ms]
+    тАв Windows (desktop) тАв windows тАв windows-x64    тАв Microsoft Windows [Version 10.0.26100.7462]
+    тАв Chrome (web)      тАв chrome  тАв web-javascript тАв Google Chrome 145.0.7632.117
+    тАв Edge (web)        тАв edge    тАв web-javascript тАв Microsoft Edge 145.0.3800.97
+
+[тИЪ] Network resources [468ms]
+    тАв All expected network resources are available.
+
+! Doctor found issues in 2 categories.

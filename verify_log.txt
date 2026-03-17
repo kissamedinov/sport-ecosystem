@@ -1,0 +1,8 @@
+﻿Club created: FC Test 7255c918
+Team created: U15
+Player added to club and team
+Club Membership Status: ClubMembershipStatus.ACTIVE
+Team Membership Status: MembershipStatus.ACTIVE
+Player transferred to club 2
+Old Club Membership Status: ClubMembershipStatus.TRANSFERRED
+New Club Membership Status: ClubMembershipStatus.ACTIVE

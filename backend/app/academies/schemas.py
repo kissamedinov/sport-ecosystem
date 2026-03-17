@@ -1,0 +1,157 @@
+from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
+from datetime import datetime, date, time
+from uuid import UUID
+from enum import Enum
+
+# Enums
+class AgeGroup(str, Enum):
+    U7 = "U7"
+    U9 = "U9"
+    U11 = "U11"
+    U13 = "U13"
+    U15 = "U15"
+    U17 = "U17"
+
+class AcademyPlayerStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    LEFT = "LEFT"
+
+class AttendanceStatus(str, Enum):
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    LATE = "LATE"
+    INJURED = "INJURED"
+
+# Academy schemas
+class AcademyBase(BaseModel):
+    name: str
+    city: str
+    address: str
+    description: Optional[str] = None
+
+class AcademyCreate(AcademyBase):
+    pass
+
+class AcademyResponse(AcademyBase):
+    id: UUID
+    owner_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Academy Team schemas
+class AcademyTeamBase(BaseModel):
+    name: str
+    age_group: AgeGroup
+
+class AcademyTeamCreate(AcademyTeamBase):
+    coach_id: UUID
+
+class AcademyTeamResponse(AcademyTeamBase):
+    id: UUID
+    academy_id: UUID
+    coach_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Academy Player schemas
+class AcademyPlayerBase(BaseModel):
+    player_profile_id: UUID
+    status: AcademyPlayerStatus = AcademyPlayerStatus.ACTIVE
+
+class AcademyPlayerCreate(AcademyPlayerBase):
+    pass
+
+class AcademyPlayerResponse(AcademyPlayerBase):
+    id: UUID
+    academy_id: UUID
+    joined_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Academy Team Player schemas
+class AcademyTeamPlayerBase(BaseModel):
+    player_profile_id: UUID
+    position: Optional[str] = None
+    jersey_number: Optional[int] = None
+
+class AcademyTeamPlayerCreate(AcademyTeamPlayerBase):
+    pass
+
+class AcademyTeamPlayerResponse(AcademyTeamPlayerBase):
+    id: UUID
+    team_id: UUID
+    joined_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Training Session schemas
+class TrainingSessionBase(BaseModel):
+    date: date
+    start_time: time
+    end_time: time
+    description: Optional[str] = None
+
+class TrainingSessionCreate(TrainingSessionBase):
+    team_id: UUID
+
+class TrainingSessionResponse(TrainingSessionBase):
+    id: UUID
+    academy_id: UUID
+    team_id: UUID
+    coach_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Training Attendance schemas
+class TrainingAttendanceBase(BaseModel):
+    player_id: UUID
+    status: AttendanceStatus
+    note: Optional[str] = None
+
+class TrainingAttendanceCreate(TrainingAttendanceBase):
+    training_id: UUID
+
+class TrainingAttendanceResponse(TrainingAttendanceBase):
+    id: UUID
+    training_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Coach Feedback schemas
+class CoachFeedbackBase(BaseModel):
+    technical: int
+    tactical: int
+    physical: int
+    discipline: int
+    comment: Optional[str] = None
+
+class CoachFeedbackCreate(CoachFeedbackBase):
+    player_id: UUID
+    academy_id: UUID
+
+class CoachFeedbackResponse(CoachFeedbackBase):
+    id: UUID
+    player_id: UUID
+    coach_id: UUID
+    academy_id: UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class AcademyRankingResponse(BaseModel):
+    id: UUID
+    academy_id: UUID
+    points: int
+    tournaments_played: int
+    tournaments_won: int
+    last_updated: datetime
+    academy: Optional[AcademyBase] = None
+
+    model_config = ConfigDict(from_attributes=True)
