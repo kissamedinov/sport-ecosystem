@@ -63,12 +63,14 @@ class AcademyPlayer(Base):
     __tablename__ = "academy_players"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=True)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     status = Column(Enum(AcademyPlayerStatus), default=AcademyPlayerStatus.ACTIVE, nullable=False)
 
+    player_user = relationship("User")
     player_profile = relationship("PlayerProfile")
     academy = relationship("Academy", back_populates="players")
 

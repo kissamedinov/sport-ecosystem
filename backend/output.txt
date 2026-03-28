@@ -1,0 +1,344 @@
+﻿.\venv\Scripts\python.e
+xe : Traceback (most re
+cent call last):
+строка:1 знак:22
++ ... ONPATH="."; .\ven
+v\Scripts\python.exe sc
+ripts\seed_test_data.py
+ *>&1  ...
++                 ~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Traceback (mo   
+ st recent call las    
+t)::String) [], Re    m
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1967, in 
+_exec_single_context
+    self.dialect.do_exe
+cute(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~^
+        cursor, str_sta
+tement, effective_param
+eters, context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\d
+efault.py", line 952, i
+n do_execute
+    cursor.execute(stat
+ement, parameters)
+    ~~~~~~~~~~~~~~^^^^^
+^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNull
+Violation: null value i
+n column "player_id" of
+ relation "academy_play
+ers" violates not-null 
+constraint
+DETAIL:  Failing row co
+ntains (967a2d93-d6ce-4
+fd8-8569-724038217353, 
+null, e1569f62-1612-494
+9-aa4d-420c87c40d57, 20
+26-03-22 23:27:28.35103
+7+06, ACTIVE, 2026-03-2
+2 23:27:28.351037+06, 9
+ff26d0f-202d-4e7d-860d-
+311e21b811cc).
+
+
+The above exception was
+ the direct cause of th
+e following exception:
+
+Traceback (most recent 
+call last):
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\scripts\seed_test_d
+ata.py", line 146, in s
+eed_data
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\sess
+ion.py", line 4331, in 
+flush
+    self._flush(objects
+)
+    ~~~~~~~~~~~^^^^^^^^
+^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\sess
+ion.py", line 4466, in 
+_flush
+    with util.safe_rera
+ise():
+         ~~~~~~~~~~~~~~
+~~~^^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\util\lan
+ghelpers.py", line 121,
+ in __exit__
+    raise exc_value.wit
+h_traceback(exc_tb)
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\sess
+ion.py", line 4427, in 
+_flush
+    flush_context.execu
+te()
+    ~~~~~~~~~~~~~~~~~~~
+~~^^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\unit
+ofwork.py", line 466, i
+n execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\unit
+ofwork.py", line 642, i
+n execute
+    util.preloaded.orm_
+persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_
+mapper_hierarchy(self.m
+apper, False, False),
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\pers
+istence.py", line 93, i
+n save_obj
+    _emit_insert_statem
+ents(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\orm\pers
+istence.py", line 1233,
+ in _emit_insert_statem
+ents
+    result = connection
+.execute(
+        statement,
+        params,
+        execution_optio
+ns=execution_options,
+    )
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1419, in 
+execute
+    return meth(
+        self,
+        distilled_param
+eters,
+        execution_optio
+ns or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\sql\elem
+ents.py", line 527, in 
+_execute_on_connection
+    return connection._
+execute_clauseelement(
+           ~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled
+_params, execution_opti
+ons
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1641, in 
+_execute_clauseelement
+    ret = self._execute
+_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache
+_hit,
+    )
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1846, in 
+_execute_context
+    return self._exec_s
+ingle_context(
+           ~~~~~~~~~~~~
+~~~~~~~~~~~~~^
+        dialect, contex
+t, statement, parameter
+s
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1986, in 
+_exec_single_context
+    self._handle_dbapi_
+exception(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~^
+        e, str_statemen
+t, effective_parameters
+, cursor, context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 2363, in 
+_handle_dbapi_exception
+    raise sqlalchemy_ex
+ception.with_traceback(
+exc_info[2]) from e
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\b
+ase.py", line 1967, in 
+_exec_single_context
+    self.dialect.do_exe
+cute(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~^
+        cursor, str_sta
+tement, effective_param
+eters, context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\D
+esktop\test\mobile\back
+end\venv\Lib\site-packa
+ges\sqlalchemy\engine\d
+efault.py", line 952, i
+n do_execute
+    cursor.execute(stat
+ement, parameters)
+    ~~~~~~~~~~~~~~^^^^^
+^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.Integrit
+yError: (psycopg2.error
+s.NotNullViolation) nul
+l value in column "play
+er_id" of relation "aca
+demy_players" violates 
+not-null constraint
+DETAIL:  Failing row co
+ntains (967a2d93-d6ce-4
+fd8-8569-724038217353, 
+null, e1569f62-1612-494
+9-aa4d-420c87c40d57, 20
+26-03-22 23:27:28.35103
+7+06, ACTIVE, 2026-03-2
+2 23:27:28.351037+06, 9
+ff26d0f-202d-4e7d-860d-
+311e21b811cc).
+
+[SQL: INSERT INTO acade
+my_players (id, player_
+profile_id, academy_id,
+ status) VALUES (%(id)s
+::UUID, %(player_profil
+e_id)s::UUID, %(academy
+_id)s::UUID, %(status)s
+) RETURNING academy_pla
+yers.joined_at, academy
+_players.updated_at]
+[parameters: {'id': UUI
+D('967a2d93-d6ce-4fd8-8
+569-724038217353'), 'pl
+ayer_profile_id': UUID(
+'9ff26d0f-202d-4e7d-860
+d-311e21b811cc'), 'acad
+emy_id': UUID('e1569f62
+-1612-4949-aa4d-420c87c
+40d57'), 'status': 'ACT
+IVE'}]
+(Background on this err
+or at: https://sqlalche
+.me/e/20/gkpj)
+Error seeding data: (psycopg2.errors.NotNullViolation) null value in column "player_id" of relation "academy_players" violates not-null constraint
+DETAIL:  Failing row contains (967a2d93-d6ce-4fd8-8569-724038217353, null, e1569f62-1612-4949-aa4d-420c87c40d57, 2026-03-22 23:27:28.351037+06, ACTIVE, 2026-03-22 23:27:28.351037+06, 9ff26d0f-202d-4e7d-860d-311e21b811cc).
+
+[SQL: INSERT INTO academy_players (id, player_profile_id, academy_id, status) VALUES (%(id)s::UUID, %(player_profile_id)s::UUID, %(academy_id)s::UUID, %(status)s) RETURNING academy_players.joined_at, academy_players.updated_at]
+[parameters: {'id': UUID('967a2d93-d6ce-4fd8-8569-724038217353'), 'player_profile_id': UUID('9ff26d0f-202d-4e7d-860d-311e21b811cc'), 'academy_id': UUID('e1569f62-1612-4949-aa4d-420c87c40d57'), 'status': 'ACTIVE'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

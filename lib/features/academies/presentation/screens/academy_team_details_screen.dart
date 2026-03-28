@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
-import '../../data/models/academy_team.dart';
+import '../../data/models/academy_team.dart' as team_models;
+import '../../data/models/academy.dart' as academy_models;
 
 class AcademyTeamDetailsScreen extends StatefulWidget {
-  final AcademyTeam team;
+  final team_models.AcademyTeam team;
 
   const AcademyTeamDetailsScreen({super.key, required this.team});
 
@@ -86,7 +87,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
             final player = teamPlayers[index];
             return ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('Player ID: ${player.playerProfileId.substring(0, 8)}'),
+              title: Text('Player ID: ${player.playerProfileId?.substring(0, 8) ?? "N/A"}'),
               subtitle: Text('Status: ${player.status}'),
               trailing: IconButton(
                 icon: const Icon(Icons.feedback_outlined),
@@ -114,8 +115,8 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
             final session = sessions[index];
             return ListTile(
               leading: const Icon(Icons.event),
-              title: Text(session.date),
-              subtitle: Text('${session.startTime} - ${session.endTime}'),
+              title: Text(session.topic ?? 'Training Session'),
+              subtitle: Text(session.scheduledAt),
               trailing: ElevatedButton(
                 onPressed: () => _showAttendanceDialog(session),
                 child: const Text('Attendance'),
@@ -131,11 +132,11 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
     // TODO: Implement Add Player/Session Dialog
   }
 
-  void _showAttendanceDialog(TrainingSession session) {
+  void _showAttendanceDialog(academy_models.TrainingSession session) {
     // TODO: Implement Attendance Recording
   }
 
-  void _showFeedbackDialog(AcademyPlayer player) {
+  void _showFeedbackDialog(academy_models.AcademyPlayer player) {
     // TODO: Implement Feedback Submission
   }
 }

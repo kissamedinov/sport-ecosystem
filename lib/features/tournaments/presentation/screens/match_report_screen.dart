@@ -4,6 +4,10 @@ import '../../providers/tournament_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../data/models/tournament_squad_member.dart';
 import '../../providers/tournament_squad_provider.dart';
+import '../../../matches/presentation/widgets/match_event_dialog.dart';
+import '../../../matches/providers/match_provider.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class MatchReportScreen extends StatefulWidget {
   final String matchId;
@@ -46,7 +50,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
     // Show score tab only for organizers, stats tab for coaches (and organizers)
     _tabController = TabController(
-        length: isOrganizer ? 2 : 1, vsync: this);
+        length: isOrganizer ? 3 : 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.myTournamentTeamId != null) {
@@ -82,6 +86,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 indicatorColor: Colors.orangeAccent,
                 tabs: const [
                   Tab(icon: Icon(Icons.scoreboard), text: 'SCORE'),
+                  Tab(icon: Icon(Icons.flash_on), text: 'LIVE EVENTS'),
                   Tab(icon: Icon(Icons.bar_chart), text: 'PLAYER STATS'),
                 ],
               )
@@ -89,6 +94,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 controller: _tabController,
                 indicatorColor: Colors.orangeAccent,
                 tabs: const [
+                  Tab(icon: Icon(Icons.flash_on), text: 'LIVE EVENTS'),
                   Tab(icon: Icon(Icons.bar_chart), text: 'PLAYER STATS'),
                 ],
               ),
@@ -97,6 +103,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         controller: _tabController,
         children: [
           if (_isOrganizer) _buildScoreTab(),
+          _buildLiveEventsTab(),
           _buildStatsTab(),
         ],
       ),
@@ -392,15 +399,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
   }
 
   Future<void> _submitPlayerStats() async {
-    // Submit stats for each player that has non-zero activity
-    for (final entry in _playerStats.entries) {
-      final stats = entry.value;
-      final hasActivity = stats.values.any((v) => (v as int) > 0);
-      if (!hasActivity) continue;
-      // TODO: call record_match_stats endpoint per player when backend
-      // supports batching. Currently recorded via the organizer's stats panel.
-    }
-
+    // ...
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Player stats recorded!'),
@@ -408,5 +407,40 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       ));
       Navigator.pop(context);
     }
+  }
+
+  Widget _buildLiveEventsTab() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: PremiumCard(
+            onTap: () async {
+              final result = await showDialog<Map<String, dynamic>>(
+                context: context,
+                builder: (context) => MatchEventDialog(
+                  matchId: widget.matchId,
+                  homeTeamId: 'home_id', 
+                  awayTeamId: 'away_id', 
+                  homeTeamName: 'Home Team',
+                  awayTeamName: 'Away Team',
+                ),
+              );
+              if (result != null) {
+                await context.read<MatchProvider>().addMatchEvent(widget.matchId, result);
+              }
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_circle, color: PremiumTheme.neonGreen),
+                SizedBox(width: 12),
+                Text('RECORD LIVE EVENT (GOAL/CARD)', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

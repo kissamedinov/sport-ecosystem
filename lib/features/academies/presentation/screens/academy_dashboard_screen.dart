@@ -182,7 +182,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
         return Card(
           child: ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text('Player Profile ID: ${player.playerProfileId.substring(0, 8)}'),
+            title: Text('Player Profile ID: ${player.playerProfileId?.substring(0, 8) ?? "N/A"}'),
             subtitle: Text('Status: ${player.status}'),
             trailing: const Icon(Icons.chevron_right),
           ),
@@ -216,8 +216,8 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
       else
         ...provider.sessions.take(3).map((s) => ListTile(
           leading: const Icon(Icons.event),
-          title: Text(s.date),
-          subtitle: Text('${s.startTime} - ${s.endTime}'),
+          title: Text(s.scheduledAt),
+          subtitle: Text(s.topic ?? 'Training Session'),
         )),
     ]);
   }
@@ -248,7 +248,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           children: [
             TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
             DropdownButtonFormField<String>(
-              value: ageGroup,
+              initialValue: ageGroup,
               items: ['U7', 'U9', 'U11', 'U13', 'U15', 'U17'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => ageGroup = v!,
               decoration: const InputDecoration(labelText: 'Age Group'),
@@ -260,7 +260,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           ElevatedButton(
             onPressed: () {
               final provider = context.read<AcademyProvider>();
-              provider.createTeam(provider.myAcademy!.id, nameController.text, ageGroup, provider.myAcademy!.ownerId);
+              provider.createTeam(provider.myAcademy!.id, nameController.text, ageGroup, 'Intermediate');
               Navigator.pop(context);
             },
             child: const Text('Add'),

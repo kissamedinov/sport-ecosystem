@@ -1,86 +1,46 @@
 import 'package:flutter/material.dart';
 import '../data/repositories/academy_repository.dart';
 import '../data/models/academy.dart';
-import '../data/models/academy_team.dart';
+import '../data/models/academy_team.dart' hide AcademyPlayer, TrainingSession;
 
 class AcademyProvider extends ChangeNotifier {
   final AcademyRepository _repository;
-  List<Academy> _academies = [];
+  
   Academy? _myAcademy;
+  final List<Academy> _academies = [];
   List<AcademyTeam> _teams = [];
   List<AcademyPlayer> _players = [];
   List<TrainingSession> _sessions = [];
+  List<AcademyTeamPlayer> _teamPlayers = [];
   bool _isLoading = false;
   String? _error;
 
   AcademyProvider(this._repository);
 
-  List<AcademyTeamPlayer> _teamPlayers = [];
-
-  List<Academy> get academies => _academies;
   Academy? get myAcademy => _myAcademy;
+  List<Academy> get academies => _academies;
   List<AcademyTeam> get teams => _teams;
   List<AcademyPlayer> get players => _players;
-  List<AcademyTeamPlayer> get teamPlayers => _teamPlayers;
   List<TrainingSession> get sessions => _sessions;
+  List<AcademyTeamPlayer> get teamPlayers => _teamPlayers;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<void> fetchTeamPlayers(String teamId) async {
-    _setLoading(true);
-    try {
-      _teamPlayers = await _repository.getTeamPlayers(teamId);
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> addPlayerToTeam(String teamId, String playerProfileId, {String? position, int? jerseyNumber}) async {
-    _setLoading(true);
-    try {
-      await _repository.addPlayerToTeam(teamId, {
-        'player_profile_id': playerProfileId,
-        'position': position,
-        'jersey_number': jerseyNumber,
-      });
-      await fetchTeamPlayers(teamId);
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> fetchAcademies() async {
-    _setLoading(true);
-    _error = null;
-    try {
-      _academies = await _repository.getAcademies();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   Future<void> fetchMyAcademy() async {
-    _setLoading(true);
+    _isLoading = true;
     _error = null;
+    notifyListeners();
     try {
       _myAcademy = await _repository.getMyAcademy();
       if (_myAcademy != null) {
-        await Future.wait([
-          fetchAcademyTeams(_myAcademy!.id),
-          fetchAcademyPlayers(_myAcademy!.id),
-          fetchTrainingSessions(_myAcademy!.id),
-        ]);
+        await fetchAcademyTeams(_myAcademy!.id);
+        await fetchAcademyPlayers(_myAcademy!.id);
       }
     } catch (e) {
       _error = e.toString();
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -102,33 +62,123 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchTrainingSessions(String academyId) async {
+  Future<void> fetchSessions(String academyId, {String? teamId}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
     try {
-      _sessions = await _repository.getTrainingSessions(academyId);
-      notifyListeners();
+      _sessions = await _repository.getTrainingSessions(academyId, teamId: teamId);
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  Future<void> createTeam(String academyId, String name, String ageGroup, String coachId) async {
-    _setLoading(true);
+  Future<void> fetchTeamPlayers(String teamId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _teamPlayers = await _repository.getTeamPlayers(teamId);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> recordAttendance(String sessionId, Map<String, String> attendance) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.recordTrainingAttendance({
+        'session_id': sessionId,
+        'attendance': attendance,
+      });
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createSession(String academyId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.createTrainingSession(academyId, data);
+      await fetchSessions(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createTeam(String academyId, String name, String ageGroup, String level) async {
+    _isLoading = true;
+    notifyListeners();
     try {
       await _repository.createAcademyTeam(academyId, {
         'name': name,
         'age_group': ageGroup,
-        'coach_id': coachId,
+        'level': level,
       });
       await fetchAcademyTeams(academyId);
+      return true;
     } catch (e) {
       _error = e.toString();
+      return false;
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  void _setLoading(bool value) {
-    _isLoading = value;
+  Future<bool> addPlayerToTeam(String teamId, String playerName, String position, String jerseyNumber) async {
+    _isLoading = true;
     notifyListeners();
+    try {
+      await _repository.addPlayerToTeam(teamId, {
+        'full_name': playerName,
+        'position': position,
+        'jersey_number': jerseyNumber,
+      });
+      await fetchTeamPlayers(teamId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> joinAcademyForPlayer(String academyId, String playerProfileId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.addPlayerToAcademy(academyId, {
+        'player_profile_id': playerProfileId,
+        'status': 'ACTIVE',
+      });
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

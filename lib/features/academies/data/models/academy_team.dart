@@ -122,6 +122,7 @@ class TrainingSession {
 class AcademyTeamPlayer {
   final String id;
   final String playerProfileId;
+  final String? fullName;
   final String teamId;
   final String? position;
   final int? jerseyNumber;
@@ -130,6 +131,7 @@ class AcademyTeamPlayer {
   AcademyTeamPlayer({
     required this.id,
     required this.playerProfileId,
+    this.fullName,
     required this.teamId,
     this.position,
     this.jerseyNumber,
@@ -140,6 +142,7 @@ class AcademyTeamPlayer {
     return AcademyTeamPlayer(
       id: json['id'] as String,
       playerProfileId: json['player_profile_id'] as String,
+      fullName: json['full_name'] as String?,
       teamId: json['team_id'] as String,
       position: json['position'] as String?,
       jerseyNumber: json['jersey_number'] as int?,
@@ -150,6 +153,7 @@ class AcademyTeamPlayer {
   Map<String, dynamic> toJson() => {
     'id': id,
     'player_profile_id': playerProfileId,
+    'full_name': fullName,
     'team_id': teamId,
     'position': position,
     'jersey_number': jerseyNumber,

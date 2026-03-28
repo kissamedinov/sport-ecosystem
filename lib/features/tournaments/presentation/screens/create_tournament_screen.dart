@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
 
 class CreateTournamentScreen extends StatefulWidget {
-  const CreateTournamentScreen({Key? key}) : super(key: key);
+  const CreateTournamentScreen({super.key});
 
   @override
   State<CreateTournamentScreen> createState() => _CreateTournamentScreenState();
@@ -115,7 +115,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
                     // Format Dropdown
                     DropdownButtonFormField<String>(
-                      value: _selectedFormat,
+                      initialValue: _selectedFormat,
                       decoration: const InputDecoration(labelText: 'Tournament Format'),
                       items: _formats.map((String format) {
                         return DropdownMenuItem<String>(
@@ -131,7 +131,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
                     // Age Category Dropdown
                     DropdownButtonFormField<String>(
-                      value: _selectedAgeCategory,
+                      initialValue: _selectedAgeCategory,
                       decoration: const InputDecoration(labelText: 'Age Category'),
                       items: _ageCategories.map((String age) {
                         return DropdownMenuItem<String>(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../providers/notification_provider.dart';
 import '../../../clubs/providers/club_provider.dart';
+import '../../../auth/providers/auth_provider.dart' as import_auth;
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -86,7 +87,7 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isInvite = notification.type == 'TEAM_INVITE';
+    final isInvite = notification.type == 'TEAM_INVITE' || notification.type == 'PARENT_LINK_REQUEST';
     final backgroundColor = notification.isRead 
       ? Theme.of(context).cardColor 
       : Theme.of(context).primaryColor.withOpacity(0.05);
@@ -199,6 +200,10 @@ class _NotificationCard extends StatelessWidget {
         iconData = Icons.event_rounded;
         color = Colors.green;
         break;
+      case 'PARENT_LINK_REQUEST':
+        iconData = Icons.family_restroom_rounded;
+        color = Colors.orangeAccent;
+        break;
       case 'PLAYER_SELECTED':
         color = Colors.orange;
         iconData = Icons.star_rounded;
@@ -233,16 +238,25 @@ class _NotificationCard extends StatelessWidget {
   void _handleInvitation(BuildContext context, String? invitationId, bool accept, {bool isApproval = false}) async {
     if (invitationId == null) return;
 
-    final clubProvider = context.read<ClubProvider>();
     final notificationProvider = context.read<NotificationProvider>();
+    bool success = false;
 
-    bool success;
-    if (isApproval) {
-      success = await clubProvider.approveInvitation(invitationId);
-    } else if (accept) {
-      success = await clubProvider.acceptInvitation(invitationId);
+    if (notification.type == 'PARENT_LINK_REQUEST') {
+      final authProvider = context.read<import_auth.AuthProvider>();
+      if (accept) {
+        success = await authProvider.acceptRequest(invitationId);
+      } else {
+        success = await authProvider.rejectRequest(invitationId);
+      }
     } else {
-      success = await clubProvider.declineInvitation(invitationId);
+      final clubProvider = context.read<ClubProvider>();
+      if (isApproval) {
+        success = await clubProvider.approveInvitation(invitationId);
+      } else if (accept) {
+        success = await clubProvider.acceptInvitation(invitationId);
+      } else {
+        success = await clubProvider.declineInvitation(invitationId);
+      }
     }
 
     if (context.mounted) {

@@ -7,16 +7,16 @@ part of 'child_profile.dart';
 // **************************************************************************
 
 ChildProfile _$ChildProfileFromJson(Map<String, dynamic> json) => ChildProfile(
-      id: json['id'] as String,
-      firstName: json['first_name'] as String,
-      lastName: json['last_name'] as String,
-      dateOfBirth: DateTime.parse(json['date_of_birth'] as String),
-      position: json['position'] as String?,
-      createdBy: json['created_by'] as String,
-      clubId: json['club_id'] as String,
-      linkedUserId: json['linked_user_id'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-    );
+  id: json['id'] as String,
+  firstName: json['first_name'] as String,
+  lastName: json['last_name'] as String,
+  dateOfBirth: DateTime.parse(json['date_of_birth'] as String),
+  position: json['position'] as String?,
+  createdBy: json['created_by'] as String,
+  clubId: json['club_id'] as String,
+  linkedUserId: json['linked_user_id'] as String?,
+  createdAt: DateTime.parse(json['created_at'] as String),
+);
 
 Map<String, dynamic> _$ChildProfileToJson(ChildProfile instance) =>
     <String, dynamic>{

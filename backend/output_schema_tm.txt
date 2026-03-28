@@ -1,0 +1,11 @@
+﻿
+--- team_memberships columns ---
+('id', 'uuid', 'NO')
+('team_id', 'uuid', 'NO')
+('player_profile_id', 'uuid', 'NO')
+('role', 'USER-DEFINED', 'NO')
+('status', 'USER-DEFINED', 'NO')
+('jersey_number', 'integer', 'YES')
+('joined_at', 'timestamp with time zone', 'YES')
+('left_at', 'timestamp with time zone', 'YES')
+('updated_at', 'timestamp with time zone', 'YES')

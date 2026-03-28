@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../lineups/providers/lineup_provider.dart';
+import '../../../tournaments/data/models/tournament_match.dart';
+import 'match_details_screen.dart';
 
 class MatchListScreen extends StatelessWidget {
   const MatchListScreen({super.key});
@@ -39,61 +41,84 @@ class MatchListScreen extends StatelessWidget {
           final isChildMatch = role == 'PARENT'; // If we are here, it's a child match
           final isMyTeamMatch = (role == 'COACH' || role == 'PLAYER_ADULT' || role == 'PLAYER_CHILD') && index % 2 == 0;
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              children: [
-                if (isChildMatch)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    decoration: const BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MatchDetailsScreen(
+                    match: TournamentMatch(
+                      id: matchId,
+                      tournamentId: 'tournament_1',
+                      homeTeamId: 'team_red',
+                      awayTeamId: 'team_blue',
+                      status: 'SCHEDULED',
+                      homeScore: 2,
+                      awayScore: 1,
+                      startTime: DateTime.now().add(const Duration(hours: 2)),
                     ),
-                    child: const Text(
-                      "YOUR CHILD'S MATCH",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  ),
-                if (isMyTeamMatch && role != 'PARENT')
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                    ),
-                    child: const Text(
-                      "MY TEAM",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildTeamColumn('RED DRAGONS', Icons.shield, Colors.red),
-                          Column(
-                            children: [
-                              const Text('2 - 1', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                              Text('65\'', style: TextStyle(color: Theme.of(context).primaryColor)),
-                            ],
-                          ),
-                          _buildTeamColumn('BLUE WOLVES', Icons.shield, Colors.blue),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text('PREMIER LEAGUE - WEEK 12', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                    ],
+                    homeTeamName: 'RED DRAGONS',
+                    awayTeamName: 'BLUE WOLVES',
                   ),
                 ),
-              ],
+              );
+            },
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                children: [
+                  if (isChildMatch)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      decoration: const BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                      ),
+                      child: const Text(
+                        "YOUR CHILD'S MATCH",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                    ),
+                  if (isMyTeamMatch && role != 'PARENT')
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      ),
+                      child: const Text(
+                        "MY TEAM",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTeamColumn('RED DRAGONS', Icons.shield, Colors.red),
+                            Column(
+                              children: [
+                                const Text('2 - 1', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                                Text('65\'', style: TextStyle(color: Theme.of(context).primaryColor)),
+                              ],
+                            ),
+                            _buildTeamColumn('BLUE WOLVES', Icons.shield, Colors.blue),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('PREMIER LEAGUE - WEEK 12', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

@@ -20,6 +20,7 @@ class NotificationType(str, enum.Enum):
     CLUB_REQUEST = "CLUB_REQUEST"
     CLUB_APPROVED = "CLUB_APPROVED"
     CLUB_REJECTED = "CLUB_REJECTED"
+    PARENT_LINK_REQUEST = "PARENT_LINK_REQUEST"
 
 class EntityType(str, enum.Enum):
     MATCH = "MATCH"
@@ -34,10 +35,10 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    type = Column(Enum(NotificationType), nullable=False)
+    type = Column(Enum(NotificationType, native_enum=False), nullable=False)
     title = Column(String, nullable=False)
     message = Column(String, nullable=False)
-    entity_type = Column(Enum(EntityType), nullable=True)
+    entity_type = Column(Enum(EntityType, native_enum=False), nullable=True)
     entity_id = Column(UUID(as_uuid=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

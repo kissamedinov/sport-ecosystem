@@ -47,7 +47,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                             margin: const EdgeInsets.only(bottom: 12),
                             child: ListTile(
                               leading: const CircleAvatar(child: Icon(Icons.person)),
-                              title: Text('Player: ${player.playerProfileId.substring(0, 8)}'),
+                              title: Text('Player: ${player.fullName ?? "No Name"}'),
                               subtitle: Text(
                                 player.position != null
                                     ? '${player.position} | #${player.jerseyNumber ?? '?'}'
@@ -95,7 +95,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text('Age Group: ${widget.team.ageGroup}'),
-                Text('Coach ID: ${widget.team.coachId.substring(0, 8)}'),
+                Text('Coach ID: ${widget.team.coachId.isNotEmpty ? widget.team.coachId.substring(0, 8) : "N/A"}'),
               ],
             ),
           ),
@@ -137,9 +137,9 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             onPressed: () async {
               await context.read<AcademyProvider>().addPlayerToTeam(
                 widget.team.id,
-                profileIdController.text,
-                position: positionController.text.isNotEmpty ? positionController.text : null,
-                jerseyNumber: int.tryParse(jerseyController.text),
+                profileIdController.text, // Profile ID
+                positionController.text.isNotEmpty ? positionController.text : "N/A", // Position (playerName param in provider)
+                jerseyController.text.isNotEmpty ? jerseyController.text : "0", // Jersey Number (position param in provider)
               );
               Navigator.pop(context);
             },

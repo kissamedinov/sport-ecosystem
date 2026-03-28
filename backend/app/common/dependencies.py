@@ -111,6 +111,16 @@ def require_club_staff(current_user: User = Depends(get_current_user)):
         )
     return current_user
 
+def require_stats_admin(current_user: User = Depends(get_current_user)):
+    user_roles = {ur.role for ur in current_user.roles}
+    required_roles = {Role.TOURNAMENT_ORGANIZER, Role.TOURNAMENT_MANAGER, Role.ADMIN}
+    if not user_roles.intersection(required_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operation not permitted. Requires Tournament Organizer, Manager, or Admin role"
+        )
+    return current_user
+
 def require_parent(current_user: User = Depends(get_current_user)):
     user_roles = {ur.role for ur in current_user.roles}
     if Role.PARENT not in user_roles and Role.ADMIN not in user_roles:

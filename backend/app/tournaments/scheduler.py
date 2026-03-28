@@ -7,7 +7,7 @@ import random
 from app.tournaments.models import Tournament, TournamentFormat, TournamentGroup, TournamentGroupTeam, TournamentTeam
 from app.matches.models import Match, MatchStatus
 from app.teams.models import Team
-from app.academies.models import FootballAcademy # To check academy of team coach or owner?
+from app.academies.models import Academy # To check academy of team coach or owner?
 # Actually tournament team is linked to Team, Team is linked to coach (User)
 # Need to check Academy owners or Club creators
 

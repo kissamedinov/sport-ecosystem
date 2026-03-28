@@ -25,10 +25,12 @@ class _MatchStatsEntryScreenState extends State<MatchStatsEntryScreen> {
   void initState() {
     super.initState();
     for (final lp in widget.lineup.players) {
-      _playerStats[lp.playerId] = MatchPlayerStats(
-        id: DateTime.now().millisecondsSinceEpoch.toString() + lp.playerId,
+      final key = lp.playerId ?? lp.childProfileId ?? '';
+      _playerStats[key] = MatchPlayerStats(
+        id: DateTime.now().millisecondsSinceEpoch.toString() + key,
         matchId: widget.lineup.matchId,
         playerId: lp.playerId,
+        childProfileId: lp.childProfileId,
         teamId: widget.lineup.teamId,
       );
     }
@@ -59,26 +61,27 @@ class _MatchStatsEntryScreenState extends State<MatchStatsEntryScreen> {
               itemCount: widget.lineup.players.length,
               itemBuilder: (context, index) {
                 final lp = widget.lineup.players[index];
-                final stats = _playerStats[lp.playerId]!;
+                final key = lp.playerId ?? lp.childProfileId ?? '';
+                final stats = _playerStats[key]!;
 
                 return ExpansionTile(
                   leading: CircleAvatar(
                     backgroundColor: lp.isStarting ? Colors.green : Colors.grey,
                     child: Text(lp.isStarting ? 'S' : 'B'),
                   ),
-                  title: Text('Player ${lp.playerId}'),
+                  title: Text('Player ${key.length > 8 ? key.substring(0, 8) : key}'),
                   subtitle: Text('Goals: ${stats.goals} | Assists: ${stats.assists} | MVP: ${stats.isMvp ? "YES" : "NO"}'),
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Column(
                         children: [
-                          _buildStatCounter('Goals', stats.goals, (v) => _updateStats(lp.playerId, goals: v)),
-                          _buildStatCounter('Assists', stats.assists, (v) => _updateStats(lp.playerId, assists: v)),
+                          _buildStatCounter('Goals', stats.goals, (v) => _updateStats(key, goals: v)),
+                          _buildStatCounter('Assists', stats.assists, (v) => _updateStats(key, assists: v)),
                           CheckboxListTile(
                             title: const Text('MVP'),
                             value: stats.isMvp,
-                            onChanged: (v) => _updateStats(lp.playerId, isMvp: v ?? false),
+                            onChanged: (v) => _updateStats(key, isMvp: v ?? false),
                           ),
                         ],
                       ),
@@ -113,13 +116,14 @@ class _MatchStatsEntryScreenState extends State<MatchStatsEntryScreen> {
     );
   }
 
-  void _updateStats(String playerId, {int? goals, int? assists, bool? isMvp}) {
+  void _updateStats(String key, {int? goals, int? assists, bool? isMvp}) {
     setState(() {
-      final old = _playerStats[playerId]!;
-      _playerStats[playerId] = MatchPlayerStats(
+      final old = _playerStats[key]!;
+      _playerStats[key] = MatchPlayerStats(
         id: old.id,
         matchId: old.matchId,
         playerId: old.playerId,
+        childProfileId: old.childProfileId,
         teamId: old.teamId,
         goals: goals ?? old.goals,
         assists: assists ?? old.assists,
@@ -128,13 +132,14 @@ class _MatchStatsEntryScreenState extends State<MatchStatsEntryScreen> {
 
       // Ensure only one MVP
       if (isMvp == true) {
-        for (final key in _playerStats.keys) {
-          if (key != playerId) {
-            final st = _playerStats[key]!;
-            _playerStats[key] = MatchPlayerStats(
+        for (final k in _playerStats.keys) {
+          if (k != key) {
+            final st = _playerStats[k]!;
+            _playerStats[k] = MatchPlayerStats(
               id: st.id,
               matchId: st.matchId,
               playerId: st.playerId,
+              childProfileId: st.childProfileId,
               teamId: st.teamId,
               goals: st.goals,
               assists: st.assists,

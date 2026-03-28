@@ -63,8 +63,23 @@ def get_teams(db: Session):
 def get_team_rankings(db: Session):
     return db.query(Team).order_by(Team.rating.desc()).all()
 
-def get_my_teams(db: Session, coach_id: UUID):
-    return db.query(Team).filter(Team.coach_id == coach_id).all()
+def get_my_teams(db: Session, user: User):
+    user_roles = [ur.role for ur in user.roles]
+    if any(role in user_roles for role in [Role.COACH, Role.TEAM_OWNER, Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN]):
+        return db.query(Team).filter(Team.coach_id == user.id).all()
+    
+    # If it's a player, find teams via TeamMembership
+    profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == user.id).first()
+    if not profile:
+        return []
+        
+    memberships = db.query(TeamMembership).filter(
+        TeamMembership.player_profile_id == profile.id,
+        TeamMembership.status == MembershipStatus.ACTIVE
+    ).all()
+    
+    team_ids = [m.team_id for m in memberships]
+    return db.query(Team).filter(Team.id.in_(team_ids)).all()
 
 def get_team_by_id(db: Session, team_id: UUID, current_user: User = None):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -77,25 +92,24 @@ def get_team_by_id(db: Session, team_id: UUID, current_user: User = None):
         TournamentMatch.status == MatchStatus.FINISHED
     ).order_by(TournamentMatch.start_time.desc()).limit(5).all()
     
-    # Calculate form (last 5)
+    # Calculate form
     form = []
-    # We want chronological order for form (oldest to newest) usually, 
-    # but the UI might expect newest to oldest. I'll stick to newest to oldest as fetched.
     for match in recent_matches:
         if match.home_team_id == team_id:
-            if match.home_score > match.away_score:
-                form.append("W")
-            elif match.home_score < match.away_score:
-                form.append("L")
-            else:
-                form.append("D")
-        else: # away team
-            if match.away_score > match.home_score:
-                form.append("W")
-            elif match.away_score < match.home_score:
-                form.append("L")
-            else:
-                form.append("D")
+            if match.home_score > match.away_score: form.append("W")
+            elif match.home_score < match.away_score: form.append("L")
+            else: form.append("D")
+        else:
+            if match.away_score > match.home_score: form.append("W")
+            elif match.away_score < match.home_score: form.append("L")
+            else: form.append("D")
+    
+    # Populate players (Memberships)
+    # This is crucial for TeamDetailResponse
+    team.players = db.query(TeamMembership).filter(
+        TeamMembership.team_id == team_id, 
+        TeamMembership.status == MembershipStatus.ACTIVE
+    ).all()
     
     team.recent_matches = recent_matches
     team.form = form
@@ -109,6 +123,12 @@ def get_team_members(db: Session, team_id: UUID, current_user: User = None):
         user_roles = {ur.role for ur in current_user.roles}
         is_coach = Role.COACH in user_roles and team.coach_id == current_user.id
         is_admin = Role.ADMIN in user_roles
+        
+        # Check if Club Owner
+        is_owner = False
+        if Role.CLUB_OWNER in user_roles:
+            is_owner = team.academy.club.owner_id == current_user.id
+            
         is_member = db.query(TeamMembership).join(PlayerProfile).filter(
             TeamMembership.team_id == team_id,
             PlayerProfile.user_id == current_user.id,
@@ -127,7 +147,7 @@ def get_team_members(db: Session, team_id: UUID, current_user: User = None):
                 TeamMembership.status == MembershipStatus.ACTIVE
             ).first() is not None
 
-        if not (is_coach or is_admin or is_member or is_parent_of_member):
+        if not (is_coach or is_admin or is_owner or is_member or is_parent_of_member):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="You are not authorized to view this team's roster"

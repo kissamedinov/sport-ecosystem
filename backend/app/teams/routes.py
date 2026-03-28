@@ -5,7 +5,7 @@ from uuid import UUID
 
 from app.database import get_db
 from app.users.models import User
-from app.common.dependencies import require_coach, require_player
+from app.common.dependencies import require_coach, require_player, get_current_user
 from app.teams import schemas, services
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
@@ -29,9 +29,9 @@ def get_rankings(db: Session = Depends(get_db)):
 @router.get("/mine", response_model=List[schemas.TeamResponse])
 def get_my_teams(
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_coach)
+    current_user: User = Depends(get_current_user)
 ):
-    return services.get_my_teams(db=db, coach_id=current_user.id)
+    return services.get_my_teams(db=db, user=current_user)
 
 @router.get("/{id}", response_model=schemas.TeamDetailResponse)
 def get_team(

@@ -1,0 +1,9 @@
+﻿
+--- academy_players columns ---
+('id', 'uuid', 'NO')
+('player_id', 'uuid', 'NO')
+('academy_id', 'uuid', 'NO')
+('joined_at', 'timestamp with time zone', 'YES')
+('status', 'USER-DEFINED', 'NO')
+('updated_at', 'timestamp with time zone', 'YES')
+('player_profile_id', 'uuid', 'YES')

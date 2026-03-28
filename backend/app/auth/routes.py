@@ -26,12 +26,12 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         db.add(new_user)
         db.flush()  # Get the new_user.id without committing
 
-        # Add role to UserRole table
+        # add role to UserRole table
         role_value = user_in.role if isinstance(user_in.role, Role) else Role(user_in.role)
         user_role = UserRole(user_id=new_user.id, role=role_value)
         db.add(user_role)
 
-        # Requirement: Each PLAYER_YOUTH or PLAYER_ADULT user must have one PlayerProfile.
+        # Each PLAYER_YOUTH or PLAYER_ADULT user must have one PlayerProfile.
         if role_value in [Role.PLAYER_YOUTH, Role.PLAYER_ADULT, Role.PLAYER_CHILD]:
             player_profile = PlayerProfile(user_id=new_user.id)
             db.add(player_profile)
@@ -47,6 +47,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
             "email": new_user.email,
             "role": role_value.value,
             "roles": [role_value.value],
+            "onboarding_completed": False,
             "access_token": token,
             "token_type": "bearer"
         }
@@ -87,4 +88,5 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "email": current_user.email,
         "role": primary_role,
         "roles": role_values,
+        "onboarding_completed": current_user.onboarding_completed,
     }

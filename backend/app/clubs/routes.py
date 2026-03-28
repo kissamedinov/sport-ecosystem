@@ -18,7 +18,8 @@ def get_my_club_dashboard(
     try:
         # Check if user has required role
         user_roles = {ur.role for ur in current_user.roles}
-        if Role.CLUB_OWNER not in user_roles and Role.CLUB_MANAGER not in user_roles and Role.ADMIN not in user_roles:
+        allowed_roles = {Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN, Role.PLAYER_ADULT}
+        if not allowed_roles.intersection(user_roles):
             raise HTTPException(status_code=403, detail="Not authorized to view club dashboard")
 
         club = services.get_my_club(db, current_user.id)

@@ -24,4 +24,10 @@ class NotificationRepository {
     final response = await _apiClient.get('/notifications/unread-count');
     return response.data['count'] ?? 0;
   }
+
+  Future<List<NotificationModel>> getNotificationsForUser(String userId) async {
+    final response = await _apiClient.get('/notifications/user/$userId');
+    final List<dynamic> data = response.data;
+    return data.map((json) => NotificationModel.fromJson(json)).toList();
+  }
 }

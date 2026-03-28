@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/child_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
+import 'package:mobile/features/children/presentation/screens/child_management_screen.dart';
 import 'add_child_screen.dart';
-import 'children_activity_screen.dart';
 
 class ChildListScreen extends StatefulWidget {
   const ChildListScreen({super.key});
@@ -31,12 +32,7 @@ class _ChildListScreenState extends State<ChildListScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Add Child',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddChildScreen()),
-              );
-            },
+            onPressed: () => _showAddChildOptions(context),
           ),
         ],
       ),
@@ -59,9 +55,8 @@ class _ChildListScreenState extends State<ChildListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChildrenActivityScreen(
-                            childId: child.id,
-                            childName: child.name,
+                          builder: (_) => ChildManagementScreen(
+                            child: child,
                           ),
                         ),
                       );
@@ -100,6 +95,99 @@ class _ChildListScreenState extends State<ChildListScreen> {
                 );
               },
             ),
+    );
+  }
+
+  void _showAddChildOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('ADD CHILD', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.5, fontSize: 16)),
+            const SizedBox(height: 24),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.person_add, color: Colors.white)),
+              title: const Text('Create New Account', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              subtitle: const Text('Completely register a new child', style: TextStyle(color: Colors.white38, fontSize: 12)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AddChildScreen()));
+              },
+            ),
+            const Divider(color: Colors.white10, height: 24),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(backgroundColor: Colors.greenAccent.withOpacity(0.2), child: const Icon(Icons.link, color: Colors.greenAccent)),
+              title: const Text('Link Existing Account', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              subtitle: const Text('Link a child who is already registered', style: TextStyle(color: Colors.white38, fontSize: 12)),
+              onTap: () {
+                Navigator.pop(context);
+                _showLinkChildByEmailDialog(context);
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLinkChildByEmailDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Link Child by Email', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(
+            labelText: 'Child\'s Email Address',
+            labelStyle: TextStyle(color: Colors.white54),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white54))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
+            onPressed: () async {
+              if (controller.text.isNotEmpty) {
+                // We use AuthProvider to trigger the link logic because it contains the new endpoint logic
+                // Provide AuthProvider by importing if necessary, or assuming it's higher up in context
+                final success = await context.read<AuthProvider>().linkChildByEmail(controller.text.trim());
+                if (success && mounted) {
+                  Navigator.pop(context);
+                  context.read<ChildProvider>().fetchChildren();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Link request sent successfully!'), behavior: SnackBarBehavior.floating),
+                  );
+                } else if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.read<AuthProvider>().error ?? 'Failed to send link request'),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('SEND REQUEST', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 }

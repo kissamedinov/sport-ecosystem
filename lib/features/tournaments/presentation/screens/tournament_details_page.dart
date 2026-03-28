@@ -10,6 +10,7 @@ import '../../data/models/tournament_team_response.dart';
 import 'match_lineup_screen.dart';
 import 'match_report_screen.dart';
 import 'tournament_squad_screen.dart';
+import 'tournament_leaderboard_screen.dart';
 
 class TournamentDetailsPage extends StatefulWidget {
   final String tournamentId;
@@ -102,7 +103,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           if (provider.divisions.isNotEmpty) ...[
             const Text('Age Divisions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            ...provider.divisions.map((d) => _buildDivisionCard(d, provider)).toList(),
+            ...provider.divisions.map((d) => _buildDivisionCard(d, provider)),
             const SizedBox(height: 24),
           ],
           _buildInfoSection(tournament),
@@ -467,22 +468,51 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       return const Center(child: Text('No standings data available'));
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Team')),
-          DataColumn(label: Text('MP')),
-          DataColumn(label: Text('PTS')),
-        ],
-        rows: standings.map((s) => DataRow(
-          cells: [
-            DataCell(Text(s.teamName ?? 'Team ${s.teamId.substring(0, 4)}')),
-            DataCell(Text(s.played.toString())),
-            DataCell(Text(s.points.toString(), style: const TextStyle(fontWeight: FontWeight.bold))),
-          ],
-        )).toList(),
-      ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TournamentLeaderboardScreen(tournamentId: widget.tournamentId),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.leaderboard),
+              label: const Text('VIEW ALL-TIME TOP SCORERS'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[800],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Team')),
+                DataColumn(label: Text('MP')),
+                DataColumn(label: Text('PTS')),
+              ],
+              rows: standings.map((s) => DataRow(
+                cells: [
+                  DataCell(Text(s.teamName ?? 'Team ${s.teamId.substring(0, 4)}')),
+                  DataCell(Text(s.played.toString())),
+                  DataCell(Text(s.points.toString(), style: const TextStyle(fontWeight: FontWeight.bold))),
+                ],
+              )).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

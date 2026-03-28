@@ -22,7 +22,7 @@ class ChildProfileScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
                   child: const Icon(Icons.person, size: 40),
                 ),
                 const SizedBox(width: 16),
@@ -34,15 +34,44 @@ class ChildProfileScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text('Age: ${child.age} | Team: ${child.teamName}', style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 4),
-                      InkWell(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: child.id));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profile ID copied to clipboard'), behavior: SnackBarBehavior.floating),
-                          );
-                        },
-                        child: Text('Profile ID: ${child.id.substring(0, 8)}...', 
-                          style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace')),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.fingerprint, size: 14, color: Colors.blueAccent),
+                            const SizedBox(width: 8),
+                            SelectableText(
+                              child.id,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.white70,
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: child.id));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('ID copied to clipboard'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                              child: const Icon(Icons.copy, size: 14, color: Colors.white38),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

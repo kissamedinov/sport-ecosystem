@@ -4,8 +4,8 @@ from typing import List, Optional
 from uuid import UUID
 
 from app.database import get_db
-from app.users.models import User, Role
-from app.common.dependencies import require_role, require_coach
+from app.users.models import User, Role, ParentChildRelation, ParentChildStatus
+from app.common.dependencies import require_role, require_coach, get_current_user
 from app.academies import schemas, models, services
 
 router = APIRouter(prefix="/academies", tags=["Academies"])
@@ -68,8 +68,37 @@ def add_academy_player(
     id: UUID,
     player_in: schemas.AcademyPlayerCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_coach)
+    current_user: User = Depends(get_current_user)
 ):
+    """
+    Adds a player to an academy. Allowed for COACH/ACADEMY_ADMIN or PARENT of the player.
+    """
+    user_roles = [r.role for r in current_user.roles]
+    is_management = Role.COACH in user_roles or Role.ACADEMY_ADMIN in user_roles or Role.ADMIN in user_roles
+    
+    if not is_management:
+        # Check if parent of the child
+        relation = db.query(ParentChildRelation).filter(
+            ParentChildRelation.parent_id == current_user.id,
+            ParentChildRelation.child_id == player_in.player_profile_id, # This assumes player_profile_id is user_id of child for simplicity, or we need to look up
+            ParentChildRelation.status == ParentChildStatus.ACCEPTED
+        ).first()
+        
+        # If player_profile_id is actually the Profile model ID, we need to map it
+        if not relation:
+             # Try mapping profile_id to user_id
+             from app.users.models import PlayerProfile
+             profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_in.player_profile_id).first()
+             if profile:
+                 relation = db.query(ParentChildRelation).filter(
+                     ParentChildRelation.parent_id == current_user.id,
+                     ParentChildRelation.child_id == profile.user_id,
+                     ParentChildRelation.status == ParentChildStatus.ACCEPTED
+                 ).first()
+
+        if not relation:
+            raise HTTPException(status_code=403, detail="Not authorized to manage this player")
+
     return services.add_player_to_academy(db, id, player_in)
 
 @router.get("/teams/{team_id}/players", response_model=List[schemas.AcademyTeamPlayerResponse])

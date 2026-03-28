@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Date, DateTime, Enum, func, ForeignKey
+from sqlalchemy import Column, String, Date, DateTime, Enum, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
@@ -27,6 +27,11 @@ class RelationType(str, enum.Enum):
     MOTHER = "MOTHER"
     GUARDIAN = "GUARDIAN"
 
+class ParentChildStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    DECLINED = "DECLINED"
+
 class DominantFoot(str, enum.Enum):
     RIGHT = "RIGHT"
     LEFT = "LEFT"
@@ -47,6 +52,7 @@ class User(Base):
     date_of_birth = Column(Date, nullable=True)
     phone = Column(String, nullable=True)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=True)
+    onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -78,6 +84,7 @@ class ParentChildRelation(Base):
     parent_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     child_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     relation_type = Column(Enum(RelationType), nullable=False)
+    status = Column(Enum(ParentChildStatus), default=ParentChildStatus.PENDING, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     parent = relationship("User", foreign_keys=[parent_id])

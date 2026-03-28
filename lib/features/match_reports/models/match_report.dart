@@ -35,7 +35,8 @@ class MatchReport {
 class MatchPlayerStats {
   final String id;
   final String matchId;
-  final String playerId;
+  final String? playerId;
+  final String? childProfileId;
   final String teamId;
   final int goals;
   final int assists;
@@ -46,7 +47,8 @@ class MatchPlayerStats {
   MatchPlayerStats({
     required this.id,
     required this.matchId,
-    required this.playerId,
+    this.playerId,
+    this.childProfileId,
     required this.teamId,
     this.goals = 0,
     this.assists = 0,
@@ -60,6 +62,7 @@ class MatchPlayerStats {
       id: json['id'],
       matchId: json['match_id'],
       playerId: json['player_id'],
+      childProfileId: json['child_profile_id'],
       teamId: json['team_id'],
       goals: json['goals'] ?? 0,
       assists: json['assists'] ?? 0,
@@ -68,4 +71,17 @@ class MatchPlayerStats {
       isMvp: json['is_mvp'] ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'match_id': matchId,
+    if (playerId != null) 'player_id': playerId,
+    if (childProfileId != null) 'child_profile_id': childProfileId,
+    'team_id': teamId,
+    'goals': goals,
+    'assists': assists,
+    'yellow_cards': yellowCards,
+    'red_cards': redCards,
+    'is_mvp': isMvp,
+  };
 }

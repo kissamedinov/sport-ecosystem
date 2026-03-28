@@ -179,17 +179,33 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen>
                       ),
                     ),
                   const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   InkWell(
                     onTap: () {
-                      final ids = '${profile.userId ?? 'N/A'} | ${profile.id}';
-                      Clipboard.setData(ClipboardData(text: ids));
+                      Clipboard.setData(ClipboardData(text: profile.id));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('IDs copied to clipboard'), behavior: SnackBarBehavior.floating),
+                        const SnackBar(content: Text('Profile ID copied'), behavior: SnackBarBehavior.floating),
                       );
                     },
-                    child: Text(
-                      'User: ${profile.userId?.substring(0, 8) ?? 'N/A'}... | Prof: ${profile.id.substring(0, 8)}...',
-                      style: const TextStyle(fontSize: 10, color: Colors.white70, fontFamily: 'monospace'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.badge, size: 12, color: Colors.orangeAccent),
+                          const SizedBox(width: 6),
+                          Text(
+                            'ID: ${profile.id}',
+                            style: const TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'monospace'),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.copy, size: 10, color: Colors.white54),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -231,6 +247,7 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen>
       children: [
         _sectionTitle('Personal Info'),
         _infoCard([
+          _infoRow(Icons.fingerprint, 'Unique ID', profile.id),
           _infoRow(Icons.person, 'Name', profile.name),
           if (profile.dateOfBirth != null)
             _infoRow(Icons.cake, 'Date of Birth', profile.dateOfBirth!),

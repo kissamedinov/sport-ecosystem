@@ -80,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: _roles.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final role = _roles[index];
                       final isSelected = _selectedRole == role['value'];

@@ -31,6 +31,16 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<NotificationModel>> fetchNotificationsForUser(String userId) async {
+    try {
+      return await _repository.getNotificationsForUser(userId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return [];
+    }
+  }
+
   Future<void> markAsRead(String id) async {
     try {
       await _repository.markAsRead(id);
@@ -65,6 +75,7 @@ class NotificationProvider extends ChangeNotifier {
       await fetchNotifications();
     } catch (e) {
       _error = e.toString();
+      rethrow;
     } finally {
       _setLoading(false);
     }
@@ -82,6 +93,7 @@ class NotificationProvider extends ChangeNotifier {
       await fetchNotifications();
     } catch (e) {
       _error = e.toString();
+      rethrow;
     } finally {
       _setLoading(false);
     }

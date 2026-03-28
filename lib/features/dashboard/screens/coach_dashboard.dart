@@ -6,7 +6,8 @@ import '../../clubs/providers/club_provider.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../clubs/presentation/screens/invitations_screen.dart';
-import '../widgets/dashboard_widgets.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
 
 class CoachDashboard extends StatefulWidget {
   const CoachDashboard({super.key});
@@ -26,6 +27,7 @@ class _CoachDashboardState extends State<CoachDashboard> {
       ),
     );
   }
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +43,10 @@ class _CoachDashboardState extends State<CoachDashboard> {
     final clubProvider = context.watch<ClubProvider>();
 
     return Scaffold(
+      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: const Text('COACH HUB'),
+        backgroundColor: Colors.transparent,
+        title: const Text('COACH HUB', style: TextStyle(letterSpacing: 2)),
         actions: [
           Consumer<NotificationProvider>(
             builder: (context, provider, _) {
@@ -64,16 +68,9 @@ class _CoachDashboardState extends State<CoachDashboard> {
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        constraints: const BoxConstraints(
-                          minWidth: 14,
-                          minHeight: 14,
-                        ),
-                        child: Text(
-                          '${provider.unreadCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                          ),
+                        constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                        child: Text('${provider.unreadCount}',
+                          style: const TextStyle(color: Colors.white, fontSize: 8),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -92,109 +89,164 @@ class _CoachDashboardState extends State<CoachDashboard> {
         ],
       ),
       body: clubProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DashboardHeader(
-                    title: 'Welcome back, Coach ${user?.name ?? ''}!',
-                    subtitle: 'Certified Coach',
-                  ),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () => _copyToClipboard(user?.id ?? '', 'User ID'),
-                    child: Text(
-                      'User ID: ${user?.id.substring(0, 8)}...',
-                      style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace'),
+                  PremiumHeader(
+                    title: 'Welcome back, Coach ${(user?.name ?? '').split(' ').first}!',
+                    subtitle: 'CERTIFIED COACH',
+                    trailing: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                      child: const Icon(Icons.sports, color: Colors.blue),
                     ),
                   ),
+                  
+                  InkWell(
+                    onTap: () => _copyToClipboard(user?.id ?? '', 'User ID'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(4)),
+                      child: Text(
+                        'COACH ID: ${user?.id.substring(0, 8).toUpperCase()}...',
+                        style: const TextStyle(fontSize: 9, color: Colors.white38, fontFamily: 'monospace'),
+                      ),
+                    ),
+                  ),
+                  
                   const SizedBox(height: 24),
-                  const Text('My Managed Teams', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
+                  const Text('MATCH & PERFORMANCE', 
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  const SizedBox(height: 12),
+                  
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PremiumStatCard(
+                          title: 'Active Teams',
+                          value: (clubProvider.coachDashboard?['teams'] as List?)?.length.toString() ?? '0',
+                          icon: Icons.groups_rounded,
+                          color: PremiumTheme.electricBlue,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: PremiumStatCard(
+                          title: 'Total Players',
+                          value: _calculateTotalPlayers(clubProvider.coachDashboard),
+                          icon: Icons.person_rounded,
+                          color: PremiumTheme.neonGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  const Text('TEAM MANAGEMENT', 
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  const SizedBox(height: 12),
+                  
                   if (clubProvider.coachDashboard?['teams']?.isEmpty ?? true)
-                    const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('No teams assigned yet')))
+                    const PremiumCard(child: Center(child: Text('No teams assigned yet', style: TextStyle(color: Colors.white38))))
                   else
                     ...((clubProvider.coachDashboard?['teams'] as List).map((team) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: ExpansionTile(
-                          leading: const CircleAvatar(child: Icon(Icons.groups)),
-                          title: Text(team['name']),
-                          subtitle: Text('Birth Year: ${team['birth_year']} | Players: ${(team['players'] as List).length}'),
-                          children: [
-                            ...(team['players'] as List).map((player) {
-                              return ListTile(
-                                leading: const Icon(Icons.person_outline),
-                                title: Text(player['name']),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Position: ${player['position'] ?? 'N/A'} | #: ${player['jersey_number'] ?? 'N/A'}'),
-                                    InkWell(
-                                      onTap: () => _copyToClipboard('${player['user_id']} | ${player['profile_id']}', 'IDs'),
-                                      child: Text(
-                                        'User: ${player['user_id'].substring(0, 8)} | Prof: ${player['profile_id'].substring(0, 8)}',
-                                        style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ],
+                      return PremiumCard(
+                        padding: EdgeInsets.zero,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+                              child: const Icon(Icons.groups, color: Colors.green, size: 20),
+                            ),
+                            title: Text(team['name'], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            subtitle: Text('Category: ${team['age_category'] ?? team['birth_year']} | Players: ${(team['players'] as List).length}', 
+                              style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                            children: [
+                              const Divider(color: Colors.white10),
+                              ...(team['players'] as List).map((player) {
+                                return ListTile(
+                                  dense: true,
+                                  leading: const Icon(Icons.person_outline, size: 18, color: Colors.white24),
+                                  title: Text(player['name'], style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                                  subtitle: Text('Pos: ${player['position'] ?? 'N/A'} | #: ${player['jersey_number'] ?? 'N/A'}', 
+                                    style: const TextStyle(color: Colors.white24, fontSize: 11)),
+                                  trailing: const Icon(Icons.chevron_right, size: 14, color: Colors.white10),
+                                );
+                              }),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
                       );
-                    })).toList(),
-                  const SizedBox(height: 32),
-                  const Text('Coach Tools', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
+                    })),
+
+                  const SizedBox(height: 24),
+                  const Text('COACHING TOOLS', 
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  const SizedBox(height: 12),
+                  
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2.5,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.4,
                     children: [
-                      DashboardGridAction(
-                        label: 'Match Report',
-                        icon: Icons.assignment,
-                        color: Colors.blue,
-                        onTap: () {},
-                      ),
-                      DashboardGridAction(
-                        label: 'Schedule',
-                        icon: Icons.calendar_today,
-                        color: Colors.orange,
-                        onTap: () {},
-                      ),
-                      DashboardGridAction(
-                        label: 'Player Stats',
-                        icon: Icons.trending_up,
-                        color: Colors.green,
-                        onTap: () {},
-                      ),
-                      DashboardGridAction(
-                        label: 'Tactics',
-                        icon: Icons.bolt,
-                        color: Colors.purple,
-                        onTap: () {},
-                      ),
-                      DashboardGridAction(
-                        label: 'Invitations',
-                        icon: Icons.mail_outline,
-                        color: Colors.redAccent,
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitationsScreen()));
-                        },
-                      ),
+                      _buildCoachAction(context, 'Reports', Icons.assignment_rounded, Colors.blue, 'Match Reports'),
+                      _buildCoachAction(context, 'Schedule', Icons.calendar_month_rounded, Colors.orange, 'Training Schedule'),
+                      _buildCoachAction(context, 'Tactics', Icons.psychology_rounded, Colors.purple, 'Tactic Board'),
+                      _buildCoachAction(context, 'Inbox', Icons.mail_outline_rounded, Colors.redAccent, 'Invitations', child: const InvitationsScreen()),
                     ],
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
+    );
+  }
+
+  String _calculateTotalPlayers(dynamic dashboard) {
+    if (dashboard == null || dashboard['teams'] == null) return '0';
+    int total = 0;
+    for (var team in (dashboard['teams'] as List)) {
+      total += (team['players'] as List).length;
+    }
+    return total.toString();
+  }
+
+  Widget _buildCoachAction(BuildContext context, String label, IconData icon, Color color, String title, {Widget? child}) {
+    return PremiumCard(
+      padding: EdgeInsets.zero,
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => child ?? TemporaryScreen(title: title))),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TemporaryScreen extends StatelessWidget {
+  final String title;
+  const TemporaryScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text('Content for $title coming soon!')),
     );
   }
 }

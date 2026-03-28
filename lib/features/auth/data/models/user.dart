@@ -13,6 +13,11 @@ class User {
 
   @JsonKey(name: 'player_profile_id')
   final String? playerProfileId;
+  @JsonKey(name: 'onboarding_completed', defaultValue: false)
+  final bool onboardingCompleted;
+  @JsonKey(name: 'date_of_birth')
+  final DateTime? dateOfBirth;
+  final String? phone;
 
   User({
     required this.id,
@@ -21,6 +26,9 @@ class User {
     this.roles,
     this.childIds,
     this.playerProfileId,
+    this.onboardingCompleted = false,
+    this.dateOfBirth,
+    this.phone,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

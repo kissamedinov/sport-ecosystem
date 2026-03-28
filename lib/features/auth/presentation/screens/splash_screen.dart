@@ -41,7 +41,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App Logo Placeholder (User requested app logo)
             const Icon(
               Icons.sports_soccer,
               size: 100,

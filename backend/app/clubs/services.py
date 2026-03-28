@@ -10,7 +10,7 @@ from app.teams.models import Team, TeamMembership, MembershipRole, MembershipSta
 from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
 
 from app.academies.models import Academy
-from app.notifications.service import create_notification, log_debug
+from app.notifications.service import create_notification, log_debug, mark_notifications_by_entity
 from app.notifications.models import NotificationType, EntityType
 
 def create_club(db: Session, club_in: schemas.ClubCreate, owner_id: UUID) -> Club:
@@ -233,7 +233,7 @@ def create_club_request(db: Session, request_in: schemas.ClubRequestCreate, user
             create_notification(
                 db,
                 user_ids=admin_ids,
-                type=NotificationType.CLUB_REQUEST,
+                notification_type=NotificationType.CLUB_REQUEST,
                 title="New Club Registration Request",
                 message=f"A new club '{request_in.name}' has been requested and is waiting for approval.",
                 entity_type=EntityType.ACADEMY, # Approximate entity type
@@ -271,7 +271,7 @@ def approve_club_request(db: Session, request_id: UUID) -> models.Club:
             create_notification(
                 db,
                 user_ids=[req.created_by],
-                type=NotificationType.CLUB_APPROVED,
+                notification_type=NotificationType.CLUB_APPROVED,
                 title="Club Request Approved",
                 message=f"Congratulations! Your request for '{req.name}' has been approved. You are now the owner.",
                 entity_type=EntityType.ACADEMY,
@@ -300,7 +300,7 @@ def reject_club_request(db: Session, request_id: UUID) -> models.ClubRequest:
             create_notification(
                 db,
                 user_ids=[req.created_by],
-                type=NotificationType.CLUB_REJECTED,
+                notification_type=NotificationType.CLUB_REJECTED,
                 title="Club Request Rejected",
                 message=f"We regret to inform you that your request for '{req.name}' has been rejected.",
                 entity_type=EntityType.ACADEMY,
@@ -402,16 +402,30 @@ def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_
 def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
     try:
         invite = db.query(models.Invitation).filter(models.Invitation.id == invitation_id).first()
-        if not invite or invite.invited_user_id != user_id or invite.status != models.InvitationStatus.PENDING:
+        if not invite or invite.status != models.InvitationStatus.PENDING:
             raise HTTPException(status_code=400, detail="Invalid invitation")
+        
+        # Check if user is the invited user OR a parent of the invited user
+        if invite.invited_user_id != user_id:
+            from app.users.models import ParentChildRelation, ParentChildStatus
+            relation = db.query(ParentChildRelation).filter(
+                ParentChildRelation.parent_id == user_id,
+                ParentChildRelation.child_id == invite.invited_user_id,
+                ParentChildRelation.status.in_([ParentChildStatus.ACCEPTED, ParentChildStatus.PENDING])
+            ).first()
+            if not relation:
+                raise HTTPException(status_code=403, detail="Not authorized to accept this invitation")
         
         if not invite.is_approved:
             raise HTTPException(status_code=403, detail="Invitation is pending owner approval")
         
+        # Act as the invited user (the child) for the following logic
+        target_user_id = invite.invited_user_id
+        
         invite.status = models.InvitationStatus.ACCEPTED
         
-        # Membership
-        db.add(models.ClubStaff(club_id=invite.club_id, user_id=user_id, role=invite.role, status=models.ClubMembershipStatus.ACTIVE))
+        # Membership (for the child)
+        db.add(models.ClubStaff(club_id=invite.club_id, user_id=target_user_id, role=invite.role, status=models.ClubMembershipStatus.ACTIVE))
         
         detail = "Invitation accepted"
         if invite.role == ClubRole.PLAYER:
@@ -419,14 +433,14 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
             if invite.child_profile_id:
                 cp = db.query(models.ChildProfile).filter(models.ChildProfile.id == invite.child_profile_id).first()
                 if cp:
-                    cp.linked_user_id = user_id
+                    cp.linked_user_id = target_user_id
                     detail += f". Linked to child profile {cp.first_name}"
             
-            # PlayerProfile
+            # PlayerProfile (for the child)
             from app.users.models import PlayerProfile
-            profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == user_id).first()
+            profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == target_user_id).first()
             if not profile:
-                profile = PlayerProfile(user_id=user_id)
+                profile = PlayerProfile(user_id=target_user_id)
                 db.add(profile); db.flush()
                 
             if invite.team_id:
@@ -445,7 +459,7 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
             create_notification(
                 db,
                 user_ids=[invite.invited_by],
-                type=NotificationType.PLAYER_SELECTED, # Or similar for acceptance
+                notification_type=NotificationType.PLAYER_SELECTED, # Or similar for acceptance
                 title="Invitation Accepted",
                 message=f"{invitee_name} has accepted your invitation to join the club.",
                 entity_type=EntityType.ACADEMY,
@@ -453,6 +467,12 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
             )
         except Exception as ne:
             print(f"Failed to create notification for acceptance: {ne}")
+
+        # Clear existing notifications for this invitation
+        try:
+            mark_notifications_by_entity(db, invitation_id)
+        except Exception as me:
+            print(f"Failed to clear notifications for invitation {invitation_id}: {me}")
 
         return {"status": "success", "detail": detail}
     except HTTPException as e:
@@ -495,7 +515,7 @@ def approve_invitation(db: Session, invitation_id: UUID, current_user_id: UUID) 
             create_notification(
                 db,
                 user_ids=[invite.invited_user_id],
-                type=NotificationType.TEAM_INVITE,
+                notification_type=NotificationType.TEAM_INVITE,
                 title="Invitation Approved",
                 message=f"Your invitation to join {club.name} has been approved by the owner and is ready for acceptance.",
                 entity_type=EntityType.ACADEMY,
@@ -515,9 +535,20 @@ def approve_invitation(db: Session, invitation_id: UUID, current_user_id: UUID) 
 def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
     try:
         invite = db.query(models.Invitation).filter(models.Invitation.id == invitation_id).first()
-        if not invite or invite.invited_user_id != user_id or invite.status != models.InvitationStatus.PENDING:
+        if not invite or invite.status != models.InvitationStatus.PENDING:
             raise HTTPException(status_code=400, detail="Invalid invitation")
         
+        # Check if user is the invited user OR a parent of the invited user
+        if invite.invited_user_id != user_id:
+            from app.users.models import ParentChildRelation, ParentChildStatus
+            relation = db.query(ParentChildRelation).filter(
+                ParentChildRelation.parent_id == user_id,
+                ParentChildRelation.child_id == invite.invited_user_id,
+                ParentChildRelation.status.in_([ParentChildStatus.ACCEPTED, ParentChildStatus.PENDING])
+            ).first()
+            if not relation:
+                raise HTTPException(status_code=403, detail="Not authorized to decline this invitation")
+
         invite.status = models.InvitationStatus.REJECTED
         db.commit()
         
@@ -530,7 +561,7 @@ def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
             create_notification(
                 db,
                 user_ids=[invite.invited_by],
-                type=NotificationType.PLAYER_SELECTED, # Or similar for rejection
+                notification_type=NotificationType.PLAYER_SELECTED, # Or similar for rejection
                 title="Invitation Declined",
                 message=f"{invitee_name} has declined your invitation.",
                 entity_type=EntityType.ACADEMY,
@@ -539,6 +570,12 @@ def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
         except Exception as ne:
             print(f"Failed to create notification for decline: {ne}")
             
+        # Clear existing notifications for this invitation
+        try:
+            mark_notifications_by_entity(db, invitation_id)
+        except Exception as me:
+            print(f"Failed to clear notifications for invitation {invitation_id}: {me}")
+
         return {"status": "success", "detail": "Invitation declined"}
     except HTTPException as e:
         raise e

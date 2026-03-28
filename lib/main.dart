@@ -23,7 +23,7 @@ import 'features/children/providers/child_provider.dart';
 import 'features/matches/data/repositories/match_repository.dart';
 import 'features/matches/providers/match_provider.dart';
 import 'features/fields/data/repositories/field_repository.dart';
-import 'features/fields/providers/booking_provider.dart';
+import 'features/fields/providers/booking_provider.dart' as field_booking;
 import 'features/players/data/repositories/player_repository.dart';
 import 'features/academies/data/repositories/academy_repository.dart';
 import 'features/academies/providers/academy_provider.dart';
@@ -31,6 +31,11 @@ import 'features/clubs/data/repositories/club_repository.dart';
 import 'features/clubs/providers/club_provider.dart';
 import 'features/notifications/data/repositories/notification_repository.dart';
 import 'features/notifications/providers/notification_provider.dart';
+import 'features/media/data/repositories/media_repository.dart';
+import 'features/admin/data/repositories/admin_repository.dart';
+import 'features/admin/providers/admin_provider.dart';
+import 'features/bookings/data/repositories/booking_repository.dart';
+import 'features/bookings/providers/booking_provider.dart' as general_booking;
 
 void main() {
   final apiClient = ApiClient();
@@ -45,6 +50,9 @@ void main() {
   final academyRepository = AcademyRepository(apiClient);
   final clubRepository = ClubRepository(apiClient);
   final notificationRepository = NotificationRepository(apiClient);
+  final mediaRepository = MediaRepository(apiClient);
+  final adminRepository = AdminRepository(apiClient);
+  final bookingRepository = BookingRepository(apiClient);
 
   runApp(
     MultiProvider(
@@ -54,7 +62,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => TeamProvider(teamRepository)),
         ChangeNotifierProvider(create: (_) => ChildProvider(childRepository)),
         ChangeNotifierProvider(create: (_) => MatchProvider(matchRepository)),
-        ChangeNotifierProvider(create: (_) => BookingProvider(fieldRepository)),
+        ChangeNotifierProvider(create: (_) => field_booking.BookingProvider(fieldRepository)),
         ChangeNotifierProvider(create: (_) => TournamentSquadProvider(tournamentSquadRepository, tournamentRepository)),
         Provider<PlayerRepository>(create: (_) => playerRepository),
         ChangeNotifierProvider(create: (_) => SquadProvider()),
@@ -64,9 +72,12 @@ void main() {
           create: (context) => PlayerStatsProvider(context.read<MatchReportProvider>()),
           update: (context, matchReportProvider, previous) => PlayerStatsProvider(matchReportProvider),
         ),
-        ChangeNotifierProvider(create: (_) => AcademyProvider(academyRepository)),
         ChangeNotifierProvider(create: (_) => ClubProvider(clubRepository)),
         ChangeNotifierProvider(create: (_) => NotificationProvider(notificationRepository, clubRepository)),
+        Provider<MediaRepository>(create: (_) => mediaRepository),
+        ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
+        ChangeNotifierProvider(create: (_) => AcademyProvider(academyRepository)),
+        ChangeNotifierProvider(create: (_) => general_booking.BookingProvider(bookingRepository)),
       ],
       child: const SportsApp(),
     ),

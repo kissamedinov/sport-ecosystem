@@ -26,10 +26,9 @@ ClubDashboard _$ClubDashboardFromJson(Map<String, dynamic> json) =>
       pendingInvitations: (json['pending_invitations'] as List<dynamic>)
           .map((e) => Invitation.fromJson(e as Map<String, dynamic>))
           .toList(),
-      childProfiles: (json['child_profiles'] as List<dynamic>?)
-              ?.map((e) => ChildProfile.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      childProfiles: (json['child_profiles'] as List<dynamic>)
+          .map((e) => ChildProfile.fromJson(e as Map<String, dynamic>))
+          .toList(),
       statistics: json['statistics'] as Map<String, dynamic>,
     );
 

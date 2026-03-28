@@ -1,0 +1,1431 @@
+[2026-03-26 08:52:44.546014] Creating new invitation for user bb5eded8-e9ee-4cd9-8169-f1406c683dd6
+[2026-03-26 08:52:44.574649] Starting notification creation for invite fd2ee530-1917-4336-b9a2-47dfe084ff64, is_approved=True
+[2026-03-26 08:52:44.576299] Inviter name: Invictus Maneo
+[2026-03-26 08:52:44.576763] Notifying invited user: bb5eded8-e9ee-4cd9-8169-f1406c683dd6
+[2026-03-26 08:52:44.578911] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('bb5eded8-e9ee-4cd9-8169-f1406c683dd6')]
+[2026-03-26 08:52:44.590982] ERROR in create_notification: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('df861f20-389b-48d3-9d1c-3dcbdfb468de'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Invictus Maneo invited you to join Invictus Maneo as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('fd2ee530-1917-4336-b9a2-47dfe084ff64')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-03-26 08:52:44.803663] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('df861f20-389b-48d3-9d1c-3dcbdfb468de'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Invictus Maneo invited you to join Invictus Maneo as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('fd2ee530-1917-4336-b9a2-47dfe084ff64')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+[2026-03-26 08:52:44.804258] Failed to create notification for invite: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('df861f20-389b-48d3-9d1c-3dcbdfb468de'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Invictus Maneo invited you to join Invictus Maneo as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('fd2ee530-1917-4336-b9a2-47dfe084ff64')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-03-26 08:52:44.809976] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\clubs\services.py", line 367, in create_invitation
+    create_notification(
+    ~~~~~~~~~~~~~~~~~~~^
+        db,
+        ^^^
+    ...<5 lines>...
+        entity_id=db_obj.id
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 64, in create_notification
+    raise e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (df861f20-389b-48d3-9d1c-3dcbdfb468de, null, TEAM_INVITE, New Club Invitation, Invictus Maneo invited you to join Invictus Maneo as COACH, ACADEMY, fd2ee530-1917-4336-b9a2-47dfe084ff64, null, 2026-03-26 09:52:44.573236+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('df861f20-389b-48d3-9d1c-3dcbdfb468de'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Invictus Maneo invited you to join Invictus Maneo as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('fd2ee530-1917-4336-b9a2-47dfe084ff64')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+[2026-03-26 08:53:13.541779] Inside create_notification: type=PLAYER_SELECTED, user_ids=[UUID('cda81552-0e07-445b-9904-39c401bf07c0')]
+[2026-03-26 08:53:13.544806] ERROR in create_notification: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (34e622c5-a9bb-4294-8ac3-a51de3c47c61, null, PLAYER_SELECTED, Invitation Accepted, Coach has accepted your invitation to join the club., ACADEMY, 58b388a6-a435-4322-9e69-705878bae3e2, null, 2026-03-26 09:53:13.540128+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('34e622c5-a9bb-4294-8ac3-a51de3c47c61'), 'type': 'PLAYER_SELECTED', 'title': 'Invitation Accepted', 'message': 'Coach has accepted your invitation to join the club.', 'entity_type': 'ACADEMY', 'entity_id': UUID('58b388a6-a435-4322-9e69-705878bae3e2')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-03-26 08:53:13.549058] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (34e622c5-a9bb-4294-8ac3-a51de3c47c61, null, PLAYER_SELECTED, Invitation Accepted, Coach has accepted your invitation to join the club., ACADEMY, 58b388a6-a435-4322-9e69-705878bae3e2, null, 2026-03-26 09:53:13.540128+06).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (34e622c5-a9bb-4294-8ac3-a51de3c47c61, null, PLAYER_SELECTED, Invitation Accepted, Coach has accepted your invitation to join the club., ACADEMY, 58b388a6-a435-4322-9e69-705878bae3e2, null, 2026-03-26 09:53:13.540128+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('34e622c5-a9bb-4294-8ac3-a51de3c47c61'), 'type': 'PLAYER_SELECTED', 'title': 'Invitation Accepted', 'message': 'Coach has accepted your invitation to join the club.', 'entity_type': 'ACADEMY', 'entity_id': UUID('58b388a6-a435-4322-9e69-705878bae3e2')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+[2026-03-27 20:37:32.851678] Inside create_notification: type=PARENT_LINK_REQUEST, user_ids=[UUID('a91006f6-d240-42ad-8bf6-afcf234a7523')]
+[2026-03-27 20:37:32.861467] ERROR in create_notification: (psycopg2.errors.InvalidTextRepresentation) invalid input value for enum notificationtype: "PARENT_LINK_REQUEST"
+LINE 1: ...abc1bc7-ca18-48e6-a164-1df5f6b2ef5e'::uuid::UUID, 'PARENT_LI...
+                                                             ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('cabc1bc7-ca18-48e6-a164-1df5f6b2ef5e'), 'type': 'PARENT_LINK_REQUEST', 'title': 'Parent Link Request', 'message': 'Sterlo White wants to link to your account as a parent/guardian.', 'entity_type': 'PLAYER', 'entity_id': UUID('4b5a78de-fd2a-46c2-9b80-78ba0b935e24')}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+[2026-03-27 20:37:33.073331] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.InvalidTextRepresentation: invalid input value for enum notificationtype: "PARENT_LINK_REQUEST"
+LINE 1: ...abc1bc7-ca18-48e6-a164-1df5f6b2ef5e'::uuid::UUID, 'PARENT_LI...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DataError: (psycopg2.errors.InvalidTextRepresentation) invalid input value for enum notificationtype: "PARENT_LINK_REQUEST"
+LINE 1: ...abc1bc7-ca18-48e6-a164-1df5f6b2ef5e'::uuid::UUID, 'PARENT_LI...
+                                                             ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('cabc1bc7-ca18-48e6-a164-1df5f6b2ef5e'), 'type': 'PARENT_LINK_REQUEST', 'title': 'Parent Link Request', 'message': 'Sterlo White wants to link to your account as a parent/guardian.', 'entity_type': 'PLAYER', 'entity_id': UUID('4b5a78de-fd2a-46c2-9b80-78ba0b935e24')}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+
+[2026-03-27 22:14:16.853288] Creating new invitation for user 3d4ad526-10e0-4e7d-8223-5997f99141fc
+[2026-03-27 22:14:16.903606] Starting notification creation for invite 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, is_approved=True
+[2026-03-27 22:14:16.905101] Inviter name: Astana United Owner
+[2026-03-27 22:14:16.905605] Notifying invited user: 3d4ad526-10e0-4e7d-8223-5997f99141fc
+[2026-03-27 22:14:16.909649] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('3d4ad526-10e0-4e7d-8223-5997f99141fc')]
+[2026-03-27 22:14:16.922638] ERROR in create_notification: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('9f5b6388-80a6-455b-9b84-1c2b28b1eed5'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-03-27 22:14:16.972925] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('9f5b6388-80a6-455b-9b84-1c2b28b1eed5'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+[2026-03-27 22:14:16.973589] Failed to create notification for invite: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('9f5b6388-80a6-455b-9b84-1c2b28b1eed5'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-03-27 22:14:16.979551] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\clubs\services.py", line 367, in create_invitation
+    create_notification(
+    ~~~~~~~~~~~~~~~~~~~^
+        db,
+        ^^^
+    ...<5 lines>...
+        entity_id=db_obj.id
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 64, in create_notification
+    raise e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "user_id" of relation "notifications" violates not-null constraint
+DETAIL:  Failing row contains (9f5b6388-80a6-455b-9b84-1c2b28b1eed5, null, TEAM_INVITE, New Club Invitation, Astana United Owner invited you to join Astana United as PLAYER, ACADEMY, 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, null, 2026-03-27 23:14:16.902277+06).
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('9f5b6388-80a6-455b-9b84-1c2b28b1eed5'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3')}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+[2026-03-27 23:17:51.472423] Creating new invitation for user a91006f6-d240-42ad-8bf6-afcf234a7523
+[2026-03-27 23:17:51.542551] Starting notification creation for invite e584ef76-f1af-4369-9824-3ff22ef8836e, is_approved=True
+[2026-03-27 23:17:51.544775] Inviter name: Astana United Owner
+[2026-03-27 23:17:51.545496] Notifying invited user: a91006f6-d240-42ad-8bf6-afcf234a7523
+[2026-03-27 23:17:51.548331] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('a91006f6-d240-42ad-8bf6-afcf234a7523')]
+[2026-03-27 23:17:51.578924] ERROR in create_notification: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('99162004-7a23-4593-81de-206171d69275'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('e584ef76-f1af-4369-9824-3ff22ef8836e')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-03-27 23:17:51.595189] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('99162004-7a23-4593-81de-206171d69275'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('e584ef76-f1af-4369-9824-3ff22ef8836e')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[2026-03-27 23:17:51.596329] Failed to create notification for invite: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('99162004-7a23-4593-81de-206171d69275'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('e584ef76-f1af-4369-9824-3ff22ef8836e')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-03-27 23:17:51.605178] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\clubs\services.py", line 367, in create_invitation
+    create_notification(
+    ~~~~~~~~~~~~~~~~~~~^
+        db,
+        ^^^
+    ...<5 lines>...
+        entity_id=db_obj.id
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 64, in create_notification
+    raise e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('99162004-7a23-4593-81de-206171d69275'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as PLAYER', 'entity_type': 'ACADEMY', 'entity_id': UUID('e584ef76-f1af-4369-9824-3ff22ef8836e')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[2026-03-27 23:25:15.477399] Creating new invitation for user cf5501ef-c437-4f0c-871a-b107be9df2c4
+[2026-03-27 23:25:15.495953] Starting notification creation for invite 85168dad-f2fd-4a93-93f1-792228112924, is_approved=True
+[2026-03-27 23:25:15.498482] Inviter name: Astana United Owner
+[2026-03-27 23:25:15.499927] Notifying invited user: cf5501ef-c437-4f0c-871a-b107be9df2c4
+[2026-03-27 23:25:15.502919] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('cf5501ef-c437-4f0c-871a-b107be9df2c4')]
+[2026-03-27 23:25:15.506478] ERROR in create_notification: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('8c7d92eb-fa2d-4129-b095-b5a1c870bd72'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('85168dad-f2fd-4a93-93f1-792228112924')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-03-27 23:25:15.513331] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('8c7d92eb-fa2d-4129-b095-b5a1c870bd72'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('85168dad-f2fd-4a93-93f1-792228112924')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[2026-03-27 23:25:15.514159] Failed to create notification for invite: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('8c7d92eb-fa2d-4129-b095-b5a1c870bd72'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('85168dad-f2fd-4a93-93f1-792228112924')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-03-27 23:25:15.520714] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\clubs\services.py", line 367, in create_invitation
+    create_notification(
+    ~~~~~~~~~~~~~~~~~~~^
+        db,
+        ^^^
+    ...<5 lines>...
+        entity_id=db_obj.id
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 64, in create_notification
+    raise e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('8c7d92eb-fa2d-4129-b095-b5a1c870bd72'), 'type': 'TEAM_INVITE', 'title': 'New Club Invitation', 'message': 'Astana United Owner invited you to join Astana United as COACH', 'entity_type': 'ACADEMY', 'entity_id': UUID('85168dad-f2fd-4a93-93f1-792228112924')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[2026-03-27 23:26:16.890997] Inside create_notification: type=PLAYER_SELECTED, user_ids=[UUID('00e248ff-82fd-45e6-af9b-b605d79e1411')]
+[2026-03-27 23:26:16.894448] ERROR in create_notification: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('e407bc83-f845-4254-aac7-cb5a0e7d61dd'), 'type': 'PLAYER_SELECTED', 'title': 'Invitation Accepted', 'message': 'Ted Lasso has accepted your invitation to join the club.', 'entity_type': 'ACADEMY', 'entity_id': UUID('3eff9832-bb4d-49a1-bc0c-e869b58ec145')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-03-27 23:26:16.900745] Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedTable: relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Asus\Desktop\test\mobile\backend\app\notifications\service.py", line 44, in create_notification
+    db.flush()
+    ~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Asus\Desktop\test\mobile\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "notifications" does not exist
+LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
+                    ^
+
+[SQL: INSERT INTO notifications (id, type, title, message, entity_type, entity_id) VALUES (%(id)s::UUID, %(type)s, %(title)s, %(message)s, %(entity_type)s, %(entity_id)s::UUID) RETURNING notifications.created_at]
+[parameters: {'id': UUID('e407bc83-f845-4254-aac7-cb5a0e7d61dd'), 'type': 'PLAYER_SELECTED', 'title': 'Invitation Accepted', 'message': 'Ted Lasso has accepted your invitation to join the club.', 'entity_type': 'ACADEMY', 'entity_id': UUID('3eff9832-bb4d-49a1-bc0c-e869b58ec145')}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[2026-03-27 23:43:34.528328] Found existing pending invitation for user a91006f6-d240-42ad-8bf6-afcf234a7523. Re-triggering notification.
+[2026-03-27 23:43:34.534000] Starting notification creation for invite e584ef76-f1af-4369-9824-3ff22ef8836e, is_approved=True
+[2026-03-27 23:43:34.535736] Inviter name: Astana United Owner
+[2026-03-27 23:43:34.536393] Notifying invited user: a91006f6-d240-42ad-8bf6-afcf234a7523
+[2026-03-27 23:43:34.538933] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('a91006f6-d240-42ad-8bf6-afcf234a7523')]
+[2026-03-27 23:43:34.548545] Notification object flushed, ID: 4cffd85b-eb66-4655-8c91-bd81c0121e6f
+[2026-03-27 23:43:34.549215] Adding target for user: a91006f6-d240-42ad-8bf6-afcf234a7523
+[2026-03-27 23:43:34.561756] Notification 4cffd85b-eb66-4655-8c91-bd81c0121e6f committed successfully
+[2026-03-27 23:43:34.564318] Notification creation call finished successfully
+[2026-03-28 00:03:25.104386] Found existing pending invitation for user 3d4ad526-10e0-4e7d-8223-5997f99141fc. Re-triggering notification.
+[2026-03-28 00:03:25.142841] Starting notification creation for invite 1cd81ad9-c288-4b8a-bf4f-02c6d0469bb3, is_approved=True
+[2026-03-28 00:03:25.144856] Inviter name: Astana United Owner
+[2026-03-28 00:03:25.145356] Notifying invited user: 3d4ad526-10e0-4e7d-8223-5997f99141fc
+[2026-03-28 00:03:25.149278] Inside create_notification: type=TEAM_INVITE, user_ids=[UUID('3d4ad526-10e0-4e7d-8223-5997f99141fc')]
+[2026-03-28 00:03:25.190704] Notification object flushed, ID: ddc4146b-72f8-44d2-b801-877f5b0a3ef1
+[2026-03-28 00:03:25.191270] Adding target for user: 3d4ad526-10e0-4e7d-8223-5997f99141fc
+[2026-03-28 00:03:25.210782] Notification ddc4146b-72f8-44d2-b801-877f5b0a3ef1 committed successfully
+[2026-03-28 00:03:25.213207] Notification creation call finished successfully
+[2026-03-28 00:03:44.580242] Inside create_notification: type=PLAYER_SELECTED, user_ids=[UUID('00e248ff-82fd-45e6-af9b-b605d79e1411')]
+[2026-03-28 00:03:44.584328] Notification object flushed, ID: 00e8de65-dcf5-4249-878b-415de888088f
+[2026-03-28 00:03:44.585023] Adding target for user: 00e248ff-82fd-45e6-af9b-b605d79e1411
+[2026-03-28 00:03:44.590976] Notification 00e8de65-dcf5-4249-878b-415de888088f committed successfully

@@ -6,7 +6,8 @@ import '../../data/models/invitation.dart';
 
 class InviteMemberScreen extends StatefulWidget {
   final String clubId;
-  const InviteMemberScreen({super.key, required this.clubId});
+  final String? initialTeamId;
+  const InviteMemberScreen({super.key, required this.clubId, this.initialTeamId});
 
   @override
   State<InviteMemberScreen> createState() => _InviteMemberScreenState();
@@ -17,6 +18,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   final _childProfileIdController = TextEditingController();
   ClubRole _selectedRole = ClubRole.player;
   String? _selectedTeamId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTeamId = widget.initialTeamId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +66,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             const Text('Invite a new member to your club.', style: TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 24),
             DropdownButtonFormField<ClubRole>(
-              value: _selectedRole,
+              initialValue: _selectedRole,
               decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
               items: availableRoles
                   .map((r) => DropdownMenuItem(value: r, child: Text(r.name.toUpperCase())))
@@ -75,7 +82,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             const SizedBox(height: 16),
             if (_selectedRole == ClubRole.player || _selectedRole == ClubRole.coach)
               DropdownButtonFormField<String>(
-                value: _selectedTeamId,
+                initialValue: _selectedTeamId,
                 decoration: const InputDecoration(labelText: 'Assign to Team (Optional)', border: OutlineInputBorder()),
                 items: [
                   const DropdownMenuItem<String>(value: null, child: Text('No Team')),

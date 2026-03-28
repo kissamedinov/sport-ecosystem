@@ -52,6 +52,7 @@ class TeamMembership(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True) # Added for convenience
     player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
     role = Column(Enum(MembershipRole), default=MembershipRole.PLAYER, nullable=False)
     status = Column(Enum(MembershipStatus), default=MembershipStatus.ACTIVE, nullable=False)
@@ -62,3 +63,4 @@ class TeamMembership(Base):
 
     team = relationship("Team", back_populates="memberships")
     player_profile = relationship("PlayerProfile", back_populates="memberships")
+    player = relationship("User") # Added for easier access

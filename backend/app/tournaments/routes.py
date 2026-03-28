@@ -147,17 +147,25 @@ def assign_award(
 
 @router.get("/player/{player_id}/awards", response_model=List[schemas.TournamentAwardResponse])
 def get_player_awards(player_id: UUID, db: Session = Depends(get_db)):
-    # Note: player_id here is user_id but we need profile_id for awards usually.
-    # For now, assuming player_id passed is profile_id or retrieve profile.
-    from app.users import services as user_services
-    profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == player_id).first()
-    if not profile:
-        profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_id).first()
-    
-    if not profile:
-        raise HTTPException(status_code=404, detail="Player Profile not found")
+    try:
+        # Note: player_id here is user_id but we need profile_id for awards usually.
+        # For now, assuming player_id passed is profile_id or retrieve profile.
+        from app.users.models import PlayerProfile
+        profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == player_id).first()
+        if not profile:
+            profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_id).first()
         
-    return services.get_player_awards(db, profile.id)
+        if not profile:
+            raise HTTPException(status_code=404, detail="Player Profile not found")
+            
+        return services.get_player_awards(db, profile.id)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"CRITICAL ERROR in get_player_awards: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 @router.post("/teams/{tt_id}/squad", response_model=dict)
 def add_to_squad(
     tt_id: UUID,

@@ -1,10 +1,16 @@
 import uuid
+import os
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.notifications.models import Notification, NotificationType, EntityType, NotificationTarget
 
 def log_debug(msg):
-    with open("c:/Users/Asus/Desktop/test/mobile/backend/debug_log.txt", "a") as f:
+    # Ensure logs directory exists
+    log_dir = os.path.join(os.getcwd(), "logs")
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+        
+    with open(os.path.join(log_dir, "debug_log.txt"), "a") as f:
         import datetime
         f.write(f"[{datetime.datetime.now()}] {msg}\n")
 
@@ -66,9 +72,6 @@ def get_user_notifications(db: Session, user_id: uuid.UUID):
     
     notifications = []
     for notification, is_read in results:
-        # We manually attach is_read to the notification object or return a dict
-        # Since pydantic's from_attributes is used, we can't easily add attributes to the SQLAlchemy object
-        # but we can return a list of dictionaries that match the schema
         n_dict = {
             "id": notification.id,
             "type": notification.type,
@@ -99,3 +102,17 @@ def get_unread_count(db: Session, user_id: uuid.UUID):
         NotificationTarget.user_id == user_id,
         NotificationTarget.is_read == False
     ).count()
+
+def mark_notifications_by_entity(db: Session, entity_id: uuid.UUID):
+    """Marks all notifications for a specific entity as read for all targets."""
+    targets = db.query(NotificationTarget).join(Notification).filter(
+        Notification.entity_id == entity_id
+    ).all()
+    
+    import datetime
+    now = datetime.datetime.now()
+    for t in targets:
+        t.is_read = True
+        t.read_at = now
+    db.commit()
+    return len(targets)

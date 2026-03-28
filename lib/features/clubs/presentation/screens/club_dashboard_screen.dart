@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
 import '../../providers/club_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
-import '../widgets/club_stat_card.dart';
-import '../widgets/academy_list_item.dart';
 import 'package:mobile/features/admin/presentation/screens/admin_hub_screen.dart';
 import 'create_child_profile_screen.dart';
 import 'invite_member_screen.dart';
 import 'invitations_screen.dart';
 import '../../../notifications/providers/notification_provider.dart';
 import '../../../notifications/presentation/screens/notification_screen.dart';
+import '../../../media/presentation/screens/media_gallery_screen.dart';
+import 'academy_management_screen.dart';
+import 'team_management_screen.dart';
 
 class ClubDashboardScreen extends StatefulWidget {
   final bool isHome;
@@ -45,286 +48,279 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.primary.withOpacity(0.05),
-            ],
-          ),
-        ),
-        child: Consumer<ClubProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading && provider.dashboard == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      backgroundColor: PremiumTheme.deepNavy,
+      body: Consumer<ClubProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading && provider.dashboard == null) {
+            return Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+          }
 
-            if (provider.error != null && provider.dashboard == null) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Error: ${provider.error}'),
-                    ElevatedButton(
-                      onPressed: () => provider.fetchClubDashboard(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final dashboard = provider.dashboard;
-            if (dashboard == null) {
-              final user = context.read<AuthProvider>().user;
-              final isAdmin = user?.roles?.contains('ADMIN') ?? false;
-
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.business_center, size: 64, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    const Text('You don\'t have a club registered yet.', 
-                      style: TextStyle(fontSize: 18, color: Colors.grey)),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () => _showRequestClubDialog(context),
-                      icon: const Icon(Icons.send_rounded),
-                      label: const Text('Request to Create a Club'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      ),
-                    ),
-                    if (isAdmin) ...[
-                      const SizedBox(height: 16),
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminHubScreen())),
-                        icon: const Icon(Icons.admin_panel_settings),
-                        label: const Text('Admin: Moderation Panel'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            }
-
-            return DefaultTabController(
-              length: 5,
-              child: CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    expandedHeight: widget.isHome ? 120.0 : 180.0,
-                    floating: false,
-                    pinned: true,
-                    actions: [
-                      if (context.read<AuthProvider>().user?.roles?.contains('ADMIN') ?? false)
-                        IconButton(
-                          icon: const Icon(Icons.admin_panel_settings),
-                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminHubScreen())),
-                          tooltip: 'Moderation Hub',
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.person_add_alt_1),
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CreateChildProfileScreen(clubId: dashboard.club.id))),
-                        tooltip: 'New Child Profile',
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.mail_outline),
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitationsScreen())),
-                        tooltip: 'My Invitations',
-                      ),
-                      Consumer<NotificationProvider>(
-                        builder: (context, notificationProvider, _) {
-                          return Stack(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.notifications_none),
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-                                },
-                                tooltip: 'Notifications',
-                              ),
-                              if (notificationProvider.unreadCount > 0)
-                                Positioned(
-                                  right: 8,
-                                  top: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 14,
-                                      minHeight: 14,
-                                    ),
-                                    child: Text(
-                                      '${notificationProvider.unreadCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                    flexibleSpace: FlexibleSpaceBar(
-                      title: Text(dashboard.club.name, 
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                      centerTitle: false,
-                      titlePadding: EdgeInsets.only(
-                        left: 16, 
-                        bottom: widget.isHome ? 16 : 64, // Push title up when tabs are present
-                      ),
-                      background: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.secondary,
-                            ],
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              right: -20,
-                              top: -20,
-                              child: Icon(Icons.business, size: 150, color: Colors.white.withOpacity(0.1)),
-                            ),
-                            Positioned(
-                              left: 16,
-                              bottom: widget.isHome ? 40 : 88,
-                              child: InkWell(
-                                onTap: () => _copyToClipboard(dashboard.club.id, 'Club ID'),
-                                child: Text(
-                                  'Club ID: ${dashboard.club.id.substring(0, 8)}...',
-                                  style: const TextStyle(fontSize: 10, color: Colors.white70, fontFamily: 'monospace'),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    bottom: widget.isHome ? null : TabBar(
-                      isScrollable: true,
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white70,
-                      tabs: const [
-                        Tab(text: 'Academies', icon: Icon(Icons.location_city, size: 20)),
-                        Tab(text: 'Teams', icon: Icon(Icons.group, size: 20)),
-                        Tab(text: 'Players', icon: Icon(Icons.person, size: 20)),
-                        Tab(text: 'Coaches', icon: Icon(Icons.badge, size: 20)),
-                        Tab(text: 'Pending', icon: Icon(Icons.hourglass_empty, size: 20)),
-                      ],
-                    ),
+          if (provider.error != null && provider.dashboard == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => provider.fetchClubDashboard(),
+                    child: const Text('Retry'),
                   ),
-                  if (widget.isHome) ...[
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Overview',
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const ClubDashboardScreen(isHome: false)),
-                                  ),
-                                  child: const Text('Manage Club'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            GridView.count(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 1.5,
-                              children: [
-                                ClubStatCard(
-                                  title: 'Academies',
-                                  value: dashboard.academies.length.toString(),
-                                  icon: Icons.location_city,
-                                  color: Colors.blue,
-                                ),
-                                ClubStatCard(
-                                  title: 'Teams',
-                                  value: dashboard.teams.length.toString(),
-                                  icon: Icons.group,
-                                  color: Colors.green,
-                                ),
-                                ClubStatCard(
-                                  title: 'Players',
-                                  value: (dashboard.playersCount + dashboard.childProfiles.length).toString(),
-                                  icon: Icons.person,
-                                  color: Colors.orange,
-                                ),
-                                ClubStatCard(
-                                  title: 'Coaches',
-                                  value: dashboard.coachesCount.toString(),
-                                  icon: Icons.badge,
-                                  color: Colors.purple,
-                                ),
-                                ClubStatCard(
-                                  title: 'Invitations',
-                                  value: 'View',
-                                  icon: Icons.mail_outline,
-                                  color: Colors.redAccent,
-                                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitationsScreen())),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (!widget.isHome)
-                    SliverFillRemaining(
-                      child: TabBarView(
-                        children: [
-                          _buildAcademiesList(dashboard),
-                          _buildTeamsList(dashboard),
-                          _buildPlayersList(dashboard),
-                          _buildCoachesList(dashboard),
-                          _buildPendingInvitesList(dashboard),
-                        ],
-                      ),
-                    ),
-                  if (widget.isHome)
-                    const SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: SizedBox(height: 100),
-                    ),
                 ],
               ),
             );
-          },
-        ),
+          }
+
+          final dashboard = provider.dashboard;
+          if (dashboard == null) {
+            final user = context.read<AuthProvider>().user;
+            final isAdmin = user?.roles?.contains('ADMIN') ?? false;
+
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.business_center, size: 80, color: Colors.white10),
+                    const SizedBox(height: 24),
+                    const Text('You don\'t have a club registered yet.', 
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.white70, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 32),
+                    PremiumCard(
+                      onTap: () => _showRequestClubDialog(context),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.send_rounded, color: PremiumTheme.neonGreen),
+                          SizedBox(width: 12),
+                          Text('Request to Create a Club', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    if (isAdmin) ...[
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminHubScreen())),
+                        icon: const Icon(Icons.admin_panel_settings, color: Colors.white54),
+                        label: const Text('Admin: Moderation Panel', style: TextStyle(color: Colors.white54)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return DefaultTabController(
+            length: 6,
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: widget.isHome ? 130.0 : 200.0,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: PremiumTheme.deepNavy,
+                  elevation: 0,
+                  actions: [
+                    if (context.read<AuthProvider>().user?.roles?.contains('ADMIN') ?? false)
+                      IconButton(
+                        icon: const Icon(Icons.admin_panel_settings, color: Colors.white70),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminHubScreen())),
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.person_add_alt_1, color: Colors.white70),
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CreateChildProfileScreen(clubId: dashboard.club.id))),
+                    ),
+                    Consumer<NotificationProvider>(
+                      builder: (context, notificationProvider, _) {
+                        return Stack(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.notifications_none, color: Colors.white70),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+                              },
+                            ),
+                            if (notificationProvider.unreadCount > 0)
+                              Positioned(
+                                right: 8,
+                                top: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                                  child: Text('${notificationProvider.unreadCount}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 8),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                  flexibleSpace: FlexibleSpaceBar(
+                    centerTitle: false,
+                    titlePadding: EdgeInsets.only(left: 20, bottom: widget.isHome ? 16 : 60),
+                    title: Text(dashboard.club.name.toUpperCase(), 
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1, color: Colors.white)),
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              colors: [PremiumTheme.electricBlue, PremiumTheme.deepNavy],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: -20,
+                          top: -20,
+                          child: Icon(Icons.business_rounded, size: 180, color: Colors.white.withOpacity(0.05)),
+                        ),
+                        // Club ID Badge
+                        Positioned(
+                          left: 20,
+                          bottom: widget.isHome ? 45 : 95,
+                          child: InkWell(
+                            onTap: () => _copyToClipboard(dashboard.club.id, 'Club ID'),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.black26,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'ID: ${dashboard.club.id.substring(0, 8)}...',
+                                style: const TextStyle(fontSize: 9, color: Colors.white54, fontFamily: 'monospace'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  bottom: widget.isHome ? null : TabBar(
+                    isScrollable: true,
+                    indicatorColor: PremiumTheme.neonGreen,
+                    indicatorWeight: 3,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white38,
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    tabs: const [
+                      Tab(text: 'ACADEMIES'),
+                      Tab(text: 'TEAMS'),
+                      Tab(text: 'PLAYERS'),
+                      Tab(text: 'COACHES'),
+                      Tab(text: 'MEDIA'),
+                      Tab(text: 'PENDING'),
+                    ],
+                  ),
+                ),
+                if (widget.isHome) ...[
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('OVERVIEW', 
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                              TextButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const ClubDashboardScreen(isHome: false)),
+                                ),
+                                child: Text('MANAGE HUB', style: TextStyle(fontSize: 10, color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 0, // PremiumStatCard handles margin
+                            childAspectRatio: 1.3,
+                            children: [
+                              PremiumStatCard(
+                                title: 'Academies',
+                                value: dashboard.academies.length.toString(),
+                                icon: Icons.location_city_rounded,
+                                color: Colors.blue,
+                              ),
+                              PremiumStatCard(
+                                title: 'Teams',
+                                value: dashboard.teams.length.toString(),
+                                icon: Icons.group_rounded,
+                                color: Colors.green,
+                              ),
+                              PremiumStatCard(
+                                title: 'Players',
+                                value: (dashboard.playersCount + dashboard.childProfiles.length).toString(),
+                                icon: Icons.person_rounded,
+                                color: Colors.orange,
+                              ),
+                              PremiumStatCard(
+                                title: 'Coaches',
+                                value: dashboard.coachesCount.toString(),
+                                icon: Icons.badge_rounded,
+                                color: Colors.purple,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          PremiumCard(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InvitationsScreen())),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.mail_outline, color: Colors.redAccent),
+                                SizedBox(width: 16),
+                                Expanded(child: Text('CLUB INVITATIONS', style: TextStyle(fontWeight: FontWeight.bold))),
+                                Icon(Icons.chevron_right, color: Colors.white24),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                if (!widget.isHome)
+                  SliverFillRemaining(
+                    child: TabBarView(
+                      children: [
+                        _buildAcademiesList(dashboard),
+                        _buildTeamsList(dashboard),
+                        _buildPlayersList(dashboard),
+                        _buildCoachesList(dashboard),
+                        MediaGalleryScreen(clubId: dashboard.club.id),
+                        _buildPendingInvitesList(dashboard),
+                      ],
+                    ),
+                  ),
+                if (widget.isHome)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: SizedBox(height: 100),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -333,25 +329,54 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Club Branches', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextButton.icon(
-                onPressed: () => _showCreateAcademyDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Add Academy'),
-              ),
+              const Text('CLUB BRANCHES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+              IconButton(onPressed: () => _showCreateAcademyDialog(context), icon: Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
             ],
           ),
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: dashboard.academies.length,
             itemBuilder: (context, index) {
-              return AcademyListItem(academy: dashboard.academies[index]);
+              final academy = dashboard.academies[index];
+              return PremiumCard(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AcademyManagementScreen(
+                        academy: academy,
+                        dashboard: dashboard,
+                      ),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                      child: const Icon(Icons.location_city, color: Colors.blue),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(academy.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(academy.city, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white10),
+                  ],
+                ),
+              );
             },
           ),
         ),
@@ -363,56 +388,57 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Club Teams', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextButton.icon(
-                onPressed: () => _showCreateTeamDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Add Team'),
-              ),
+              const Text('ACTIVE TEAMS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+              IconButton(onPressed: () => _showCreateTeamDialog(context), icon: Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
             ],
           ),
         ),
         Expanded(
           child: dashboard.teams.isEmpty
-              ? const Center(child: Text('No teams found'))
+              ? const Center(child: Text('No teams found', style: TextStyle(color: Colors.white38)))
               : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: dashboard.teams.length,
                   itemBuilder: (context, index) {
                     final team = dashboard.teams[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.group, color: Colors.green),
-                        title: Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${team.academyName ?? 'N/A'} | Category: ${team.ageCategory ?? 'N/A'}'),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                _buildTeamStat(context, 'Rating', team.rating.toString(), Colors.amber),
-                                const SizedBox(width: 8),
-                                _buildTeamStat(context, 'W', team.wins.toString(), Colors.green),
-                                const SizedBox(width: 4),
-                                _buildTeamStat(context, 'D', team.draws.toString(), Colors.grey),
-                                const SizedBox(width: 4),
-                                _buildTeamStat(context, 'L', team.losses.toString(), Colors.red),
-                              ],
+                    return PremiumCard(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TeamManagementScreen(
+                              teamId: team.id,
+                              clubId: dashboard.club.id,
                             ),
-                            const SizedBox(height: 4),
-                            InkWell(
-                              onTap: () => _copyToClipboard(team.coachId, 'Coach ID'),
-                              child: Text('Coach ID: ${team.coachId.substring(0, 8)}...', 
-                                style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace')),
-                            ),
-                          ],
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
+                          ),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.group, color: Colors.green, size: 20),
+                              const SizedBox(width: 12),
+                              Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text('${team.academyName} | ${team.ageCategory}', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildTeamStatCompact('RATING', team.rating.toString(), Colors.amber),
+                              _buildTeamStatCompact('WINS', team.wins.toString(), Colors.green),
+                              _buildTeamStatCompact('LOSSES', team.losses.toString(), Colors.redAccent),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -422,80 +448,46 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     );
   }
 
-  Widget _buildTeamStat(BuildContext context, String label, String value, Color color) {
-    return Column(
+  Widget _buildTeamStatCompact(String label, String value, Color color) {
+    return Row(
       children: [
-        Text(label, style: const TextStyle(fontSize: 8, color: Colors.grey)),
-        Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+        Text('$label: ', style: const TextStyle(fontSize: 9, color: Colors.white24, fontWeight: FontWeight.bold)),
+        Text(value, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
       ],
     );
   }
 
   Widget _buildPlayersList(dynamic dashboard) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0),
-          child: Text('Active Players (Linked)', 
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          padding: EdgeInsets.symmetric(vertical: 20.0),
+          child: Text('LINKED PLAYERS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
         ),
-        if (dashboard.players.isEmpty)
-          const Card(child: ListTile(title: Text('No linked players yet'))),
-        ...dashboard.players.map((player) => Card(
+        ...dashboard.players.map((player) => PremiumCard(
           child: ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(player.name),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Pos: ${player.position ?? 'N/A'} | #: ${player.jerseyNumber ?? 'N/A'}'),
-                InkWell(
-                  onTap: () => _copyToClipboard('${player.userId} | ${player.profileId}', 'IDs'),
-                  child: Text('User: ${player.userId.substring(0, 8)} | Prof: ${player.profileId.substring(0, 8)}',
-                    style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace')),
-                ),
-              ],
-            ),
-            trailing: const Icon(Icons.chevron_right),
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(backgroundColor: Colors.white10, child: const Icon(Icons.person, color: Colors.white70)),
+            title: Text(player.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Pos: ${player.position ?? 'N/A'} | #: ${player.jerseyNumber ?? 'N/A'}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white10),
           ),
         )),
-        
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0),
-          child: Text('Unlinked Player Profiles', 
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          padding: EdgeInsets.symmetric(vertical: 20.0),
+          child: Text('UNLINKED PROFILES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
         ),
-        if (dashboard.childProfiles.isEmpty)
-          const Card(child: ListTile(title: Text('No placeholder profiles created'))),
-        ...dashboard.childProfiles.map((child) => Card(
-          color: Colors.orange.withOpacity(0.05),
+        ...dashboard.childProfiles.map((child) => PremiumCard(
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.orange.withOpacity(0.2),
-              child: const Icon(Icons.person_outline, color: Colors.orange),
-            ),
-            title: Text(child.fullName),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Pos: ${child.position ?? 'N/A'} (Placeholder)'),
-                InkWell(
-                  onTap: () => _copyToClipboard(child.id, 'Profile ID'),
-                  child: Text('Profile ID: ${child.id.substring(0, 8)}...',
-                    style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace')),
-                ),
-              ],
-            ),
-            trailing: TextButton(
-              onPressed: () {
-                // Future: Action to link/invite
-              },
-              child: const Text('Invite User'),
-            ),
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(backgroundColor: Colors.orange.withOpacity(0.1), child: const Icon(Icons.person_outline, color: Colors.orange)),
+            title: Text(child.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: const Text('Status: Offline Profile', style: TextStyle(color: Colors.orange, fontSize: 10)),
+            trailing: TextButton(onPressed: () {}, child: Text('Invite', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 12))),
           ),
         )),
-        const SizedBox(height: 100), // Space for bottom padding
+        const SizedBox(height: 100),
       ],
     );
   }
@@ -504,93 +496,71 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Coaching Staff', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextButton.icon(
-                onPressed: () => _showInviteStaffDialog(context),
-                icon: const Icon(Icons.person_add),
-                label: const Text('Invite Coach'),
-              ),
+              const Text('STAFF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+              IconButton(onPressed: () => _showInviteStaffDialog(context), icon: Icon(Icons.person_add_rounded, color: PremiumTheme.neonGreen)),
             ],
           ),
         ),
         Expanded(
-          child: dashboard.coaches.isEmpty
-              ? const Center(child: Text('No coaches found'))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: dashboard.coaches.length,
-                  itemBuilder: (context, index) {
-                    final coach = dashboard.coaches[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const CircleAvatar(child: Icon(Icons.sports)),
-                        title: Text(coach.name),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: () => _copyToClipboard(coach.userId, 'User ID'),
-                              child: Text('User ID: ${coach.userId.substring(0, 8)}...'),
-                            ),
-                            InkWell(
-                              onTap: () => _copyToClipboard(coach.profileId, 'Profile ID'),
-                              child: Text('Profile: ${coach.profileId.substring(0, 8)}...',
-                                style: const TextStyle(fontSize: 10, color: Colors.grey, fontFamily: 'monospace')),
-                            ),
-                          ],
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                      ),
-                    );
-                  },
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: dashboard.coaches.length,
+            itemBuilder: (context, index) {
+              final coach = dashboard.coaches[index];
+              return PremiumCard(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const CircleAvatar(backgroundColor: Colors.white10, child: Icon(Icons.sports, color: Colors.white70)),
+                  title: Text(coach.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('Coach ID: ${coach.userId.substring(0, 8)}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                 ),
+              );
+            },
+          ),
         ),
       ],
     );
   }
 
   Widget _buildPendingInvitesList(dynamic dashboard) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text('Sent Invitations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
-        ),
-        Expanded(
-          child: dashboard.pendingInvitations.isEmpty
-              ? const Center(child: Text('No pending invitations'))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: dashboard.pendingInvitations.length,
-                  itemBuilder: (context, index) {
-                    final invite = dashboard.pendingInvitations[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.mail_outline, color: Colors.orange),
-                        title: Text('Role: ${invite.role.toString().split('.').last.toUpperCase()}'),
-                        subtitle: Text('To: ${invite.invitedUserId.substring(0, 8)} | Approved: ${invite.isApproved}'),
-                        trailing: invite.isApproved 
-                          ? const Icon(Icons.check_circle, color: Colors.green)
-                          : TextButton(
-                              onPressed: () => context.read<ClubProvider>().approveInvitation(invite.id),
-                              child: const Text('Approve'),
-                            ),
-                      ),
-                    );
-                  },
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: dashboard.pendingInvitations.length,
+      itemBuilder: (context, index) {
+        final invite = dashboard.pendingInvitations[index];
+        return PremiumCard(
+          child: Row(
+            children: [
+              const Icon(Icons.mail_outline_rounded, color: Colors.amber),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(invite.role.toString().split('.').last.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text('User ID: ${invite.invitedUserId.substring(0, 8)}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                  ],
                 ),
-        ),
-      ],
+              ),
+              if (!invite.isApproved)
+                TextButton(
+                  onPressed: () => context.read<ClubProvider>().approveInvitation(invite.id),
+                  child: Text('Approve', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
+                )
+              else
+                const Icon(Icons.check_circle, color: Colors.green),
+            ],
+          ),
+        );
+      },
     );
   }
 
+  // Dialog methods preserved but could be styled later if needed
   void _showRequestClubDialog(BuildContext context) {
     final nameController = TextEditingController();
     final cityController = TextEditingController();
@@ -599,17 +569,15 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Request Club Creation'),
+        backgroundColor: PremiumTheme.cardNavy,
+        title: const Text('Request Club Creation', style: TextStyle(color: Colors.white)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Club Name')),
-              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
-              const SizedBox(height: 8),
-              const Text('Note: Your request will be reviewed by an administrator.', 
-                style: TextStyle(fontSize: 12, color: Colors.grey)),
+              TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Club Name')),
+              TextField(controller: cityController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'City')),
+              TextField(controller: addressController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Address')),
             ],
           ),
         ),
@@ -619,16 +587,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             onPressed: () async {
               if (nameController.text.isNotEmpty && cityController.text.isNotEmpty && addressController.text.isNotEmpty) {
                 final success = await context.read<ClubProvider>().submitClubRequest({
-                  'name': nameController.text,
-                  'city': cityController.text,
-                  'address': addressController.text,
+                  'name': nameController.text, 'city': cityController.text, 'address': addressController.text,
                 });
-                if (success) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Club request submitted successfully!')),
-                  );
-                }
+                if (success) Navigator.pop(context);
               }
             },
             child: const Text('Submit Request'),
@@ -646,13 +607,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Academy'),
+        backgroundColor: PremiumTheme.cardNavy,
+        title: const Text('Add New Academy', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-            TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
+            TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Name')),
+            TextField(controller: cityController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'City')),
+            TextField(controller: addressController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Address')),
           ],
         ),
         actions: [
@@ -662,10 +624,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               final clubId = context.read<ClubProvider>().dashboard?.club.id;
               if (clubId != null) {
                 final success = await context.read<ClubProvider>().createAcademy(
-                  clubId,
-                  nameController.text,
-                  cityController.text,
-                  addressController.text,
+                  clubId, nameController.text, cityController.text, addressController.text,
                 );
                 if (success) Navigator.pop(context);
               }
@@ -682,32 +641,29 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     final birthYearController = TextEditingController();
     final coachIdController = TextEditingController();
     String? selectedAcademyId;
-
     final academies = context.read<ClubProvider>().dashboard?.academies ?? [];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Create New Team'),
+          backgroundColor: PremiumTheme.cardNavy,
+          title: const Text('Create New Team', style: TextStyle(color: Colors.white)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  value: selectedAcademyId,
+                  dropdownColor: PremiumTheme.cardNavy,
+                  initialValue: selectedAcademyId,
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(labelText: 'Academy'),
-                  items: academies
-                      .map((a) => DropdownMenuItem(value: a.id.toString(), child: Text(a.name)))
-                      .toList(),
+                  items: academies.map((a) => DropdownMenuItem(value: a.id.toString(), child: Text(a.name))).toList(),
                   onChanged: (val) => setDialogState(() => selectedAcademyId = val),
                 ),
-                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
-                TextField(
-                    controller: birthYearController,
-                    decoration: const InputDecoration(labelText: 'Birth Year'),
-                    keyboardType: TextInputType.number),
-                TextField(controller: coachIdController, decoration: const InputDecoration(labelText: 'Coach User ID')),
+                TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Team Name')),
+                TextField(controller: birthYearController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Birth Year'), keyboardType: TextInputType.number),
+                TextField(controller: coachIdController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Coach User ID')),
               ],
             ),
           ),
@@ -715,16 +671,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
-                if (selectedAcademyId != null &&
-                    nameController.text.isNotEmpty &&
-                    birthYearController.text.isNotEmpty &&
-                    coachIdController.text.isNotEmpty) {
+                if (selectedAcademyId != null && nameController.text.isNotEmpty) {
                   final success = await context.read<ClubProvider>().createTeam(
-                        selectedAcademyId!,
-                        nameController.text,
-                        int.parse(birthYearController.text),
-                        coachIdController.text,
-                      );
+                    selectedAcademyId!, nameController.text, int.parse(birthYearController.text), coachIdController.text,
+                  );
                   if (success) Navigator.pop(context);
                 }
               },

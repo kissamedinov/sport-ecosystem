@@ -18,14 +18,25 @@ class LineupRole(str, enum.Enum):
     STARTING = "STARTING"
     SUBSTITUTE = "SUBSTITUTE"
 
+class LineupStatus(str, enum.Enum):
+    SUBMITTED = "SUBMITTED"
+    CONFIRMED = "CONFIRMED"
+
 class EventType(str, enum.Enum):
     GOAL = "GOAL"
     ASSIST = "ASSIST"
+    SAVE = "SAVE"
     YELLOW_CARD = "YELLOW_CARD"
     RED_CARD = "RED_CARD"
     OWN_GOAL = "OWN_GOAL"
     PENALTY_GOAL = "PENALTY_GOAL"
     BEST_PLAYER = "BEST_PLAYER"
+
+class MatchAwardType(str, enum.Enum):
+    MVP = "MVP"
+    BEST_GOALKEEPER = "BEST_GOALKEEPER"
+    BEST_DEFENDER = "BEST_DEFENDER"
+    BEST_STRIKER = "BEST_STRIKER"
 
 
 
@@ -69,10 +80,13 @@ class MatchLineup(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     match_id = Column(UUID(as_uuid=True), ForeignKey("matches.id"), nullable=False)
     team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
+    submitted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    status = Column(Enum(LineupStatus), default=LineupStatus.SUBMITTED, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     match = relationship("Match")
     team = relationship("Team")
+    submitter = relationship("User")
     players = relationship("MatchLineupPlayer", back_populates="lineup", cascade="all, delete-orphan")
 
 class MatchLineupPlayer(Base):
@@ -80,14 +94,17 @@ class MatchLineupPlayer(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     lineup_id = Column(UUID(as_uuid=True), ForeignKey("match_lineups.id"), nullable=False)
-    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=True)
     
+    is_starting = Column(Boolean, default=True, nullable=False)
     role = Column(Enum(LineupRole), default=LineupRole.STARTING, nullable=False)
-    position = Column(String, nullable=True)
+    position = Column(String, nullable=True) # GK, DF, MF, FW
     jersey_number = Column(Integer, nullable=True)
 
     lineup = relationship("MatchLineup", back_populates="players")
     player = relationship("User")
+    child_profile = relationship("ChildProfile")
 
 class MatchPlayerStats(Base):
     __tablename__ = "match_player_stats"
@@ -116,12 +133,32 @@ class MatchEvent(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     match_id = Column(UUID(as_uuid=True), ForeignKey("matches.id"), nullable=False)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=True) # Optional for some events? Usually tied to team.
-    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True) # Optional? e.g. best player is for a player.
+    team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=True)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=True)
     event_type = Column(Enum(EventType), nullable=False)
     minute = Column(Integer, nullable=False)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     match = relationship("Match")
     team = relationship("Team")
-    player = relationship("User")
+    player = relationship("User", foreign_keys=[player_id])
+    child_profile = relationship("ChildProfile")
+    creator = relationship("User", foreign_keys=[created_by])
+
+class MatchAward(Base):
+    __tablename__ = "match_awards"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    match_id = Column(UUID(as_uuid=True), ForeignKey("matches.id"), nullable=False)
+    player_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=True)
+    award_type = Column(Enum(MatchAwardType), nullable=False)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    match = relationship("Match")
+    player = relationship("User", foreign_keys=[player_id])
+    child_profile = relationship("ChildProfile")
+    creator = relationship("User", foreign_keys=[created_by])

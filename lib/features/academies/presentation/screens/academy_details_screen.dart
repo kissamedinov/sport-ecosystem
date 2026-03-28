@@ -23,7 +23,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
     Future.microtask(() {
       context.read<AcademyProvider>().fetchAcademyTeams(widget.academy.id);
       context.read<AcademyProvider>().fetchAcademyPlayers(widget.academy.id);
-      context.read<AcademyProvider>().fetchTrainingSessions(widget.academy.id);
+      context.read<AcademyProvider>().fetchSessions(widget.academy.id);
     });
   }
 
@@ -118,7 +118,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
             final player = provider.players[index];
             return ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('Player ID: ${player.playerProfileId.substring(0, 8)}'),
+              title: Text('Player ID: ${player.playerProfileId?.substring(0, 8) ?? "N/A"}'),
               subtitle: Text('Status: ${player.status}'),
             );
           },
@@ -141,8 +141,8 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
             return Card(
               child: ListTile(
                 leading: const Icon(Icons.calendar_today),
-                title: Text(session.description ?? 'Training session'),
-                subtitle: Text('${session.date} | ${session.startTime} - ${session.endTime}'),
+                title: Text(session.topic ?? 'Training session'),
+                subtitle: Text(session.scheduledAt),
               ),
             );
           },
@@ -170,12 +170,11 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
-              // Note: coach_id should ideally be selected from a list, using user ID for now
               await context.read<AcademyProvider>().createTeam(
                 widget.academy.id,
                 nameController.text,
                 ageGroupController.text,
-                widget.academy.ownerId, // placeholder coach
+                'Intermediate', // only 4 parameters expected by AcademyProvider.createTeam
               );
               Navigator.pop(context);
             },

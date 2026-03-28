@@ -15,6 +15,11 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       ?.map((e) => e as String)
       .toList(),
   playerProfileId: json['player_profile_id'] as String?,
+  onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
+  dateOfBirth: json['date_of_birth'] == null
+      ? null
+      : DateTime.parse(json['date_of_birth'] as String),
+  phone: json['phone'] as String?,
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -24,4 +29,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'roles': instance.roles,
   'child_ids': instance.childIds,
   'player_profile_id': instance.playerProfileId,
+  'onboarding_completed': instance.onboardingCompleted,
+  'date_of_birth': instance.dateOfBirth?.toIso8601String(),
+  'phone': instance.phone,
 };

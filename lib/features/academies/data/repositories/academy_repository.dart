@@ -1,6 +1,6 @@
 import '../../../../core/api/api_client.dart';
 import '../models/academy.dart';
-import '../models/academy_team.dart';
+import '../models/academy_team.dart' hide AcademyPlayer, TrainingSession;
 
 class AcademyRepository {
   final ApiClient _apiClient;
@@ -70,5 +70,13 @@ class AcademyRepository {
   Future<AcademyTeamPlayer> addPlayerToTeam(String teamId, Map<String, dynamic> playerData) async {
     final response = await _apiClient.post('/academies/teams/$teamId/players', data: playerData);
     return AcademyTeamPlayer.fromJson(response.data);
+  }
+
+  Future<void> recordTrainingAttendance(Map<String, dynamic> attendanceData) async {
+    await _apiClient.post('/academies/attendance', data: attendanceData);
+  }
+
+  Future<void> submitCoachFeedback(Map<String, dynamic> feedbackData) async {
+    await _apiClient.post('/academies/feedback', data: feedbackData);
   }
 }

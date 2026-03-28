@@ -30,7 +30,6 @@ from app.scouting import models as scouting_models
 from app.stats import models as stats_models
 from app.media import models as media_models
 from app.notifications import models as notification_models
- # Added for media router
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)

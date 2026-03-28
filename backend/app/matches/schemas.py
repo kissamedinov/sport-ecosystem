@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
-from app.matches.models import MatchStatus, ResultStatus, EventType, LineupRole
+from app.matches.models import MatchStatus, ResultStatus, EventType, LineupRole, MatchAwardType
 
 class MatchResultBase(BaseModel):
     home_score: int = Field(..., ge=0)
@@ -70,6 +70,7 @@ class MatchEventBase(BaseModel):
     minute: int
     team_id: Optional[UUID] = None
     player_id: Optional[UUID] = None
+    child_profile_id: Optional[UUID] = None
 
 class MatchEventCreate(MatchEventBase):
     pass
@@ -78,14 +79,49 @@ class MatchEventResponse(MatchEventBase):
     id: UUID
     match_id: UUID
     created_at: datetime
+    created_by: Optional[UUID] = None
 
     class Config:
         from_attributes = True
 
-class LineupPlayerBase(BaseModel):
+class MatchAwardBase(BaseModel):
+    award_type: MatchAwardType
+    player_id: Optional[UUID] = None
+    child_profile_id: Optional[UUID] = None
+
+class MatchAwardCreate(MatchAwardBase):
+    pass
+
+class MatchAwardResponse(MatchAwardBase):
+    id: UUID
+    match_id: UUID
+    created_at: datetime
+    created_by: Optional[UUID] = None
+
+    class Config:
+        from_attributes = True
+
+class PlayerStatsResponse(BaseModel):
     player_id: UUID
-    role: LineupRole
-    position: Optional[str] = None
+    name: str
+    goals: int = 0
+    assists: int = 0
+    saves: int = 0
+    yellow_cards: int = 0
+    red_cards: int = 0
+    awards: List[str] = []
+
+class TopScorerResponse(BaseModel):
+    player_id: UUID
+    name: str
+    team_name: Optional[str] = None
+    goals: int
+
+class LineupPlayerBase(BaseModel):
+    player_id: Optional[UUID] = None
+    child_profile_id: Optional[UUID] = None
+    is_starting: bool = True
+    position: Optional[str] = None # GK, DF, MF, FW
     jersey_number: Optional[int] = None
 
 class LineupPlayerResponse(LineupPlayerBase):
@@ -102,6 +138,8 @@ class LineupResponse(BaseModel):
     id: UUID
     match_id: UUID
     team_id: UUID
+    submitted_by: Optional[UUID] = None
+    status: str
     players: List[LineupPlayerResponse]
     created_at: datetime
 

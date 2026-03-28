@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_squad_provider.dart';
 import '../../data/models/tournament_squad_member.dart';
+import '../../../lineups/providers/lineup_provider.dart';
+import '../../../lineups/models/lineup.dart';
 
 class MatchLineupScreen extends StatefulWidget {
   final String matchId;
@@ -22,8 +24,10 @@ class MatchLineupScreen extends StatefulWidget {
 }
 
 class _MatchLineupScreenState extends State<MatchLineupScreen> {
-  // Maps player_profile_id -> {is_starting, jersey_number}
-  final Map<String, Map<String, dynamic>> _selections = {};
+  // Maps player_profile_id -> {is_starting, position}
+  final Map<String, bool> _starters = {};
+  final Map<String, String> _positions = {};
+  final List<String> _positionOptions = ['GK', 'DF', 'MF', 'FW'];
 
   @override
   void initState() {
@@ -33,60 +37,75 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     });
   }
 
-  int get _startingCount =>
-      _selections.values.where((s) => s['is_starting'] == true).length;
+  int get _startingCount => _starters.values.where((v) => v).length;
 
   void _toggleSelection(TournamentSquadMember member) {
     setState(() {
-      if (_selections.containsKey(member.playerProfileId)) {
-        _selections.remove(member.playerProfileId);
+      if (_starters.containsKey(member.playerProfileId)) {
+        _starters.remove(member.playerProfileId);
+        _positions.remove(member.playerProfileId);
       } else {
-        _selections[member.playerProfileId] = {
-          'player_profile_id': member.playerProfileId,
-          'jersey_number': member.jerseyNumber,
-          'is_starting': _startingCount < 11,
-        };
+        _starters[member.playerProfileId] = _startingCount < 11;
+        _positions[member.playerProfileId] = member.position ?? 'MF';
       }
     });
   }
 
-  void _toggleStarting(String playerId) {
+  void _toggleStarting(String playerProfileId) {
     setState(() {
-      if (_selections.containsKey(playerId)) {
-        _selections[playerId]!['is_starting'] =
-            !(_selections[playerId]!['is_starting'] as bool);
+      if (_starters.containsKey(playerProfileId)) {
+        _starters[playerProfileId] = !(_starters[playerProfileId]!);
       }
     });
   }
 
   Future<void> _submit() async {
-    if (_selections.isEmpty) {
+    if (_starters.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select at least one player.')),
       );
       return;
     }
 
-    final players = _selections.values.toList();
-    final success = await context.read<TournamentSquadProvider>().submitLineup(
-          widget.matchId,
-          widget.teamId,
-          players,
-        );
+    final lineupPlayers = _starters.keys.map((pid) => LineupPlayer(
+      playerId: pid,
+      isStarting: _starters[pid]!,
+      position: _positions[pid],
+    )).toList();
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? 'Lineup submitted!' : 'Failed to submit lineup.'),
-          backgroundColor: success ? Colors.green : Colors.red,
-        ),
-      );
-      if (success) Navigator.pop(context);
+    final lineupRequest = MatchLineup(
+      id: '',
+      matchId: widget.matchId,
+      teamId: widget.teamId,
+      status: LineupStatus.SUBMITTED,
+      createdAt: DateTime.now(),
+      players: lineupPlayers,
+    );
+
+    try {
+      await context.read<LineupProvider>().submitLineup(
+            widget.matchId,
+            lineupRequest,
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lineup submitted successfully!'), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final lineupProvider = context.watch<LineupProvider>();
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('MATCH LINEUP'),
@@ -107,7 +126,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       ),
       body: Consumer<TournamentSquadProvider>(
         builder: (context, provider, _) {
-          if (provider.isLoading) {
+          if (provider.isLoading || lineupProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -135,9 +154,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                   itemCount: provider.squad.length,
                   itemBuilder: (context, index) {
                     final member = provider.squad[index];
-                    final isSelected = _selections.containsKey(member.playerProfileId);
-                    final isStarting = isSelected &&
-                        (_selections[member.playerProfileId]!['is_starting'] as bool);
+                    final isSelected = _starters.containsKey(member.playerProfileId);
+                    final isStarting = isSelected && _starters[member.playerProfileId]!;
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -165,41 +183,59 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                           member.playerProfileId.substring(0, 8).toUpperCase(),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        subtitle: Text(
-                          isStarting
-                              ? 'Starting XI'
-                              : isSelected
-                                  ? 'Substitute'
-                                  : member.position ?? 'Not selected',
-                          style: TextStyle(
-                            color: isStarting
-                                ? Colors.green
-                                : isSelected
-                                    ? Colors.orange
-                                    : Colors.grey,
-                          ),
+                        subtitle: Row(
+                          children: [
+                             Text(
+                              isStarting
+                                  ? 'Starting'
+                                  : isSelected
+                                      ? 'Substitute'
+                                      : 'Not selected',
+                              style: TextStyle(
+                                color: isStarting
+                                    ? Colors.green
+                                    : isSelected
+                                        ? Colors.orange
+                                        : Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                            if (isSelected) ...[
+                              const SizedBox(width: 8),
+                              const Text('| Port: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              DropdownButton<String>(
+                                value: _positions[member.playerProfileId],
+                                isDense: true,
+                                style: const TextStyle(fontSize: 12, color: Colors.white),
+                                items: _positionOptions.map((pos) => DropdownMenuItem(
+                                  value: pos,
+                                  child: Text(pos),
+                                )).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    _positions[member.playerProfileId] = val!;
+                                  });
+                                },
+                              ),
+                            ]
+                          ],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (isSelected)
-                              Tooltip(
-                                message: isStarting
-                                    ? 'Move to bench'
-                                    : 'Set as starter',
-                                child: IconButton(
-                                  icon: Icon(
-                                    isStarting
-                                        ? Icons.sports_soccer
-                                        : Icons.airline_seat_recline_normal,
-                                    color: isStarting
-                                        ? Colors.green
-                                        : Colors.orange,
-                                    size: 20,
-                                  ),
-                                  onPressed: () =>
-                                      _toggleStarting(member.playerProfileId),
+                              IconButton(
+                                icon: Icon(
+                                  isStarting
+                                      ? Icons.sports_soccer
+                                      : Icons.airline_seat_recline_normal,
+                                  color: isStarting
+                                      ? Colors.green
+                                      : Colors.orange,
+                                  size: 20,
                                 ),
+                                onPressed: () =>
+                                    _toggleStarting(member.playerProfileId),
                               ),
                             Checkbox(
                               value: isSelected,
@@ -220,7 +256,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: provider.isLoading ? null : _submit,
+                    onPressed: (provider.isLoading || lineupProvider.isLoading) ? null : _submit,
                     icon: const Icon(Icons.send),
                     label: const Text('SUBMIT LINEUP'),
                     style: ElevatedButton.styleFrom(
