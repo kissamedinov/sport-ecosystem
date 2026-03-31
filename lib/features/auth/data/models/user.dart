@@ -18,6 +18,9 @@ class User {
   @JsonKey(name: 'date_of_birth')
   final DateTime? dateOfBirth;
   final String? phone;
+  final String? bio;
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
 
   User({
     required this.id,
@@ -29,6 +32,8 @@ class User {
     this.onboardingCompleted = false,
     this.dateOfBirth,
     this.phone,
+    this.bio,
+    this.avatarUrl,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

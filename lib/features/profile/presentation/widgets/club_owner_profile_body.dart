@@ -3,6 +3,8 @@ import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/features/clubs/data/models/club_dashboard.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
+import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
 
 class ClubOwnerProfileBody extends StatefulWidget {
   const ClubOwnerProfileBody({super.key});
@@ -86,7 +88,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
               const SizedBox(height: 28),
               _buildSectionLabel("QUICK ACTIONS"),
               const SizedBox(height: 12),
-              _buildActions(),
+              _buildActions(dashboard),
               const SizedBox(height: 40),
             ],
           ),
@@ -340,12 +342,35 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(ClubDashboard dashboard) {
     return Column(
       children: [
-        _buildActionButton("Manage All Teams", Icons.settings_applications_rounded, PremiumTheme.electricBlue, () {}),
+        _buildActionButton("Manage All Teams", Icons.settings_applications_rounded, PremiumTheme.electricBlue, () {
+          if (dashboard.teams.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TeamManagementScreen(
+                  team: dashboard.teams.first,
+                  availableCoaches: dashboard.coaches,
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("No teams available to manage.")),
+            );
+          }
+        }),
         const SizedBox(height: 10),
-        _buildActionButton("Invite Professionals", Icons.person_add_rounded, PremiumTheme.neonGreen, () {}),
+        _buildActionButton("Invite Professionals", Icons.person_add_rounded, PremiumTheme.neonGreen, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => InviteMemberScreen(clubId: dashboard.club.id.toString()),
+            ),
+          );
+        }),
       ],
     );
   }

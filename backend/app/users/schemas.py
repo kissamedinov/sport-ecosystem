@@ -17,6 +17,8 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     date_of_birth: Optional[date] = None
     phone: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserResponse(UserBase):
     id: UUID
@@ -25,6 +27,8 @@ class UserResponse(UserBase):
     created_at: datetime
     date_of_birth: Optional[date] = None
     phone: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
     onboarding_completed: bool = False
 
     model_config = ConfigDict(from_attributes=True)

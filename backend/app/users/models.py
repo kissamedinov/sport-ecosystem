@@ -51,6 +51,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     date_of_birth = Column(Date, nullable=True)
     phone = Column(String, nullable=True)
+    bio = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=True)
     onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
