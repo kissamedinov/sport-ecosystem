@@ -21,6 +21,8 @@ class AppTheme {
       brightness: Brightness.dark,
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
+      canvasColor: backgroundColor,
+      dialogBackgroundColor: surfaceColor,
       colorScheme: const ColorScheme.dark(
         primary: primaryColor,
         secondary: secondaryColor,
@@ -28,11 +30,19 @@ class AppTheme {
         onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: textPrimary,
+        // Disable M3 surface tint that makes everything look white/light
+        surfaceTint: Colors.transparent,
       ),
       cardTheme: CardThemeData(
         color: cardColor,
-        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      listTileTheme: const ListTileThemeData(
+        tileColor: Colors.transparent,
+        textColor: Colors.white,
+        iconColor: Colors.white70,
       ),
       textTheme: GoogleFonts.outfitTextTheme(
         const TextTheme(
@@ -43,13 +53,15 @@ class AppTheme {
         ),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          fontWeight: FontWeight.w900,
           color: textPrimary,
+          letterSpacing: 2,
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(

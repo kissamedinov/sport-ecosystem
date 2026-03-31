@@ -411,8 +411,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => TeamManagementScreen(
-                              teamId: team.id,
-                              clubId: dashboard.club.id,
+                              team: team,
+                              availableCoaches: dashboard.coaches,
                             ),
                           ),
                         );

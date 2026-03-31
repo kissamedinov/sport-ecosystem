@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/providers/auth_provider.dart';
+import 'club_owner_profile.dart';
 import 'adult_player_profile.dart';
 import 'child_player_profile.dart';
 import 'parent_profile.dart';
 import 'coach_profile.dart';
 import 'field_owner_profile.dart';
+import '../widgets/coach_profile_body.dart';
 
 class ProfileRouter extends StatelessWidget {
   const ProfileRouter({super.key});
@@ -15,29 +17,18 @@ class ProfileRouter extends StatelessWidget {
     final user = context.watch<AuthProvider>().user;
     if (user == null) return const Center(child: Text('Please log in'));
 
-    final role = user.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
+    final role = user.roles?.first ?? 'PLAYER_ADULT';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('PROFILE'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            },
-          ),
-        ],
-      ),
       body: _getProfileByRole(role, user),
     );
   }
 
   Widget _getProfileByRole(String role, user) {
     switch (role) {
+      case 'CLUB_OWNER':
+      case 'CLUB_MANAGER':
+        return ClubOwnerProfile(user: user);
       case 'COACH':
         return CoachProfile(user: user);
       case 'PARENT':

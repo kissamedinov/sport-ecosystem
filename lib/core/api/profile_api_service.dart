@@ -19,6 +19,12 @@ class ProfileApiService {
     return ClubDashboard.fromJson(response.data);
   }
 
+  /// Fetch dashboard for coach
+  Future<Map<String, dynamic>> getCoachDashboard() async {
+    final response = await _apiClient.get('/clubs/coach-dashboard');
+    return response.data;
+  }
+
   /// Fetch managed teams for coach/manager
   Future<List<Team>> getManagedTeams() async {
     final response = await _apiClient.get('/teams/managed/me');

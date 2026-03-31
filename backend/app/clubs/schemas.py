@@ -163,9 +163,19 @@ class CoachMatchResponse(BaseModel):
     away_team_name: str
     scheduled_at: Optional[datetime] = None
 
+class CoachPerformanceStats(BaseModel):
+    matches_played: int = 0
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    goals_scored: int = 0
+    goals_conceded: int = 0
+    clean_sheets: int = 0
+
 class CoachDashboardResponse(BaseModel):
     teams: List[CoachTeamResponse]
     upcoming_matches: List[CoachMatchResponse]
+    performance_stats: Optional[CoachPerformanceStats] = None
 
 class ClubDashboardResponse(BaseModel):
     club: ClubResponse
@@ -173,11 +183,18 @@ class ClubDashboardResponse(BaseModel):
     teams: List[TeamResponseSimplified]
     players: List[PlayerResponse] = []
     coaches: List[PlayerResponse] = []
+    managers: List[PlayerResponse] = []
     child_profiles: List[ChildProfileResponse] = []
     players_count: int
     coaches_count: int
+    managers_count: int = 0
     pending_invitations: List[InvitationResponse] = []
-    statistics: dict = {}
+    statistics: dict = {
+        "new_coaches_30d": 0,
+        "new_players_30d": 0,
+        "academies_count": 0,
+        "teams_count": 0
+    }
 
 class CareerRecord(BaseModel):
     club_name: str
@@ -213,7 +230,7 @@ for model in [
     AcademyBase, AcademyCreate, AcademyResponse,
     TeamCreateInAcademy, TeamResponseSimplified,
     CoachPlayerResponse, CoachTeamResponse,
-    CoachMatchResponse, CoachDashboardResponse, ClubDashboardResponse,
+    CoachMatchResponse, CoachPerformanceStats, CoachDashboardResponse, ClubDashboardResponse,
     CareerRecord, PlayerCareerResponse,
     MatchSheetPlayerCreate, MatchSheetCreate
 ]:

@@ -189,6 +189,22 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
                 position="Coach"
             ))
 
+        # Get active managers
+        active_managers_staff = db.query(ClubStaff).filter(
+            ClubStaff.club_id == club_id,
+            ClubStaff.role == ClubRole.MANAGER,
+            ClubStaff.status == ClubMembershipStatus.ACTIVE
+        ).all()
+        
+        manager_responses = []
+        for s in active_managers_staff:
+            manager_responses.append(schemas.PlayerResponse(
+                user_id=s.user_id,
+                name=s.user.name,
+                profile_id=UUID('00000000-0000-0000-0000-000000000000'),
+                position="Manager"
+            ))
+
         pending_invitations = db.query(models.Invitation).filter(
             models.Invitation.club_id == club_id,
             models.Invitation.status == models.InvitationStatus.PENDING
@@ -196,21 +212,41 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
         
         child_profiles = db.query(models.ChildProfile).filter(models.ChildProfile.club_id == club_id).all()
         
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        
+        new_coaches_30d = db.query(ClubStaff).filter(
+            ClubStaff.club_id == club_id,
+            ClubStaff.role == ClubRole.COACH,
+            ClubStaff.joined_at >= thirty_days_ago
+        ).count()
+        
+        new_players_30d = db.query(ClubStaff).filter(
+            ClubStaff.club_id == club_id,
+            ClubStaff.role == ClubRole.PLAYER,
+            ClubStaff.joined_at >= thirty_days_ago
+        ).count()
+
         return schemas.ClubDashboardResponse(
             club=schemas.ClubResponse.model_validate(club),
             academies=academy_responses,
             teams=teams_responses,
             players=player_responses,
             coaches=coach_responses,
+            managers=manager_responses,
             child_profiles=[schemas.ChildProfileResponse.model_validate(cp) for cp in child_profiles],
             players_count=len(player_responses),
             coaches_count=len(coach_responses),
+            managers_count=len(manager_responses),
             pending_invitations=[schemas.InvitationResponse.model_validate(i) for i in pending_invitations],
             statistics={
                 "academies_count": len(academies),
                 "teams_count": len(teams),
                 "players_count": len(player_responses),
-                "coaches_count": len(coach_responses)
+                "coaches_count": len(coach_responses),
+                "managers_count": len(manager_responses),
+                "new_coaches_30d": new_coaches_30d,
+                "new_players_30d": new_players_30d
             }
         )
     except Exception as e:
@@ -585,8 +621,11 @@ def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
         raise HTTPException(status_code=500, detail="Internal Server Error during invitation decline")
 
 def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardResponse:
+    from app.matches.models import Match, MatchResult, MatchStatus
+    
     # Get teams coached by this user
     teams = db.query(models.Team).filter(models.Team.coach_id == coach_id).all()
+    team_ids = [t.id for t in teams]
     
     team_responses = []
     for t in teams:
@@ -615,11 +654,74 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
             players=players
         ))
     
-    # Placeholder for matches (Part 9 in backend deals with matches)
+    # Calculate Performance Stats
+    perf = schemas.CoachPerformanceStats()
+    if team_ids:
+        # Finished matches
+        finished_matches = db.query(Match).filter(
+            (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+            Match.status == MatchStatus.FINISHED
+        ).all()
+        
+        perf.matches_played = len(finished_matches)
+        for m in finished_matches:
+            if not m.result: continue
+            
+            is_home = m.home_team_id in team_ids
+            my_score = m.result.home_score if is_home else m.result.away_score
+            opp_score = m.result.away_score if is_home else m.result.home_score
+            
+            perf.goals_scored += my_score
+            perf.goals_conceded += opp_score
+            if opp_score == 0: perf.clean_sheets += 1
+            
+            if my_score > opp_score: perf.wins += 1
+            elif my_score < opp_score: perf.losses += 1
+            else: perf.draws += 1
+            
+    # Upcoming matches
+    upcoming_matches = []
+    if team_ids:
+        future_matches = db.query(Match).filter(
+            (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+            Match.status == MatchStatus.SCHEDULED
+        ).order_by(Match.match_date.asc()).limit(5).all()
+        
+        for m in future_matches:
+            upcoming_matches.append(schemas.CoachMatchResponse(
+                id=m.id,
+                tournament_name=m.tournament.name if m.tournament else "Friendly",
+                home_team_name=m.home_team.name,
+                away_team_name=m.away_team.name,
+                scheduled_at=m.match_date
+            ))
+
     return schemas.CoachDashboardResponse(
         teams=team_responses,
-        upcoming_matches=[]
+        upcoming_matches=upcoming_matches,
+        performance_stats=perf
     )
+
+def update_team_coach(db: Session, team_id: UUID, new_coach_id: UUID) -> models.Team:
+    team = db.query(models.Team).filter(models.Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if new coach is actually a coach in the club
+    is_coach = db.query(ClubStaff).filter(
+        ClubStaff.club_id == team.academy.club_id,
+        ClubStaff.user_id == new_coach_id,
+        ClubStaff.role == ClubRole.COACH,
+        ClubStaff.status == ClubMembershipStatus.ACTIVE
+    ).first()
+    
+    if not is_coach:
+        raise HTTPException(status_code=400, detail="User is not an active coach in this club")
+        
+    team.coach_id = new_coach_id
+    db.commit()
+    db.refresh(team)
+    return team
 
 # --- Endpoints for tournaments/lineups (Originals) ---
 def submit_match_lineup(db: Session, match_id: UUID, team_id: UUID, lineup_in: schemas.MatchSheetCreate, user_id: UUID):

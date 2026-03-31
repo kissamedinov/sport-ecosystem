@@ -221,6 +221,15 @@ def create_team(
     # Ownership/permission check is usually handled in service or manually
     return services.create_team_in_academy(db, academy_id, team_in)
 
+@router.patch("/teams/{team_id}/coach", response_model=schemas.TeamResponseSimplified)
+def reassign_team_coach(
+    team_id: UUID,
+    coach_id_in: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_club_owner)
+):
+    return services.update_team_coach(db, team_id, coach_id_in)
+
 @router.get("/{id}", response_model=schemas.ClubResponse)
 def get_club(id: UUID, db: Session = Depends(get_db)):
     club = services.get_club_by_id(db, id)

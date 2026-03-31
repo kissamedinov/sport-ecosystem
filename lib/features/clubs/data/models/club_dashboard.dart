@@ -11,18 +11,27 @@ part 'club_dashboard.g.dart';
 @JsonSerializable()
 class ClubDashboard {
   final Club club;
+  @JsonKey(defaultValue: [])
   final List<Academy> academies;
+  @JsonKey(defaultValue: [])
   final List<Team> teams;
+  @JsonKey(defaultValue: [])
   final List<PlayerInfo> players;
+  @JsonKey(defaultValue: [])
   final List<PlayerInfo> coaches;
+  @JsonKey(defaultValue: [])
+  final List<PlayerInfo> managers;
   @JsonKey(name: 'players_count')
   final int playersCount;
   @JsonKey(name: 'coaches_count')
   final int coachesCount;
-  @JsonKey(name: 'pending_invitations')
+  @JsonKey(name: 'managers_count', defaultValue: 0)
+  final int managersCount;
+  @JsonKey(name: 'pending_invitations', defaultValue: [])
   final List<Invitation> pendingInvitations;
-  @JsonKey(name: 'child_profiles')
+  @JsonKey(name: 'child_profiles', defaultValue: [])
   final List<ChildProfile> childProfiles;
+  @JsonKey(defaultValue: {})
   final Map<String, dynamic> statistics;
 
   ClubDashboard({
@@ -31,8 +40,10 @@ class ClubDashboard {
     required this.teams,
     required this.players,
     required this.coaches,
+    required this.managers,
     required this.playersCount,
     required this.coachesCount,
+    required this.managersCount,
     required this.pendingInvitations,
     required this.childProfiles,
     required this.statistics,

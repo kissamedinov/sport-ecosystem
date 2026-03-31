@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/profile/presentation/widgets/profile_header.dart';
-import 'package:mobile/features/profile/presentation/widgets/coach_profile_body.dart';
+import 'package:mobile/features/profile/presentation/widgets/club_owner_profile_body.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
-class CoachProfile extends StatelessWidget {
+class ClubOwnerProfile extends StatelessWidget {
   final User user;
 
-  const CoachProfile({super.key, required this.user});
+  const ClubOwnerProfile({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: PremiumTheme.deepNavy,
+      extendBodyBehindAppBar: false,
       body: Container(
         color: PremiumTheme.deepNavy,
         child: SingleChildScrollView(
@@ -21,11 +22,11 @@ class CoachProfile extends StatelessWidget {
               ProfileHeader(user: user),
               Container(
                 color: PremiumTheme.deepNavy,
-                child: Column(
+                child: const Column(
                   children: [
-                    const SizedBox(height: 4),
-                    CoachProfileBody(coachId: user.id),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 4),
+                    ClubOwnerProfileBody(),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),

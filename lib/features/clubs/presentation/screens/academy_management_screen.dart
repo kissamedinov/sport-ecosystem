@@ -105,7 +105,10 @@ class AcademyManagementScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => TeamManagementScreen(teamId: team.id, clubId: academy.clubId),
+            builder: (_) => TeamManagementScreen(
+              team: team, 
+              availableCoaches: dashboard.coaches,
+            ),
           ),
         );
       },

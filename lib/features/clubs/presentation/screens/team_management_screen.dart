@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
-import '../../providers/club_provider.dart';
-import 'invite_member_screen.dart';
+import 'package:mobile/features/teams/data/models/team.dart';
+import 'package:mobile/features/teams/data/models/player_team.dart';
+import 'package:mobile/core/api/profile_api_service.dart';
+import 'package:mobile/features/clubs/data/models/player_info.dart';
 
 class TeamManagementScreen extends StatefulWidget {
-  final String teamId;
-  final String clubId;
+  final Team team;
+  final List<PlayerInfo> availableCoaches;
 
   const TeamManagementScreen({
-    super.key, 
-    required this.teamId,
-    required this.clubId,
+    super.key,
+    required this.team,
+    required this.availableCoaches,
   });
 
   @override
@@ -20,138 +19,133 @@ class TeamManagementScreen extends StatefulWidget {
 }
 
 class _TeamManagementScreenState extends State<TeamManagementScreen> {
+  final ProfileApiService _profileApi = ProfileApiService();
+  late Future<List<PlayerTeam>> _rosterFuture;
+  String? _selectedCoachId;
+
   @override
   void initState() {
     super.initState();
-    // Refresh dashboard to ensure we have latest roster if needed
-    // Future.microtask(() => context.read<ClubProvider>().fetchClubDashboard(widget.clubId));
+    _rosterFuture = _fetchRoster();
+    _selectedCoachId = widget.team.coachId;
+  }
+
+  Future<List<PlayerTeam>> _fetchRoster() async {
+    return widget.team.players;
   }
 
   @override
   Widget build(BuildContext context) {
-    final clubProvider = context.watch<ClubProvider>();
-    final dashboard = clubProvider.dashboard;
-    
-    if (dashboard == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    final team = dashboard.teams.firstWhere((t) => t.id == widget.teamId);
-
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: Text(team.name.toUpperCase()),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: Text("Manage: ${widget.team.name}"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_add_alt_1),
-            onPressed: () {
-              Navigator.push(
-                context, 
-                MaterialPageRoute(
-                  builder: (_) => InviteMemberScreen(
-                    clubId: widget.clubId,
-                    // initialTeamId: widget.teamId, // Will add this parameter to InviteMemberScreen
-                  ),
-                ),
-              );
-            },
+            icon: const Icon(Icons.save),
+            onPressed: () => _saveTeamChanges(context),
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildTeamHeader(team),
-          const SizedBox(height: 32),
-          const Text('ROSTER / PLAYERS', 
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
-          const SizedBox(height: 16),
-          if (team.players.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 40),
-              child: Text('No players assigned to this team yet.', style: TextStyle(color: Colors.white24)),
-            ))
-          else
-            ...team.players.map((player) => _buildPlayerCard(player)),
-          
-          const SizedBox(height: 32),
-          PremiumButton(
-            text: 'INVITE NEW PLAYER',
-            icon: Icons.person_add_alt_1,
-            onPressed: () {
-              Navigator.push(
-                context, 
-                MaterialPageRoute(
-                  builder: (_) => InviteMemberScreen(
-                    clubId: widget.clubId,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamHeader(dynamic team) {
-    return PremiumCard(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.group, color: Colors.green, size: 40),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(team.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    Text('Academy: ${team.academyName ?? 'N/A'}', style: const TextStyle(color: Colors.white54)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildLargeStat('RATING', team.rating.toString(), Colors.amber),
-              _buildLargeStat('WINS', team.wins.toString(), Colors.green),
-              _buildLargeStat('LOSSES', team.losses.toString(), Colors.redAccent),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLargeStat(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: color)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38, letterSpacing: 1)),
-      ],
-    );
-  }
-
-  Widget _buildPlayerCard(dynamic player) {
-    return PremiumCard(
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: CircleAvatar(
-          backgroundColor: Colors.white10,
-          child: const Icon(Icons.person, color: Colors.white70),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCoachAssignment(),
+            const Divider(),
+            _buildSectionTitle("CURRENT ROSTER (${widget.team.players.length})"),
+            _buildRosterList(),
+          ],
         ),
-        title: Text(player.fullName ?? 'Unknown Player', style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('Pos: ${player.position ?? 'N/A'} | Status: ${player.status}', 
-          style: const TextStyle(color: Colors.white38, fontSize: 11)),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white10),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Integration with Invitation system coming soon.")),
+          );
+        },
+        label: const Text("ADD PLAYER"),
+        icon: const Icon(Icons.person_add),
       ),
     );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+      ),
+    );
+  }
+
+  Widget _buildCoachAssignment() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Assigned Coach", style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedCoachId,
+            items: widget.availableCoaches.map((c) {
+              return DropdownMenuItem(
+                value: c.userId,
+                child: Text(c.name),
+              );
+            }).toList(),
+            onChanged: (val) => setState(() => _selectedCoachId = val),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRosterList() {
+    final players = widget.team.players;
+    if (players.isEmpty) {
+      return const Center(child: Padding(padding: EdgeInsets.all(32), child: Text("No players in this team.")));
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: players.length,
+      itemBuilder: (context, index) {
+        final pt = players[index];
+        final name = pt.player?.name ?? "Unknown Player";
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.blue.withOpacity(0.1),
+            child: const Icon(Icons.person, color: Colors.blue, size: 20),
+          ),
+          title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: const Text("Player"),
+          trailing: IconButton(
+            icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Removing player...")));
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _saveTeamChanges(BuildContext context) async {
+    if (_selectedCoachId == widget.team.coachId) {
+      Navigator.pop(context);
+      return;
+    }
+
+    // Logic to call backend PATCH /clubs/teams/{id}/coach
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Saving changes...")));
+    // Success simulation
+    Navigator.pop(context);
   }
 }

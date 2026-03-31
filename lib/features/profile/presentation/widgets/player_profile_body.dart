@@ -3,6 +3,8 @@ import 'package:mobile/features/player_stats/data/models/player_stats.dart';
 import 'package:mobile/features/player_stats/presentation/screens/player_stats_screen.dart';
 import 'package:mobile/core/api/stats_api_service.dart';
 import 'package:mobile/features/auth/presentation/screens/parent_requests_screen.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 
 class PlayerProfileBody extends StatefulWidget {
   final String playerProfileId;
@@ -29,10 +31,10 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       future: _statsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()));
+          return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: PremiumTheme.neonGreen)));
         }
         if (snapshot.hasError) {
-          return Center(child: Text("Error loading stats: ${snapshot.error}"));
+          return Center(child: Text("Error loading stats: ${snapshot.error}", style: const TextStyle(color: Colors.white70)));
         }
         final stats = snapshot.data!;
 
@@ -48,25 +50,42 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
               const SizedBox(height: 24),
             ],
             _buildSectionTitle("QUICK ACTIONS"),
-            _buildActionCard(
-              context,
-              "View Detailed Career",
-              Icons.analytics,
-              Colors.indigo,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildActionCard(
-              context,
-              "Parent Requests",
-              Icons.group_add_rounded,
-              Colors.orange,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  PremiumCard(
+                    padding: EdgeInsets.zero,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
+                    ),
+                    child: const ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.white10,
+                        child: Icon(Icons.analytics, color: PremiumTheme.electricBlue),
+                      ),
+                      title: Text("View Detailed Career", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  PremiumCard(
+                    padding: EdgeInsets.zero,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
+                    ),
+                    child: const ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.white10,
+                        child: Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
+                      ),
+                      title: Text("Parent Requests", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -77,60 +96,66 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+        style: const TextStyle(
+          fontSize: 12, 
+          fontWeight: FontWeight.w900, 
+          color: Colors.white38, 
+          letterSpacing: 2,
+        ),
       ),
     );
   }
 
   Widget _buildStatsGrid(PlayerStats stats) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem("GOALS", "${stats.goals}", Colors.greenAccent),
-          _buildStatItem("ASSISTS", "${stats.assists}", Colors.blueAccent),
-          _buildStatItem("SAVES", "${stats.saves}", Colors.orangeAccent),
+          Expanded(
+            child: PremiumStatCard(
+              title: "Goals",
+              value: "${stats.goals}",
+              icon: Icons.sports_soccer,
+              color: PremiumTheme.neonGreen,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: PremiumStatCard(
+              title: "Assists",
+              value: "${stats.assists}",
+              icon: Icons.assistant,
+              color: PremiumTheme.electricBlue,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: PremiumStatCard(
+              title: "Saves",
+              value: "${stats.saves}",
+              icon: Icons.security,
+              color: Colors.orangeAccent,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
-    );
-  }
-
   Widget _buildAwardsList(List<String> awards) {
     return SizedBox(
-      height: 100,
+      height: 110,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: awards.length > 5 ? 5 : awards.length,
         itemBuilder: (context, index) {
-          return Container(
+          return PremiumCard(
             width: 140,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.withOpacity(0.3)),
-            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -141,30 +166,12 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ],
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          onTap: onTap,
-          leading: CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
-            child: Icon(icon, color: color),
-          ),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          trailing: const Icon(Icons.chevron_right),
-        ),
       ),
     );
   }
