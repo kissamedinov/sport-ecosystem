@@ -42,4 +42,10 @@ class ProfileApiService {
     final response = await _apiClient.get('/matches/upcoming/children');
     return (response.data as List).map((e) => MatchModel.fromJson(e)).toList();
   }
+
+  /// Update user profile
+  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    final response = await _apiClient.patch('/users/me', data: data);
+    return response.data;
+  }
 }

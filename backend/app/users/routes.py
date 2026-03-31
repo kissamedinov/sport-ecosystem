@@ -221,6 +221,10 @@ def update_my_profile(
             child_profile.date_of_birth = datetime.datetime.combine(user_update.date_of_birth, datetime.time.min)
     if user_update.phone is not None:
         current_user.phone = user_update.phone
+    if user_update.bio is not None:
+        current_user.bio = user_update.bio
+    if user_update.avatar_url is not None:
+        current_user.avatar_url = user_update.avatar_url
     
     db.commit()
     db.refresh(current_user)
@@ -233,10 +237,12 @@ def update_my_profile(
         "name": current_user.name,
         "email": current_user.email,
         "roles": roles_list,
-        "role": roles_list[0] if roles_list else "PLAYER_YOUTH",
+        "role": roles_list[0] if roles_list else "PLAYER_ADULT",
         "created_at": current_user.created_at,
         "date_of_birth": current_user.date_of_birth,
         "phone": current_user.phone,
+        "bio": current_user.bio,
+        "avatar_url": current_user.avatar_url,
         "onboarding_completed": current_user.onboarding_completed
     }
 
@@ -274,6 +280,10 @@ def update_user_profile(
             child_profile.date_of_birth = datetime.datetime.combine(user_update.date_of_birth, datetime.time.min)
     if user_update.phone is not None:
         target_user.phone = user_update.phone
+    if user_update.bio is not None:
+        target_user.bio = user_update.bio
+    if user_update.avatar_url is not None:
+        target_user.avatar_url = user_update.avatar_url
     
     db.commit()
     db.refresh(target_user)
@@ -286,10 +296,12 @@ def update_user_profile(
         "name": target_user.name,
         "email": target_user.email,
         "roles": roles_list,
-        "role": roles_list[0] if roles_list else "PLAYER_YOUTH",
+        "role": roles_list[0] if roles_list else "PLAYER_ADULT",
         "created_at": target_user.created_at,
         "date_of_birth": target_user.date_of_birth,
         "phone": target_user.phone,
+        "bio": target_user.bio,
+        "avatar_url": target_user.avatar_url,
         "onboarding_completed": target_user.onboarding_completed
     }
 
@@ -422,35 +434,6 @@ def create_child_by_parent(
     }
 
 
-@router.patch("/me", response_model=schemas.UserResponse)
-def update_me(
-    user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Updates the current user's profile.
-    """
-    if user_in.name is not None:
-        current_user.name = user_in.name
-    if user_in.date_of_birth is not None:
-        current_user.date_of_birth = user_in.date_of_birth
-    if user_in.phone is not None:
-        current_user.phone = user_in.phone
-    
-    db.commit()
-    db.refresh(current_user)
-    
-    # Get roles for response
-    stmt = select(models.UserRole.role).where(models.UserRole.user_id == current_user.id)
-    roles_list = db.execute(stmt).scalars().all()
-    roles = [r.value for r in roles_list]
-    
-    return {
-        **current_user.__dict__,
-        "roles": roles,
-        "role": roles[0] if roles else "PLAYER_ADULT"
-    }
 
 @router.patch("/{user_id}", response_model=schemas.UserResponse)
 def update_user(

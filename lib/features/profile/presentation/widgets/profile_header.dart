@@ -7,11 +7,13 @@ import 'dart:math' as math;
 class ProfileHeader extends StatelessWidget {
   final User user;
   final String? clubName;
+  final VoidCallback? onEdit;
 
   const ProfileHeader({
     super.key,
     required this.user,
     this.clubName,
+    this.onEdit,
   });
 
   @override
@@ -59,6 +61,22 @@ class ProfileHeader extends StatelessWidget {
                   letterSpacing: 0.3,
                 ),
               ),
+              if (user.bio?.isNotEmpty == true) ...[
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    user.bio!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               // Divider shimmer line
               Container(
@@ -143,24 +161,31 @@ class ProfileHeader extends StatelessWidget {
         Container(
           width: 108,
           height: 108,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [Color(0xFF1E2734), Color(0xFF161B22)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            image: user.avatarUrl != null 
+              ? DecorationImage(image: NetworkImage(user.avatarUrl!), fit: BoxFit.cover)
+              : null,
+            gradient: user.avatarUrl == null 
+              ? const LinearGradient(
+                  colors: [Color(0xFF1E2734), Color(0xFF161B22)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
           ),
-          child: Center(
-            child: Text(
-              user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-              style: const TextStyle(
-                fontSize: 46,
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
+          child: user.avatarUrl == null 
+            ? Center(
+                child: Text(
+                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    fontSize: 46,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              )
+            : null,
         ),
         // Online indicator
         Positioned(
@@ -176,6 +201,31 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ),
+        // Edit button overlay
+        if (onEdit != null)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: onEdit,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: PremiumTheme.cardNavy,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.5), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: PremiumTheme.neonGreen.withOpacity(0.2),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.edit_rounded, size: 16, color: PremiumTheme.neonGreen),
+              ),
+            ),
+          ),
       ],
     );
   }

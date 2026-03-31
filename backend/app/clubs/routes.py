@@ -160,7 +160,7 @@ def create_child_profile(
 
 # --- Original & Management Routes ---
 
-@router.get("/coach/dashboard", response_model=schemas.CoachDashboardResponse)
+@router.get("/coach-dashboard", response_model=schemas.CoachDashboardResponse)
 def get_coach_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
