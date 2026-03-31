@@ -30,7 +30,7 @@ This platform manages tournaments, teams, matches, field rentals, bookings, and 
 
 ## How to run Flutter App
 
-1. Navigate to the `mobile` directory:
+1. Navigate to the `mobile` (or whatever you named the main folder) directory:
    ```bash
    cd mobile
    ```
