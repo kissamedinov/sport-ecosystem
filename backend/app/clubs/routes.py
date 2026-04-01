@@ -7,6 +7,7 @@ from app.database import get_db
 from app.users.models import User, Role
 from app.common.dependencies import get_current_user, require_club_owner, require_club_staff, require_role
 from app.clubs import schemas, services, models
+from app.teams.models import Team
 
 router = APIRouter(prefix="/clubs", tags=["Clubs"])
 
@@ -186,7 +187,7 @@ def submit_lineup(
     current_user: User = Depends(get_current_user)
 ):
     # Authorization logic: verify user is coach of the team or owner
-    team = db.query(models.Team).filter(models.Team.id == team_id).first()
+    team = db.query(Team).filter(Team.id == team_id).first()
     if not team: raise HTTPException(status_code=404, detail="Team not found")
     
     is_coach = team.coach_id == current_user.id
