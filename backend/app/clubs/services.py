@@ -624,7 +624,7 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
     from app.matches.models import Match, MatchResult, MatchStatus
     
     # Get teams coached by this user
-    teams = db.query(models.Team).filter(models.Team.coach_id == coach_id).all()
+    teams = db.query(Team).filter(Team.coach_id == coach_id).all()
     team_ids = [t.id for t in teams]
     
     team_responses = []
@@ -702,8 +702,8 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
         performance_stats=perf
     )
 
-def update_team_coach(db: Session, team_id: UUID, new_coach_id: UUID) -> models.Team:
-    team = db.query(models.Team).filter(models.Team.id == team_id).first()
+def update_team_coach(db: Session, team_id: UUID, new_coach_id: UUID) -> Team:
+    team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     
