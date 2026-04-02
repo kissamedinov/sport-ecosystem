@@ -5,7 +5,7 @@ import 'package:mobile/features/dashboard/screens/role_router.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
 import 'package:mobile/features/matches/presentation/screens/match_list_screen.dart';
 import 'package:mobile/features/bookings/presentation/screens/booking_screen.dart';
-import 'package:mobile/features/profile/presentation/screens/profile_router.dart';
+import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
 import 'package:mobile/features/football_hub/presentation/screens/football_hub_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_announcements_screen.dart';
 import 'package:mobile/features/children/presentation/screens/children_activity_screen.dart';
@@ -81,7 +81,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
 
     final profileTab = _TabItem(
-      screen: const ProfileRouter(),
+      screen: const ProfileScreen(),
       icon: Icons.person_outline,
       activeIcon: Icons.person,
       label: 'Profile',
