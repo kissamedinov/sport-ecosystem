@@ -36,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
-            fontSize: 16,
+            fontSize: 14,
             color: Colors.white,
           ),
         ),
@@ -47,33 +47,77 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined, size: 20, color: Colors.white70),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
             onPressed: () {
-              auth.logout();
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
             },
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      // KEY FIX: Wrap entire scrollable area with deep navy background
       body: Container(
-        color: PremiumTheme.deepNavy,
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topRight,
+            radius: 1.5,
+            colors: [
+              PremiumTheme.electricBlue.withOpacity(0.05),
+              PremiumTheme.deepNavy,
+            ],
+          ),
+        ),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileHeader(user: user),
-              // Dark background container wrapping the body content
+              ProfileHeader(
+                user: user,
+                onEdit: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                },
+              ),
               Container(
                 color: PremiumTheme.deepNavy,
                 child: Column(
                   children: [
                     const SizedBox(height: 4),
                     _buildRoleSpecificBody(user, roles),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
+                    
+                    // Unified Premium Logout
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: GestureDetector(
+                        onTap: () {
+                          auth.logout();
+                          Navigator.pushReplacementNamed(context, '/login');
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.redAccent.withOpacity(0.1)),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                              SizedBox(width: 12),
+                              Text(
+                                "LOGOUT / QUIT SESSION",
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 60),
                   ],
                 ),
               ),

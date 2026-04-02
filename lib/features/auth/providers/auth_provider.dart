@@ -240,6 +240,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> uploadAvatar(String filePath) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final url = await _repository.uploadAvatar(filePath);
+      _user = await _repository.updateProfile({"avatar_url": url});
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

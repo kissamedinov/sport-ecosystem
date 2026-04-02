@@ -19,11 +19,11 @@ class CoachProfile extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
-          'COACH PROFILE',
+          'PROFILE',
           style: TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
-            fontSize: 16,
+            fontSize: 14,
             color: Colors.white,
           ),
         ),
@@ -32,18 +32,25 @@ class CoachProfile extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
-            tooltip: 'Quit',
+            icon: const Icon(Icons.settings_outlined, color: Colors.white60, size: 20),
             onPressed: () {
-              context.read<AuthProvider>().logout();
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
             },
           ),
           const SizedBox(width: 8),
         ],
       ),
       body: Container(
-        color: PremiumTheme.deepNavy,
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.topRight,
+            radius: 1.5,
+            colors: [
+              PremiumTheme.electricBlue.withOpacity(0.05),
+              PremiumTheme.deepNavy,
+            ],
+          ),
+        ),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -62,7 +69,43 @@ class CoachProfile extends StatelessWidget {
                   children: [
                     const SizedBox(height: 4),
                     CoachProfileBody(coachId: user.id),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
+                    
+                    // Prominent Logout Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: GestureDetector(
+                        onTap: () {
+                          context.read<AuthProvider>().logout();
+                          Navigator.pushReplacementNamed(context, '/login');
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.redAccent.withOpacity(0.1)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "LOGOUT / QUIT SESSION",
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 60),
                   ],
                 ),
               ),

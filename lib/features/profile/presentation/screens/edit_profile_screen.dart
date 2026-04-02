@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -15,6 +17,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _bioController;
   bool _isLoading = false;
+  bool _isUploadingImage = false;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -29,6 +33,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController.dispose();
     _bioController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1000,
+      );
+      
+      if (image != null) {
+        setState(() => _isUploadingImage = true);
+        final success = await context.read<AuthProvider>().uploadAvatar(image.path);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile picture updated!")),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error picking image: $e")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
   }
 
   Future<void> _saveProfile() async {
@@ -105,10 +137,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 maxLines: 4,
               ),
               const SizedBox(height: 40),
-              const Text(
-                "Your information is visible to other club members and professionals. Profile picture upload is coming soon.",
-                style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
-                textAlign: TextAlign.center,
+              const Center(
+                child: Text(
+                  "Your information is visible to other club members and professionals.",
+                  style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),
@@ -123,28 +157,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Subtly glowing outer ring
           Container(
-            width: 120, height: 120,
+            width: 130, height: 130,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.3), width: 2),
-              gradient: const LinearGradient(colors: [Color(0xFF1E2734), Color(0xFF161B22)]),
-            ),
-            child: Center(
-              child: Text(
-                user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : "?",
-                style: const TextStyle(fontSize: 48, color: Colors.white, fontWeight: FontWeight.w900),
+              gradient: SweepGradient(
+                colors: [
+                  PremiumTheme.neonGreen.withOpacity(0.5),
+                  PremiumTheme.electricBlue.withOpacity(0.5),
+                  PremiumTheme.neonGreen.withOpacity(0.5),
+                ],
               ),
             ),
           ),
-          Positioned(
-            bottom: 0, right: 0,
+          // Inner avatar container
+          GestureDetector(
+            onTap: _isUploadingImage ? null : _pickImage,
             child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(color: PremiumTheme.neonGreen, shape: BoxShape.circle),
-              child: const Icon(Icons.camera_alt_rounded, size: 20, color: Colors.black),
+              width: 124, height: 124,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: PremiumTheme.cardNavy,
+                image: user?.avatarUrl != null 
+                  ? DecorationImage(image: NetworkImage(user!.avatarUrl!), fit: BoxFit.cover)
+                  : null,
+                border: Border.all(color: PremiumTheme.deepNavy, width: 4),
+              ),
+              child: user?.avatarUrl == null 
+                ? Center(
+                    child: Text(
+                      user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : "?",
+                      style: const TextStyle(fontSize: 48, color: Colors.white, fontWeight: FontWeight.w900),
+                    ),
+                  )
+                : null,
             ),
           ),
+          // Uploading overlay
+          if (_isUploadingImage)
+            Container(
+              width: 124, height: 124,
+              decoration: BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+              child: const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2)),
+            ),
+          // Edit badge
+          if (!_isUploadingImage)
+            Positioned(
+              bottom: 4, right: 4,
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen, 
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: PremiumTheme.neonGreen.withOpacity(0.5), blurRadius: 10)],
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, size: 18, color: Colors.black),
+                ),
+              ),
+            ),
         ],
       ),
     );
