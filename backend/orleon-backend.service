@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve Orleon Sports API
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/root/orleon-backend
+Environment="PATH=/root/orleon-backend/venv/bin"
+ExecStart=/root/orleon-backend/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
+
+[Install]
+WantedBy=multi-user.target
