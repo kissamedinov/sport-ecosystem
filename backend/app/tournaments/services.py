@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from datetime import date
 
@@ -8,11 +8,11 @@ from app.tournaments.models import (
     Tournament, TournamentRegistration, RegistrationStatus, TournamentTeam, 
     TournamentStandings, TournamentMatch, TournamentFormat, MatchStatus, 
     TournamentSquad, TournamentMatchPlayerStats, TournamentSeries, TournamentDivision,
-    MatchSheet, MatchSheetPlayer, TournamentPlayerStats, TournamentAward
+    MatchSheet, MatchSheetPlayer, TournamentPlayerStats, TournamentAward, Season
 )
 from app.tournaments.schemas import (
     TournamentCreate, TournamentSeriesCreate, TournamentDivisionCreate,
-    MatchSheetCreate, TournamentAwardCreate
+    MatchSheetCreate, TournamentAwardCreate, TournamentSquadCreate
 )
 from app.users.models import User, Role, PlayerProfile
 from app.notifications import service as notification_service

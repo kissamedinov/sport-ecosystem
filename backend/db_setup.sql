@@ -1,0 +1,1 @@
+CREATE DATABASE sportseco; CREATE USER sportuser WITH PASSWORD 'sportpassword123'; GRANT ALL PRIVILEGES ON DATABASE sportseco TO sportuser; ALTER DATABASE sportseco OWNER TO sportuser; GRANT ALL ON SCHEMA public TO sportuser;

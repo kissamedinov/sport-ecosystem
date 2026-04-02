@@ -32,8 +32,8 @@ from app.stats import models as stats_models
 from app.media import models as media_models
 from app.notifications import models as notification_models
 
-# Create DB tables
-Base.metadata.create_all(bind=engine)
+# Create DB tables (Disabled for Gunicorn concurrency)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Sports Ecosystem API")
 

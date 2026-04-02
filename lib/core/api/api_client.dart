@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'dart:io';
 import '../services/token_service.dart';
-import 'package:flutter/foundation.dart';
 
 class ApiExceptions implements Exception {
   final String message;
@@ -17,7 +16,7 @@ class ApiClient {
   late Dio _dio;
   final TokenService _tokenService = TokenService();
   
-  static final String _baseUrl = kIsWeb ? 'http://localhost:8000' : (Platform.isAndroid ? 'http://10.0.2.2:8000' : 'http://localhost:8000');
+  static const String _baseUrl = 'http://207.154.222.151';
 
   ApiClient() {
     _dio = Dio(
