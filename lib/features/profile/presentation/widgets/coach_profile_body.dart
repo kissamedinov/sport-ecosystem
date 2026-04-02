@@ -99,7 +99,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: PremiumGlassCard(
+        child: PremiumCard(
           child: Column(
             children: [
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
@@ -165,7 +165,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
       children: [
         Expanded(
           child: PremiumStatCard(
-            label: "WIN RATE",
+            title: "WIN RATE",
             value: "$winRate%",
             icon: Icons.auto_graph_rounded,
             color: PremiumTheme.neonGreen,
@@ -174,7 +174,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 12),
         Expanded(
           child: PremiumStatCard(
-            label: "GOALS",
+            title: "GOALS",
             value: "${perf['goals_scored'] ?? 0}",
             icon: Icons.sports_soccer_rounded,
             color: PremiumTheme.electricBlue,
@@ -183,7 +183,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 12),
         Expanded(
           child: PremiumStatCard(
-            label: "CLEAN SHEETS",
+            title: "CLEAN SHEETS",
             value: "${perf['clean_sheets'] ?? 0}",
             icon: Icons.shield_rounded,
             color: Colors.orangeAccent,
@@ -200,7 +200,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Column(
       children: matches.map((match) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: PremiumGlassCard(
+        child: PremiumCard(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
@@ -265,7 +265,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Column(
       children: teams.map((team) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: PremiumGlassCard(
+        child: PremiumCard(
           padding: EdgeInsets.zero,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -317,7 +317,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
-    return PremiumGlassCard(
+    return PremiumCard(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(

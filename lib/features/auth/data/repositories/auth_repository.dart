@@ -1,6 +1,7 @@
 import '../../../../core/api/api_client.dart';
 import '../../../../core/services/token_service.dart';
 import '../models/user.dart';
+import 'dart:io';
 
 class AuthRepository {
   final ApiClient _apiClient;
@@ -85,5 +86,16 @@ class AuthRepository {
   Future<User> updateUserProfile(String userId, Map<String, dynamic> data) async {
     final response = await _apiClient.patch('/users/$userId', data: data);
     return User.fromJson(response.data);
+  }
+
+  Future<String> uploadAvatar(String filePath) async {
+    final file = File(filePath);
+    final response = await _apiClient.multipartPost(
+      '/media/upload', 
+      file, 
+      'AVATAR', 
+      extraData: {'user_id': (await getCurrentUser()).id},
+    );
+    return response.data['url'];
   }
 }
