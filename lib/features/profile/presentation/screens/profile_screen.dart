@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
@@ -48,7 +49,17 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings_outlined, size: 20, color: Colors.white70),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, size: 20, color: Colors.redAccent),
+            tooltip: 'Logout',
+            onPressed: () async {
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacementNamed('/login');
+              }
             },
           ),
           const SizedBox(width: 8),
@@ -72,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
               ProfileHeader(
                 user: user,
                 onEdit: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
                 },
               ),
               Container(
