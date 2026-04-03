@@ -9,6 +9,7 @@ import 'package:mobile/features/profile/presentation/widgets/parent_profile_body
 import 'package:mobile/features/profile/presentation/widgets/coach_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/club_owner_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/manager_profile_body.dart';
+import 'package:mobile/features/profile/presentation/widgets/child_player_profile_body.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -148,8 +149,10 @@ class ProfileScreen extends StatelessWidget {
       return CoachProfileBody(coachId: user.id);
     } else if (roles.contains('PARENT')) {
       return const ParentProfileBody();
+    } else if (roles.contains('PLAYER_CHILD')) {
+      return ChildPlayerProfileBody(user: user);
     } else if (user.playerProfileId != null &&
-               (roles.contains('PLAYER_ADULT') || roles.contains('PLAYER_CHILD') || roles.contains('PLAYER_YOUTH'))) {
+               (roles.contains('PLAYER_ADULT') || roles.contains('PLAYER_YOUTH'))) {
       return PlayerProfileBody(playerProfileId: user.playerProfileId!);
     } else {
       return const Padding(
