@@ -243,9 +243,9 @@ def create_join_request(db: Session, team_id: UUID, current_user: User):
     notification_service.create_notification(
         db,
         user_ids=[team.coach_id],
-        notification_type=NotificationType.TEAM_INVITE,
-        title="New Team Join Request",
-        message=f"Player {current_user.name} joined your team {team.name}",
+        notification_type=NotificationType.JOIN_REQUEST_RECEIVED,
+        title="New Join Request",
+        message=f"{current_user.name} wants to join your team {team.name}",
         entity_type=EntityType.PLAYER,
         entity_id=current_user.id
     )
@@ -255,21 +255,45 @@ def approve_join_request(db: Session, team_id: UUID, request_id: UUID, current_u
     team = get_team_by_id(db, team_id)
     if team.coach_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the coach can approve requests")
-        
+
     membership = db.query(TeamMembership).filter(TeamMembership.id == request_id, TeamMembership.team_id == team_id).first()
     if not membership:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+
+    player_user_id = membership.player_profile.user_id if membership.player_profile else None
+    if player_user_id:
+        notification_service.create_notification(
+            db,
+            user_ids=[player_user_id],
+            notification_type=NotificationType.JOIN_REQUEST_ACCEPTED,
+            title="Join Request Accepted",
+            message=f"Your request to join {team.name} has been accepted!",
+            entity_type=EntityType.PLAYER,
+            entity_id=team_id
+        )
     return membership
 
 def reject_join_request(db: Session, team_id: UUID, request_id: UUID, current_user: User):
     team = get_team_by_id(db, team_id)
     if team.coach_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the coach can reject requests")
-        
+
     membership = db.query(TeamMembership).filter(TeamMembership.id == request_id, TeamMembership.team_id == team_id).first()
     if not membership:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
-        
+
+    player_user_id = membership.player_profile.user_id if membership.player_profile else None
+    if player_user_id:
+        notification_service.create_notification(
+            db,
+            user_ids=[player_user_id],
+            notification_type=NotificationType.JOIN_REQUEST_REJECTED,
+            title="Join Request Declined",
+            message=f"Your request to join {team.name} has been declined.",
+            entity_type=EntityType.PLAYER,
+            entity_id=team_id
+        )
+
     import pytz
     membership.left_at = datetime.now(tz=pytz.UTC)
     db.commit()
