@@ -10,6 +10,7 @@ import 'package:mobile/features/profile/presentation/widgets/coach_profile_body.
 import 'package:mobile/features/profile/presentation/widgets/club_owner_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/manager_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/child_player_profile_body.dart';
+import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -72,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
             center: Alignment.topRight,
             radius: 1.5,
             colors: [
-              PremiumTheme.electricBlue.withOpacity(0.05),
+              PremiumTheme.electricBlue.withValues(alpha: 0.05),
               PremiumTheme.deepNavy,
             ],
           ),
@@ -106,9 +107,9 @@ class ProfileScreen extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(0.05),
+                            color: Colors.redAccent.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.redAccent.withOpacity(0.1)),
+                            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.1)),
                           ),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -141,7 +142,9 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildRoleSpecificBody(User user, List<String> roles) {
-    if (roles.contains('CLUB_OWNER')) {
+    if (roles.contains('REFEREE')) {
+      return const RefereeProfileBody();
+    } else if (roles.contains('CLUB_OWNER')) {
       return const ClubOwnerProfileBody();
     } else if (roles.contains('MANAGER') || roles.contains('CLUB_MANAGER')) {
       return const ManagerProfileBody();
