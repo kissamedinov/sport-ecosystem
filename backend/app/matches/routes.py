@@ -127,7 +127,7 @@ def create_match_event(
     id: UUID,
     event_in: schemas.MatchEventCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_stats_admin)
+    current_user: User = Depends(require_match_reporter)
 ):
     return services.create_match_event(db, id, event_in, current_user)
 

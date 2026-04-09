@@ -693,6 +693,8 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 tournament_name=m.tournament.name if m.tournament else "Friendly",
                 home_team_name=m.home_team.name,
                 away_team_name=m.away_team.name,
+                home_team_id=m.home_team_id,
+                away_team_id=m.away_team_id,
                 scheduled_at=m.match_date
             ))
 

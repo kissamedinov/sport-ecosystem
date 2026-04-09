@@ -161,6 +161,8 @@ class CoachMatchResponse(BaseModel):
     tournament_name: str
     home_team_name: str
     away_team_name: str
+    home_team_id: UUID
+    away_team_id: UUID
     scheduled_at: Optional[datetime] = None
 
 class CoachPerformanceStats(BaseModel):
