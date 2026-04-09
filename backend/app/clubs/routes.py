@@ -4,8 +4,8 @@ from typing import List
 from uuid import UUID
 
 from app.database import get_db
-from app.users.models import User, Role
-from app.common.dependencies import get_current_user, require_club_owner, require_club_staff, require_role
+from app.users.models import User, Role, ParentChildRelation, ParentChildStatus
+from app.common.dependencies import get_current_user, require_club_owner, require_club_staff, require_role, require_parent
 from app.clubs import schemas, services, models
 from app.teams.models import Team
 
@@ -158,6 +158,20 @@ def create_child_profile(
         raise HTTPException(status_code=403, detail="Not authorized to create child profiles for this club")
         
     return services.create_child_profile(db, profile_in, current_user.id)
+
+@router.get("/child-profiles/me", response_model=List[schemas.ChildProfileResponse])
+def get_my_child_profiles(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_parent)
+):
+    child_user_ids = db.query(ParentChildRelation.child_id).filter(
+        ParentChildRelation.parent_id == current_user.id,
+        ParentChildRelation.status == ParentChildStatus.ACCEPTED
+    ).all()
+    child_user_ids = [r[0] for r in child_user_ids]
+    return db.query(models.ChildProfile).filter(
+        models.ChildProfile.linked_user_id.in_(child_user_ids)
+    ).all()
 
 # --- Original & Management Routes ---
 

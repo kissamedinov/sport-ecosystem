@@ -4,11 +4,51 @@ from typing import List, Optional
 from uuid import UUID
 
 from app.database import get_db
-from app.users.models import User, Role
-from app.common.dependencies import get_current_user, require_role, require_coach, require_match_reporter, require_permission, require_stats_admin
+from app.users.models import User, Role, ParentChildRelation, ParentChildStatus, PlayerProfile
+from app.common.dependencies import get_current_user, require_role, require_coach, require_match_reporter, require_permission, require_stats_admin, require_parent
 from app.matches import schemas, services, standings_service
+from app.matches.models import Match, MatchStatus
+from app.teams.models import TeamMembership
 
 router = APIRouter(tags=["Matches"])
+
+@router.get("/matches/upcoming/children")
+def get_upcoming_matches_for_children(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_parent)
+):
+    child_user_ids = db.query(ParentChildRelation.child_id).filter(
+        ParentChildRelation.parent_id == current_user.id,
+        ParentChildRelation.status == ParentChildStatus.ACCEPTED
+    ).all()
+    child_user_ids = [r[0] for r in child_user_ids]
+
+    player_profile_ids = db.query(PlayerProfile.id).filter(
+        PlayerProfile.user_id.in_(child_user_ids)
+    ).all()
+    player_profile_ids = [r[0] for r in player_profile_ids]
+
+    team_ids = db.query(TeamMembership.team_id).filter(
+        TeamMembership.player_profile_id.in_(player_profile_ids)
+    ).all()
+    team_ids = [r[0] for r in team_ids]
+
+    matches = db.query(Match).filter(
+        (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+        Match.status == MatchStatus.SCHEDULED
+    ).all()
+
+    return [
+        {
+            "id": str(m.id),
+            "home_team_id": str(m.home_team_id),
+            "away_team_id": str(m.away_team_id),
+            "scheduled_at": m.match_date.isoformat() if m.match_date else "",
+            "status": m.status.value,
+            "tournament_id": str(m.tournament_id),
+        }
+        for m in matches
+    ]
 
 @router.get("/tournaments/{id}/matches", response_model=List[schemas.MatchResponse])
 def get_tournament_matches(id: UUID, db: Session = Depends(get_db)):
