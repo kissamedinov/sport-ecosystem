@@ -11,6 +11,8 @@ import 'package:mobile/features/profile/presentation/widgets/club_owner_profile_
 import 'package:mobile/features/profile/presentation/widgets/manager_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/child_player_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
+import 'package:mobile/features/notifications/providers/notification_provider.dart';
+import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -48,6 +50,23 @@ class ProfileScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white70),
         actions: [
+          Consumer<NotificationProvider>(
+            builder: (context, notifProvider, _) {
+              final count = notifProvider.unreadCount;
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: count > 0,
+                  label: Text('$count', style: const TextStyle(fontSize: 10)),
+                  backgroundColor: Colors.redAccent,
+                  child: const Icon(Icons.notifications_outlined, size: 20, color: Colors.white70),
+                ),
+                onPressed: () {
+                  notifProvider.fetchNotifications();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+                },
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined, size: 20, color: Colors.white70),
             onPressed: () {
