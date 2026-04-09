@@ -50,6 +50,44 @@ def get_upcoming_matches_for_children(
         for m in matches
     ]
 
+@router.get("/referee/dashboard")
+def get_referee_dashboard(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_match_reporter)
+):
+    from app.matches.models import MatchResult
+
+    results = db.query(MatchResult).filter(
+        MatchResult.submitted_by == current_user.id
+    ).all()
+
+    match_ids_officiated = [r.match_id for r in results]
+
+    officiated_matches = db.query(Match).filter(
+        Match.id.in_(match_ids_officiated)
+    ).order_by(Match.match_date.desc()).limit(10).all()
+
+    upcoming = db.query(Match).filter(
+        Match.status == MatchStatus.SCHEDULED
+    ).order_by(Match.match_date.asc()).limit(10).all()
+
+    def fmt(m):
+        return {
+            "id": str(m.id),
+            "home_team_id": str(m.home_team_id),
+            "away_team_id": str(m.away_team_id),
+            "scheduled_at": m.match_date.isoformat() if m.match_date else "",
+            "status": m.status.value,
+            "tournament_id": str(m.tournament_id),
+        }
+
+    return {
+        "matches_officiated": len(results),
+        "upcoming_count": db.query(Match).filter(Match.status == MatchStatus.SCHEDULED).count(),
+        "recent_officiated": [fmt(m) for m in officiated_matches],
+        "upcoming_matches": [fmt(m) for m in upcoming],
+    }
+
 @router.get("/tournaments/{id}/matches", response_model=List[schemas.MatchResponse])
 def get_tournament_matches(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_matches(db, id)
