@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -239,15 +240,43 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    match['scheduled_at'] != null 
-                      ? match['scheduled_at'].toString().split('T').first 
+                    match['scheduled_at'] != null
+                      ? match['scheduled_at'].toString().split('T').first
                       : "TBD",
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "KICK-OFF",
-                    style: TextStyle(color: PremiumTheme.neonGreen.withOpacity(0.7), fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1),
+                  const SizedBox(height: 6),
+                  GestureDetector(
+                    onTap: () {
+                      final homeId = match['home_team_id']?.toString() ?? '';
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LiveMatchScreen(
+                            matchId: match['id'].toString(),
+                            teamId: homeId,
+                            homeTeamName: match['home_team_name']?.toString() ?? 'Home',
+                            awayTeamName: match['away_team_name']?.toString() ?? 'Away',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.circle, color: Colors.redAccent, size: 6),
+                          SizedBox(width: 4),
+                          Text('LIVE', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1)),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

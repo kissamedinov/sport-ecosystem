@@ -22,6 +22,17 @@ class StatsApiService {
     return PlayerStats.fromJson(response.data);
   }
 
+  Future<void> postMatchEvent(String matchId, Map<String, dynamic> event) async {
+    await _apiClient.post('/matches/$matchId/events', data: event);
+  }
+
+  Future<void> submitMatchResult(String matchId, int homeScore, int awayScore) async {
+    await _apiClient.post('/matches/$matchId/submit-result', data: {
+      'home_score': homeScore,
+      'away_score': awayScore,
+    });
+  }
+
   Future<List<TopScorer>> getTopScorers(String tournamentId) async {
     final response = await _apiClient.get('/tournaments/$tournamentId/top-scorers');
     return (response.data as List).map((e) => TopScorer.fromJson(e)).toList();
