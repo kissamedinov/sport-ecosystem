@@ -220,6 +220,18 @@ class _NotificationCard extends StatelessWidget {
         color = Colors.red;
         iconData = Icons.cancel_rounded;
         break;
+      case 'JOIN_REQUEST_RECEIVED':
+        color = Colors.blueAccent;
+        iconData = Icons.person_add_rounded;
+        break;
+      case 'JOIN_REQUEST_ACCEPTED':
+        color = Colors.green;
+        iconData = Icons.check_circle_rounded;
+        break;
+      case 'JOIN_REQUEST_REJECTED':
+        color = Colors.red;
+        iconData = Icons.cancel_rounded;
+        break;
       default:
         iconData = Icons.notifications_rounded;
         color = Colors.grey;
