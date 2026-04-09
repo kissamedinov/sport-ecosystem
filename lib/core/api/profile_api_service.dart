@@ -43,6 +43,12 @@ class ProfileApiService {
     return (response.data as List).map((e) => MatchModel.fromJson(e)).toList();
   }
 
+  /// Fetch referee dashboard
+  Future<Map<String, dynamic>> getRefereeDashboard() async {
+    final response = await _apiClient.get('/referee/dashboard');
+    return response.data;
+  }
+
   /// Update user profile
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
     final response = await _apiClient.patch('/users/me', data: data);
