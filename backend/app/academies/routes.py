@@ -28,9 +28,9 @@ def get_my_academy(
     current_user: User = Depends(require_coach)
 ):
     """
-    Returns the academy owned by the current user.
+    Returns the academy owned by or coached by the current user.
     """
-    return services.get_academy_by_owner(db, current_user.id)
+    return services.get_user_related_academy(db, current_user.id)
 
 @router.get("/rankings", response_model=List[schemas.AcademyRankingResponse])
 def get_academy_rankings(db: Session = Depends(get_db)):

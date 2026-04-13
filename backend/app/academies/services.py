@@ -70,8 +70,18 @@ def create_academy(db: Session, academy_in: schemas.AcademyCreate, owner_id: UUI
     db.refresh(new_academy)
     return new_academy
 
-def get_academy_by_owner(db: Session, owner_id: UUID) -> Optional[Academy]:
-    return db.query(Academy).filter(Academy.owner_id == owner_id).first()
+def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
+    # 1. Check if owner
+    academy = db.query(Academy).filter(Academy.owner_id == user_id).first()
+    if academy:
+        return academy
+    
+    # 2. Check if coach of any team in any academy
+    team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == user_id).first()
+    if team:
+        return db.query(Academy).filter(Academy.id == team.academy_id).first()
+        
+    return None
 
 def get_academy_teams(db: Session, academy_id: UUID) -> List[AcademyTeam]:
     return db.query(AcademyTeam).filter(AcademyTeam.academy_id == academy_id).all()
