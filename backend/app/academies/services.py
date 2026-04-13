@@ -1,10 +1,11 @@
-from sqlalchemy.orm import Session
-from typing import List, Optional
-from uuid import UUID
-from datetime import date
-from app.academies.models import Academy, AcademyRanking, AcademyTeam, AcademyPlayer, AcademyTeamPlayer, TrainingSession, TrainingAttendance, CoachFeedback
-from app.tournaments.models import TournamentStandings
-from app.academies import schemas
+from app.academies.models import (
+    Academy, AcademyRanking, AcademyTeam, AcademyPlayer, 
+    AcademyTeamPlayer, TrainingSession, TrainingAttendance, 
+    CoachFeedback, TrainingSchedule, AcademyBillingConfig, DayOfWeek, AttendanceStatus
+)
+from app.users.models import User, PlayerProfile
+from datetime import date, timedelta, datetime
+import calendar
 
 def calculate_academy_rankings(db: Session, tournament_id: str):
     """
@@ -169,3 +170,150 @@ def submit_feedback(db: Session, coach_id: UUID, feedback_in: schemas.CoachFeedb
     db.commit()
     db.refresh(feedback)
     return feedback
+
+# --- CRM Features (Schedules, Movements, Billing) ---
+
+def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas.TrainingScheduleCreate) -> TrainingSchedule:
+    new_schedule = TrainingSchedule(
+        academy_id=academy_id,
+        team_id=schedule_in.team_id,
+        day_of_week=schedule_in.day_of_week,
+        start_time=schedule_in.start_time,
+        end_time=schedule_in.end_time,
+        location=schedule_in.location
+    )
+    db.add(new_schedule)
+    db.commit()
+    db.refresh(new_schedule)
+    return new_schedule
+
+def get_academy_schedules(db: Session, academy_id: UUID, team_id: Optional[UUID] = None) -> List[TrainingSchedule]:
+    query = db.query(TrainingSchedule).filter(TrainingSchedule.academy_id == academy_id)
+    if team_id:
+        query = query.filter(TrainingSchedule.team_id == team_id)
+    return query.all()
+
+def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: date, end_date: date) -> int:
+    """
+    Generates single TrainingSession records from recurring schedules for a date range.
+    """
+    schedules = db.query(TrainingSchedule).filter(TrainingSchedule.academy_id == academy_id).all()
+    sessions_created = 0
+
+    # Map enum to python weekday (Monday=0, Sunday=6)
+    day_map = {
+        DayOfWeek.MONDAY: 0,
+        DayOfWeek.TUESDAY: 1,
+        DayOfWeek.WEDNESDAY: 2,
+        DayOfWeek.THURSDAY: 3,
+        DayOfWeek.FRIDAY: 4,
+        DayOfWeek.SATURDAY: 5,
+        DayOfWeek.SUNDAY: 6
+    }
+
+    current_day = start_date
+    while current_day <= end_date:
+        weekday = current_day.weekday()
+        for sched in schedules:
+            if day_map.get(sched.day_of_week) == weekday:
+                # Check if session already exists
+                exists = db.query(TrainingSession).filter(
+                    TrainingSession.team_id == sched.team_id,
+                    TrainingSession.date == current_day,
+                    TrainingSession.start_time == sched.start_time
+                ).first()
+                
+                if not exists:
+                    # Get academy owner/coach for the team as default coach
+                    team = db.query(AcademyTeam).filter(AcademyTeam.id == sched.team_id).first()
+                    new_session = TrainingSession(
+                        academy_id=academy_id,
+                        team_id=sched.team_id,
+                        coach_id=team.coach_id,
+                        date=current_day,
+                        start_time=sched.start_time,
+                        end_time=sched.end_time,
+                        description=f"Automated session from schedule: {sched.day_of_week}"
+                    )
+                    db.add(new_session)
+                    sessions_created += 1
+        current_day += timedelta(days=1)
+    
+    db.commit()
+    return sessions_created
+
+def move_player_between_teams(db: Session, player_profile_id: UUID, target_team_id: UUID) -> Optional[AcademyTeamPlayer]:
+    # Remove from existing academy teams if any
+    db.query(AcademyTeamPlayer).filter(AcademyTeamPlayer.player_profile_id == player_profile_id).delete()
+    
+    # Add to new team
+    new_team_player = AcademyTeamPlayer(
+        team_id=target_team_id,
+        player_profile_id=player_profile_id
+    )
+    db.add(new_team_player)
+    db.commit()
+    db.refresh(new_team_player)
+    return new_team_player
+
+def get_billing_configuration(db: Session, academy_id: UUID) -> Optional[AcademyBillingConfig]:
+    return db.query(AcademyBillingConfig).filter(AcademyBillingConfig.academy_id == academy_id).first()
+
+def update_billing_configuration(db: Session, academy_id: UUID, config_in: schemas.AcademyBillingConfigCreate) -> AcademyBillingConfig:
+    config = db.query(AcademyBillingConfig).filter(AcademyBillingConfig.academy_id == academy_id).first()
+    if not config:
+        config = AcademyBillingConfig(academy_id=academy_id)
+        db.add(config)
+    
+    config.monthly_subscription_fee = config_in.monthly_subscription_fee
+    config.per_session_fee = config_in.per_session_fee
+    config.currency = config_in.currency
+    
+    db.commit()
+    db.refresh(config)
+    return config
+
+def get_player_billing_summary(db: Session, academy_id: UUID, player_id: UUID, month: int, year: int) -> schemas.BillingSummary:
+    """
+    Calculates billing based on attendance for a specific month.
+    """
+    # 1. Get attendance
+    start_date = date(year, month, 1)
+    _, last_day = calendar.monthrange(year, month)
+    end_date = date(year, month, last_day)
+
+    attendance_records = db.query(TrainingAttendance).join(TrainingSession).filter(
+        TrainingSession.academy_id == academy_id,
+        TrainingAttendance.player_id == player_id,
+        TrainingSession.date >= start_date,
+        TrainingSession.date <= end_date
+    ).all()
+
+    summary = {
+        "total_sessions": len(attendance_records),
+        "present": sum(1 for r in attendance_records if r.status == AttendanceStatus.PRESENT),
+        "absent": sum(1 for r in attendance_records if r.status == AttendanceStatus.ABSENT),
+        "late": sum(1 for r in attendance_records if r.status == AttendanceStatus.LATE),
+        "injured": sum(1 for r in attendance_records if r.status == AttendanceStatus.INJURED),
+    }
+
+    # 2. Get billing config
+    config = get_billing_configuration(db, academy_id)
+    monthly_fee = config.monthly_subscription_fee if config and config.monthly_subscription_fee else 0.0
+    per_session_fee = config.per_session_fee if config and config.per_session_fee else 0.0
+    
+    # Calculate additional fees from per-session attendance if no monthly subscription
+    attendance_cost = summary["present"] * per_session_fee if not monthly_fee else 0.0
+    
+    # Get user name
+    user = db.query(User).filter(User.id == player_id).first()
+    
+    return schemas.BillingSummary(
+        player_id=player_id,
+        player_name=user.name if user else "Unknown",
+        attendance=schemas.AttendanceSummary(**summary),
+        base_fee=monthly_fee,
+        additional_fees=attendance_cost,
+        total_owed=monthly_fee + attendance_cost,
+        currency=config.currency if config else "KZT"
+    )

@@ -24,6 +24,15 @@ class AttendanceStatus(str, enum.Enum):
     LATE = "LATE"
     INJURED = "INJURED"
 
+class DayOfWeek(str, enum.Enum):
+    MONDAY = "MONDAY"
+    TUESDAY = "TUESDAY"
+    WEDNESDAY = "WEDNESDAY"
+    THURSDAY = "THURSDAY"
+    FRIDAY = "FRIDAY"
+    SATURDAY = "SATURDAY"
+    SUNDAY = "SUNDAY"
+
 class Academy(Base):
     __tablename__ = "football_academies"
 
@@ -43,6 +52,8 @@ class Academy(Base):
     youth_teams = relationship("Team", back_populates="academy")
     players = relationship("AcademyPlayer", back_populates="academy", cascade="all, delete-orphan")
     managed_users = relationship("User", back_populates="academy", foreign_keys="[User.academy_id]")
+    schedules = relationship("TrainingSchedule", back_populates="academy", cascade="all, delete-orphan")
+    billing_config = relationship("AcademyBillingConfig", back_populates="academy", uselist=False, cascade="all, delete-orphan")
 
 class AcademyTeam(Base):
     __tablename__ = "academy_teams"
@@ -58,6 +69,7 @@ class AcademyTeam(Base):
     academy = relationship("Academy", back_populates="teams")
     coach = relationship("User")
     players = relationship("AcademyTeamPlayer", back_populates="team", cascade="all, delete-orphan")
+    schedules = relationship("TrainingSchedule", back_populates="team", cascade="all, delete-orphan")
 
 class AcademyPlayer(Base):
     __tablename__ = "academy_players"
@@ -147,3 +159,28 @@ class AcademyRanking(Base):
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     academy = relationship("Academy")
+
+class TrainingSchedule(Base):
+    __tablename__ = "academy_training_schedules"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
+    team_id = Column(UUID(as_uuid=True), ForeignKey("academy_teams.id"), nullable=False)
+    day_of_week = Column(Enum(DayOfWeek), nullable=False)
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+    location = Column(String, nullable=True)
+
+    academy = relationship("Academy", back_populates="schedules")
+    team = relationship("AcademyTeam", back_populates="schedules")
+
+class AcademyBillingConfig(Base):
+    __tablename__ = "academy_billing_configs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False, unique=True)
+    monthly_subscription_fee = Column(Float, nullable=True)
+    per_session_fee = Column(Float, nullable=True)
+    currency = Column(String, default="KZT", nullable=False)
+
+    academy = relationship("Academy", back_populates="billing_config")
