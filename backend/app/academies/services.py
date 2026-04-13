@@ -1,11 +1,16 @@
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from uuid import UUID
+from datetime import date, timedelta, datetime
+import calendar
 from app.academies.models import (
     Academy, AcademyRanking, AcademyTeam, AcademyPlayer, 
     AcademyTeamPlayer, TrainingSession, TrainingAttendance, 
     CoachFeedback, TrainingSchedule, AcademyBillingConfig, DayOfWeek, AttendanceStatus
 )
 from app.users.models import User, PlayerProfile
-from datetime import date, timedelta, datetime
-import calendar
+from app.tournaments.models import TournamentStandings
+from app.academies import schemas
 
 def calculate_academy_rankings(db: Session, tournament_id: str):
     """
