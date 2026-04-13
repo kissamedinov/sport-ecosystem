@@ -4,6 +4,7 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 import 'package:mobile/features/academies/data/models/academy.dart';
+import 'package:intl/intl.dart';
 
 class TrainingManagementScreen extends StatefulWidget {
   final String academyId;
@@ -27,6 +28,13 @@ class _TrainingManagementScreenState extends State<TrainingManagementScreen> {
       appBar: AppBar(
         title: const Text('TRAINING HUB', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
         backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
+            onPressed: () => _showGenerateSessionsDialog(context),
+            tooltip: 'Bulk Generate from Schedules',
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateSessionDialog(context),
@@ -84,6 +92,42 @@ class _TrainingManagementScreenState extends State<TrainingManagementScreen> {
       context,
       MaterialPageRoute(builder: (_) => AttendanceScreen(session: session)),
     );
+  }
+
+  void _showGenerateSessionsDialog(BuildContext context) async {
+    final provider = context.read<AcademyProvider>();
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.dark(
+            primary: PremiumTheme.neonGreen,
+            onPrimary: Colors.black,
+            surface: PremiumTheme.cardNavy,
+            onSurface: Colors.white,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+
+    if (range != null) {
+      final success = await provider.triggerGenerateSessions(
+        widget.academyId,
+        range.start,
+        range.end,
+      );
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sessions generated from ${DateFormat('MMM dd').format(range.start)} to ${DateFormat('MMM dd').format(range.end)}'),
+            backgroundColor: PremiumTheme.neonGreen,
+          ),
+        );
+      }
+    }
   }
 
   void _showCreateSessionDialog(BuildContext context) {

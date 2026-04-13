@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/repositories/academy_repository.dart';
 import '../data/models/academy.dart';
 import '../data/models/academy_team.dart' hide AcademyPlayer, TrainingSession;
+import '../data/models/crm_models.dart';
 
 class AcademyProvider extends ChangeNotifier {
   final AcademyRepository _repository;
@@ -12,6 +13,10 @@ class AcademyProvider extends ChangeNotifier {
   List<AcademyPlayer> _players = [];
   List<TrainingSession> _sessions = [];
   List<AcademyTeamPlayer> _teamPlayers = [];
+  List<TrainingSchedule> _schedules = [];
+  AcademyBillingConfig? _billingConfig;
+  BillingSummary? _currentBillingReport;
+  
   bool _isLoading = false;
   String? _error;
 
@@ -23,6 +28,10 @@ class AcademyProvider extends ChangeNotifier {
   List<AcademyPlayer> get players => _players;
   List<TrainingSession> get sessions => _sessions;
   List<AcademyTeamPlayer> get teamPlayers => _teamPlayers;
+  List<TrainingSchedule> get schedules => _schedules;
+  AcademyBillingConfig? get billingConfig => _billingConfig;
+  BillingSummary? get currentBillingReport => _currentBillingReport;
+  
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -35,6 +44,8 @@ class AcademyProvider extends ChangeNotifier {
       if (_myAcademy != null) {
         await fetchAcademyTeams(_myAcademy!.id);
         await fetchAcademyPlayers(_myAcademy!.id);
+        await fetchSchedules(_myAcademy!.id);
+        await fetchBillingConfig(_myAcademy!.id);
       }
     } catch (e) {
       _error = e.toString();
@@ -176,6 +187,104 @@ class AcademyProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // --- CRM State Management ---
+
+  Future<void> fetchSchedules(String academyId, {String? teamId}) async {
+    try {
+      _schedules = await _repository.getAcademySchedules(academyId, teamId: teamId);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
+  Future<bool> createSchedule(String academyId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.createAcademySchedule(academyId, data);
+      await fetchSchedules(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> triggerGenerateSessions(String academyId, DateTime start, DateTime end) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.generateSessions(academyId, start, end);
+      await fetchSessions(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> reassignPlayer(String playerProfileId, String targetTeamId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.reassignPlayerTeam(playerProfileId, targetTeamId);
+      if (_myAcademy != null) {
+        await fetchAcademyPlayers(_myAcademy!.id);
+      }
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchBillingConfig(String academyId) async {
+    try {
+      _billingConfig = await _repository.getBillingConfig(academyId);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
+  Future<bool> saveBillingConfig(String academyId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _billingConfig = await _repository.updateBillingConfig(academyId, data);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchBillingReport(String academyId, String playerId, int month, int year) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _currentBillingReport = await _repository.getPlayerBillingReport(academyId, playerId, month, year);
+    } catch (e) {
+      _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -5,6 +5,7 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
+import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 
 class ClubOwnerProfileBody extends StatefulWidget {
   const ClubOwnerProfileBody({super.key});
@@ -309,32 +310,40 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
         itemCount: dashboard.academies.length,
         itemBuilder: (context, index) {
           final academy = dashboard.academies[index];
-          return Container(
-            width: 160,
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [PremiumTheme.electricBlue.withOpacity(0.1), PremiumTheme.electricBlue.withOpacity(0.03)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: PremiumTheme.electricBlue.withOpacity(0.2)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Icon(Icons.school_rounded, color: PremiumTheme.electricBlue, size: 22),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(academy.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text(academy.city, style: const TextStyle(color: Colors.white38, fontSize: 10)),
-                  ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+              );
+            },
+            child: Container(
+              width: 160,
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [PremiumTheme.electricBlue.withOpacity(0.1), PremiumTheme.electricBlue.withOpacity(0.03)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: PremiumTheme.electricBlue.withOpacity(0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Icon(Icons.school_rounded, color: PremiumTheme.electricBlue, size: 22),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(academy.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(academy.city, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },

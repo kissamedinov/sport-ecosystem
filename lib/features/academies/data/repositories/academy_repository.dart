@@ -1,6 +1,7 @@
 import '../../../../core/api/api_client.dart';
 import '../models/academy.dart';
 import '../models/academy_team.dart' hide AcademyPlayer, TrainingSession;
+import '../models/crm_models.dart';
 
 class AcademyRepository {
   final ApiClient _apiClient;
@@ -61,6 +62,7 @@ class AcademyRepository {
     final response = await _apiClient.post('/academies/$academyId/training', data: sessionData);
     return TrainingSession.fromJson(response.data);
   }
+
   Future<List<AcademyTeamPlayer>> getTeamPlayers(String teamId) async {
     final response = await _apiClient.get('/academies/teams/$teamId/players');
     final List<dynamic> data = response.data;
@@ -78,5 +80,57 @@ class AcademyRepository {
 
   Future<void> submitCoachFeedback(Map<String, dynamic> feedbackData) async {
     await _apiClient.post('/academies/feedback', data: feedbackData);
+  }
+
+  // --- CRM Methods ---
+
+  Future<List<TrainingSchedule>> getAcademySchedules(String academyId, {String? teamId}) async {
+    final response = await _apiClient.get('/academies/$academyId/schedules', queryParameters: {
+      if (teamId != null) 'team_id': teamId,
+    });
+    final List<dynamic> data = response.data;
+    return data.map((json) => TrainingSchedule.fromJson(json)).toList();
+  }
+
+  Future<TrainingSchedule> createAcademySchedule(String academyId, Map<String, dynamic> scheduleData) async {
+    final response = await _apiClient.post('/academies/$academyId/schedules', data: scheduleData);
+    return TrainingSchedule.fromJson(response.data);
+  }
+
+  Future<void> generateSessions(String academyId, DateTime start, DateTime end) async {
+    await _apiClient.post('/academies/$academyId/generate-sessions', queryParameters: {
+      'start_date': start.toIso8601String().split('T').first,
+      'end_date': end.toIso8601String().split('T').first,
+    });
+  }
+
+  Future<AcademyTeamPlayer> reassignPlayerTeam(String playerProfileId, String targetTeamId) async {
+    final response = await _apiClient.patch('/academies/players/$playerProfileId/team', queryParameters: {
+      'target_team_id': targetTeamId,
+    });
+    return AcademyTeamPlayer.fromJson(response.data);
+  }
+
+  Future<AcademyBillingConfig?> getBillingConfig(String academyId) async {
+    try {
+      final response = await _apiClient.get('/academies/$academyId/billing/config');
+      if (response.data == null) return null;
+      return AcademyBillingConfig.fromJson(response.data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<AcademyBillingConfig> updateBillingConfig(String academyId, Map<String, dynamic> configData) async {
+    final response = await _apiClient.put('/academies/$academyId/billing/config', data: configData);
+    return AcademyBillingConfig.fromJson(response.data);
+  }
+
+  Future<BillingSummary> getPlayerBillingReport(String academyId, String playerId, int month, int year) async {
+    final response = await _apiClient.get('/academies/$academyId/billing/report/$playerId', queryParameters: {
+      'month': month,
+      'year': year,
+    });
+    return BillingSummary.fromJson(response.data);
   }
 }
