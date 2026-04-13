@@ -3,6 +3,7 @@ import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/features/teams/data/models/team.dart';
 import 'package:mobile/features/matches/data/models/match.dart';
 import 'package:mobile/features/matches/presentation/screens/match_events_screen.dart';
+import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 
 class ManagerProfileBody extends StatefulWidget {
   const ManagerProfileBody({super.key});
@@ -35,6 +36,9 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
         _buildMatchesList(),
         const SizedBox(height: 24),
         _buildSectionTitle("MANAGER CONTROLS"),
+        _buildActionCard(context, "Academy CRM Management", Icons.school_rounded, Colors.blue, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()));
+        }),
         _buildActionCard(context, "Register Team for Tournament", Icons.emoji_events, Colors.amber, () {}),
         _buildActionCard(context, "Coordinate Field Schedules", Icons.stadium, Colors.green, () {}),
       ],

@@ -3,6 +3,7 @@ import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
+import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -51,7 +52,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
+              _buildAcademyHub(),
+              const SizedBox(height: 32),
+              
               _buildSectionHeader("PERFORMANCE OVERVIEW", Icons.analytics_rounded),
               const SizedBox(height: 16),
               _buildPerformanceStats(perf),
@@ -342,6 +346,67 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
           ),
         ),
       )).toList(),
+    );
+  }
+
+  Widget _buildAcademyHub() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+        );
+      },
+      child: PremiumCard(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [PremiumTheme.neonGreen, PremiumTheme.neonGreen.withOpacity(0.4)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: PremiumTheme.neonGreen.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.school_rounded, color: Colors.black, size: 28),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "ACADEMY CRM HUB",
+                    style: TextStyle(
+                      color: PremiumTheme.neonGreen,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "Schedule, Billing & Squads",
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
+          ],
+        ),
+      ),
     );
   }
 

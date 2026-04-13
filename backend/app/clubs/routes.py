@@ -36,7 +36,7 @@ def get_my_club_dashboard(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-# --- Club Creation Request System (Part 2) ---
+
 
 @router.post("/requests", response_model=schemas.ClubRequestResponse)
 def create_club_request(

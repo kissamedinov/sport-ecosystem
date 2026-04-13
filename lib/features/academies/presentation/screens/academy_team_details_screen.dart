@@ -77,26 +77,76 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
       builder: (context, provider, child) {
         final teamPlayers = provider.players.where((p) => true).toList(); // Simplified filter
 
-        if (teamPlayers.isEmpty) {
-          return const Center(child: Text('No players assigned to this team.'));
-        }
-
         return ListView.builder(
           itemCount: teamPlayers.length,
           itemBuilder: (context, index) {
             final player = teamPlayers[index];
             return ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('Player ID: ${player.playerProfileId?.substring(0, 8) ?? "N/A"}'),
+              title: Text('Player Profile ID: ${(player.playerProfileId ?? "Unknown").substring(0, 8)}'),
               subtitle: Text('Status: ${player.status}'),
-              trailing: IconButton(
-                icon: const Icon(Icons.feedback_outlined),
-                onPressed: () => _showFeedbackDialog(player),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.swap_horiz, color: Colors.blue),
+                    onPressed: () => _showReassignSheet(player),
+                    tooltip: 'Move to Team',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.feedback_outlined),
+                    onPressed: () => _showFeedbackDialog(player),
+                  ),
+                ],
               ),
             );
           },
         );
       },
+    );
+  }
+
+  void _showReassignSheet(academy_models.AcademyPlayer player) {
+    final provider = context.read<AcademyProvider>();
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Move Player to Team', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            const Text('Select target team:'),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: provider.teams.length,
+                itemBuilder: (context, index) {
+                  final team = provider.teams[index];
+                  if (team.id == widget.team.id) return const SizedBox.shrink();
+
+                  return ListTile(
+                    leading: CircleAvatar(child: Text(team.ageGroup)),
+                    title: Text(team.name),
+                    onTap: () async {
+                      final success = await provider.reassignPlayer(player.playerProfileId ?? "", team.id);
+                      if (success) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Player moved to ${team.name}')),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

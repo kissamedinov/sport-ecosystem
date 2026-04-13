@@ -12,7 +12,7 @@ from app.users.models import PlayerProfile
 
 router = APIRouter(prefix="/tournaments", tags=["Tournaments"])
 
-# --- Tournament Series ---
+
 
 @router.post("/series", response_model=schemas.TournamentSeriesResponse, status_code=status.HTTP_201_CREATED)
 def create_series(
@@ -26,7 +26,7 @@ def create_series(
 def get_tournament_series(db: Session = Depends(get_db)):
     return services.get_tournament_series(db=db)
 
-# --- Tournament Editions (Tournaments) ---
+#  Editions (Tournaments) 
 
 @router.post("", response_model=schemas.TournamentResponse, status_code=status.HTTP_201_CREATED)
 def create_tournament(
@@ -45,7 +45,7 @@ def get_tournaments(
     tournaments = services.get_tournaments(db=db, season=season, year=year)
     return tournaments if tournaments is not None else []
 
-# --- Tournament Divisions ---
+# Tournament Divisions 
 
 @router.post("/divisions", response_model=schemas.TournamentDivisionResponse, status_code=status.HTTP_201_CREATED)
 def create_division(
@@ -67,7 +67,7 @@ def get_tournaments_by_series(series_name: str, db: Session = Depends(get_db)):
 def get_tournament(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_by_id(db=db, tournament_id=id)
 
-# --- Team Registration ---
+# Team Registration 
 
 @router.post("/divisions/{division_id}/register-team", response_model=schemas.TournamentTeamResponse)
 def register_team(
@@ -93,7 +93,7 @@ def update_team_status(
 ):
     return services.update_tournament_team_status(db, tournament_id, team_id, status)
 
-# --- Scheduling & Matches ---
+#  Scheduling & Matches 
 
 @router.get("/{id}/matches", response_model=List[schemas.TournamentMatchResponse])
 def get_tournament_matches(id: UUID, db: Session = Depends(get_db)):
@@ -113,7 +113,7 @@ def update_match_result(
 ):
     return services.update_match_result(db, match_id, home_score, away_score)
 
-# --- Standings & Stats ---
+#  Standings & Stats 
 
 @router.get("/{id}/standings", response_model=List[schemas.TournamentStandingsResponse])
 def get_tournament_standings(id: UUID, db: Session = Depends(get_db)):

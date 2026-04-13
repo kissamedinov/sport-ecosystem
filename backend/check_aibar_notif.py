@@ -8,7 +8,6 @@ def check_notif_entity():
     # Invitation ID from Flutter log: e584ef76
     
     print("--- Notifications for Aibar ---")
-    # Actually, let's find the notification TARGET for Aibar
     aibar_id = 'a91006f6-d240-42ad-8bf6-afcf234a7523'
     cur.execute(f"SELECT notification_id FROM notification_targets WHERE user_id = '{aibar_id}'")
     nt = cur.fetchall()
