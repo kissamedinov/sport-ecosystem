@@ -151,3 +151,74 @@ def submit_coach_feedback(
     current_user: User = Depends(require_coach)
 ):
     return services.submit_feedback(db, current_user.id, feedback_in)
+
+# --- CRM Endpoints ---
+
+@router.post("/{id}/schedules", response_model=schemas.TrainingScheduleResponse)
+def create_academy_schedule(
+    id: UUID,
+    schedule_in: schemas.TrainingScheduleCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.create_training_schedule(db, id, schedule_in)
+
+@router.get("/{id}/schedules", response_model=List[schemas.TrainingScheduleResponse])
+def list_academy_schedules(
+    id: UUID,
+    team_id: Optional[UUID] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.get_academy_schedules(db, id, team_id)
+
+@router.post("/{id}/generate-sessions")
+def trigger_session_generation(
+    id: UUID,
+    start_date: date,
+    end_date: date,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    count = services.generate_sessions_from_schedules(db, id, start_date, end_date)
+    return {"message": f"Successfully created {count} sessions"}
+
+@router.patch("/players/{player_profile_id}/team", response_model=schemas.AcademyTeamPlayerResponse)
+def reassign_player_team(
+    player_profile_id: UUID,
+    target_team_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    """
+    Moves a player to a different team within the academy system.
+    """
+    return services.move_player_between_teams(db, player_profile_id, target_team_id)
+
+@router.get("/{id}/billing/config", response_model=Optional[schemas.AcademyBillingConfigResponse])
+def get_billing_config(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.get_billing_configuration(db, id)
+
+@router.put("/{id}/billing/config", response_model=schemas.AcademyBillingConfigResponse)
+def update_billing_config(
+    id: UUID,
+    config_in: schemas.AcademyBillingConfigCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.update_billing_configuration(db, id, config_in)
+
+@router.get("/{id}/billing/report/{player_id}", response_model=schemas.BillingSummary)
+def get_player_billing_report(
+    id: UUID,
+    player_id: UUID,
+    month: int,
+    year: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.get_player_billing_summary(db, id, player_id, month, year)

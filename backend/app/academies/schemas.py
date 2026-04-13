@@ -13,6 +13,15 @@ class AgeGroup(str, Enum):
     U15 = "U15"
     U17 = "U17"
 
+class DayOfWeek(str, Enum):
+    MONDAY = "MONDAY"
+    TUESDAY = "TUESDAY"
+    WEDNESDAY = "WEDNESDAY"
+    THURSDAY = "THURSDAY"
+    FRIDAY = "FRIDAY"
+    SATURDAY = "SATURDAY"
+    SUNDAY = "SUNDAY"
+
 class AcademyPlayerStatus(str, Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
@@ -155,3 +164,52 @@ class AcademyRankingResponse(BaseModel):
     academy: Optional[AcademyBase] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+# Training Schedule schemas
+class TrainingScheduleBase(BaseModel):
+    day_of_week: DayOfWeek
+    start_time: time
+    end_time: time
+    location: Optional[str] = None
+
+class TrainingScheduleCreate(TrainingScheduleBase):
+    team_id: UUID
+
+class TrainingScheduleResponse(TrainingScheduleBase):
+    id: UUID
+    academy_id: UUID
+    team_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Academy Billing Config schemas
+class AcademyBillingConfigBase(BaseModel):
+    monthly_subscription_fee: Optional[float] = None
+    per_session_fee: Optional[float] = None
+    currency: str = "KZT"
+
+class AcademyBillingConfigCreate(AcademyBillingConfigBase):
+    pass
+
+class AcademyBillingConfigResponse(AcademyBillingConfigBase):
+    id: UUID
+    academy_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Summary schemas
+class AttendanceSummary(BaseModel):
+    total_sessions: int
+    present: int
+    absent: int
+    late: int
+    injured: int
+
+class BillingSummary(BaseModel):
+    player_id: UUID
+    player_name: str
+    attendance: AttendanceSummary
+    base_fee: float
+    additional_fees: float
+    total_owed: float
+    currency: str
