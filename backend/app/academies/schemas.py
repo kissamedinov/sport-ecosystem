@@ -54,7 +54,7 @@ class AcademyResponse(AcademyBase):
 # Academy Team schemas
 class AcademyTeamBase(BaseModel):
     name: str
-    age_group: AgeGroup
+    age_group: str
 
 class AcademyTeamCreate(AcademyTeamBase):
     coach_id: UUID

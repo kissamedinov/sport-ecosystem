@@ -9,6 +9,7 @@ from app.academies.models import (
     CoachFeedback, TrainingSchedule, AcademyBillingConfig, DayOfWeek, AttendanceStatus
 )
 from app.users.models import User, PlayerProfile
+from app.clubs.models import Club
 from app.tournaments.models import TournamentStandings
 from app.academies import schemas
 
@@ -76,7 +77,14 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     if academy:
         return academy
     
-    # 2. Check if coach of any team in any academy
+    # 2. Check if owner of a club that has academies
+    club = db.query(Club).filter(Club.owner_id == user_id).first()
+    if club:
+        academy = db.query(Academy).filter(Academy.club_id == club.id).first()
+        if academy:
+            return academy
+    
+    # 3. Check if coach of any team in any academy
     team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == user_id).first()
     if team:
         return db.query(Academy).filter(Academy.id == team.academy_id).first()

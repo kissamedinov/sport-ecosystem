@@ -146,32 +146,39 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   }
 
   Widget _buildTeamsTab(AcademyProvider provider) {
-    if (provider.teams.isEmpty) {
-      return const Center(child: Text('No teams added yet.'));
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: provider.teams.length,
-      itemBuilder: (context, index) {
-        final team = provider.teams[index];
-        return Card(
-          child: ListTile(
-            leading: CircleAvatar(child: Text(team.ageGroup)),
-            title: Text(team.name),
-            subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AcademyTeamDetailsScreen(team: team),
-                ),
-              );
-            },
-          ),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchMyAcademy(),
+      child: provider.teams.isEmpty
+          ? SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: const Center(child: Text('No teams added yet.')),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: provider.teams.length,
+              itemBuilder: (context, index) {
+                final team = provider.teams[index];
+                return Card(
+                  child: ListTile(
+                    leading: CircleAvatar(child: Text(team.ageGroup)),
+                    title: Text(team.name),
+                    subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AcademyTeamDetailsScreen(team: team),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -345,7 +352,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
 
   void _showAddTeamDialog() {
     final nameController = TextEditingController();
-    String ageGroup = 'U15';
+    final ageController = TextEditingController();
 
     showDialog(
       context: context,
@@ -355,11 +362,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
-            DropdownButtonFormField<String>(
-              initialValue: ageGroup,
-              items: ['U7', 'U9', 'U11', 'U13', 'U15', 'U17'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-              onChanged: (v) => ageGroup = v!,
-              decoration: const InputDecoration(labelText: 'Age Group'),
+            TextField(
+              controller: ageController,
+              decoration: const InputDecoration(
+                labelText: 'Age Groups / Years',
+                hintText: 'e.g., 2013, 2014 or U15',
+              ),
             ),
           ],
         ),
@@ -368,7 +376,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           ElevatedButton(
             onPressed: () {
               final provider = context.read<AcademyProvider>();
-              provider.createTeam(provider.myAcademy!.id, nameController.text, ageGroup, 'Intermediate');
+              provider.createTeam(provider.myAcademy!.id, nameController.text, ageController.text, 'Intermediate');
               Navigator.pop(context);
             },
             child: const Text('Add'),
