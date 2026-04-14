@@ -63,6 +63,12 @@ class AcademyRepository {
     return TrainingSession.fromJson(response.data);
   }
 
+  Future<List<AcademyCompositePlayer>> getCompositeTrainingPlayers(String sessionId) async {
+    final response = await _apiClient.get('/academies/training/$sessionId/players');
+    final List<dynamic> data = response.data;
+    return data.map((json) => AcademyCompositePlayer.fromJson(json)).toList();
+  }
+
   Future<List<AcademyTeamPlayer>> getTeamPlayers(String teamId) async {
     final response = await _apiClient.get('/academies/teams/$teamId/players');
     final List<dynamic> data = response.data;

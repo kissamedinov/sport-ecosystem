@@ -108,13 +108,13 @@ class TrainingSessionBase(BaseModel):
     description: Optional[str] = None
 
 class TrainingSessionCreate(TrainingSessionBase):
-    team_id: UUID
+    team_ids: List[UUID]
 
 class TrainingSessionResponse(TrainingSessionBase):
     id: UUID
     academy_id: UUID
-    team_id: UUID
     coach_id: UUID
+    teams: List[Optional[UUID]] = [] # We can return actual team objects if needed later
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -173,12 +173,12 @@ class TrainingScheduleBase(BaseModel):
     location: Optional[str] = None
 
 class TrainingScheduleCreate(TrainingScheduleBase):
-    team_id: UUID
+    team_ids: List[UUID]
 
 class TrainingScheduleResponse(TrainingScheduleBase):
     id: UUID
     academy_id: UUID
-    team_id: UUID
+    team_ids: List[UUID] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -213,3 +213,10 @@ class BillingSummary(BaseModel):
     additional_fees: float
     total_owed: float
     currency: str
+class AcademyCompositePlayerResponse(BaseModel):
+    id: str
+    full_name: str
+    birth_year: Optional[int] = None
+    team_name: str
+
+    model_config = ConfigDict(from_attributes=True)

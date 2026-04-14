@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/repositories/academy_repository.dart';
 import '../data/models/academy.dart';
-import '../data/models/academy_team.dart' hide AcademyPlayer, TrainingSession;
+import '../data/models/academy_team.dart' hide AcademyPlayer, TrainingSession, AcademyCompositePlayer;
 import '../data/models/crm_models.dart';
 
 class AcademyProvider extends ChangeNotifier {
@@ -93,6 +93,24 @@ class AcademyProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _teamPlayers = await _repository.getTeamPlayers(teamId);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // New method for unified attendance lists
+  List<AcademyCompositePlayer> _compositePlayers = [];
+  List<AcademyCompositePlayer> get compositePlayers => _compositePlayers;
+
+  Future<void> fetchCompositePlayers(String sessionId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _compositePlayers = await _repository.getCompositeTrainingPlayers(sessionId);
     } catch (e) {
       _error = e.toString();
     } finally {

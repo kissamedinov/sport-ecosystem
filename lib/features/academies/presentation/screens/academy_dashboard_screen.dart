@@ -224,16 +224,17 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
       itemCount: provider.schedules.length,
       itemBuilder: (context, index) {
         final schedule = provider.schedules[index];
-        final team = provider.teams.firstWhere((t) => t.id == schedule.teamId, orElse: () => provider.teams[0]);
+        final scheduleTeams = provider.teams.where((t) => schedule.teamIds.contains(t.id)).toList();
+        final teamsLabel = scheduleTeams.map((e) => e.name).join(', ');
         
         return Card(
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.orange.withOpacity(0.2),
-              child: Icon(Icons.timer, color: Colors.orange),
+              child: const Icon(Icons.timer, color: Colors.orange),
             ),
             title: Text('${schedule.dayOfWeek.toShortString()} | ${schedule.startTime} - ${schedule.endTime}'),
-            subtitle: Text('Team: ${team.name} • ${schedule.location ?? "Main Field"}'),
+            subtitle: Text('Teams: $teamsLabel\nLocation: ${schedule.location ?? "Main Field"}'),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: () {
@@ -415,7 +416,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
       return;
     }
 
-    String selectedTeamId = provider.teams[0].id;
+    List<String> selectedTeamIds = [provider.teams[0].id];
     DayOfWeek selectedDay = DayOfWeek.MONDAY;
     TimeOfDay startTime = const TimeOfDay(hour: 18, minute: 0);
     TimeOfDay endTime = const TimeOfDay(hour: 19, minute: 30);
@@ -431,11 +432,28 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text('Add Recurring Schedule', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              DropdownButtonFormField<String>(
-                value: selectedTeamId,
-                items: provider.teams.map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))).toList(),
-                onChanged: (v) => setState(() => selectedTeamId = v!),
-                decoration: const InputDecoration(labelText: 'Team'),
+              const SizedBox(height: 16),
+              const Align(alignment: Alignment.centerLeft, child: Text('Select Teams:', style: TextStyle(fontWeight: FontWeight.bold))),
+              Wrap(
+                spacing: 8,
+                children: provider.teams.map((t) {
+                  final isSelected = selectedTeamIds.contains(t.id);
+                  return FilterChip(
+                    label: Text(t.name),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          selectedTeamIds.add(t.id);
+                        } else {
+                          if (selectedTeamIds.length > 1) {
+                            selectedTeamIds.remove(t.id);
+                          }
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
               ),
               DropdownButtonFormField<DayOfWeek>(
                 value: selectedDay,
@@ -466,7 +484,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 child: ElevatedButton(
                   onPressed: () async {
                     final success = await provider.createSchedule(provider.myAcademy!.id, {
-                      'team_id': selectedTeamId,
+                      'team_ids': selectedTeamIds,
                       'day_of_week': selectedDay.toShortString(),
                       'start_time': '${startTime.hour.toString().padLeft(2, "0")}:${startTime.minute.toString().padLeft(2, "0")}',
                       'end_time': '${endTime.hour.toString().padLeft(2, "0")}:${endTime.minute.toString().padLeft(2, "0")}',

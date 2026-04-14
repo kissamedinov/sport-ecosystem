@@ -19,7 +19,7 @@ enum DayOfWeek {
 class TrainingSchedule {
   final String id;
   final String academyId;
-  final String teamId;
+  final List<String> teamIds;
   final DayOfWeek dayOfWeek;
   final String startTime;
   final String endTime;
@@ -28,7 +28,7 @@ class TrainingSchedule {
   TrainingSchedule({
     required this.id,
     required this.academyId,
-    required this.teamId,
+    required this.teamIds,
     required this.dayOfWeek,
     required this.startTime,
     required this.endTime,
@@ -39,7 +39,7 @@ class TrainingSchedule {
     return TrainingSchedule(
       id: json['id'] as String,
       academyId: json['academy_id'] as String,
-      teamId: json['team_id'] as String,
+      teamIds: (json['team_ids'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
       dayOfWeek: DayOfWeek.fromString(json['day_of_week'] as String),
       startTime: json['start_time'] as String,
       endTime: json['end_time'] as String,
@@ -50,12 +50,35 @@ class TrainingSchedule {
   Map<String, dynamic> toJson() => {
     'id': id,
     'academy_id': academyId,
-    'team_id': teamId,
+    'team_ids': teamIds,
     'day_of_week': dayOfWeek.toShortString(),
     'start_time': startTime,
     'end_time': endTime,
     'location': location,
   };
+}
+
+class AcademyCompositePlayer {
+  final String id;
+  final String fullName;
+  final int? birthYear;
+  final String teamName;
+
+  AcademyCompositePlayer({
+    required this.id,
+    required this.fullName,
+    this.birthYear,
+    required this.teamName,
+  });
+
+  factory AcademyCompositePlayer.fromJson(Map<String, dynamic> json) {
+    return AcademyCompositePlayer(
+      id: json['id'] as String,
+      fullName: json['full_name'] as String,
+      birthYear: json['birth_year'] as int?,
+      teamName: json['team_name'] as String? ?? 'N/A',
+    );
+  }
 }
 
 class AcademyBillingConfig {
