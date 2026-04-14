@@ -77,9 +77,9 @@ def get_training_session_players(
 def list_academy_teams(
     id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_coach)
+    current_user: User = Depends(get_current_active_user)
 ):
-    return services.get_academy_teams(db, id)
+    return services.get_academy_teams(db, id, user_id=current_user.id)
 
 @router.post("/{id}/teams", response_model=schemas.AcademyTeamResponse)
 def add_academy_team(
@@ -94,9 +94,9 @@ def add_academy_team(
 def list_academy_players(
     id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_coach)
+    current_user: User = Depends(get_current_active_user)
 ):
-    return services.get_academy_players(db, id)
+    return services.get_academy_players(db, id, user_id=current_user.id)
 
 @router.post("/{id}/players", response_model=schemas.AcademyPlayerResponse)
 def add_academy_player(
