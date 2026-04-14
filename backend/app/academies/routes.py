@@ -43,7 +43,7 @@ def get_academy_rankings(db: Session = Depends(get_db)):
 def get_training_session_players(
     session_id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     from app.academies.models import TrainingSession
     from app.teams.models import TeamMembership
@@ -77,7 +77,7 @@ def get_training_session_players(
 def list_academy_teams(
     id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     return services.get_academy_teams(db, id, user_id=current_user.id)
 
@@ -94,7 +94,7 @@ def add_academy_team(
 def list_academy_players(
     id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     return services.get_academy_players(db, id, user_id=current_user.id)
 
