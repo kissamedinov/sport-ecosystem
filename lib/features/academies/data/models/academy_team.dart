@@ -77,7 +77,7 @@ class AcademyPlayer {
 class TrainingSession {
   final String id;
   final String academyId;
-  final String teamId;
+  final List<String> teamIds;
   final String coachId;
   final String date;
   final String startTime;
@@ -87,7 +87,7 @@ class TrainingSession {
   TrainingSession({
     required this.id,
     required this.academyId,
-    required this.teamId,
+    required this.teamIds,
     required this.coachId,
     required this.date,
     required this.startTime,
@@ -99,7 +99,7 @@ class TrainingSession {
     return TrainingSession(
       id: json['id'] as String,
       academyId: json['academy_id'] as String,
-      teamId: json['team_id'] as String,
+      teamIds: (json['team_ids'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
       coachId: json['coach_id'] as String,
       date: json['date'] as String,
       startTime: json['start_time'] as String,
@@ -111,7 +111,7 @@ class TrainingSession {
   Map<String, dynamic> toJson() => {
     'id': id,
     'academy_id': academyId,
-    'team_id': teamId,
+    'team_ids': teamIds,
     'coach_id': coachId,
     'date': date,
     'start_time': startTime,

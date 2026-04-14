@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, func, Integer, Float, Boolean, Date, Time
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, func, Integer, Float, Boolean, Date, Time, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -69,7 +69,6 @@ class AcademyTeam(Base):
     academy = relationship("Academy", back_populates="teams")
     coach = relationship("User")
     players = relationship("AcademyTeamPlayer", back_populates="team", cascade="all, delete-orphan")
-    schedules = relationship("TrainingSchedule", back_populates="team", cascade="all, delete-orphan")
 
 class AcademyPlayer(Base):
     __tablename__ = "academy_players"
@@ -99,12 +98,27 @@ class AcademyTeamPlayer(Base):
     player_profile = relationship("PlayerProfile")
     team = relationship("AcademyTeam", back_populates="players")
 
+# Association table for multi-team training sessions
+training_session_teams = Table(
+    "training_session_teams",
+    Base.metadata,
+    Column("training_session_id", UUID(as_uuid=True), ForeignKey("training_sessions.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
+)
+
+# Association table for multi-team training schedules
+training_schedule_teams = Table(
+    "training_schedule_teams",
+    Base.metadata,
+    Column("training_schedule_id", UUID(as_uuid=True), ForeignKey("academy_training_schedules.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
+)
+
 class TrainingSession(Base):
     __tablename__ = "training_sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("academy_teams.id"), nullable=False)
     coach_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
@@ -112,7 +126,7 @@ class TrainingSession(Base):
     description = Column(String, nullable=True)
 
     academy = relationship("Academy")
-    team = relationship("AcademyTeam")
+    teams = relationship("Team", secondary=training_session_teams)
     coach = relationship("User")
     attendance = relationship("TrainingAttendance", back_populates="session", cascade="all, delete-orphan")
 
@@ -165,14 +179,13 @@ class TrainingSchedule(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("academy_teams.id"), nullable=False)
     day_of_week = Column(Enum(DayOfWeek), nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
     location = Column(String, nullable=True)
 
     academy = relationship("Academy", back_populates="schedules")
-    team = relationship("AcademyTeam", back_populates="schedules")
+    teams = relationship("Team", secondary=training_schedule_teams)
 
 class AcademyBillingConfig(Base):
     __tablename__ = "academy_billing_configs"

@@ -149,7 +149,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<AcademyProvider>().fetchTeamPlayers(widget.session.teamId));
+    Future.microtask(() => context.read<AcademyProvider>().fetchCompositePlayers(widget.session.id));
   }
 
   @override
@@ -164,7 +164,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         builder: (context, provider, child) {
           if (provider.isLoading) return const Center(child: CircularProgressIndicator());
           
-          final players = provider.teamPlayers;
+          final players = provider.compositePlayers;
           return Column(
             children: [
               Expanded(
@@ -178,7 +178,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     return PremiumCard(
                       child: Row(
                         children: [
-                          Expanded(child: Text(player.fullName ?? "Anonymous Player", style: const TextStyle(fontWeight: FontWeight.bold))),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  player.fullName, 
+                                  style: const TextStyle(fontWeight: FontWeight.bold)
+                                ),
+                                Text(
+                                  "${player.birthYear ?? 'N/A'} • ${player.teamName}", 
+                                  style: const TextStyle(color: Colors.white38, fontSize: 11)
+                                ),
+                              ],
+                            ),
+                          ),
                           DropdownButton<String>(
                             dropdownColor: PremiumTheme.cardNavy,
                             value: status,

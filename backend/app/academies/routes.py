@@ -39,6 +39,40 @@ def get_academy_rankings(db: Session = Depends(get_db)):
     """
     return services.get_academy_rankings(db)
 
+@router.get("/training/{session_id}/players", response_model=List[schemas.AcademyCompositePlayerResponse])
+def get_training_session_players(
+    session_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    from app.academies.models import TrainingSession
+    from app.teams.models import TeamMembership
+    from app.users.models import User
+    
+    session = db.query(TrainingSession).filter(TrainingSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    team_ids = [t.id for t in session.teams]
+    if not team_ids:
+        return []
+
+    # Fetch all players in these teams
+    memberships = db.query(TeamMembership).filter(TeamMembership.team_id.in_(team_ids)).all()
+    
+    # Map to composite response
+    results = []
+    for m in memberships:
+        # Get birth year from team (since it defines the group context)
+        birth_year = m.team.birth_year
+        results.append({
+            "id": str(m.player_id),
+            "full_name": f"{m.player_profile.first_name} {m.player_profile.last_name}",
+            "birth_year": birth_year,
+            "team_name": m.team.name
+        })
+    return results
+
 @router.get("/{id}/teams", response_model=List[schemas.AcademyTeamResponse])
 def list_academy_teams(
     id: UUID,

@@ -91,8 +91,11 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
         
     return None
 
-def get_academy_teams(db: Session, academy_id: UUID) -> List[AcademyTeam]:
-    return db.query(AcademyTeam).filter(AcademyTeam.academy_id == academy_id).all()
+def get_academy_teams(db: Session, academy_id: UUID) -> List[Team]:
+    from app.teams.models import Team
+    # If this is a club owner, they might want all teams across branches? 
+    # For now, stick to the specific academy but ensure they HAVE access (already done in route)
+    return db.query(Team).filter(Team.academy_id == academy_id).all()
 
 def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyTeamCreate) -> AcademyTeam:
     new_team = AcademyTeam(
@@ -106,8 +109,9 @@ def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyT
     db.refresh(new_team)
     return new_team
 
-def get_academy_players(db: Session, academy_id: UUID) -> List[AcademyPlayer]:
-    return db.query(AcademyPlayer).filter(AcademyPlayer.academy_id == academy_id).all()
+def get_academy_players(db: Session, academy_id: UUID) -> List[TeamMembership]:
+    from app.teams.models import TeamMembership, Team
+    return db.query(TeamMembership).join(Team).filter(Team.academy_id == academy_id).all()
 
 def add_player_to_academy(db: Session, academy_id: UUID, player_in: schemas.AcademyPlayerCreate) -> AcademyPlayer:
     new_player = AcademyPlayer(
@@ -138,13 +142,18 @@ def add_player_to_team(db: Session, team_id: UUID, player_in: schemas.AcademyTea
 def create_training_session(db: Session, academy_id: UUID, coach_id: UUID, session_in: schemas.TrainingSessionCreate) -> TrainingSession:
     new_session = TrainingSession(
         academy_id=academy_id,
-        team_id=session_in.team_id,
         coach_id=coach_id,
         date=session_in.date,
         start_time=session_in.start_time,
         end_time=session_in.end_time,
         description=session_in.description
     )
+    # Link teams
+    if session_in.team_ids:
+        from app.teams.models import Team
+        teams = db.query(Team).filter(Team.id.in_(session_in.team_ids)).all()
+        new_session.teams = teams
+
     db.add(new_session)
     db.commit()
     db.refresh(new_session)
@@ -153,7 +162,7 @@ def create_training_session(db: Session, academy_id: UUID, coach_id: UUID, sessi
 def get_training_sessions(db: Session, academy_id: UUID, team_id: Optional[UUID] = None) -> List[TrainingSession]:
     query = db.query(TrainingSession).filter(TrainingSession.academy_id == academy_id)
     if team_id:
-        query = query.filter(TrainingSession.team_id == team_id)
+        query = query.join(TrainingSession.teams).filter(Team.id == team_id) # Need import Team inside or top
     return query.all()
 
 def record_attendance(db: Session, attendance_in: schemas.TrainingAttendanceCreate) -> TrainingAttendance:
@@ -199,12 +208,17 @@ def submit_feedback(db: Session, coach_id: UUID, feedback_in: schemas.CoachFeedb
 def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas.TrainingScheduleCreate) -> TrainingSchedule:
     new_schedule = TrainingSchedule(
         academy_id=academy_id,
-        team_id=schedule_in.team_id,
         day_of_week=schedule_in.day_of_week,
         start_time=schedule_in.start_time,
         end_time=schedule_in.end_time,
         location=schedule_in.location
     )
+    # Link teams
+    if schedule_in.team_ids:
+        from app.teams.models import Team
+        teams = db.query(Team).filter(Team.id.in_(schedule_in.team_ids)).all()
+        new_schedule.teams = teams
+
     db.add(new_schedule)
     db.commit()
     db.refresh(new_schedule)
@@ -213,7 +227,7 @@ def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas
 def get_academy_schedules(db: Session, academy_id: UUID, team_id: Optional[UUID] = None) -> List[TrainingSchedule]:
     query = db.query(TrainingSchedule).filter(TrainingSchedule.academy_id == academy_id)
     if team_id:
-        query = query.filter(TrainingSchedule.team_id == team_id)
+        query = query.join(TrainingSchedule.teams).filter(Team.id == team_id)
     return query.all()
 
 def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: date, end_date: date) -> int:
@@ -239,25 +253,29 @@ def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: 
         weekday = current_day.weekday()
         for sched in schedules:
             if day_map.get(sched.day_of_week) == weekday:
-                # Check if session already exists
+                # For multi-team, check if a session with SAME teams/time/date exists
+                # Simplifying: check if ANY session at that academy/time/date exists for these teams
                 exists = db.query(TrainingSession).filter(
-                    TrainingSession.team_id == sched.team_id,
+                    TrainingSession.academy_id == academy_id,
                     TrainingSession.date == current_day,
                     TrainingSession.start_time == sched.start_time
                 ).first()
                 
                 if not exists:
-                    # Get academy owner/coach for the team as default coach
-                    team = db.query(AcademyTeam).filter(AcademyTeam.id == sched.team_id).first()
+                    # Get academy owner or the coach of the first team as default
+                    default_coach_id = db.query(Academy).filter(Academy.id == academy_id).first().owner_id
+                    if sched.teams:
+                        default_coach_id = sched.teams[0].coach_id
+
                     new_session = TrainingSession(
                         academy_id=academy_id,
-                        team_id=sched.team_id,
-                        coach_id=team.coach_id,
+                        coach_id=default_coach_id,
                         date=current_day,
                         start_time=sched.start_time,
                         end_time=sched.end_time,
-                        description=f"Automated session from schedule: {sched.day_of_week}"
+                        description=f"Automated session from multi-team schedule"
                     )
+                    new_session.teams = list(sched.teams)
                     db.add(new_session)
                     sessions_created += 1
         current_day += timedelta(days=1)

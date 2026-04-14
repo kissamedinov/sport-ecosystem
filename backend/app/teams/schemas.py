@@ -8,6 +8,8 @@ class TeamBase(BaseModel):
     name: str
     academy_id: Optional[UUID] = None
     age_category: Optional[str] = None
+    birth_year: Optional[int] = None
+    division: Optional[str] = "Group A"
 
 class TeamCreate(TeamBase):
     pass
