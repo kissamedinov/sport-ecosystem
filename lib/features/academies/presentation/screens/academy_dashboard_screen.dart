@@ -163,7 +163,25 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 final team = provider.teams[index];
                 return Card(
                   child: ListTile(
-                    leading: CircleAvatar(child: Text(team.ageGroup)),
+                    leading: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          team.ageGroup,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ),
+                    ),
                     title: Text(team.name),
                     subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
                     trailing: const Icon(Icons.chevron_right),
