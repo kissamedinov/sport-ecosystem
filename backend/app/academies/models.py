@@ -61,7 +61,7 @@ class AcademyTeam(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
     name = Column(String, nullable=False)
-    age_group = Column(Enum(AgeGroup), nullable=False)
+    age_group = Column(String, nullable=False)
     coach_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
