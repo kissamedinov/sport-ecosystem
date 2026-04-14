@@ -91,10 +91,17 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
         
     return None
 
-def get_academy_teams(db: Session, academy_id: UUID) -> List[Team]:
+def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[Team]:
     from app.teams.models import Team
-    # If this is a club owner, they might want all teams across branches? 
-    # For now, stick to the specific academy but ensure they HAVE access (already done in route)
+    from app.clubs.models import Club
+    
+    # If user_id provided, check if they are a club owner
+    if user_id:
+        club = db.query(Club).filter(Club.owner_id == user_id).first()
+        if club:
+            # Aggregate teams from ALL academies of this club
+            return db.query(Team).join(Academy).filter(Academy.club_id == club.id).all()
+            
     return db.query(Team).filter(Team.academy_id == academy_id).all()
 
 def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyTeamCreate) -> AcademyTeam:
@@ -109,8 +116,16 @@ def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyT
     db.refresh(new_team)
     return new_team
 
-def get_academy_players(db: Session, academy_id: UUID) -> List[TeamMembership]:
+def get_academy_players(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[TeamMembership]:
     from app.teams.models import TeamMembership, Team
+    from app.clubs.models import Club
+    
+    if user_id:
+        club = db.query(Club).filter(Club.owner_id == user_id).first()
+        if club:
+            # Aggregate players from ALL academies of this club
+            return db.query(TeamMembership).join(Team).join(Academy).filter(Academy.club_id == club.id).all()
+
     return db.query(TeamMembership).join(Team).filter(Team.academy_id == academy_id).all()
 
 def add_player_to_academy(db: Session, academy_id: UUID, player_in: schemas.AcademyPlayerCreate) -> AcademyPlayer:
