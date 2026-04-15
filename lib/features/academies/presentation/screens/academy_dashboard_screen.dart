@@ -394,6 +394,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
+              final provider = context.read<AcademyProvider>();
               final academyId = provider.myAcademy?.id;
               if (academyId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No academy loaded')));
