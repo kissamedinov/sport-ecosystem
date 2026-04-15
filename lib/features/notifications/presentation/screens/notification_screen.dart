@@ -4,6 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../providers/notification_provider.dart';
 import '../../../clubs/providers/club_provider.dart';
 import '../../../auth/providers/auth_provider.dart' as import_auth;
+import 'package:mobile/core/theme/premium_theme.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -16,17 +17,31 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<NotificationProvider>().fetchNotifications());
+    final provider = context.read<NotificationProvider>();
+    Future.microtask(() => provider.fetchNotifications());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: const Text('Notifications'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white70),
+        title: const Text(
+          'NOTIFICATIONS',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 13,
+            letterSpacing: 2,
+          ),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
             onPressed: () => context.read<NotificationProvider>().fetchNotifications(),
           ),
         ],
@@ -34,7 +49,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: Consumer<NotificationProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.notifications.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+            );
           }
 
           if (provider.error != null && provider.notifications.isEmpty) {
@@ -42,10 +59,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error: ${provider.error}'),
+                  Text(
+                    'Error: ${provider.error}',
+                    style: const TextStyle(color: Colors.white54),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.fetchNotifications(),
-                    child: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PremiumTheme.neonGreen,
+                      foregroundColor: PremiumTheme.deepNavy,
+                    ),
+                    child: const Text('Retry', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
@@ -57,16 +83,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_none, size: 64, color: Colors.grey.withOpacity(0.5)),
+                  Icon(Icons.notifications_none_rounded, size: 48, color: Colors.white.withValues(alpha: 0.1)),
                   const SizedBox(height: 16),
-                  const Text('No notifications yet', style: TextStyle(color: Colors.grey)),
+                  Text(
+                    'NO NOTIFICATIONS',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
                 ],
               ),
             );
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             itemCount: provider.notifications.length,
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
@@ -88,106 +122,119 @@ class _NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isInvite = notification.type == 'TEAM_INVITE' || notification.type == 'PARENT_LINK_REQUEST';
-    final backgroundColor = notification.isRead 
-      ? Theme.of(context).cardColor 
-      : Theme.of(context).primaryColor.withOpacity(0.05);
+    final isUnread = !notification.isRead;
 
-    return Card(
-      elevation: notification.isRead ? 1 : 4,
-      color: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: notification.isRead 
-          ? BorderSide.none 
-          : BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.2)),
-      ),
-      child: InkWell(
-        onTap: () {
-          if (!notification.isRead) {
-            context.read<NotificationProvider>().markAsRead(notification.id);
-          }
-          // Navigate to entity if applicable
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  _buildTypeIcon(context, notification.type),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notification.title,
-                          style: TextStyle(
-                            fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
-                            fontSize: 16,
-                          ),
+    return GestureDetector(
+      onTap: () {
+        if (isUnread) {
+          context.read<NotificationProvider>().markAsRead(notification.id);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isUnread
+              ? PremiumTheme.neonGreen.withValues(alpha: 0.04)
+              : Colors.white.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isUnread
+                ? PremiumTheme.neonGreen.withValues(alpha: 0.25)
+                : Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _buildTypeIcon(notification.type),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        notification.title,
+                        style: TextStyle(
+                          fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
+                          fontSize: 14,
+                          color: isUnread ? Colors.white : Colors.white70,
                         ),
-                        Text(
-                          timeago.format(DateTime.parse(notification.createdAt)),
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!notification.isRead)
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        shape: BoxShape.circle,
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                notification.message,
-                style: const TextStyle(fontSize: 14),
-              ),
-              if (isInvite) ...[
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (notification.title == "Invitation Approval Required")
-                      ElevatedButton(
-                        onPressed: () => _handleInvitation(context, notification.entityId, true, isApproval: true),
-                        child: const Text('Approve'),
-                      )
-                    else ...[
-                      OutlinedButton(
-                        onPressed: () => _handleInvitation(context, notification.entityId, false),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                        ),
-                        child: const Text('Decline'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => _handleInvitation(context, notification.entityId, true),
-                        child: const Text('Accept'),
+                      const SizedBox(height: 2),
+                      Text(
+                        timeago.format(DateTime.parse(notification.createdAt)),
+                        style: const TextStyle(fontSize: 11, color: Colors.white38),
                       ),
                     ],
-                  ],
+                  ),
                 ),
+                if (isUnread)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: PremiumTheme.neonGreen,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
               ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              notification.message,
+              style: const TextStyle(fontSize: 13, color: Colors.white60),
+            ),
+            if (isInvite) ...[
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (notification.title == "Invitation Approval Required")
+                    ElevatedButton(
+                      onPressed: () => _handleInvitation(context, notification.entityId, true, isApproval: true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: PremiumTheme.neonGreen,
+                        foregroundColor: PremiumTheme.deepNavy,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                      ),
+                      child: const Text('APPROVE'),
+                    )
+                  else ...[
+                    OutlinedButton(
+                      onPressed: () => _handleInvitation(context, notification.entityId, false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.redAccent,
+                        side: const BorderSide(color: Colors.redAccent),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                      ),
+                      child: const Text('DECLINE'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => _handleInvitation(context, notification.entityId, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: PremiumTheme.neonGreen,
+                        foregroundColor: PremiumTheme.deepNavy,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                      ),
+                      child: const Text('ACCEPT'),
+                    ),
+                  ],
+                ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTypeIcon(BuildContext context, String type) {
+  Widget _buildTypeIcon(String type) {
     IconData iconData;
     Color color;
 
@@ -240,7 +287,7 @@ class _NotificationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.12),
         shape: BoxShape.circle,
       ),
       child: Icon(iconData, color: color, size: 20),
@@ -276,7 +323,6 @@ class _NotificationCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(accept ? 'Invitation accepted!' : 'Invitation declined.')),
         );
-        // Mark as read and refresh
         notificationProvider.markAsRead(notification.id);
         notificationProvider.fetchNotifications();
       } else {
