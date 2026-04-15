@@ -49,7 +49,15 @@ def fix_schema():
 
         # Commit changes
         conn.execute(text("COMMIT;"))
-        print("\nDatabase schema updated successfully!")
+        # Create indexes for performance if they don't exist
+        with engine.connect() as conn:
+            print("Creating indexes for performance...")
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_academies_owner ON football_academies(owner_id);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_clubs_owner ON clubs(owner_id);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_academies_club ON football_academies(club_id);"))
+            conn.execute(text("COMMIT;"))
+        
+        print("\nDatabase schema updated and indexed successfully!")
 
 if __name__ == "__main__":
     fix_schema()

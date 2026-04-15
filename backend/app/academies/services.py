@@ -91,10 +91,9 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     
     # 3. Check if coach of any team in any academy
     print(f"[DEBUG] Checking coach status...")
-    from app.teams.models import Team # Use the unified Team model
-    team = db.query(Team).filter(Team.coach_id == user_id).first()
+    team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == user_id).first()
     if team:
-        print(f"[DEBUG] Found team coached by user: {team.id}")
+        print(f"[DEBUG] Found team coached by user (via AcademyTeam): {team.id}")
         return db.query(Academy).filter(Academy.id == team.academy_id).first()
         
     print("[DEBUG] No academy found for this user.")
