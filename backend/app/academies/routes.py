@@ -32,6 +32,17 @@ def get_my_academy(
     """
     return services.get_user_related_academy(db, current_user.id)
 
+@router.get("/mine-debug", response_model=Optional[schemas.AcademyResponse])
+def get_my_academy_debug(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    DEBUG: Bypasses role checks to see if academy loads for current user.
+    """
+    print(f"[DEBUG-AUTH] Bypassing role check for user: {current_user.id}")
+    return services.get_user_related_academy(db, current_user.id)
+
 @router.get("/rankings", response_model=List[schemas.AcademyRankingResponse])
 def get_academy_rankings(db: Session = Depends(get_db)):
     """
