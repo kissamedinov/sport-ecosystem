@@ -72,23 +72,32 @@ def create_academy(db: Session, academy_in: schemas.AcademyCreate, owner_id: UUI
     return new_academy
 
 def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
+    print(f"[DEBUG] Fetching academy for user: {user_id}")
     # 1. Check if owner
     academy = db.query(Academy).filter(Academy.owner_id == user_id).first()
     if academy:
+        print(f"[DEBUG] Found academy via direct ownership: {academy.id}")
         return academy
     
     # 2. Check if owner of a club that has academies
+    print(f"[DEBUG] Checking club ownership...")
     club = db.query(Club).filter(Club.owner_id == user_id).first()
     if club:
+        print(f"[DEBUG] Found club: {club.id}, looking for its academies...")
         academy = db.query(Academy).filter(Academy.club_id == club.id).first()
         if academy:
+            print(f"[DEBUG] Found academy via club: {academy.id}")
             return academy
     
     # 3. Check if coach of any team in any academy
-    team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == user_id).first()
+    print(f"[DEBUG] Checking coach status...")
+    from app.teams.models import Team # Use the unified Team model
+    team = db.query(Team).filter(Team.coach_id == user_id).first()
     if team:
+        print(f"[DEBUG] Found team coached by user: {team.id}")
         return db.query(Academy).filter(Academy.id == team.academy_id).first()
         
+    print("[DEBUG] No academy found for this user.")
     return None
 
 def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List["Team"]:
