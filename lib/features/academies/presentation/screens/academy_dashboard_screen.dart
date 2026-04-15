@@ -394,8 +394,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
-              final provider = context.read<AcademyProvider>();
-              provider.createTeam(provider.myAcademy!.id, nameController.text, ageController.text, 'Intermediate');
+              final academyId = provider.myAcademy?.id;
+              if (academyId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No academy loaded')));
+                return;
+              }
+              provider.createTeam(academyId, nameController.text, ageController.text, 'Intermediate');
               Navigator.pop(context);
             },
             child: const Text('Add'),
@@ -483,7 +487,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    final success = await provider.createSchedule(provider.myAcademy!.id, {
+                    final academyId = provider.myAcademy?.id;
+                    if (academyId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No academy loaded')));
+                      return;
+                    }
+                    final success = await provider.createSchedule(academyId, {
                       'team_ids': selectedTeamIds,
                       'day_of_week': selectedDay.toShortString(),
                       'start_time': '${startTime.hour.toString().padLeft(2, "0")}:${startTime.minute.toString().padLeft(2, "0")}',
@@ -525,7 +534,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
-              final success = await provider.saveBillingConfig(provider.myAcademy!.id, {
+              final academyId = provider.myAcademy?.id;
+              if (academyId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('No academy loaded to save config')),
+                );
+                return;
+              }
+              final success = await provider.saveBillingConfig(academyId, {
                 'monthly_subscription_fee': double.tryParse(feeController.text) ?? 0,
                 'currency': 'KZT',
               });
@@ -541,7 +557,16 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   void _showPlayerBillingReport(String playerId) {
     final provider = context.read<AcademyProvider>();
     final now = DateTime.now();
-    provider.fetchBillingReport(provider.myAcademy!.id, playerId, now.month, now.year);
+    
+    final academyId = provider.myAcademy?.id;
+    if (academyId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No academy loaded to fetch report')),
+      );
+      return;
+    }
+    
+    provider.fetchBillingReport(academyId, playerId, now.month, now.year);
     
     showModalBottomSheet(
       context: context,
