@@ -9,6 +9,7 @@ from app.users.models import User, Role
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    print(f"[DEBUG-AUTH] Received request with token starting with: {token[:10]}...")
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -16,13 +17,18 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     payload = decode_access_token(token)
     if payload is None:
+        print("[DEBUG-AUTH] Token decoding failed.")
         raise credentials_exception
     user_id: str = payload.get("user_id")
     if user_id is None:
+        print("[DEBUG-AUTH] No user_id in payload.")
         raise credentials_exception
+    print(f"[DEBUG-AUTH] Token valid for user_id: {user_id}. Querying DB...")
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
+        print(f"[DEBUG-AUTH] User {user_id} not found in DB.")
         raise credentials_exception
+    print(f"[DEBUG-AUTH] User {user_id} authenticated successfully.")
     return user
 
 def require_role(role: Role):
