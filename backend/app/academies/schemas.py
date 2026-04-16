@@ -58,7 +58,7 @@ class AcademyTeamBase(BaseModel):
     age_group: str
 
 class AcademyTeamCreate(AcademyTeamBase):
-    coach_id: UUID
+    coach_id: Optional[UUID] = None
 
 class AcademyTeamResponse(AcademyTeamBase):
     id: UUID

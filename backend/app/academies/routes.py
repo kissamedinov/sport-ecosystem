@@ -99,6 +99,8 @@ def add_academy_team(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_coach)
 ):
+    if not team_in.coach_id:
+        team_in.coach_id = current_user.id
     return services.create_academy_team(db, id, team_in)
 
 @router.get("/{id}/players", response_model=List[schemas.AcademyPlayerResponse])
