@@ -99,8 +99,7 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     print("[DEBUG] No academy found for this user.")
     return None
 
-def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List["Team"]:
-    from app.teams.models import Team
+def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[AcademyTeam]:
     from app.clubs.models import Club
     
     # If user_id provided, check if they are a club owner
@@ -108,9 +107,9 @@ def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = N
         club = db.query(Club).filter(Club.owner_id == user_id).first()
         if club:
             # Aggregate teams from ALL academies of this club
-            return db.query(Team).join(Academy).filter(Academy.club_id == club.id).all()
+            return db.query(AcademyTeam).join(Academy).filter(Academy.club_id == club.id).all()
             
-    return db.query(Team).filter(Team.academy_id == academy_id).all()
+    return db.query(AcademyTeam).filter(AcademyTeam.academy_id == academy_id).all()
 
 def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyTeamCreate) -> AcademyTeam:
     new_team = AcademyTeam(
