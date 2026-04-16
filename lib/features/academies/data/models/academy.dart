@@ -9,7 +9,7 @@ class Academy {
   final String city;
   final String address;
   @JsonKey(name: 'club_id')
-  final String clubId;
+  final String? clubId;
   @JsonKey(name: 'owner_id')
   final String ownerId;
   @JsonKey(name: 'logo_url')
@@ -24,7 +24,7 @@ class Academy {
     required this.name,
     required this.city,
     required this.address,
-    required this.clubId,
+    this.clubId,
     required this.ownerId,
     this.logoUrl,
     this.teamsCount,

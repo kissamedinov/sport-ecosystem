@@ -33,42 +33,42 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Academy Dashboard'),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Teams'),
-            Tab(text: 'Schedules'),
-            Tab(text: 'Billing'),
-          ],
-        ),
-      ),
-      body: Consumer<AcademyProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading && provider.myAcademy == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return Consumer<AcademyProvider>(
+      builder: (context, provider, child) {
+        final hasAcademy = provider.myAcademy != null;
 
-          if (provider.myAcademy == null) {
-            return _buildNoAcademyView();
-          }
-
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildOverviewTab(provider),
-              _buildTeamsTab(provider),
-              _buildSchedulesTab(provider),
-              _buildBillingTab(provider),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: _buildFab(),
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Academy Dashboard'),
+            bottom: hasAcademy
+                ? TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    tabs: const [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Teams'),
+                      Tab(text: 'Schedules'),
+                      Tab(text: 'Billing'),
+                    ],
+                  )
+                : null,
+          ),
+          body: provider.isLoading && !hasAcademy
+              ? const Center(child: CircularProgressIndicator())
+              : hasAcademy
+                  ? TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildOverviewTab(provider),
+                        _buildTeamsTab(provider),
+                        _buildSchedulesTab(provider),
+                        _buildBillingTab(provider),
+                      ],
+                    )
+                  : _buildNoAcademyView(),
+          floatingActionButton: hasAcademy ? _buildFab() : null,
+        );
+      },
     );
   }
 
@@ -132,13 +132,26 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   Widget _buildCounterCard(String label, String value, IconData icon) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.orange),
-            const Spacer(),
-            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            Icon(icon, color: Colors.orange, size: 24),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.grey, fontSize: 11),
+              ),
+            ),
           ],
         ),
       ),

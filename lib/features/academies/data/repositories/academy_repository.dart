@@ -23,7 +23,7 @@ class AcademyRepository {
   }
 
   Future<Academy?> getMyAcademy() async {
-    final response = await _apiClient.get('/academies/mine-debug');
+    final response = await _apiClient.get('/academies/mine');
     if (response.data == null) return null;
     return Academy.fromJson(response.data);
   }

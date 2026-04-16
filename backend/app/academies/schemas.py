@@ -46,6 +46,7 @@ class AcademyCreate(AcademyBase):
 class AcademyResponse(AcademyBase):
     id: UUID
     owner_id: UUID
+    club_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
 
