@@ -11,7 +11,7 @@ Academy _$AcademyFromJson(Map<String, dynamic> json) => Academy(
   name: json['name'] as String,
   city: json['city'] as String,
   address: json['address'] as String,
-  clubId: json['club_id'] as String,
+  clubId: json['club_id'] as String?,
   ownerId: json['owner_id'] as String,
   logoUrl: json['logo_url'] as String?,
   teamsCount: (json['teams_count'] as num?)?.toInt(),
