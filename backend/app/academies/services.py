@@ -124,17 +124,16 @@ def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyT
     db.refresh(new_team)
     return new_team
 
-def get_academy_players(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List["TeamMembership"]:
-    from app.teams.models import TeamMembership, Team
+def get_academy_players(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[AcademyPlayer]:
     from app.clubs.models import Club
     
     if user_id:
         club = db.query(Club).filter(Club.owner_id == user_id).first()
         if club:
             # Aggregate players from ALL academies of this club
-            return db.query(TeamMembership).join(Team).join(Academy).filter(Academy.club_id == club.id).all()
+            return db.query(AcademyPlayer).join(Academy).filter(Academy.club_id == club.id).all()
 
-    return db.query(TeamMembership).join(Team).filter(Team.academy_id == academy_id).all()
+    return db.query(AcademyPlayer).filter(AcademyPlayer.academy_id == academy_id).all()
 
 def add_player_to_academy(db: Session, academy_id: UUID, player_in: schemas.AcademyPlayerCreate) -> AcademyPlayer:
     new_player = AcademyPlayer(
