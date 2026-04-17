@@ -24,6 +24,7 @@ class TrainingSchedule {
   final String startTime;
   final String endTime;
   final String? location;
+  final String? branchId;
 
   TrainingSchedule({
     required this.id,
@@ -33,6 +34,7 @@ class TrainingSchedule {
     required this.startTime,
     required this.endTime,
     this.location,
+    this.branchId,
   });
 
   factory TrainingSchedule.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class TrainingSchedule {
       startTime: json['start_time'] as String,
       endTime: json['end_time'] as String,
       location: json['location'] as String?,
+      branchId: json['branch_id'] as String?,
     );
   }
 
@@ -55,6 +58,7 @@ class TrainingSchedule {
     'start_time': startTime,
     'end_time': endTime,
     'location': location,
+    'branch_id': branchId,
   };
 }
 

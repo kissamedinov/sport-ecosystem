@@ -172,14 +172,34 @@ class TrainingScheduleBase(BaseModel):
     start_time: time
     end_time: time
     location: Optional[str] = None
+    branch_id: Optional[UUID] = None
 
 class TrainingScheduleCreate(TrainingScheduleBase):
     team_ids: List[UUID]
+
+class TrainingScheduleBatchCreate(BaseModel):
+    schedules: List[TrainingScheduleCreate]
 
 class TrainingScheduleResponse(TrainingScheduleBase):
     id: UUID
     academy_id: UUID
     team_ids: List[UUID] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Academy Branch schemas
+class AcademyBranchBase(BaseModel):
+    name: str # e.g., "Summer Branch", "Winter Branch"
+    address: str
+    description: Optional[str] = None
+
+class AcademyBranchCreate(AcademyBranchBase):
+    pass
+
+class AcademyBranchResponse(AcademyBranchBase):
+    id: UUID
+    academy_id: UUID
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 

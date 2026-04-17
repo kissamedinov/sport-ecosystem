@@ -53,6 +53,7 @@ class Academy(Base):
     players = relationship("AcademyPlayer", back_populates="academy", cascade="all, delete-orphan")
     managed_users = relationship("User", back_populates="academy", foreign_keys="[User.academy_id]")
     schedules = relationship("TrainingSchedule", back_populates="academy", cascade="all, delete-orphan")
+    branches = relationship("AcademyBranch", back_populates="academy", cascade="all, delete-orphan")
     billing_config = relationship("AcademyBillingConfig", back_populates="academy", uselist=False, cascade="all, delete-orphan")
 
 class AcademyTeam(Base):
@@ -103,7 +104,7 @@ training_session_teams = Table(
     "training_session_teams",
     Base.metadata,
     Column("training_session_id", UUID(as_uuid=True), ForeignKey("training_sessions.id", ondelete="CASCADE"), primary_key=True),
-    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("academy_teams.id", ondelete="CASCADE"), primary_key=True),
 )
 
 # Association table for multi-team training schedules
@@ -111,7 +112,7 @@ training_schedule_teams = Table(
     "training_schedule_teams",
     Base.metadata,
     Column("training_schedule_id", UUID(as_uuid=True), ForeignKey("academy_training_schedules.id", ondelete="CASCADE"), primary_key=True),
-    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("academy_teams.id", ondelete="CASCADE"), primary_key=True),
 )
 
 class TrainingSession(Base):
@@ -126,7 +127,7 @@ class TrainingSession(Base):
     description = Column(String, nullable=True)
 
     academy = relationship("Academy")
-    teams = relationship("Team", secondary=training_session_teams)
+    teams = relationship("AcademyTeam", secondary=training_session_teams)
     coach = relationship("User")
     attendance = relationship("TrainingAttendance", back_populates="session", cascade="all, delete-orphan")
 
@@ -174,18 +175,33 @@ class AcademyRanking(Base):
 
     academy = relationship("Academy")
 
+class AcademyBranch(Base):
+    __tablename__ = "academy_branches"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
+    name = Column(String, nullable=False) # e.g., "Summer Branch", "Winter Branch"
+    address = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    academy = relationship("Academy", back_populates="branches")
+    schedules = relationship("TrainingSchedule", back_populates="branch")
+
 class TrainingSchedule(Base):
     __tablename__ = "academy_training_schedules"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
+    branch_id = Column(UUID(as_uuid=True), ForeignKey("academy_branches.id"), nullable=True)
     day_of_week = Column(Enum(DayOfWeek), nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    location = Column(String, nullable=True)
+    location = Column(String, nullable=True) # Specific field/room
 
     academy = relationship("Academy", back_populates="schedules")
-    teams = relationship("Team", secondary=training_schedule_teams)
+    branch = relationship("AcademyBranch", back_populates="schedules")
+    teams = relationship("AcademyTeam", secondary=training_schedule_teams)
 
 class AcademyBillingConfig(Base):
     __tablename__ = "academy_billing_configs"

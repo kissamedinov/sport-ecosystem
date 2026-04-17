@@ -103,6 +103,23 @@ def add_academy_team(
         team_in.coach_id = current_user.id
     return services.create_academy_team(db, id, team_in)
 
+@router.get("/{id}/branches", response_model=List[schemas.AcademyBranchResponse])
+def list_academy_branches(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return services.get_academy_branches(db, id)
+
+@router.post("/{id}/branches", response_model=schemas.AcademyBranchResponse)
+def create_academy_branch(
+    id: UUID,
+    branch_in: schemas.AcademyBranchCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.create_academy_branch(db, id, branch_in)
+
 @router.get("/{id}/players", response_model=List[schemas.AcademyPlayerResponse])
 def list_academy_players(
     id: UUID,
@@ -210,6 +227,15 @@ def create_academy_schedule(
     current_user: User = Depends(require_coach)
 ):
     return services.create_training_schedule(db, id, schedule_in)
+
+@router.post("/{id}/schedules/batch", response_model=List[schemas.TrainingScheduleResponse])
+def create_academy_schedules_batch(
+    id: UUID,
+    batch_in: schemas.TrainingScheduleBatchCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.create_training_schedules_batch(db, id, batch_in)
 
 @router.get("/{id}/schedules", response_model=List[schemas.TrainingScheduleResponse])
 def list_academy_schedules(

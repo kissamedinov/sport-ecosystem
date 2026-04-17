@@ -240,6 +240,11 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
         final scheduleTeams = provider.teams.where((t) => schedule.teamIds.contains(t.id)).toList();
         final teamsLabel = scheduleTeams.map((e) => e.name).join(', ');
         
+        // Find branch if exists
+        final branch = schedule.branchId != null 
+            ? provider.branches.firstWhere((b) => b.id == schedule.branchId, orElse: () => AcademyBranch(id: '', academyId: '', name: 'Unknown', address: ''))
+            : null;
+
         return Card(
           child: ListTile(
             leading: CircleAvatar(
@@ -247,7 +252,15 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
               child: const Icon(Icons.timer, color: Colors.orange),
             ),
             title: Text('${schedule.dayOfWeek.toShortString()} | ${schedule.startTime} - ${schedule.endTime}'),
-            subtitle: Text('Teams: $teamsLabel\nLocation: ${schedule.location ?? "Main Field"}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Teams: $teamsLabel'),
+                if (branch != null)
+                  Text('Branch: ${branch.name} (${branch.address})', style: const TextStyle(color: Colors.blueAccent)),
+                Text('Location: ${schedule.location ?? "Main Field"}'),
+              ],
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: () {
@@ -429,99 +442,279 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
 
   void _showAddScheduleDialog() {
     final provider = context.read<AcademyProvider>();
+    final academyId = provider.myAcademy?.id;
+    if (academyId == null) return;
+    
     if (provider.teams.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add a team first')));
       return;
     }
 
+    // Fetch branches if not already loaded
+    provider.fetchBranches(academyId);
+
     List<String> selectedTeamIds = [provider.teams[0].id];
-    DayOfWeek selectedDay = DayOfWeek.MONDAY;
-    TimeOfDay startTime = const TimeOfDay(hour: 18, minute: 0);
-    TimeOfDay endTime = const TimeOfDay(hour: 19, minute: 30);
+    List<Map<String, dynamic>> scheduleItems = [
+      {
+        'day_of_week': DayOfWeek.MONDAY,
+        'start_time': const TimeOfDay(hour: 18, minute: 0),
+        'end_time': const TimeOfDay(hour: 19, minute: 30),
+      }
+    ];
+    String? selectedBranchId;
     final locationController = TextEditingController(text: 'Main Field');
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Add Recurring Schedule', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              const Align(alignment: Alignment.centerLeft, child: Text('Select Teams:', style: TextStyle(fontWeight: FontWeight.bold))),
-              Wrap(
-                spacing: 8,
-                children: provider.teams.map((t) {
-                  final isSelected = selectedTeamIds.contains(t.id);
-                  return FilterChip(
-                    label: Text(t.name),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          selectedTeamIds.add(t.id);
-                        } else {
-                          if (selectedTeamIds.length > 1) {
-                            selectedTeamIds.remove(t.id);
-                          }
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+        builder: (context, setModalState) {
+          final branches = provider.branches;
+          
+          return Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(color: Colors.grey[600], borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Add Schedule', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 20),
+                  
+                  // Team Selection
+                  const Text('Select Teams:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: provider.teams.map((t) {
+                      final isSelected = selectedTeamIds.contains(t.id);
+                      return FilterChip(
+                        label: Text(t.name),
+                        selected: isSelected,
+                        selectedColor: Colors.blue.withOpacity(0.3),
+                        checkmarkColor: Colors.blue,
+                        onSelected: (selected) {
+                          setModalState(() {
+                            if (selected) {
+                              selectedTeamIds.add(t.id);
+                            } else if (selectedTeamIds.length > 1) {
+                              selectedTeamIds.remove(t.id);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const Divider(height: 32, color: Colors.grey),
+
+                  // Branch Selection
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Location / Branch:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                      TextButton.icon(
+                        onPressed: () => _showAddBranchDialog(),
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('New Branch'),
+                      ),
+                    ],
+                  ),
+                  DropdownButtonFormField<String>(
+                    dropdownColor: const Color(0xFF2C2C2C),
+                    value: selectedBranchId,
+                    hint: const Text('Select Branch (Summer/Winter)', style: TextStyle(color: Colors.grey)),
+                    items: [
+                      const DropdownMenuItem(value: null, child: Text('No Branch (General)')),
+                      ...branches.map((b) => DropdownMenuItem(value: b.id, child: Text(b.name))),
+                    ],
+                    onChanged: (v) => setModalState(() => selectedBranchId = v),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[900],
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: locationController,
+                    decoration: InputDecoration(
+                      labelText: 'Specific Location (Field #, Room)',
+                      filled: true,
+                      fillColor: Colors.grey[900],
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const Divider(height: 32, color: Colors.grey),
+
+                  // Multi-day slots
+                  const Text('Training Days & Times:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  ...scheduleItems.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final item = entry.value;
+                    return Card(
+                      color: Colors.grey[900],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButton<DayOfWeek>(
+                                    isExpanded: true,
+                                    value: item['day_of_week'],
+                                    underline: const SizedBox(),
+                                    items: DayOfWeek.values.map((d) => DropdownMenuItem(value: d, child: Text(d.toShortString()))).toList(),
+                                    onChanged: (v) => setModalState(() => item['day_of_week'] = v!),
+                                  ),
+                                ),
+                                if (scheduleItems.length > 1)
+                                  IconButton(
+                                    icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
+                                    onPressed: () => setModalState(() => scheduleItems.removeAt(idx)),
+                                  ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final picked = await showTimePicker(context: context, initialTime: item['start_time']);
+                                      if (picked != null) setModalState(() => item['start_time'] = picked);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('Start', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text((item['start_time'] as TimeOfDay).format(context), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final picked = await showTimePicker(context: context, initialTime: item['end_time']);
+                                      if (picked != null) setModalState(() => item['end_time'] = picked);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('End', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text((item['end_time'] as TimeOfDay).format(context), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  TextButton.icon(
+                    onPressed: () => setModalState(() => scheduleItems.add({
+                      'day_of_week': DayOfWeek.MONDAY,
+                      'start_time': const TimeOfDay(hour: 18, minute: 0),
+                      'end_time': const TimeOfDay(hour: 19, minute: 30),
+                    })),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Another Day'),
+                  ),
+
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent[700],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () async {
+                        final List<Map<String, dynamic>> finalSchedules = scheduleItems.map((item) {
+                          final start = item['start_time'] as TimeOfDay;
+                          final end = item['end_time'] as TimeOfDay;
+                          return {
+                            'team_ids': selectedTeamIds,
+                            'day_of_week': (item['day_of_week'] as DayOfWeek).toShortString(),
+                            'start_time': '${start.hour.toString().padLeft(2, "0")}:${start.minute.toString().padLeft(2, "0")}',
+                            'end_time': '${end.hour.toString().padLeft(2, "0")}:${end.minute.toString().padLeft(2, "0")}',
+                            'location': locationController.text,
+                            'branch_id': selectedBranchId,
+                          };
+                        }).toList();
+
+                        final success = await provider.createSchedule(academyId, {
+                          'schedules': finalSchedules,
+                        });
+                        if (success) Navigator.pop(context);
+                      },
+                      child: const Text('Save All Schedules', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
-              DropdownButtonFormField<DayOfWeek>(
-                value: selectedDay,
-                items: DayOfWeek.values.map((d) => DropdownMenuItem(value: d, child: Text(d.toShortString()))).toList(),
-                onChanged: (v) => setState(() => selectedDay = v!),
-                decoration: const InputDecoration(labelText: 'Day of Week'),
-              ),
-              ListTile(
-                title: const Text('Start Time'),
-                trailing: Text(startTime.format(context)),
-                onTap: () async {
-                  final picked = await showTimePicker(context: context, initialTime: startTime);
-                  if (picked != null) setState(() => startTime = picked);
-                },
-              ),
-              ListTile(
-                title: const Text('End Time'),
-                trailing: Text(endTime.format(context)),
-                onTap: () async {
-                  final picked = await showTimePicker(context: context, initialTime: endTime);
-                  if (picked != null) setState(() => endTime = picked);
-                },
-              ),
-              TextField(controller: locationController, decoration: const InputDecoration(labelText: 'Location')),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final academyId = provider.myAcademy?.id;
-                    if (academyId == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No academy loaded')));
-                      return;
-                    }
-                    final success = await provider.createSchedule(academyId, {
-                      'team_ids': selectedTeamIds,
-                      'day_of_week': selectedDay.toShortString(),
-                      'start_time': '${startTime.hour.toString().padLeft(2, "0")}:${startTime.minute.toString().padLeft(2, "0")}',
-                      'end_time': '${endTime.hour.toString().padLeft(2, "0")}:${endTime.minute.toString().padLeft(2, "0")}',
-                      'location': locationController.text,
-                    });
-                    if (success) Navigator.pop(context);
-                  },
-                  child: const Text('Save Schedule'),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAddBranchDialog() {
+    final nameController = TextEditingController();
+    final addressController = TextEditingController();
+    final provider = context.read<AcademyProvider>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Academy Branch'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Branch Name (e.g. Summer Venue)')),
+            TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
+          ],
         ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              final academyId = provider.myAcademy?.id;
+              if (academyId == null) return;
+              await provider.createBranch(academyId, nameController.text, addressController.text, null);
+              Navigator.pop(context);
+            },
+            child: const Text('Create'),
+          ),
+        ],
       ),
     );
   }
