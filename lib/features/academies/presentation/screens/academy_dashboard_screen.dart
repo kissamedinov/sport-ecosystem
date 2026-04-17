@@ -214,64 +214,211 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     );
   }
 
+  DayOfWeek? _filterDay;
+  String? _filterTeamId;
+
   Widget _buildSchedulesTab(AcademyProvider provider) {
-    if (provider.schedules.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.calendar_month, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('No training schedules configured.'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _showAddScheduleDialog(),
-              child: const Text('Add Schedule'),
-            ),
-          ],
-        ),
-      );
+    var filteredSchedules = provider.schedules;
+    if (_filterDay != null) {
+      filteredSchedules = filteredSchedules.where((s) => s.dayOfWeek == _filterDay).toList();
+    }
+    if (_filterTeamId != null) {
+      filteredSchedules = filteredSchedules.where((s) => s.teamIds.contains(_filterTeamId)).toList();
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: provider.schedules.length,
-      itemBuilder: (context, index) {
-        final schedule = provider.schedules[index];
-        final scheduleTeams = provider.teams.where((t) => schedule.teamIds.contains(t.id)).toList();
-        final teamsLabel = scheduleTeams.map((e) => e.name).join(', ');
-        
-        // Find branch if exists
-        final branch = schedule.branchId != null 
-            ? provider.branches.firstWhere((b) => b.id == schedule.branchId, orElse: () => AcademyBranch(id: '', academyId: '', name: 'Unknown', address: ''))
-            : null;
-
-        return Card(
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.orange.withOpacity(0.2),
-              child: const Icon(Icons.timer, color: Colors.orange),
-            ),
-            title: Text('${schedule.dayOfWeek.toShortString()} | ${schedule.startTime} - ${schedule.endTime}'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        // Filter Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
               children: [
-                Text('Teams: $teamsLabel'),
-                if (branch != null)
-                  Text('Branch: ${branch.name} (${branch.address})', style: const TextStyle(color: Colors.blueAccent)),
-                Text('Location: ${schedule.location ?? "Main Field"}'),
+                ActionChip(
+                  label: Text(_filterDay?.toShortString() ?? 'All Days'),
+                  avatar: const Icon(Icons.today, size: 16),
+                  onPressed: () => _selectFilterDay(),
+                ),
+                const SizedBox(width: 8),
+                ActionChip(
+                  label: Text(_filterTeamId != null 
+                    ? provider.teams.firstWhere((t) => t.id == _filterTeamId).name 
+                    : 'All Teams'),
+                  avatar: const Icon(Icons.group, size: 16),
+                  onPressed: () => _selectFilterTeam(provider),
+                ),
+                if (_filterDay != null || _filterTeamId != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.clear, size: 20),
+                    onPressed: () {
+                      setState(() {
+                        _filterDay = null;
+                        _filterTeamId = null;
+                      });
+                    },
+                  ),
+                ],
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () => provider.generateSessions(provider.academy!.id),
+                  icon: const Icon(Icons.bolt, size: 16, color: Colors.amber),
+                  label: const Text('Generate Sessions', style: TextStyle(color: Colors.amber)),
+                ),
               ],
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () {
-                // TODO: Delete schedule
-              },
-            ),
           ),
-        );
-      },
+        ),
+        
+        Expanded(
+          child: filteredSchedules.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.calendar_month, size: 64, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(provider.schedules.isEmpty 
+                      ? 'No training schedules configured.' 
+                      : 'No schedules match your filters.'),
+                    const SizedBox(height: 16),
+                    if (provider.schedules.isEmpty)
+                      ElevatedButton(
+                        onPressed: () => _showAddScheduleDialog(),
+                        child: const Text('Add Schedule'),
+                      ),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: filteredSchedules.length,
+                itemBuilder: (context, index) {
+                  final schedule = filteredSchedules[index];
+                  final scheduleTeams = provider.teams.where((t) => schedule.teamIds.contains(t.id)).toList();
+                  final teamsLabel = scheduleTeams.isNotEmpty 
+                      ? scheduleTeams.map((e) => e.name).join(', ')
+                      : 'No teams assigned';
+                  
+                  final branch = schedule.branchId != null 
+                      ? provider.branches.firstWhere((b) => b.id == schedule.branchId, orElse: () => AcademyBranch(id: '', academyId: '', name: 'Unknown', address: ''))
+                      : null;
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.timer, color: Colors.orange, size: 28),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${schedule.dayOfWeek.toShortString()} | ${schedule.startTime} - ${schedule.endTime}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.group, size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Expanded(child: Text(teamsLabel, style: const TextStyle(color: Colors.grey, fontSize: 13))),
+                                  ],
+                                ),
+                                if (branch != null) ...[
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on, size: 14, color: Colors.blueAccent),
+                                      const SizedBox(width: 4),
+                                      Expanded(child: Text('${branch.name} (${branch.address})', 
+                                        style: const TextStyle(color: Colors.blueAccent, fontSize: 13))),
+                                    ],
+                                  ),
+                                ],
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.place, size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text(schedule.location ?? "Main Field", style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                            onPressed: () {
+                              // TODO: Delete schedule
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+        ),
+      ],
     );
+  }
+
+  void _selectFilterDay() async {
+    final result = await showDialog<DayOfWeek>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Filter by Day'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: DayOfWeek.values.map((day) => ListTile(
+            title: Text(day.toShortString()),
+            onTap: () => Navigator.pop(context, day),
+          )).toList(),
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() => _filterDay = result);
+    }
+  }
+
+  void _selectFilterTeam(AcademyProvider provider) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Filter by Team'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: provider.teams.length,
+            itemBuilder: (context, index) {
+              final team = provider.teams[index];
+              return ListTile(
+                leading: CircleAvatar(child: Text(team.ageGroup)),
+                title: Text(team.name),
+                onTap: () => Navigator.pop(context, team.id),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() => _filterTeamId = result);
+    }
   }
 
   Widget _buildBillingTab(AcademyProvider provider) {
