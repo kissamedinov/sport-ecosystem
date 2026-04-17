@@ -4,6 +4,7 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 import 'package:mobile/features/academies/data/models/academy.dart';
+import 'package:mobile/features/academies/data/models/academy_team.dart';
 import 'package:intl/intl.dart';
 
 class TrainingManagementScreen extends StatefulWidget {

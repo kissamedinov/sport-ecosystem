@@ -1,6 +1,6 @@
 import '../../../../core/api/api_client.dart';
 import '../models/academy.dart';
-import '../models/academy_team.dart' hide AcademyPlayer, TrainingSession;
+import '../models/academy_team.dart';
 import '../models/crm_models.dart';
 
 class AcademyRepository {
