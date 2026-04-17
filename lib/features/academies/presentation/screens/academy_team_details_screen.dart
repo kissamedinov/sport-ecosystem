@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
-import '../../data/models/academy_team.dart' as team_models;
+import '../../data/models/academy_team.dart';
 import '../../data/models/academy.dart' as academy_models;
 
 class AcademyTeamDetailsScreen extends StatefulWidget {
-  final team_models.AcademyTeam team;
+  final AcademyTeam team;
 
   const AcademyTeamDetailsScreen({super.key, required this.team});
 

@@ -262,7 +262,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 ],
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: () => provider.generateSessions(provider.academy!.id),
+                  onPressed: () => provider.generateSessions(provider.myAcademy!.id),
                   icon: const Icon(Icons.bolt, size: 16, color: Colors.amber),
                   label: const Text('Generate Sessions', style: TextStyle(color: Colors.amber)),
                 ),
