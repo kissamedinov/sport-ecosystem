@@ -1,63 +1,36 @@
+import sys
 import os
-from sqlalchemy import create_engine, text
-from dotenv import load_dotenv
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-# Load environment variables
-load_dotenv()
+# Add the current directory to sys.path to import app modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-from app.database import Base
-# Import ALL models to ensure they are registered with Base.metadata
-from app.academies.models import Academy, TrainingSession, TrainingAttendance, TrainingSchedule, training_session_teams, training_schedule_teams
-from app.teams.models import Team, TeamMembership
-from app.users.models import User, PlayerProfile
-
-engine = create_engine(DATABASE_URL)
+from app.database import SessionLocal
 
 def fix_schema():
-    # 1. Create all missing tables (like training_session_teams)
-    print("Creating missing tables...")
-    Base.metadata.create_all(engine)
-    print("- Done.")
-
-    with engine.connect() as conn:
-        print("\nChecking for missing columns in 'teams' table...")
+    db = SessionLocal()
+    try:
+        print("Starting schema fix...")
         
-        # Add 'division' column if it doesn't exist
-        try:
-            conn.execute(text("ALTER TABLE teams ADD COLUMN IF NOT EXISTS division VARCHAR DEFAULT 'Group A';"))
-            print("- Column 'division' added or already exists.")
-        except Exception as e:
-            print(f"- Error adding 'division': {e}")
-
-        # Add 'is_active' column if it doesn't exist
-        try:
-            conn.execute(text("ALTER TABLE teams ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;"))
-            print("- Column 'is_active' added or already exists.")
-        except Exception as e:
-            print(f"- Error adding 'is_active': {e}")
-
-        # Add 'birth_year' column if it doesn't exist
-        try:
-            conn.execute(text("ALTER TABLE teams ADD COLUMN IF NOT EXISTS birth_year INTEGER;"))
-            print("- Column 'birth_year' added or already exists.")
-        except Exception as e:
-            print(f"- Error adding 'birth_year': {e}")
-
-        # Commit changes
-        conn.execute(text("COMMIT;"))
-        # Create indexes for performance if they don't exist
-        with engine.connect() as conn:
-            print("Creating indexes for performance...")
-            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_academies_owner ON football_academies(owner_id);"))
-            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_clubs_owner ON clubs(owner_id);"))
-            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_academies_club ON football_academies(club_id);"))
-            conn.execute(text("COMMIT;"))
+        # Drop legacy team_id columns from both tables to support many-to-many transition
+        commands = [
+            "ALTER TABLE training_sessions DROP COLUMN IF EXISTS team_id;",
+            "ALTER TABLE academy_training_schedules DROP COLUMN IF EXISTS team_id;",
+        ]
         
-        print("\nDatabase schema updated and indexed successfully!")
+        for cmd in commands:
+            print(f"Executing: {cmd}")
+            db.execute(text(cmd))
+        
+        db.commit()
+        print("Schema fix applied successfully!")
+        
+    except Exception as e:
+        print(f"Error applying schema fix: {str(e)}")
+        db.rollback()
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     fix_schema()
