@@ -106,7 +106,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
     );
   }
 
-  void _showReassignSheet(academy_models.AcademyPlayer player) {
+  void _showReassignSheet(AcademyPlayer player) {
     final provider = context.read<AcademyProvider>();
     
     showModalBottomSheet(
@@ -132,7 +132,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
                     leading: CircleAvatar(child: Text(team.ageGroup)),
                     title: Text(team.name),
                     onTap: () async {
-                      final success = await provider.reassignPlayer(player.playerProfileId ?? "", team.id);
+                      final success = await provider.reassignPlayer(player.playerProfileId, team.id);
                       if (success) {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -209,11 +209,11 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
     // TODO: Implement Add Player/Session Dialog
   }
 
-  void _showAttendanceDialog(academy_models.TrainingSession session) {
+  void _showAttendanceDialog(TrainingSession session) {
     // TODO: Implement Attendance Recording
   }
 
-  void _showFeedbackDialog(academy_models.AcademyPlayer player) {
+  void _showFeedbackDialog(AcademyPlayer player) {
     // TODO: Implement Feedback Submission
   }
 }

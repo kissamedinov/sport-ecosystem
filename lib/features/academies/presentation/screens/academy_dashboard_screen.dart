@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/crm_models.dart';
-import '../../data/models/academy_team.dart' show AcademyBranch;
+import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
 import 'training_management_screen.dart';
 import 'package:intl/intl.dart';

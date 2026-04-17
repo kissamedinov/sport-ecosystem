@@ -44,13 +44,21 @@ class AcademyPlayer {
   final String id;
   final String academyId;
   final String playerProfileId;
+  final String firstName;
+  final String lastName;
+  final String? position;
   final String status;
   final DateTime joinedAt;
+
+  String get fullName => '$firstName $lastName';
 
   AcademyPlayer({
     required this.id,
     required this.academyId,
     required this.playerProfileId,
+    required this.firstName,
+    required this.lastName,
+    this.position,
     required this.status,
     required this.joinedAt,
   });
@@ -60,6 +68,9 @@ class AcademyPlayer {
       id: json['id'] as String,
       academyId: json['academy_id'] as String,
       playerProfileId: json['player_profile_id'] as String,
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String? ?? '',
+      position: json['position'] as String?,
       status: json['status'] as String,
       joinedAt: DateTime.parse(json['joined_at']),
     );
@@ -69,6 +80,9 @@ class AcademyPlayer {
     'id': id,
     'academy_id': academyId,
     'player_profile_id': playerProfileId,
+    'first_name': firstName,
+    'last_name': lastName,
+    'position': position,
     'status': status,
     'joined_at': joinedAt.toIso8601String(),
   };
@@ -84,6 +98,12 @@ class TrainingSession {
   final String endTime;
   final String? description;
   final String? branchId;
+
+  // Backward compatibility getters
+  String get title => description ?? 'Training Session';
+  String get topic => description ?? 'Training';
+  String get scheduledAt => '$date $startTime';
+  String get teamId => teamIds.isNotEmpty ? teamIds.first : '';
 
   TrainingSession({
     required this.id,
