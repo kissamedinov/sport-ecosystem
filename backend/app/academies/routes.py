@@ -254,8 +254,11 @@ def trigger_session_generation(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_coach)
 ):
-    count = services.generate_sessions_from_schedules(db, id, start_date, end_date)
-    return {"message": f"Successfully created {count} sessions"}
+    try:
+        count = services.generate_sessions_from_schedules(db, id, start_date, end_date)
+        return {"message": f"Successfully created {count} sessions"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.patch("/players/{player_profile_id}/team", response_model=schemas.AcademyTeamPlayerResponse)
 def reassign_player_team(
