@@ -246,6 +246,18 @@ def list_academy_schedules(
 ):
     return services.get_academy_schedules(db, id, team_id)
 
+@router.delete("/{id}/schedules/{schedule_id}")
+def delete_academy_schedule(
+    id: UUID,
+    schedule_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    success = services.delete_training_schedule(db, schedule_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return {"message": "Schedule deleted successfully"}
+
 @router.post("/{id}/generate-sessions")
 def trigger_session_generation(
     id: UUID,

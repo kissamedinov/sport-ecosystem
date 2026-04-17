@@ -260,6 +260,23 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> deleteSchedule(String academyId, String scheduleId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.deleteTrainingSchedule(academyId, scheduleId);
+      // Refresh schedules
+      await fetchSchedules(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchBranches(String academyId) async {
     try {
       _branches = await _repository.getAcademyBranches(academyId);
