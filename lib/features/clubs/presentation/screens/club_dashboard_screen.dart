@@ -185,7 +185,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                         Positioned(
                           right: -20,
                           top: -20,
-                          child: Icon(Icons.business_rounded, size: 180, color: Colors.white.withOpacity(0.05)),
+                          child: Icon(Icons.business_rounded, size: 180, color: Colors.white.withValues(alpha: 0.05)),
                         ),
                         // Club ID Badge
                         Positioned(
@@ -259,26 +259,26 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                               PremiumStatCard(
                                 title: 'Academies',
                                 value: dashboard.academies.length.toString(),
-                                icon: Icons.location_city_rounded,
-                                color: Colors.blue,
+                                icon: Icons.account_balance_rounded,
+                                color: PremiumTheme.electricBlue,
                               ),
                               PremiumStatCard(
                                 title: 'Teams',
                                 value: dashboard.teams.length.toString(),
-                                icon: Icons.group_rounded,
-                                color: Colors.green,
+                                icon: Icons.shield_rounded,
+                                color: PremiumTheme.electricBlue,
                               ),
                               PremiumStatCard(
                                 title: 'Players',
                                 value: (dashboard.playersCount + dashboard.childProfiles.length).toString(),
-                                icon: Icons.person_rounded,
-                                color: Colors.orange,
+                                icon: Icons.sports_soccer_rounded,
+                                color: PremiumTheme.neonGreen,
                               ),
                               PremiumStatCard(
                                 title: 'Coaches',
                                 value: dashboard.coachesCount.toString(),
-                                icon: Icons.badge_rounded,
-                                color: Colors.purple,
+                                icon: Icons.sports_rounded,
+                                color: PremiumTheme.neonGreen,
                               ),
                             ],
                           ),
@@ -325,6 +325,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     );
   }
 
+  // ───── Unified accent: electricBlue for all entity icons ─────
+
   Widget _buildAcademiesList(dynamic dashboard) {
     return Column(
       children: [
@@ -334,51 +336,50 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('CLUB BRANCHES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
-              IconButton(onPressed: () => _showCreateAcademyDialog(context), icon: Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
+              IconButton(onPressed: () => _showCreateAcademyDialog(context), icon: const Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
             ],
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: dashboard.academies.length,
-            itemBuilder: (context, index) {
-              final academy = dashboard.academies[index];
-              return PremiumCard(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AcademyManagementScreen(
-                        academy: academy,
-                        dashboard: dashboard,
-                      ),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(Icons.location_city, color: Colors.blue),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          child: dashboard.academies.isEmpty
+              ? _buildEmptyState(Icons.account_balance_rounded, 'NO ACADEMIES')
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: dashboard.academies.length,
+                  itemBuilder: (context, index) {
+                    final academy = dashboard.academies[index];
+                    return PremiumCard(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => AcademyManagementScreen(academy: academy, dashboard: dashboard),
+                        ));
+                      },
+                      child: Row(
                         children: [
-                          Text(academy.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(academy.city, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
+                          _buildEntityIcon(Icons.account_balance_rounded),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(academy.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on_outlined, size: 12, color: Colors.white.withValues(alpha: 0.3)),
+                                    const SizedBox(width: 4),
+                                    Text(academy.city, style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
                         ],
                       ),
-                    ),
-                    const Icon(Icons.chevron_right, color: Colors.white10),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -393,13 +394,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('ACTIVE TEAMS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
-              IconButton(onPressed: () => _showCreateTeamDialog(context), icon: Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
+              IconButton(onPressed: () => _showCreateTeamDialog(context), icon: const Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen)),
             ],
           ),
         ),
         Expanded(
           child: dashboard.teams.isEmpty
-              ? const Center(child: Text('No teams found', style: TextStyle(color: Colors.white38)))
+              ? _buildEmptyState(Icons.shield_rounded, 'NO TEAMS')
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: dashboard.teams.length,
@@ -407,36 +408,47 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     final team = dashboard.teams[index];
                     return PremiumCard(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TeamManagementScreen(
-                              team: team,
-                              availableCoaches: dashboard.coaches,
-                            ),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => TeamManagementScreen(team: team, availableCoaches: dashboard.coaches),
+                        ));
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.group, color: Colors.green, size: 20),
-                              const SizedBox(width: 12),
-                              Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              _buildEntityIcon(Icons.shield_rounded),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(team.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                                    const SizedBox(height: 3),
+                                    Text('${team.academyName} • ${team.ageCategory}', style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 11)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Text('${team.academyName} | ${team.ageCategory}', style: const TextStyle(color: Colors.white38, fontSize: 12)),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildTeamStatCompact('RATING', team.rating.toString(), Colors.amber),
-                              _buildTeamStatCompact('WINS', team.wins.toString(), Colors.green),
-                              _buildTeamStatCompact('LOSSES', team.losses.toString(), Colors.redAccent),
-                            ],
+                          const SizedBox(height: 14),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.03),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildTeamStatCompact('RATING', team.rating.toString(), Colors.amber),
+                                Container(width: 1, height: 20, color: Colors.white.withValues(alpha: 0.06)),
+                                _buildTeamStatCompact('W', team.wins.toString(), PremiumTheme.neonGreen),
+                                Container(width: 1, height: 20, color: Colors.white.withValues(alpha: 0.06)),
+                                _buildTeamStatCompact('L', team.losses.toString(), Colors.redAccent),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -449,44 +461,116 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   Widget _buildTeamStatCompact(String label, String value, Color color) {
-    return Row(
+    return Column(
       children: [
-        Text('$label: ', style: const TextStyle(fontSize: 9, color: Colors.white24, fontWeight: FontWeight.bold)),
-        Text(value, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
+        Text(value, style: TextStyle(fontSize: 16, color: color, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 2),
+        Text(label, style: const TextStyle(fontSize: 9, color: Colors.white24, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
       ],
     );
   }
 
   Widget _buildPlayersList(dynamic dashboard) {
+    final totalLinked = dashboard.players.length;
+    final totalUnlinked = dashboard.childProfiles.length;
+
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20.0),
-          child: Text('LINKED PLAYERS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+        const SizedBox(height: 16),
+        // Stats summary
+        Row(
+          children: [
+            Expanded(child: _buildMiniStatBox('TOTAL', '${totalLinked + totalUnlinked}', PremiumTheme.electricBlue)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildMiniStatBox('LINKED', '$totalLinked', PremiumTheme.neonGreen)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildMiniStatBox('UNLINKED', '$totalUnlinked', Colors.amber)),
+          ],
         ),
-        ...dashboard.players.map((player) => PremiumCard(
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(backgroundColor: Colors.white10, child: const Icon(Icons.person, color: Colors.white70)),
-            title: Text(player.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Pos: ${player.position ?? 'N/A'} | #: ${player.jerseyNumber ?? 'N/A'}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
-            trailing: const Icon(Icons.chevron_right, color: Colors.white10),
-          ),
-        )),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 20.0),
-          child: Text('UNLINKED PROFILES', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
-        ),
-        ...dashboard.childProfiles.map((child) => PremiumCard(
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(backgroundColor: Colors.orange.withOpacity(0.1), child: const Icon(Icons.person_outline, color: Colors.orange)),
-            title: Text(child.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: const Text('Status: Offline Profile', style: TextStyle(color: Colors.orange, fontSize: 10)),
-            trailing: TextButton(onPressed: () {}, child: Text('Invite', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 12))),
-          ),
-        )),
+        const SizedBox(height: 24),
+
+        // Linked players
+        _buildSectionHeader('LINKED PLAYERS', Icons.link_rounded),
+        const SizedBox(height: 12),
+        if (totalLinked == 0)
+          _buildInlineEmpty('No linked players yet')
+        else
+          ...dashboard.players.map((player) => PremiumCard(
+            child: Row(
+              children: [
+                _buildEntityIcon(Icons.sports_soccer_rounded),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(player.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          if (player.position != null) _buildInfoChip(player.position!),
+                          if (player.jerseyNumber != null) ...[
+                            const SizedBox(width: 6),
+                            _buildInfoChip('#${player.jerseyNumber}'),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
+              ],
+            ),
+          )),
+
+        const SizedBox(height: 24),
+        _buildSectionHeader('UNLINKED PROFILES', Icons.link_off_rounded),
+        const SizedBox(height: 12),
+        if (totalUnlinked == 0)
+          _buildInlineEmpty('No unlinked profiles')
+        else
+          ...dashboard.childProfiles.map((child) => PremiumCard(
+            child: Row(
+              children: [
+                Container(
+                  width: 42, height: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.amber.withValues(alpha: 0.2), width: 1.5),
+                  ),
+                  child: const Icon(Icons.person_outline_rounded, color: Colors.amber, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(child.fullName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('OFFLINE', style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text('INVITE', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w800)),
+                ),
+              ],
+            ),
+          )),
         const SizedBox(height: 100),
       ],
     );
@@ -496,37 +580,121 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: Row(
+            children: [
+              Expanded(child: _buildMiniStatBox('COACHES', '${dashboard.coaches.length}', PremiumTheme.electricBlue)),
+              const SizedBox(width: 10),
+              Expanded(child: _buildMiniStatBox('TEAMS', '${dashboard.teams.length}', PremiumTheme.neonGreen)),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('STAFF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
-              IconButton(onPressed: () => _showInviteStaffDialog(context), icon: Icon(Icons.person_add_rounded, color: PremiumTheme.neonGreen)),
+              const Text('COACHING STAFF', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+              GestureDetector(
+                onTap: () => _showInviteStaffDialog(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.person_add_alt_1_rounded, color: PremiumTheme.neonGreen, size: 14),
+                      SizedBox(width: 6),
+                      Text('ADD', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w800)),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: dashboard.coaches.length,
-            itemBuilder: (context, index) {
-              final coach = dashboard.coaches[index];
-              return PremiumCard(
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const CircleAvatar(backgroundColor: Colors.white10, child: Icon(Icons.sports, color: Colors.white70)),
-                  title: Text(coach.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('Coach ID: ${coach.userId.substring(0, 8)}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+          child: dashboard.coaches.isEmpty
+              ? _buildEmptyState(Icons.sports_rounded, 'NO COACHES')
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: dashboard.coaches.length,
+                  itemBuilder: (context, index) {
+                    final coach = dashboard.coaches[index];
+                    final coachTeams = dashboard.teams.where((t) => t.coachId == coach.userId).toList();
+                    return PremiumCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              _buildEntityIcon(Icons.sports_rounded),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(coach.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                                    const SizedBox(height: 3),
+                                    Text('ID: ${coach.userId.substring(0, 8)}',
+                                      style: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 10, fontFamily: 'monospace')),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text('COACH', style: TextStyle(
+                                  color: PremiumTheme.electricBlue, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5,
+                                )),
+                              ),
+                            ],
+                          ),
+                          if (coachTeams.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.shield_outlined, size: 14, color: Colors.white.withValues(alpha: 0.3)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      coachTeams.map((t) => t.name).join(', '),
+                                      style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.5), fontWeight: FontWeight.w500),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
   }
 
   Widget _buildPendingInvitesList(dynamic dashboard) {
+    if (dashboard.pendingInvitations.isEmpty) {
+      return _buildEmptyState(Icons.hourglass_empty_rounded, 'NO PENDING INVITES');
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(20),
       itemCount: dashboard.pendingInvitations.length,
@@ -535,28 +703,137 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         return PremiumCard(
           child: Row(
             children: [
-              const Icon(Icons.mail_outline_rounded, color: Colors.amber),
-              const SizedBox(width: 16),
+              _buildEntityIcon(Icons.send_rounded),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(invite.role.toString().split('.').last.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('User ID: ${invite.invitedUserId.substring(0, 8)}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                    Text(invite.role.toString().split('.').last.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                    const SizedBox(height: 3),
+                    Text('ID: ${invite.invitedUserId.substring(0, 8)}',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 10, fontFamily: 'monospace')),
                   ],
                 ),
               ),
               if (!invite.isApproved)
-                TextButton(
+                ElevatedButton(
                   onPressed: () => context.read<ClubProvider>().approveInvitation(invite.id),
-                  child: Text('Approve', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: PremiumTheme.neonGreen,
+                    foregroundColor: PremiumTheme.deepNavy,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('APPROVE'),
                 )
               else
-                const Icon(Icons.check_circle, color: Colors.green),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_rounded, color: PremiumTheme.neonGreen, size: 14),
+                      const SizedBox(width: 4),
+                      const Text('DONE', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w800)),
+                    ],
+                  ),
+                ),
             ],
           ),
         );
       },
+    );
+  }
+
+  // ───── Shared helper widgets ─────
+
+  Widget _buildEntityIcon(IconData icon) {
+    return Container(
+      width: 42, height: 42,
+      decoration: BoxDecoration(
+        color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.15), width: 1),
+      ),
+      child: Icon(icon, color: PremiumTheme.electricBlue, size: 20),
+    );
+  }
+
+  Widget _buildMiniStatBox(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: PremiumTheme.glassDecoration(radius: 12),
+      child: Column(
+        children: [
+          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white24, letterSpacing: 1)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: PremiumTheme.electricBlue, size: 14),
+        const SizedBox(width: 8),
+        Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [PremiumTheme.electricBlue.withValues(alpha: 0.25), Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: PremiumTheme.electricBlue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(text, style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 10, fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _buildInlineEmpty(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Center(
+        child: Text(text, style: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12)),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(IconData icon, String label) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 44, color: Colors.white.withValues(alpha: 0.06)),
+          const SizedBox(height: 14),
+          Text(label, style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.12),
+            fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 2,
+          )),
+        ],
+      ),
     );
   }
 
