@@ -3,6 +3,8 @@ import 'package:mobile/features/teams/data/models/team.dart';
 import 'package:mobile/features/teams/data/models/player_team.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/features/clubs/data/models/player_info.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 
 class TeamManagementScreen extends StatefulWidget {
   final Team team;
@@ -20,120 +22,263 @@ class TeamManagementScreen extends StatefulWidget {
 
 class _TeamManagementScreenState extends State<TeamManagementScreen> {
   final ProfileApiService _profileApi = ProfileApiService();
-  late Future<List<PlayerTeam>> _rosterFuture;
   String? _selectedCoachId;
 
   @override
   void initState() {
     super.initState();
-    _rosterFuture = _fetchRoster();
     _selectedCoachId = widget.team.coachId;
-  }
-
-  Future<List<PlayerTeam>> _fetchRoster() async {
-    return widget.team.players;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: Text("Manage: ${widget.team.name}"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white70),
+        title: Text(
+          widget.team.name.toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 14,
+            letterSpacing: 2,
+          ),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.save_rounded, color: PremiumTheme.neonGreen),
             onPressed: () => _saveTeamChanges(context),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCoachAssignment(),
-            const Divider(),
-            _buildSectionTitle("CURRENT ROSTER (${widget.team.players.length})"),
-            _buildRosterList(),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Integration with Invitation system coming soon.")),
-          );
-        },
-        label: const Text("ADD PLAYER"),
-        icon: const Icon(Icons.person_add),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-      ),
-    );
-  }
-
-  Widget _buildCoachAssignment() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         children: [
-          const Text("Assigned Coach", style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: _selectedCoachId,
-            items: widget.availableCoaches.map((c) {
-              return DropdownMenuItem(
-                value: c.userId,
-                child: Text(c.name),
-              );
-            }).toList(),
-            onChanged: (val) => setState(() => _selectedCoachId = val),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          // Team info header
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [PremiumTheme.electricBlue, PremiumTheme.deepNavy],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.shield_rounded, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.team.name,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${widget.team.academyName ?? 'No Academy'} • ${widget.team.ageCategory ?? 'N/A'}',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: 24),
+
+          // Stats row
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStat('RATING', widget.team.rating.toString(), Colors.amber),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat('WINS', widget.team.wins.toString(), Colors.green),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat('LOSSES', widget.team.losses.toString(), Colors.redAccent),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+
+          // Coach assignment section
+          _buildSectionHeader('ASSIGNED COACH', Icons.sports_rounded),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: PremiumTheme.glassDecoration(radius: 16),
+            child: DropdownButtonFormField<String>(
+              value: _selectedCoachId,
+              dropdownColor: PremiumTheme.cardNavy,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.person_search_rounded, color: PremiumTheme.neonGreen, size: 20),
+                labelText: 'Select Coach',
+                labelStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.03),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: PremiumTheme.neonGreen),
+                ),
+              ),
+              items: widget.availableCoaches.map((c) {
+                return DropdownMenuItem(
+                  value: c.userId,
+                  child: Text(c.name, style: const TextStyle(color: Colors.white)),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedCoachId = val),
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // Roster section
+          _buildSectionHeader('ROSTER (${widget.team.players.length})', Icons.people_rounded),
+          const SizedBox(height: 12),
+
+          if (widget.team.players.isEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Icon(Icons.person_off_rounded, size: 40, color: Colors.white.withValues(alpha: 0.08)),
+                  const SizedBox(height: 12),
+                  Text(
+                    'NO PLAYERS YET',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...widget.team.players.map((pt) => _buildPlayerCard(pt)),
+
+          const SizedBox(height: 20),
+
+          // Add player button
+          PremiumButton(
+            text: 'ADD PLAYER',
+            icon: Icons.person_add_rounded,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Integration with Invitation system coming soon.')),
+              );
+            },
+          ),
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildRosterList() {
-    final players = widget.team.players;
-    if (players.isEmpty) {
-      return const Center(child: Padding(padding: EdgeInsets.all(32), child: Text("No players in this team.")));
-    }
+  Widget _buildMiniStat(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: PremiumTheme.glassDecoration(radius: 12),
+      child: Column(
+        children: [
+          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1)),
+        ],
+      ),
+    );
+  }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: players.length,
-      itemBuilder: (context, index) {
-        final pt = players[index];
-        final name = pt.player?.name ?? "Unknown Player";
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.blue.withOpacity(0.1),
-            child: const Icon(Icons.person, color: Colors.blue, size: 20),
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: PremiumTheme.neonGreen, size: 16),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [PremiumTheme.neonGreen.withValues(alpha: 0.3), Colors.transparent],
+              ),
+            ),
           ),
-          title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: const Text("Player"),
-          trailing: IconButton(
-            icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerCard(PlayerTeam pt) {
+    final name = pt.player?.name ?? 'Unknown Player';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: PremiumTheme.glassDecoration(radius: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: PremiumTheme.electricBlue.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.person_rounded, color: PremiumTheme.electricBlue, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                const SizedBox(height: 2),
+                Text(
+                  'Player',
+                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.35)),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Removing player...")));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Removing player...')));
             },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -142,10 +287,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       Navigator.pop(context);
       return;
     }
-
-    // Logic to call backend PATCH /clubs/teams/{id}/coach
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Saving changes...")));
-    // Success simulation
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saving changes...')));
     Navigator.pop(context);
   }
 }

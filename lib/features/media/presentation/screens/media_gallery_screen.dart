@@ -119,7 +119,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                         CachedNetworkImage(
                           imageUrl: item.url,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: Colors.white.withOpacity(0.05)),
+                          placeholder: (context, url) => Container(color: Colors.white.withValues(alpha: 0.05)),
                           errorWidget: (context, url, error) => const Icon(Icons.error),
                         ),
                         if (item.mediaType == 'VIDEO')
