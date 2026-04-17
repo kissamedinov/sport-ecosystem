@@ -98,6 +98,23 @@ class AcademyRepository {
     return data.map((json) => TrainingSchedule.fromJson(json)).toList();
   }
 
+  Future<List<TrainingSchedule>> createAcademySchedulesBatch(String academyId, List<Map<String, dynamic>> schedules) async {
+    final response = await _apiClient.post('/academies/$academyId/schedules/batch', data: {'schedules': schedules});
+    final List<dynamic> data = response.data;
+    return data.map((json) => TrainingSchedule.fromJson(json)).toList();
+  }
+
+  Future<List<AcademyBranch>> getAcademyBranches(String academyId) async {
+    final response = await _apiClient.get('/academies/$academyId/branches');
+    final List<dynamic> data = response.data;
+    return data.map((json) => AcademyBranch.fromJson(json)).toList();
+  }
+
+  Future<AcademyBranch> createAcademyBranch(String academyId, Map<String, dynamic> branchData) async {
+    final response = await _apiClient.post('/academies/$academyId/branches', data: branchData);
+    return AcademyBranch.fromJson(response.data);
+  }
+
   Future<TrainingSchedule> createAcademySchedule(String academyId, Map<String, dynamic> scheduleData) async {
     final response = await _apiClient.post('/academies/$academyId/schedules', data: scheduleData);
     return TrainingSchedule.fromJson(response.data);

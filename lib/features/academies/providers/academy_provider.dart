@@ -14,6 +14,7 @@ class AcademyProvider extends ChangeNotifier {
   List<TrainingSession> _sessions = [];
   List<AcademyTeamPlayer> _teamPlayers = [];
   List<TrainingSchedule> _schedules = [];
+  List<AcademyBranch> _branches = [];
   AcademyBillingConfig? _billingConfig;
   BillingSummary? _currentBillingReport;
   
@@ -29,6 +30,7 @@ class AcademyProvider extends ChangeNotifier {
   List<TrainingSession> get sessions => _sessions;
   List<AcademyTeamPlayer> get teamPlayers => _teamPlayers;
   List<TrainingSchedule> get schedules => _schedules;
+  List<AcademyBranch> get branches => _branches;
   AcademyBillingConfig? get billingConfig => _billingConfig;
   BillingSummary? get currentBillingReport => _currentBillingReport;
   
@@ -215,6 +217,7 @@ class AcademyProvider extends ChangeNotifier {
 
   Future<void> fetchSchedules(String academyId, {String? teamId}) async {
     try {
+      await fetchBranches(academyId); // Always refresh branches with schedules
       _schedules = await _repository.getAcademySchedules(academyId, teamId: teamId);
       notifyListeners();
     } catch (e) {
@@ -226,8 +229,41 @@ class AcademyProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.createAcademySchedule(academyId, data);
+      if (data.containsKey('schedules')) {
+        await _repository.createAcademySchedulesBatch(academyId, (data['schedules'] as List).cast<Map<String, dynamic>>());
+      } else {
+        await _repository.createAcademySchedule(academyId, data);
+      }
       await fetchSchedules(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchBranches(String academyId) async {
+    try {
+      _branches = await _repository.getAcademyBranches(academyId);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
+  Future<bool> createBranch(String academyId, String name, String address, String? description) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.createAcademyBranch(academyId, {
+        'name': name,
+        'address': address,
+        'description': description,
+      });
+      await fetchBranches(academyId);
       return true;
     } catch (e) {
       _error = e.toString();

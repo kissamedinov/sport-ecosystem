@@ -6,7 +6,7 @@ import calendar
 from app.academies.models import (
     Academy, AcademyRanking, AcademyTeam, AcademyPlayer, 
     AcademyTeamPlayer, TrainingSession, TrainingAttendance, 
-    CoachFeedback, TrainingSchedule, AcademyBillingConfig, DayOfWeek, AttendanceStatus
+    CoachFeedback, TrainingSchedule, AcademyBranch, AcademyBillingConfig, DayOfWeek, AttendanceStatus
 )
 from app.users.models import User, PlayerProfile
 from app.clubs.models import Club
@@ -70,6 +70,23 @@ def create_academy(db: Session, academy_in: schemas.AcademyCreate, owner_id: UUI
     db.commit()
     db.refresh(new_academy)
     return new_academy
+
+# --- Academy Branches ---
+
+def create_academy_branch(db: Session, academy_id: UUID, branch_in: schemas.AcademyBranchCreate) -> AcademyBranch:
+    new_branch = AcademyBranch(
+        academy_id=academy_id,
+        name=branch_in.name,
+        address=branch_in.address,
+        description=branch_in.description
+    )
+    db.add(new_branch)
+    db.commit()
+    db.refresh(new_branch)
+    return new_branch
+
+def get_academy_branches(db: Session, academy_id: UUID) -> List[AcademyBranch]:
+    return db.query(AcademyBranch).filter(AcademyBranch.academy_id == academy_id).all()
 
 def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     print(f"[DEBUG] Fetching academy for user: {user_id}")
@@ -229,6 +246,7 @@ def submit_feedback(db: Session, coach_id: UUID, feedback_in: schemas.CoachFeedb
 def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas.TrainingScheduleCreate) -> TrainingSchedule:
     new_schedule = TrainingSchedule(
         academy_id=academy_id,
+        branch_id=schedule_in.branch_id,
         day_of_week=schedule_in.day_of_week,
         start_time=schedule_in.start_time,
         end_time=schedule_in.end_time,
@@ -236,8 +254,8 @@ def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas
     )
     # Link teams
     if schedule_in.team_ids:
-        from app.teams.models import Team
-        teams = db.query(Team).filter(Team.id.in_(schedule_in.team_ids)).all()
+        # Use AcademyTeam instead of generic Team
+        teams = db.query(AcademyTeam).filter(AcademyTeam.id.in_(schedule_in.team_ids)).all()
         new_schedule.teams = teams
 
     db.add(new_schedule)
@@ -245,10 +263,17 @@ def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas
     db.refresh(new_schedule)
     return new_schedule
 
+def create_training_schedules_batch(db: Session, academy_id: UUID, batch_in: schemas.TrainingScheduleBatchCreate) -> List[TrainingSchedule]:
+    results = []
+    for sched_in in batch_in.schedules:
+        new_sched = create_training_schedule(db, academy_id, sched_in)
+        results.append(new_sched)
+    return results
+
 def get_academy_schedules(db: Session, academy_id: UUID, team_id: Optional[UUID] = None) -> List[TrainingSchedule]:
     query = db.query(TrainingSchedule).filter(TrainingSchedule.academy_id == academy_id)
     if team_id:
-        query = query.join(TrainingSchedule.teams).filter(Team.id == team_id)
+        query = query.join(TrainingSchedule.teams).filter(AcademyTeam.id == team_id)
     return query.all()
 
 def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: date, end_date: date) -> int:
@@ -283,10 +308,15 @@ def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: 
                 ).first()
                 
                 if not exists:
-                    # Get academy owner or the coach of the first team as default
-                    default_coach_id = db.query(Academy).filter(Academy.id == academy_id).first().owner_id
-                    if sched.teams:
+                    # Fallback to academy owner if no teams/coaches specified
+                    academy = db.query(Academy).filter(Academy.id == academy_id).first()
+                    default_coach_id = academy.owner_id if academy else None
+                    
+                    if sched.teams and sched.teams[0].coach_id:
                         default_coach_id = sched.teams[0].coach_id
+
+                    if not default_coach_id:
+                        continue # Cannot create session without a coach
 
                     new_session = TrainingSession(
                         academy_id=academy_id,
@@ -294,7 +324,7 @@ def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: 
                         date=current_day,
                         start_time=sched.start_time,
                         end_time=sched.end_time,
-                        description=f"Automated session from multi-team schedule"
+                        description=f"Automated session from schedule"
                     )
                     new_session.teams = list(sched.teams)
                     db.add(new_session)

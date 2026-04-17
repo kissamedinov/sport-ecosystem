@@ -83,6 +83,7 @@ class TrainingSession {
   final String startTime;
   final String endTime;
   final String? description;
+  final String? branchId;
 
   TrainingSession({
     required this.id,
@@ -93,6 +94,7 @@ class TrainingSession {
     required this.startTime,
     required this.endTime,
     this.description,
+    this.branchId,
   });
 
   factory TrainingSession.fromJson(Map<String, dynamic> json) {
@@ -105,6 +107,7 @@ class TrainingSession {
       startTime: json['start_time'] as String,
       endTime: json['end_time'] as String,
       description: json['description'] as String?,
+      branchId: json['branch_id'] as String?,
     );
   }
 
@@ -117,8 +120,44 @@ class TrainingSession {
     'start_time': startTime,
     'end_time': endTime,
     'description': description,
+    'branch_id': branchId,
   };
 }
+
+class AcademyBranch {
+  final String id;
+  final String academyId;
+  final String name;
+  final String address;
+  final String? description;
+
+  AcademyBranch({
+    required this.id,
+    required this.academyId,
+    required this.name,
+    required this.address,
+    this.description,
+  });
+
+  factory AcademyBranch.fromJson(Map<String, dynamic> json) {
+    return AcademyBranch(
+      id: json['id'] as String,
+      academyId: json['academy_id'] as String,
+      name: json['name'] as String,
+      address: json['address'] as String,
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'academy_id': academyId,
+    'name': name,
+    'address': address,
+    'description': description,
+  };
+}
+
 class AcademyTeamPlayer {
   final String id;
   final String playerProfileId;
