@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/repositories/academy_repository.dart';
-import '../data/models/academy.dart';
-import '../data/models/academy_team.dart' hide AcademyPlayer, TrainingSession, AcademyCompositePlayer;
+import '../data/models/academy.dart' hide TrainingSession, AcademyPlayer;
+import '../data/models/academy_team.dart';
 import '../data/models/crm_models.dart';
 
 class AcademyProvider extends ChangeNotifier {
