@@ -104,6 +104,10 @@ class AcademyRepository {
     return data.map((json) => TrainingSchedule.fromJson(json)).toList();
   }
 
+  Future<void> deleteTrainingSchedule(String academyId, String scheduleId) async {
+    await _apiClient.delete('/academies/$academyId/schedules/$scheduleId');
+  }
+
   Future<List<AcademyBranch>> getAcademyBranches(String academyId) async {
     final response = await _apiClient.get('/academies/$academyId/branches');
     final List<dynamic> data = response.data;

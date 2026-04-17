@@ -276,6 +276,14 @@ def get_academy_schedules(db: Session, academy_id: UUID, team_id: Optional[UUID]
         query = query.join(TrainingSchedule.teams).filter(AcademyTeam.id == team_id)
     return query.all()
 
+def delete_training_schedule(db: Session, schedule_id: UUID) -> bool:
+    schedule = db.query(TrainingSchedule).filter(TrainingSchedule.id == schedule_id).first()
+    if schedule:
+        db.delete(schedule)
+        db.commit()
+        return True
+    return False
+
 def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: date, end_date: date) -> int:
     """
     Generates single TrainingSession records from recurring schedules for a date range.

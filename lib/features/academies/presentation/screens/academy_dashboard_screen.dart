@@ -262,7 +262,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 ],
                 const SizedBox(width: 32),
                 TextButton.icon(
-                  onPressed: () => provider.generateSessions(provider.myAcademy!.id),
+                  onPressed: () => _showGenerateSessionsDialog(),
                   icon: const Icon(Icons.bolt, size: 16, color: Colors.amber),
                   label: const Text('Generate Sessions', style: TextStyle(color: Colors.amber)),
                 ),
@@ -361,7 +361,33 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                           IconButton(
                             icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                             onPressed: () {
-                              // TODO: Delete schedule
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: const Color(0xFF1E1E1E),
+                                  title: const Text('Delete Schedule', style: TextStyle(color: Colors.white)),
+                                  content: const Text('Are you sure you want to delete this schedule?', style: TextStyle(color: Colors.white70)),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        final success = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text(success ? 'Schedule deleted' : 'Failed to delete schedule')),
+                                          );
+                                        }
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              );
                             },
                           ),
                         ],
@@ -586,6 +612,128 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
 
   void _showAddPlayerDialog() {
     // TODO: Implement Add Player Dialog
+  }
+
+  void _showGenerateSessionsDialog() {
+    final provider = context.read<AcademyProvider>();
+    final academyId = provider.myAcademy?.id;
+    if (academyId == null) return;
+
+    DateTime startDate = DateTime.now();
+    DateTime endDate = DateTime.now().add(const Duration(days: 30));
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1E1E1E),
+            title: const Row(
+              children: [
+                Icon(Icons.bolt, color: Colors.amber, size: 24),
+                SizedBox(width: 12),
+                Text('Generate Sessions', style: TextStyle(color: Colors.white)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'This will create actual training entries for your teams based on your permanent weekly schedule.',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+                const Text('Select Date Range:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                _buildDateRow('Start Date', startDate, (date) {
+                  if (date != null) setModalState(() => startDate = date);
+                }),
+                const SizedBox(height: 8),
+                _buildDateRow('End Date', endDate, (date) {
+                  if (date != null) setModalState(() => endDate = date);
+                }),
+                const SizedBox(height: 16),
+                const Text(
+                  'Note: You can always cancel or move specific sessions later in the "Training" tab.',
+                  style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final success = await provider.triggerGenerateSessions(academyId, startDate, endDate);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success ? 'Sessions generated successfully!' : 'Failed to generate sessions'),
+                        backgroundColor: success ? Colors.green : Colors.red,
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Generate'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDateRow(String label, DateTime date, Function(DateTime?) onDateSelected) {
+    return InkWell(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: date,
+          firstDate: DateTime.now().subtract(const Duration(days: 365)),
+          lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: const ColorScheme.dark(
+                  primary: Colors.amber,
+                  onPrimary: Colors.black,
+                  surface: Color(0xFF1E1E1E),
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        onDateSelected(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+            Text(
+              "${date.day}.${date.month}.${date.year}",
+              style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showAddScheduleDialog() {
