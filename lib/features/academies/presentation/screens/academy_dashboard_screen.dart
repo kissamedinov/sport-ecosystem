@@ -260,7 +260,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                     },
                   ),
                 ],
-                const Spacer(),
+                const SizedBox(width: 32),
                 TextButton.icon(
                   onPressed: () => provider.generateSessions(provider.myAcademy!.id),
                   icon: const Icon(Icons.bolt, size: 16, color: Colors.amber),

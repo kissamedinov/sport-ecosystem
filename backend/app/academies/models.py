@@ -131,6 +131,10 @@ class TrainingSession(Base):
     coach = relationship("User")
     attendance = relationship("TrainingAttendance", back_populates="session", cascade="all, delete-orphan")
 
+    @property
+    def team_ids(self):
+        return [t.id for t in self.teams]
+
 class TrainingAttendance(Base):
     __tablename__ = "training_attendance"
 

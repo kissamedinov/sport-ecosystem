@@ -115,7 +115,7 @@ class TrainingSessionResponse(TrainingSessionBase):
     id: UUID
     academy_id: UUID
     coach_id: UUID
-    teams: List[Optional[UUID]] = [] # We can return actual team objects if needed later
+    team_ids: List[UUID] = []
 
     model_config = ConfigDict(from_attributes=True)
 
