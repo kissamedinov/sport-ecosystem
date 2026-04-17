@@ -203,6 +203,10 @@ class TrainingSchedule(Base):
     branch = relationship("AcademyBranch", back_populates="schedules")
     teams = relationship("AcademyTeam", secondary=training_schedule_teams)
 
+    @property
+    def team_ids(self):
+        return [t.id for t in self.teams]
+
 class AcademyBillingConfig(Base):
     __tablename__ = "academy_billing_configs"
 

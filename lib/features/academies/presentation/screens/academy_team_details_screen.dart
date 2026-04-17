@@ -153,26 +153,53 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
   Widget _buildTrainingSessions() {
     return Consumer<AcademyProvider>(
       builder: (context, provider, child) {
-        final sessions = provider.sessions.where((s) => s.teamId == widget.team.id).toList();
+        final teamSessions = provider.sessions.where((s) => s.teamIds.contains(widget.team.id)).toList();
+        final teamSchedules = provider.schedules.where((s) => s.teamIds.contains(widget.team.id)).toList();
 
-        if (sessions.isEmpty) {
-          return const Center(child: Text('No training sessions scheduled.'));
-        }
-
-        return ListView.builder(
-          itemCount: sessions.length,
-          itemBuilder: (context, index) {
-            final session = sessions[index];
-            return ListTile(
-              leading: const Icon(Icons.event),
-              title: Text(session.topic ?? 'Training Session'),
-              subtitle: Text(session.scheduledAt),
-              trailing: ElevatedButton(
-                onPressed: () => _showAttendanceDialog(session),
-                child: const Text('Attendance'),
-              ),
-            );
-          },
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (teamSchedules.isNotEmpty) ...[
+              const Text('Recurring Schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...teamSchedules.map((s) => Card(
+                child: ListTile(
+                  leading: const Icon(Icons.calendar_today, color: Colors.blue),
+                  title: Text('${s.dayOfWeek.toShortString()} | ${s.startTime} - ${s.endTime}'),
+                  subtitle: Text(s.location ?? 'Main Field'),
+                ),
+              )),
+              const Divider(height: 32),
+            ],
+            
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Recent & Upcoming Sessions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (teamSessions.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Text('No actual sessions generated yet.\nUse "Generate Sessions" in Dashboard.', 
+                    textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                ),
+              )
+            else
+              ...teamSessions.map((session) => Card(
+                child: ListTile(
+                  leading: const Icon(Icons.event, color: Colors.green),
+                  title: Text(session.description ?? 'Training Session'),
+                  subtitle: Text('${session.date} | ${session.startTime} - ${session.endTime}'),
+                  trailing: ElevatedButton(
+                    onPressed: () => _showAttendanceDialog(session),
+                    child: const Text('Attendance'),
+                  ),
+                ),
+              )).toList(),
+          ],
         );
       },
     );

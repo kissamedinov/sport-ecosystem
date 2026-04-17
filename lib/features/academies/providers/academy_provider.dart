@@ -219,9 +219,24 @@ class AcademyProvider extends ChangeNotifier {
     try {
       await fetchBranches(academyId); // Always refresh branches with schedules
       _schedules = await _repository.getAcademySchedules(academyId, teamId: teamId);
+      _sessions = await _repository.getTrainingSessions(academyId, teamId: teamId);
       notifyListeners();
     } catch (e) {
       _error = e.toString();
+    }
+  }
+
+  Future<bool> generateSessions(String academyId) async {
+    try {
+      final now = DateTime.now();
+      final oneMonthLater = now.add(const Duration(days: 30));
+      await _repository.generateSessions(academyId, now, oneMonthLater);
+      await fetchSchedules(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
     }
   }
 
