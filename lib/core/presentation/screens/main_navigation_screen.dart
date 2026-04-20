@@ -11,7 +11,8 @@ import 'package:mobile/features/tournaments/presentation/screens/tournament_anno
 import 'package:mobile/features/children/presentation/screens/children_activity_screen.dart';
 import 'package:mobile/features/fields/presentation/screens/field_management_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/club_dashboard_screen.dart';
-import 'package:mobile/features/clubs/providers/club_provider.dart';
+import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -28,37 +29,190 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final user = context.watch<AuthProvider>().user;
     final role = user?.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
 
+    if (role == 'CLUB_OWNER' || role == 'CLUB_MANAGER' || role == 'ADMIN') {
+      return _buildClubNav(context);
+    }
+
     final tabs = _getTabsByRole(role);
+    final safeIndex = _selectedIndex.clamp(0, tabs.length - 1);
 
     return Scaffold(
       body: IndexedStack(
-        index: _selectedIndex,
+        index: safeIndex,
         children: tabs.map((t) => t.screen).toList(),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
+        currentIndex: safeIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
         items: tabs.map((t) {
-          String label = t.label;
-          if (t.label == 'Club') {
-            final clubProvider = context.read<ClubProvider>();
-            if (clubProvider.dashboard != null) {
-              label = clubProvider.dashboard!.club.name;
-            }
-          }
           return BottomNavigationBarItem(
             icon: Icon(t.icon),
             activeIcon: Icon(t.activeIcon),
-            label: label,
+            label: t.label,
           );
         }).toList(),
       ),
     );
   }
 
+  Widget _buildClubNav(BuildContext context) {
+    final safeIndex = _selectedIndex.clamp(0, 3);
+
+    final clubScreens = [
+      const RoleRouter(),
+      const ClubDashboardScreen(isHome: false),
+      const NotificationScreen(),
+      const ProfileScreen(),
+    ];
+
+    return Scaffold(
+      body: IndexedStack(
+        index: safeIndex,
+        children: clubScreens,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showQuickActions,
+        backgroundColor: PremiumTheme.neonGreen,
+        foregroundColor: Colors.black,
+        elevation: 6,
+        child: const Icon(Icons.add, size: 28, weight: 700),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: const Color(0xFF0D1117),
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 6,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildClubNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
+              _buildClubNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE'),
+              const SizedBox(width: 56),
+              _buildClubNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
+              _buildClubNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClubNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = index),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? PremiumTheme.neonGreen : Colors.white38,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                color: isSelected ? PremiumTheme.neonGreen : Colors.white38,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showQuickActions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF161B22),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'QUICK ACTIONS',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: Colors.white38,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildQuickAction(Icons.group_add_outlined, 'Invite Member', Colors.blue),
+            _buildQuickAction(Icons.sports_soccer_outlined, 'Add Player Profile', PremiumTheme.neonGreen),
+            _buildQuickAction(Icons.shield_outlined, 'Create Team', PremiumTheme.neonGreen),
+            _buildQuickAction(Icons.account_balance_outlined, 'Add Academy', Colors.amber),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(IconData icon, String label, Color color) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Navigator.pop(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+              ),
+              const Spacer(),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   List<_TabItem> _getTabsByRole(String role) {
-    // Shared tabs
     final homeTab = _TabItem(
       screen: const RoleRouter(),
       icon: Icons.home_outlined,
@@ -87,7 +241,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       label: 'Profile',
     );
 
-    // Dynamic 4th tab
     _TabItem dynamicTab;
     switch (role) {
       case 'PLAYER_CHILD':
@@ -112,15 +265,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           icon: Icons.child_care_outlined,
           activeIcon: Icons.child_care,
           label: 'Activity',
-        );
-        break;
-      case 'CLUB_OWNER':
-      case 'CLUB_MANAGER':
-        dynamicTab = _TabItem(
-          screen: const ClubDashboardScreen(),
-          icon: Icons.business_outlined,
-          activeIcon: Icons.business,
-          label: 'Club',
         );
         break;
       case 'FIELD_OWNER':

@@ -4,5 +4,6 @@
     ],
     "python.analysis.autoImportCompletions": true,
     "python.defaultInterpreterPath": ".venv/bin/python",
-    "terminal.integrated.cwd": "${workspaceFolder}/backend"
+    "terminal.integrated.cwd": "${workspaceFolder}/backend",
+    "claudeCode.useTerminal": true
 }
