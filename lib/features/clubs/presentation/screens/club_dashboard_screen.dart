@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/club_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import 'package:mobile/features/admin/presentation/screens/admin_hub_screen.dart';
@@ -345,14 +347,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               Expanded(
                 child: _buildStatCard(
                   icon: Icons.account_balance_rounded,
-                  iconColor: PremiumTheme.electricBlue,
+                  iconColor: PremiumTheme.neonGreen,
                   status: 'ACTIVE',
-                  statusColor: PremiumTheme.electricBlue,
+                  statusColor: PremiumTheme.neonGreen,
                   value: '${dashboard.academies.length}',
                   label: 'ACADEMIES',
-                  bg: const Color(0xFF0D1627),
-                  border: const Color(0xFF1A2D4A),
-                ),
+                  bg: const Color(0xFF0A1F0D),
+                  border: const Color(0xFF1A3320),
+                ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -365,7 +367,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   label: 'TEAMS',
                   bg: const Color(0xFF0D1627),
                   border: const Color(0xFF1A2D4A),
-                ),
+                ).animate().fadeIn(delay: 150.ms, duration: 400.ms).slideX(begin: 0.1, end: 0),
               ),
             ],
           ),
@@ -382,20 +384,20 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   label: 'PLAYERS',
                   bg: const Color(0xFF0A1F0D),
                   border: const Color(0xFF1A3320),
-                ),
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: _buildStatCard(
                   icon: Icons.key_rounded,
-                  iconColor: PremiumTheme.neonGreen,
+                  iconColor: PremiumTheme.electricBlue,
                   status: 'ON STAFF',
-                  statusColor: PremiumTheme.neonGreen,
+                  statusColor: PremiumTheme.electricBlue,
                   value: '${dashboard.coachesCount}',
                   label: 'COACHES',
-                  bg: const Color(0xFF0A1F0D),
-                  border: const Color(0xFF1A3320),
-                ),
+                  bg: const Color(0xFF0D1627),
+                  border: const Color(0xFF1A2D4A),
+                ).animate().fadeIn(delay: 250.ms, duration: 400.ms).slideX(begin: 0.1, end: 0),
               ),
             ],
           ),
@@ -498,7 +500,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   height: 8,
                   decoration: const BoxDecoration(
                       color: Colors.redAccent, shape: BoxShape.circle),
-                ),
+                ).animate(onPlay: (c) => c.repeat())
+                  .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 600.ms)
+                  .then()
+                  .scale(begin: const Offset(1.3, 1.3), end: const Offset(1, 1), duration: 600.ms),
                 const SizedBox(width: 6),
                 const Text(
                   'LIVE',
@@ -595,7 +600,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   color: PremiumTheme.neonGreen,
                   bg: const Color(0xFF0A1F0D),
                   border: const Color(0xFF1A3320),
-                ),
+                  sparklineData: [1.0, 3.0, 2.0, 4.0, 3.0, 5.0, 4.0, 6.0, 5.0, 7.0, 8.0, 9.0 + newPlayers.toDouble().clamp(0.0, 10.0)],
+                ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -605,7 +611,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   color: Colors.amber,
                   bg: const Color(0xFF1F1A0A),
                   border: const Color(0xFF332A1A),
-                ),
+                  sparklineData: [2.0, 2.0, 3.0, 2.0, 3.0, 3.0, 4.0, 3.0, 4.0, 4.0, 5.0, 4.0 + newCoaches.toDouble().clamp(0.0, 5.0)],
+                ).animate().fadeIn(delay: 350.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
               ),
             ],
           ),
@@ -620,7 +627,11 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     required Color color,
     required Color bg,
     required Color border,
+    List<double>? sparklineData,
   }) {
+    // Generate sample sparkline data if not provided
+    final data = sparklineData ?? [2, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 9];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -671,6 +682,41 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               letterSpacing: 0.5,
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 30,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                lineTouchData: const LineTouchData(enabled: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: data.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList(),
+                    isCurved: true,
+                    curveSmoothness: 0.3,
+                    color: color,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          color.withValues(alpha: 0.3),
+                          color.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                minY: 0,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -693,7 +739,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionLabel('CLUB INVITATIONS · $pendingCount PENDING'),
+          _buildSectionLabel('CLUB INVITATIONS · $pendingCount PENDING', accentColor: Colors.redAccent),
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
@@ -786,7 +832,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionLabel('UPCOMING FIXTURES'),
+          _buildSectionLabel('UPCOMING FIXTURES', accentColor: Colors.amber),
           const SizedBox(height: 12),
           ...shown.map((f) {
             final dayLabel = days[f.date.weekday - 1];
@@ -1511,7 +1557,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  invite.invitedName ?? 'Invited User',
+                  'User ${invite.invitedUserId.substring(0, 8)}',
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
                 ),
                 const SizedBox(height: 4),
@@ -1680,10 +1726,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     );
   }
 
-  Widget _buildSectionLabel(String title) {
+  Widget _buildSectionLabel(String title, {Color accentColor = PremiumTheme.neonGreen}) {
     return Row(
       children: [
-        Container(width: 3, height: 14, color: PremiumTheme.neonGreen,
+        Container(width: 3, height: 14, color: accentColor,
             margin: const EdgeInsets.only(right: 8)),
         Text(
           title,

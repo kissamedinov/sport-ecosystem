@@ -11,6 +11,9 @@ import 'package:mobile/features/tournaments/presentation/screens/tournament_anno
 import 'package:mobile/features/children/presentation/screens/children_activity_screen.dart';
 import 'package:mobile/features/fields/presentation/screens/field_management_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/club_dashboard_screen.dart';
+import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
+import 'package:mobile/features/clubs/presentation/screens/create_child_profile_screen.dart';
+import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
@@ -71,12 +74,24 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: safeIndex,
         children: clubScreens,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showQuickActions,
-        backgroundColor: PremiumTheme.neonGreen,
-        foregroundColor: Colors.black,
-        elevation: 6,
-        child: const Icon(Icons.add, size: 28, weight: 700),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.4),
+              blurRadius: 16,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _showQuickActions,
+          backgroundColor: PremiumTheme.neonGreen,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          child: const Icon(Icons.add, size: 28, weight: 700),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
@@ -132,13 +147,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void _showQuickActions() {
+    final clubId = context.read<ClubProvider>().dashboard?.club.id;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF161B22),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -165,21 +182,336 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildQuickAction(Icons.group_add_outlined, 'Invite Member', Colors.blue),
-            _buildQuickAction(Icons.sports_soccer_outlined, 'Add Player Profile', PremiumTheme.neonGreen),
-            _buildQuickAction(Icons.shield_outlined, 'Create Team', PremiumTheme.neonGreen),
-            _buildQuickAction(Icons.account_balance_outlined, 'Add Academy', Colors.amber),
+            _buildQuickAction(
+              Icons.group_add_outlined,
+              'Invite Member',
+              PremiumTheme.electricBlue,
+              () {
+                Navigator.pop(ctx);
+                if (clubId != null) {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => InviteMemberScreen(clubId: clubId),
+                  ));
+                }
+              },
+            ),
+            _buildQuickAction(
+              Icons.sports_soccer_outlined,
+              'Add Player Profile',
+              PremiumTheme.neonGreen,
+              () {
+                Navigator.pop(ctx);
+                if (clubId != null) {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => CreateChildProfileScreen(clubId: clubId),
+                  ));
+                }
+              },
+            ),
+            _buildQuickAction(
+              Icons.shield_outlined,
+              'Create Team',
+              Colors.tealAccent,
+              () {
+                Navigator.pop(ctx);
+                _showCreateTeamDialog();
+              },
+            ),
+            _buildQuickAction(
+              Icons.account_balance_outlined,
+              'Add Academy',
+              Colors.amber,
+              () {
+                Navigator.pop(ctx);
+                _showCreateAcademyDialog();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label, Color color) {
+  void _showCreateTeamDialog() {
+    final nameController = TextEditingController();
+    final birthYearController = TextEditingController(text: '2015');
+    String? selectedAcademyId;
+    final academies = context.read<ClubProvider>().dashboard?.academies ?? [];
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          backgroundColor: PremiumTheme.cardNavy,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Create New Team', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (academies.isEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.warning_rounded, color: Colors.amber, size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Create an academy first before adding teams',
+                            style: TextStyle(color: Colors.amber, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else ...[
+                  DropdownButtonFormField<String>(
+                    dropdownColor: PremiumTheme.cardNavy,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Academy *',
+                      labelStyle: TextStyle(color: Colors.white54),
+                    ),
+                    items: academies.map((a) => DropdownMenuItem(
+                      value: a.id.toString(),
+                      child: Text(a.name),
+                    )).toList(),
+                    onChanged: (val) => setDialogState(() => selectedAcademyId = val),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Team Name *',
+                      labelStyle: TextStyle(color: Colors.white54),
+                      hintText: 'e.g. U-17 First Squad',
+                      hintStyle: TextStyle(color: Colors.white24),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: birthYearController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Birth Year',
+                      labelStyle: TextStyle(color: Colors.white54),
+                      hintText: '2015',
+                      hintStyle: TextStyle(color: Colors.white24),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            ),
+            ElevatedButton(
+              onPressed: isLoading || academies.isEmpty
+                  ? null
+                  : () async {
+                      if (selectedAcademyId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please select an academy')),
+                        );
+                        return;
+                      }
+                      if (nameController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter a team name')),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isLoading = true);
+
+                      final success = await context.read<ClubProvider>().createTeam(
+                        selectedAcademyId!,
+                        nameController.text,
+                        int.tryParse(birthYearController.text) ?? 2015,
+                        '',
+                      );
+
+                      if (dialogContext.mounted) {
+                        Navigator.pop(dialogContext);
+                      }
+
+                      if (success) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Team "${nameController.text}" created!'),
+                              backgroundColor: PremiumTheme.neonGreen,
+                            ),
+                          );
+                          context.read<ClubProvider>().fetchClubDashboard();
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to create team. Please try again.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: PremiumTheme.neonGreen,
+                foregroundColor: Colors.black,
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                    )
+                  : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCreateAcademyDialog() {
+    final nameController = TextEditingController();
+    final cityController = TextEditingController();
+    final addressController = TextEditingController();
+    final clubId = context.read<ClubProvider>().dashboard?.club.id;
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          backgroundColor: PremiumTheme.cardNavy,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Add New Academy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Name *',
+                  labelStyle: TextStyle(color: Colors.white54),
+                  hintText: 'e.g. Main Campus',
+                  hintStyle: TextStyle(color: Colors.white24),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: cityController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'City *',
+                  labelStyle: TextStyle(color: Colors.white54),
+                  hintText: 'e.g. Almaty',
+                  hintStyle: TextStyle(color: Colors.white24),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: addressController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.white54),
+                  hintText: 'e.g. Abay 100',
+                  hintStyle: TextStyle(color: Colors.white24),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (nameController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter academy name')),
+                        );
+                        return;
+                      }
+                      if (cityController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter city')),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isLoading = true);
+
+                      final success = await context.read<ClubProvider>().createAcademy(
+                        clubId!, nameController.text, cityController.text, addressController.text,
+                      );
+
+                      if (dialogContext.mounted) {
+                        Navigator.pop(dialogContext);
+                      }
+
+                      if (success) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Academy "${nameController.text}" created!'),
+                              backgroundColor: Colors.amber,
+                            ),
+                          );
+                          context.read<ClubProvider>().fetchClubDashboard();
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to create academy. Please try again.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.black,
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                    )
+                  : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(IconData icon, String label, Color color, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => Navigator.pop(context),
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
