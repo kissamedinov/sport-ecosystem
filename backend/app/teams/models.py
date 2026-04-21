@@ -58,6 +58,8 @@ class TeamMembership(Base):
     player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
     role = Column(Enum(MembershipRole), default=MembershipRole.PLAYER, nullable=False)
     status = Column(Enum(MembershipStatus), default=MembershipStatus.ACTIVE, nullable=False)
+    join_status = Column(Enum(JoinStatus), default=JoinStatus.APPROVED, nullable=False)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=True)
     jersey_number = Column(Integer, nullable=True)
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
     left_at = Column(DateTime(timezone=True), nullable=True)
@@ -66,3 +68,4 @@ class TeamMembership(Base):
     team = relationship("Team", back_populates="memberships")
     player_profile = relationship("PlayerProfile", back_populates="memberships")
     player = relationship("User") # Added for easier access
+    child_profile = relationship("ChildProfile")

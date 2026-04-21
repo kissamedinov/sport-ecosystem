@@ -29,6 +29,8 @@ class Team {
   final List<String> form;
   @JsonKey(defaultValue: [])
   final List<PlayerTeam> players;
+  final String? whatsapp;
+  final String? instagram;
 
   Team({
     required this.id,
@@ -47,6 +49,8 @@ class Team {
     this.recentMatches = const [],
     this.form = const [],
     this.players = const [],
+    this.whatsapp,
+    this.instagram,
   });
 
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);

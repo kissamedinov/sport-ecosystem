@@ -5,6 +5,9 @@ import 'package:mobile/core/api/stats_api_service.dart';
 import 'package:mobile/features/auth/presentation/screens/parent_requests_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/features/player_stats/presentation/widgets/career_history_chart.dart';
+import 'package:mobile/features/player_stats/data/models/match_history_item.dart';
+import 'package:mobile/features/player_stats/data/models/player_career_stats.dart';
 
 class PlayerProfileBody extends StatefulWidget {
   final String playerProfileId;
@@ -18,11 +21,15 @@ class PlayerProfileBody extends StatefulWidget {
 class _PlayerProfileBodyState extends State<PlayerProfileBody> {
   final StatsApiService _statsApi = StatsApiService();
   late Future<PlayerStats> _statsFuture;
+  late Future<PlayerCareerStats> _careerFuture;
+  late Future<List<MatchHistoryItem>> _historyFuture;
 
   @override
   void initState() {
     super.initState();
     _statsFuture = _statsApi.getPlayerStats(widget.playerProfileId);
+    _careerFuture = _statsApi.getCareerStats(widget.playerProfileId);
+    _historyFuture = _statsApi.getMatchHistory(widget.playerProfileId);
   }
 
   @override
@@ -38,57 +45,115 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         }
         final stats = snapshot.data!;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle("PERFORMANCE STATS"),
-            _buildStatsGrid(stats),
-            const SizedBox(height: 24),
-            if (stats.awards.isNotEmpty) ...[
-              _buildSectionTitle("LATEST AWARDS"),
-              _buildAwardsList(stats.awards),
-              const SizedBox(height: 24),
-            ],
-            _buildSectionTitle("QUICK ACTIONS"),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  PremiumCard(
-                    padding: EdgeInsets.zero,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
-                    ),
-                    child: const ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.white10,
-                        child: Icon(Icons.analytics, color: PremiumTheme.electricBlue),
-                      ),
-                      title: Text("View Detailed Career", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      trailing: Icon(Icons.chevron_right, color: Colors.white24),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  PremiumCard(
-                    padding: EdgeInsets.zero,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
-                    ),
-                    child: const ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.white10,
-                        child: Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
-                      ),
-                      title: Text("Parent Requests", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      trailing: Icon(Icons.chevron_right, color: Colors.white24),
-                    ),
-                  ),
+        return FutureBuilder<PlayerCareerStats>(
+          future: _careerFuture,
+          builder: (context, careerSnapshot) {
+            final career = careerSnapshot.data;
+            
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle("CAREER OVERVIEW"),
+                if (career != null) _buildCareerGrid(career) else _buildStatsGrid(stats),
+                const SizedBox(height: 24),
+                
+                // Career History Dynamic Chart
+                FutureBuilder<List<MatchHistoryItem>>(
+                  future: _historyFuture,
+                  builder: (context, historySnapshot) {
+                    if (historySnapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)),
+                      );
+                    }
+                    if (historySnapshot.hasError || !historySnapshot.hasData) {
+                      return const SizedBox();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CareerHistoryChart(history: historySnapshot.data!),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                
+                // Recent Matches List
+                FutureBuilder<List<MatchHistoryItem>>(
+                  future: _historyFuture,
+                  builder: (context, historySnapshot) {
+                    if (historySnapshot.hasData && historySnapshot.data!.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle("RECENT MATCHES"),
+                          SizedBox(
+                            height: 100,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: historySnapshot.data!.length > 5 ? 5 : historySnapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                final match = historySnapshot.data![index];
+                                return _buildMatchCard(match);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }
+                    return const SizedBox();
+                  },
+                ),
+
+                if (stats.awards.isNotEmpty) ...[
+                  _buildSectionTitle("LATEST AWARDS"),
+                  _buildAwardsList(stats.awards),
+                  const SizedBox(height: 24),
                 ],
-              ),
-            ),
-          ],
+                _buildSectionTitle("QUICK ACTIONS"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      PremiumCard(
+                        padding: EdgeInsets.zero,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
+                        ),
+                        child: const ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.white10,
+                            child: Icon(Icons.analytics, color: PremiumTheme.electricBlue),
+                          ),
+                          title: Text("View Detailed Career", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      PremiumCard(
+                        padding: EdgeInsets.zero,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
+                        ),
+                        child: const ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.white10,
+                            child: Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
+                          ),
+                          title: Text("Parent Requests", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
         );
       },
     );
@@ -105,6 +170,130 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           color: Colors.white38, 
           letterSpacing: 2,
         ),
+      ),
+    );
+  }
+
+  Widget _buildMatchCard(MatchHistoryItem match) {
+    return Container(
+      width: 160,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  match.opponent,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (match.isBestPlayer)
+                const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            match.tournamentName,
+            style: const TextStyle(color: Colors.white38, fontSize: 10),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              _buildMiniTag("${match.goals}G", PremiumTheme.neonGreen),
+              const SizedBox(width: 6),
+              _buildMiniTag("${match.assists}A", PremiumTheme.electricBlue),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniTag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w800),
+      ),
+    );
+  }
+
+  Widget _buildCareerGrid(PlayerCareerStats career) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: PremiumStatCard(
+                  title: "Rating",
+                  value: career.rating.toStringAsFixed(1),
+                  icon: Icons.star_rounded,
+                  color: Colors.amber,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PremiumStatCard(
+                  title: "Matches",
+                  value: "${career.matchesPlayed}",
+                  icon: Icons.stadium_rounded,
+                  color: PremiumTheme.electricBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: PremiumStatCard(
+                  title: "Goals",
+                  value: "${career.goals}",
+                  icon: Icons.sports_soccer,
+                  color: PremiumTheme.neonGreen,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PremiumStatCard(
+                  title: "Assists",
+                  value: "${career.assists}",
+                  icon: Icons.assistant,
+                  color: Colors.orangeAccent,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PremiumStatCard(
+                  title: "Awards",
+                  value: "${career.bestPlayerAwards}",
+                  icon: Icons.emoji_events_rounded,
+                  color: Colors.purpleAccent,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'dart:math' as math;
 
 class ProfileHeader extends StatelessWidget {
   final User user;
@@ -16,8 +15,28 @@ class ProfileHeader extends StatelessWidget {
     this.onEdit,
   });
 
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
+  }
+
+  String _getRoleDisplayName(String role) {
+    if (role.contains('OWNER')) return 'Club Owner';
+    if (role.contains('MANAGER')) return 'Club Manager';
+    if (role.contains('COACH')) return 'Coach';
+    if (role.contains('ADMIN')) return 'Administrator';
+    if (role.contains('PLAYER')) return 'Player';
+    if (role.contains('PARENT')) return 'Parent';
+    return role.replaceAll('_', ' ');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isVerified = user.roles?.any((r) => r.contains('OWNER') || r.contains('ADMIN') || r.contains('MANAGER')) ?? false;
+
     return Stack(
       children: [
         // Background with subtle arc decoration
@@ -40,22 +59,31 @@ class ProfileHeader extends StatelessWidget {
               // Avatar with glowing ring
               _buildAvatar(),
               const SizedBox(height: 20),
-              // Name
-              Text(
-                user.name,
-                style: const TextStyle(
-                  fontSize: 26, 
-                  color: Colors.white, 
-                  fontWeight: FontWeight.w900, 
-                  letterSpacing: -0.5,
-                ),
+              // Name row with verification badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    user.name,
+                    style: const TextStyle(
+                      fontSize: 26, 
+                      color: Colors.white, 
+                      fontWeight: FontWeight.w900, 
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  if (isVerified) ...[
+                    const SizedBox(width: 8),
+                    const Icon(Icons.verified_rounded, color: PremiumTheme.neonGreen, size: 20),
+                  ],
+                ],
               ),
               const SizedBox(height: 4),
               // Email
               Text(
                 user.email,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   fontSize: 13, 
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.3,
@@ -136,8 +164,8 @@ class ProfileHeader extends StatelessWidget {
             shape: BoxShape.circle,
             gradient: LinearGradient(
               colors: [
-                PremiumTheme.neonGreen.withOpacity(0.4),
-                PremiumTheme.electricBlue.withOpacity(0.2),
+                PremiumTheme.neonGreen.withValues(alpha: 0.4),
+                PremiumTheme.electricBlue.withValues(alpha: 0.2),
                 Colors.transparent,
               ],
               begin: Alignment.topLeft,
@@ -152,7 +180,7 @@ class ProfileHeader extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: PremiumTheme.neonGreen.withOpacity(0.5),
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
               width: 2,
             ),
           ),
@@ -177,9 +205,9 @@ class ProfileHeader extends StatelessWidget {
           child: user.avatarUrl == null 
             ? Center(
                 child: Text(
-                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                  _getInitials(user.name),
                   style: const TextStyle(
-                    fontSize: 46,
+                    fontSize: 42,
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
                   ),
@@ -213,10 +241,10 @@ class ProfileHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: PremiumTheme.cardNavy,
                   shape: BoxShape.circle,
-                  border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.5), width: 1.5),
+                  border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.5), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: PremiumTheme.neonGreen.withOpacity(0.2),
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -230,30 +258,46 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
+  Widget _buildRoleBadge(String role) {
+    final displayName = _getRoleDisplayName(role);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        displayName.toUpperCase(),
+        style: const TextStyle(
+          color: PremiumTheme.electricBlue,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+
   Widget _buildClubBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.orangeAccent.withOpacity(0.15),
-            Colors.orange.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orangeAccent.withOpacity(0.3)),
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.shield, color: Colors.orangeAccent, size: 14),
+          const Icon(Icons.verified_user_rounded, color: PremiumTheme.neonGreen, size: 14),
           const SizedBox(width: 8),
           Text(
-            clubName!,
+            clubName!.toUpperCase(),
             style: const TextStyle(
-              color: Colors.orangeAccent, 
-              fontWeight: FontWeight.bold, 
-              fontSize: 12,
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
           ),
@@ -264,34 +308,24 @@ class ProfileHeader extends StatelessWidget {
 
   Widget _buildUserIdCard(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.fingerprint, size: 16, color: PremiumTheme.neonGreen),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              'ID: ${user.id.length > 16 ? "${user.id.substring(0, 8)}...${user.id.substring(user.id.length - 4)}" : user.id}',
-              style: const TextStyle(
-                fontSize: 11, 
-                color: Colors.white54, 
-                fontFamily: 'monospace', 
-                letterSpacing: 0.8,
-              ),
-              overflow: TextOverflow.ellipsis,
+          Icon(Icons.fingerprint_rounded, color: Colors.white.withValues(alpha: 0.3), size: 16),
+          const SizedBox(width: 10),
+          Text(
+            user.id.toUpperCase(),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.5),
+              fontSize: 11,
+              fontFamily: 'monospace',
+              letterSpacing: 1,
             ),
           ),
           const SizedBox(width: 12),
@@ -299,63 +333,10 @@ class ProfileHeader extends StatelessWidget {
             onTap: () {
               Clipboard.setData(ClipboardData(text: user.id));
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('✓  ID copied'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: PremiumTheme.cardNavy,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  duration: const Duration(seconds: 2),
-                ),
+                const SnackBar(content: Text('User ID copied to clipboard')),
               );
             },
-            child: const Icon(Icons.copy_rounded, size: 16, color: Colors.white24),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRoleBadge(String role) {
-    // Pick color based on role
-    Color color;
-    IconData icon;
-    if (role.contains('OWNER')) {
-      color = Colors.amber;
-      icon = Icons.star_rounded;
-    } else if (role.contains('COACH')) {
-      color = Colors.orangeAccent;
-      icon = Icons.sports;
-    } else if (role.contains('MANAGER') || role.contains('ADMIN')) {
-      color = Colors.purpleAccent;
-      icon = Icons.admin_panel_settings;
-    } else if (role.contains('PLAYER')) {
-      color = PremiumTheme.neonGreen;
-      icon = Icons.sports_soccer;
-    } else {
-      color = PremiumTheme.electricBlue;
-      icon = Icons.person;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.35)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 10, color: color),
-          const SizedBox(width: 5),
-          Text(
-            role.replaceAll('_', ' ').toUpperCase(),
-            style: TextStyle(
-              color: color, 
-              fontSize: 9, 
-              fontWeight: FontWeight.w900, 
-              letterSpacing: 1.2,
-            ),
+            child: Icon(Icons.copy_rounded, color: PremiumTheme.neonGreen.withValues(alpha: 0.6), size: 14),
           ),
         ],
       ),

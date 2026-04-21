@@ -13,15 +13,91 @@ import 'package:mobile/features/profile/presentation/widgets/child_player_profil
 import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
 import 'package:mobile/features/notifications/providers/notification_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  void _showProfileMenu(BuildContext context, AuthProvider auth) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF161B22),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildMenuItem(Icons.edit_rounded, 'Edit Profile', Colors.white70, () {
+              Navigator.pop(ctx);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
+            }),
+            _buildMenuItem(Icons.notifications_outlined, 'Notifications', Colors.white70, () {
+              Navigator.pop(ctx);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+            }),
+            _buildMenuItem(Icons.settings_outlined, 'Settings', Colors.white70, () {
+              Navigator.pop(ctx);
+            }),
+            const Divider(color: Colors.white12, height: 24),
+            _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
+              Navigator.pop(ctx);
+              await auth.logout();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacementNamed('/login');
+              }
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String label, Color color, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 16),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
+    final clubProvider = context.watch<ClubProvider>();
+    final clubName = clubProvider.dashboard?.club.name;
 
     if (user == null) {
       return const Scaffold(
@@ -36,8 +112,21 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: PremiumTheme.deepNavy,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.chevron_left_rounded, color: Colors.white70),
+                ),
+              )
+            : null,
         title: const Text(
-          'PROFILE',
+          'MY PROFILE',
           style: TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
@@ -67,21 +156,18 @@ class ProfileScreen extends StatelessWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, size: 20, color: Colors.white70),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, size: 20, color: Colors.redAccent),
-            tooltip: 'Logout',
-            onPressed: () async {
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            },
+          GestureDetector(
+            onTap: () => _showProfileMenu(context, auth),
+            child: Container(
+              width: 38,
+              height: 38,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -103,6 +189,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               ProfileHeader(
                 user: user,
+                clubName: clubName,
                 onEdit: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
                 },

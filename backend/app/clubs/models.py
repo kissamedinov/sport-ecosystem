@@ -39,6 +39,8 @@ class Club(Base):
     owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     address = Column(String, nullable=True)
     training_schedule = Column(String, nullable=True)
+    whatsapp = Column(String, nullable=True)
+    instagram = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", foreign_keys=[owner_id])

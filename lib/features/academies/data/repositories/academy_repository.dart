@@ -160,4 +160,12 @@ class AcademyRepository {
     });
     return BillingSummary.fromJson(response.data);
   }
+
+  Future<List<TrainingSession>> getPlayersActivities(List<String> playerIds) async {
+    final response = await _apiClient.get('/academies/activities', queryParameters: {
+      'player_ids': playerIds,
+    });
+    final List<dynamic> data = response.data;
+    return data.map((json) => TrainingSession.fromJson(json)).toList();
+  }
 }

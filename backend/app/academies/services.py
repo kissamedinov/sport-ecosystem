@@ -225,6 +225,33 @@ def record_attendance(db: Session, attendance_in: schemas.TrainingAttendanceCrea
     db.refresh(attendance)
     return attendance
 
+def record_attendance_batch(db: Session, batch_in: schemas.TrainingAttendanceBatchCreate) -> List[TrainingAttendance]:
+    """
+    Creates or updates multiple attendance records in a single transaction.
+    """
+    results = []
+    for record in batch_in.records:
+        attendance = db.query(TrainingAttendance).filter(
+            TrainingAttendance.training_id == batch_in.training_id,
+            TrainingAttendance.player_id == record.player_id
+        ).first()
+        
+        if attendance:
+            attendance.status = record.status
+            attendance.note = record.note
+        else:
+            attendance = TrainingAttendance(
+                training_id=batch_in.training_id,
+                player_id=record.player_id,
+                status=record.status,
+                note=record.note
+            )
+            db.add(attendance)
+        results.append(attendance)
+    
+    db.commit()
+    return results
+
 def submit_feedback(db: Session, coach_id: UUID, feedback_in: schemas.CoachFeedbackCreate) -> CoachFeedback:
     feedback = CoachFeedback(
         player_id=feedback_in.player_id,
@@ -417,3 +444,28 @@ def get_player_billing_summary(db: Session, academy_id: UUID, player_id: UUID, m
         total_owed=monthly_fee + attendance_cost,
         currency=config.currency if config else "KZT"
     )
+
+def get_players_activities(db: Session, player_ids: List[UUID]) -> List[TrainingSession]:
+    """
+    Returns all upcoming training sessions for a list of player profiles.
+    """
+    # 1. Find all AcademyTeams these players belong to
+    from app.academies.models import AcademyTeamPlayer
+    team_ids = db.query(AcademyTeamPlayer.team_id).filter(
+        AcademyTeamPlayer.player_profile_id.in_(player_ids)
+    ).all()
+    team_ids = [t[0] for t in team_ids]
+
+    if not team_ids:
+        return []
+
+    # 2. Find sessions linked to these teams
+    # Note: TrainingSession.teams is a many-to-many relationship
+    from app.academies.models import TrainingSession
+    from app.academies.models import training_session_teams
+    
+    sessions = db.query(TrainingSession).join(training_session_teams).filter(
+        training_session_teams.c.team_id.in_(team_ids)
+    ).order_by(TrainingSession.date, TrainingSession.start_time).all()
+
+    return sessions

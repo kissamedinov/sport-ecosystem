@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
@@ -10,6 +10,17 @@ from app.common.dependencies import require_role, require_coach, get_current_use
 from app.academies import schemas, models, services
 
 router = APIRouter(prefix="/academies", tags=["Academies"])
+
+@router.get("/activities", response_model=List[schemas.TrainingSessionResponse])
+def get_players_activities(
+    player_ids: List[UUID] = Query(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns unified training activities for a list of player profile IDs.
+    """
+    return services.get_players_activities(db, player_ids)
 
 @router.post("", response_model=schemas.AcademyResponse, status_code=status.HTTP_201_CREATED)
 def create_academy(
@@ -201,13 +212,16 @@ def add_training_session(
 ):
     return services.create_training_session(db, id, current_user.id, session_in)
 
-@router.post("/attendance", response_model=schemas.TrainingAttendanceResponse)
+@router.post("/attendance", response_model=List[schemas.TrainingAttendanceResponse])
 def record_training_attendance(
-    attendance_in: schemas.TrainingAttendanceCreate,
+    attendance_in: schemas.TrainingAttendanceBatchCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_coach)
 ):
-    return services.record_attendance(db, attendance_in)
+    """
+    Records training attendance in batch for a session.
+    """
+    return services.record_attendance_batch(db, attendance_in)
 
 @router.post("/feedback", response_model=schemas.CoachFeedbackResponse)
 def submit_coach_feedback(

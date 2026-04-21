@@ -134,6 +134,10 @@ class TrainingAttendanceResponse(TrainingAttendanceBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class TrainingAttendanceBatchCreate(BaseModel):
+    training_id: UUID
+    records: List[TrainingAttendanceBase]
+
 # Coach Feedback schemas
 class CoachFeedbackBase(BaseModel):
     technical: int

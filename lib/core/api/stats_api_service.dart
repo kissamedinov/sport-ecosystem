@@ -1,6 +1,8 @@
 import '../../features/matches/data/models/match_event.dart';
 import '../../features/matches/data/models/match_award.dart';
 import '../../features/player_stats/data/models/player_stats.dart';
+import '../../features/player_stats/data/models/player_career_stats.dart';
+import '../../features/player_stats/data/models/match_history_item.dart';
 import '../../features/tournaments/data/models/top_scorer.dart';
 import 'api_client.dart';
 
@@ -20,6 +22,16 @@ class StatsApiService {
   Future<PlayerStats> getPlayerStats(String playerId) async {
     final response = await _apiClient.get('/players/$playerId/stats');
     return PlayerStats.fromJson(response.data);
+  }
+
+  Future<PlayerCareerStats> getCareerStats(String playerId) async {
+    final response = await _apiClient.get('/stats/career/$playerId');
+    return PlayerCareerStats.fromJson(response.data);
+  }
+
+  Future<List<MatchHistoryItem>> getMatchHistory(String playerId) async {
+    final response = await _apiClient.get('/stats/history/$playerId');
+    return (response.data as List).map((e) => MatchHistoryItem.fromJson(e)).toList();
   }
 
   Future<void> postMatchEvent(String matchId, Map<String, dynamic> event) async {

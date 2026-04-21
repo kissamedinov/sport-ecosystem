@@ -4,6 +4,7 @@ from app.teams.models import Team, TeamMembership, MembershipRole, MembershipSta
 from app.tournaments.models import TournamentMatch, MatchStatus
 from app.teams.schemas import TeamCreate
 from app.users.models import User, Role, ParentChildRelation, PlayerProfile
+from app.clubs.models import ChildProfile
 from uuid import UUID
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
@@ -205,36 +206,61 @@ def add_player_to_team(db: Session, team_id: UUID, player_id: UUID, current_user
         import traceback; traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Internal Server Error during player assignment: {str(e)}")
 
-def create_join_request(db: Session, team_id: UUID, current_user: User):
+def create_join_request(db: Session, team_id: UUID, current_user: User, child_profile_id: UUID = None):
     team = get_team_by_id(db, team_id)
-    validate_player_age_for_team(current_user, team)
     
+    target_profile_id = None
+    applicant_name = current_user.name
+
+    if child_profile_id:
+        # Parent applying for a child
+        child = db.query(ChildProfile).filter(ChildProfile.id == child_profile_id).first()
+        if not child:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Child profile not found")
+        if child.created_by != current_user.id:
+             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to apply for this child")
+        
+        # Ensure child has a player profile
+        profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == child.linked_user_id).first() if child.linked_user_id else None
+        if not profile:
+            # Create a temporary player profile if none exists for the child
+            profile = PlayerProfile(user_id=child.linked_user_id) if child.linked_user_id else PlayerProfile()
+            db.add(profile)
+            db.flush()
+        
+        target_profile_id = profile.id
+        applicant_name = f"{child.first_name} {child.last_name} (Parent: {current_user.name})"
+    else:
+        # Player applying for themselves
+        validate_player_age_for_team(current_user, team)
+        profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == current_user.id).first()
+        if not profile:
+            profile = PlayerProfile(user_id=current_user.id)
+            db.add(profile)
+            db.flush()
+        target_profile_id = profile.id
+
     if current_user.id == team.coach_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Coach cannot join their own team")
     
-    # Ensure player has a profile
-    profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == current_user.id).first()
-    if not profile:
-        profile = PlayerProfile(user_id=current_user.id)
-        db.add(profile)
-        db.flush()
-
     existing_membership = db.query(TeamMembership).filter(
-        TeamMembership.player_profile_id == profile.id,
+        TeamMembership.player_profile_id == target_profile_id,
+        TeamMembership.team_id == team_id,
         TeamMembership.status == MembershipStatus.ACTIVE
     ).first()
     
     if existing_membership:
-        if existing_membership.team_id == team_id:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already actively in this team")
-        else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Player cannot be active in multiple teams at once")
+        if existing_membership.join_status == JoinStatus.PENDING:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Join request already pending")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already actively in this team")
 
     new_member = TeamMembership(
         team_id=team_id,
-        player_profile_id=profile.id,
+        player_profile_id=target_profile_id,
+        child_profile_id=child_profile_id,
         role=MembershipRole.PLAYER,
-        status=MembershipStatus.ACTIVE
+        status=MembershipStatus.ACTIVE,
+        join_status=JoinStatus.PENDING
     )
     db.add(new_member)
     db.commit()
@@ -244,8 +270,8 @@ def create_join_request(db: Session, team_id: UUID, current_user: User):
         db,
         user_ids=[team.coach_id],
         notification_type=NotificationType.JOIN_REQUEST_RECEIVED,
-        title="New Join Request",
-        message=f"{current_user.name} wants to join your team {team.name}",
+        title="Trial Session Request",
+        message=f"{applicant_name} requested a trial with {team.name}",
         entity_type=EntityType.PLAYER,
         entity_id=current_user.id
     )
@@ -260,14 +286,18 @@ def approve_join_request(db: Session, team_id: UUID, request_id: UUID, current_u
     if not membership:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
 
+    membership.join_status = JoinStatus.APPROVED
+    db.commit()
+    db.refresh(membership)
+
     player_user_id = membership.player_profile.user_id if membership.player_profile else None
     if player_user_id:
         notification_service.create_notification(
             db,
             user_ids=[player_user_id],
             notification_type=NotificationType.JOIN_REQUEST_ACCEPTED,
-            title="Join Request Accepted",
-            message=f"Your request to join {team.name} has been accepted!",
+            title="Trial Approved!",
+            message=f"Your trial request for {team.name} has been accepted! See you at training.",
             entity_type=EntityType.PLAYER,
             entity_id=team_id
         )
@@ -295,6 +325,7 @@ def reject_join_request(db: Session, team_id: UUID, request_id: UUID, current_us
         )
 
     import pytz
+    membership.join_status = JoinStatus.REJECTED
     membership.left_at = datetime.now(tz=pytz.UTC)
     db.commit()
     db.refresh(membership)

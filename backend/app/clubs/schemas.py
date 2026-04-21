@@ -10,11 +10,18 @@ class ClubBase(BaseModel):
     city: str
 
 class ClubCreate(ClubBase):
-    pass
+    address: Optional[str] = None
+    training_schedule: Optional[str] = None
+    whatsapp: Optional[str] = None
+    instagram: Optional[str] = None
 
 class ClubResponse(ClubBase):
     id: UUID
     owner_id: UUID
+    address: Optional[str] = None
+    training_schedule: Optional[str] = None
+    whatsapp: Optional[str] = None
+    instagram: Optional[str] = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 

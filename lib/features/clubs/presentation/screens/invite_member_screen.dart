@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/club_provider.dart';
-import '../../../auth/providers/auth_provider.dart';
 import '../../data/models/invitation.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 
 class InviteMemberScreen extends StatefulWidget {
   final String clubId;
@@ -16,9 +17,9 @@ class InviteMemberScreen extends StatefulWidget {
 }
 
 class _InviteMemberScreenState extends State<InviteMemberScreen> {
-  final _userIdController = TextEditingController();
+  final _contactController = TextEditingController();
   final _childProfileIdController = TextEditingController();
-  ClubRole _selectedRole = ClubRole.player;
+  ClubRole _selectedRole = ClubRole.coach;
   String? _selectedTeamId;
 
   @override
@@ -30,10 +31,10 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   @override
   Widget build(BuildContext context) {
     final clubProvider = context.watch<ClubProvider>();
-    final authProvider = context.watch<AuthProvider>();
     final dashboard = clubProvider.dashboard;
-
+    final authProvider = context.read<AuthProvider>();
     final userRoleStr = authProvider.user?.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
+    
     ClubRole userRole;
     if (userRoleStr == 'CLUB_OWNER' || userRoleStr == 'ADMIN') {
       userRole = ClubRole.owner;
@@ -52,6 +53,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
       return false;
     }).toList();
 
+    final clubName = dashboard?.club.name ?? 'Club';
+    final clubCode = 'AIBARS-2026';
     final teams = dashboard?.teams ?? [];
 
     return Scaffold(
@@ -59,9 +62,19 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white70),
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.chevron_left_rounded, color: Colors.white70),
+          ),
+        ),
         title: const Text(
-          'INVITE MEMBER',
+          'INVITE',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -74,7 +87,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
-          // Your role badge
+          // Header logic
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
@@ -93,52 +106,90 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 24),
+          const Text(
+            'Add a person',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
           Text(
-            'Invite a new member to your club.',
-            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.4)),
+            'They\'ll get a notification to join $clubName.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
           ),
           const SizedBox(height: 28),
 
-          // Role dropdown
-          _buildSectionLabel('ROLE'),
-          const SizedBox(height: 8),
-          Container(
-            decoration: PremiumTheme.glassDecoration(radius: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: DropdownButtonFormField<ClubRole>(
-              value: _selectedRole,
-              dropdownColor: PremiumTheme.cardNavy,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
-              decoration: PremiumTheme.inputDecoration('Select Role', prefixIcon: Icons.badge_rounded),
-              items: availableRoles
-                  .map((r) => DropdownMenuItem(value: r, child: Text(r.name.toUpperCase())))
-                  .toList(),
-              onChanged: (val) => setState(() {
-                _selectedRole = val!;
-                if (_selectedRole != ClubRole.player) {
-                  _selectedTeamId = null;
-                  _childProfileIdController.clear();
-                }
-              }),
-            ),
-          ),
-          const SizedBox(height: 20),
+          // Role Selection
+          _buildSectionLabel('SELECT ROLE', accentColor: PremiumTheme.electricBlue),
+          const SizedBox(height: 14),
 
-          // Team dropdown
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              if (availableRoles.contains(ClubRole.coach))
+                SizedBox(
+                  width: (MediaQuery.of(context).size.width - 52) / 2,
+                  child: _buildRoleCard(
+                    role: ClubRole.coach,
+                    icon: Icons.sports_rounded,
+                    title: 'Coach',
+                    subtitle: 'Can manage teams',
+                    color: PremiumTheme.electricBlue,
+                  ),
+                ),
+              if (availableRoles.contains(ClubRole.player))
+                SizedBox(
+                  width: (MediaQuery.of(context).size.width - 52) / 2,
+                  child: _buildRoleCard(
+                    role: ClubRole.player,
+                    icon: Icons.location_on_rounded,
+                    title: 'Player',
+                    subtitle: 'Linked to roster',
+                    color: PremiumTheme.neonGreen,
+                  ),
+                ),
+              if (availableRoles.contains(ClubRole.manager))
+                SizedBox(
+                  width: (MediaQuery.of(context).size.width - 52) / 2,
+                  child: _buildRoleCard(
+                    role: ClubRole.manager,
+                    icon: Icons.people_alt_rounded,
+                    title: 'Manager',
+                    subtitle: 'Club management',
+                    color: Colors.amber,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 28),
+
+          // Team Selection (integrated)
           if (_selectedRole == ClubRole.player || _selectedRole == ClubRole.coach) ...[
-            _buildSectionLabel('TEAM (OPTIONAL)'),
-            const SizedBox(height: 8),
+            _buildSectionLabel('ASSIGN TO TEAM', accentColor: PremiumTheme.electricBlue),
+            const SizedBox(height: 14),
             Container(
-              decoration: PremiumTheme.glassDecoration(radius: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonFormField<String>(
                 value: _selectedTeamId,
                 dropdownColor: PremiumTheme.cardNavy,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
-                decoration: PremiumTheme.inputDecoration('Assign to Team', prefixIcon: Icons.group_rounded),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                ),
                 items: [
                   const DropdownMenuItem<String>(value: null, child: Text('No Team', style: TextStyle(color: Colors.white54))),
                   ...teams.map((t) => DropdownMenuItem(value: t.id.toString(), child: Text(t.name))),
@@ -146,58 +197,100 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 onChanged: (val) => setState(() => _selectedTeamId = val),
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-
-          // User ID
-          _buildSectionLabel('USER ID'),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _userIdController,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-            decoration: PremiumTheme.inputDecoration('User ID of invited person', prefixIcon: Icons.fingerprint_rounded),
-          ),
-          const SizedBox(height: 20),
-
-          // Child Profile ID
-          if (_selectedRole == ClubRole.player) ...[
-            _buildSectionLabel('CHILD PROFILE ID (OPTIONAL)'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _childProfileIdController,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: PremiumTheme.inputDecoration('Link to child profile', prefixIcon: Icons.child_care_rounded),
-            ),
             const SizedBox(height: 28),
           ],
 
-          const SizedBox(height: 12),
+          // Contact Section
+          _buildSectionLabel('CONTACT', accentColor: PremiumTheme.neonGreen),
+          const SizedBox(height: 14),
+
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'EMAIL OR PHONE',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withValues(alpha: 0.3),
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _contactController,
+                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                  decoration: InputDecoration(
+                    hintText: 'Enter email or phone...',
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25)),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Invite Code Hint
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: PremiumTheme.electricBlue.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.15)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.mail_outline_rounded,
+                    color: PremiumTheme.electricBlue.withValues(alpha: 0.6), size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
+                      children: [
+                        const TextSpan(text: 'Or share the club invite code '),
+                        TextSpan(
+                          text: clubCode,
+                          style: const TextStyle(
+                            color: PremiumTheme.electricBlue,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const TextSpan(text: ' — they\'ll join from the app.'),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: clubCode));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Invite code copied!')),
+                    );
+                  },
+                  child: Icon(Icons.copy_rounded,
+                      color: PremiumTheme.electricBlue.withValues(alpha: 0.6), size: 16),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Send Button
           PremiumButton(
             text: 'SEND INVITATION',
             icon: Icons.send_rounded,
-            onPressed: () async {
-              if (_userIdController.text.isNotEmpty) {
-                final Map<String, dynamic> data = {
-                  'club_id': widget.clubId,
-                  'invited_user_id': _userIdController.text,
-                  'role': _selectedRole.name.toUpperCase(),
-                };
-                if (_selectedRole == ClubRole.player && _childProfileIdController.text.isNotEmpty) {
-                  data['child_profile_id'] = _childProfileIdController.text;
-                }
-                if (_selectedTeamId != null) {
-                  data['team_id'] = _selectedTeamId;
-                }
-
-                final success = await context.read<ClubProvider>().sendInvitation(data);
-                if (success && mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invitation sent!')),
-                  );
-                }
-              }
-            },
+            onPressed: () => _sendInvitation(),
           ),
           const SizedBox(height: 40),
         ],
@@ -205,15 +298,114 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     );
   }
 
-  Widget _buildSectionLabel(String label) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w800,
-        color: Colors.white38,
-        letterSpacing: 1.5,
+  Widget _buildRoleCard({
+    required ClubRole role,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    final isSelected = _selectedRole == role;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRole = role),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? color.withValues(alpha: 0.4)
+                : Colors.white.withValues(alpha: 0.08),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? color.withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? color : Colors.white.withValues(alpha: 0.4),
+                size: 20,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: isSelected
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : Colors.white.withValues(alpha: 0.3),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildSectionLabel(String title, {Color accentColor = PremiumTheme.neonGreen}) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 14,
+          color: accentColor,
+          margin: const EdgeInsets.only(right: 8),
+        ),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: Colors.white54,
+            letterSpacing: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _sendInvitation() async {
+    if (_contactController.text.isEmpty) return;
+
+    final Map<String, dynamic> data = {
+      'club_id': widget.clubId,
+      'invited_user_id': _contactController.text,
+      'role': _selectedRole.name.toUpperCase(),
+    };
+    if (_selectedTeamId != null) {
+      data['team_id'] = _selectedTeamId;
+    }
+
+    final success = await context.read<ClubProvider>().sendInvitation(data);
+    if (success && mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invitation sent!')),
+      );
+    }
   }
 }

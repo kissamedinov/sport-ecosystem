@@ -20,8 +20,15 @@ class AcademyProvider extends ChangeNotifier {
   
   bool _isLoading = false;
   String? _error;
+  
+  // Activities for Parents/Children
+  Map<String, List<TrainingSession>> _childSessions = {};
+  Map<String, List<TrainingSchedule>> _childSchedules = {};
 
   AcademyProvider(this._repository);
+
+  Map<String, List<TrainingSession>> get childSessions => _childSessions;
+  Map<String, List<TrainingSchedule>> get childSchedules => _childSchedules;
 
   Academy? get myAcademy => _myAcademy;
   List<Academy> get academies => _academies;
@@ -121,13 +128,19 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> recordAttendance(String sessionId, Map<String, String> attendance) async {
+  Future<bool> recordAttendance(String sessionId, Map<String, Map<String, String>> attendanceData) async {
     _isLoading = true;
     notifyListeners();
     try {
+      final records = attendanceData.entries.map((e) => {
+        'player_id': e.key,
+        'status': e.value['status'],
+        'note': e.value['note'],
+      }).toList();
+
       await _repository.recordTrainingAttendance({
-        'session_id': sessionId,
-        'attendance': attendance,
+        'training_id': sessionId,
+        'records': records,
       });
       return true;
     } catch (e) {
@@ -369,6 +382,31 @@ class AcademyProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _currentBillingReport = await _repository.getPlayerBillingReport(academyId, playerId, month, year);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchActivitiesForParent(List<String> childIds) async {
+    if (childIds.isEmpty) return;
+    
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final sessions = await _repository.getPlayersActivities(childIds);
+      
+      // Organize sessions by child ID for easier UI access
+      _childSessions.clear();
+      for (final id in childIds) {
+        // This logic depends on TrainingSession having a link to players
+        // For now, we'll store all sessions in a flat list or grouped by date
+        _childSessions[id] = sessions; // Placeholder logic
+      }
+      _sessions = sessions; // Also update the main sessions list for the general calendar
     } catch (e) {
       _error = e.toString();
     } finally {

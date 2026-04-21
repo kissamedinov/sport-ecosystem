@@ -1,5 +1,6 @@
 import '../../../../core/api/api_client.dart';
 import '../models/team.dart';
+import '../models/player_team.dart';
 
 class TeamRepository {
   final ApiClient _apiClient;
@@ -30,5 +31,23 @@ class TeamRepository {
     final response = await _apiClient.get('/teams/rankings');
     final List<dynamic> data = response.data;
     return data.map((json) => Team.fromJson(json)).toList();
+  }
+
+  Future<PlayerTeam> requestJoinTeam(String teamId, {String? childProfileId}) async {
+    final response = await _apiClient.post(
+      '/teams/$teamId/join',
+      data: {'child_profile_id': childProfileId},
+    );
+    return PlayerTeam.fromJson(response.data);
+  }
+
+  Future<PlayerTeam> approveJoinRequest(String teamId, String requestId) async {
+    final response = await _apiClient.patch('/teams/$teamId/join-request/$requestId/approve');
+    return PlayerTeam.fromJson(response.data);
+  }
+
+  Future<PlayerTeam> rejectJoinRequest(String teamId, String requestId) async {
+    final response = await _apiClient.patch('/teams/$teamId/join-request/$requestId/reject');
+    return PlayerTeam.fromJson(response.data);
   }
 }

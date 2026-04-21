@@ -68,6 +68,48 @@ class TeamProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> joinTeam(String teamId, {String? childProfileId}) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.requestJoinTeam(teamId, childProfileId: childProfileId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> approveRequest(String teamId, String requestId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.approveJoinRequest(teamId, requestId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> rejectRequest(String teamId, String requestId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.rejectJoinRequest(teamId, requestId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

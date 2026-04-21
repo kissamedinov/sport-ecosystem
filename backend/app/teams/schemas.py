@@ -29,6 +29,8 @@ class PlayerTeamResponse(BaseModel):
     player_id: UUID
     joined_at: datetime
     left_at: Optional[datetime] = None
+    join_status: Optional[str] = "APPROVED"
+    child_profile_id: Optional[UUID] = None
     player: Optional[UserResponse] = None
 
     class Config:
@@ -46,6 +48,9 @@ class TeamMatchResponse(BaseModel):
     start_time: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class TeamJoinRequest(BaseModel):
+    child_profile_id: Optional[UUID] = None
 
 class TeamDetailResponse(TeamResponse):
     coach: UserResponse

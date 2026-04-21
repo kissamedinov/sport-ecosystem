@@ -145,7 +145,8 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
-  final Map<String, String> _attendance = {};
+  // Map player_id -> { 'status': ..., 'note': ... }
+  final Map<String, Map<String, String>> _attendance = {};
 
   @override
   void initState() {
@@ -158,12 +159,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('ATTENDANCE: ${widget.session.title}', style: const TextStyle(fontSize: 14)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('ATTENDANCE TRACKING', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 10, color: PremiumTheme.neonGreen)),
+            Text(widget.session.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
         backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Consumer<AcademyProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading) return const Center(child: CircularProgressIndicator());
+          if (provider.isLoading && provider.compositePlayers.isEmpty) {
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+          }
           
           final players = provider.compositePlayers;
           return Column(
@@ -174,37 +184,76 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   itemCount: players.length,
                   itemBuilder: (context, index) {
                     final player = players[index];
-                    final status = _attendance[player.id] ?? 'PRESENT';
+                    final data = _attendance[player.id] ?? {
+                      'status': 'PRESENT',
+                      'note': '',
+                    };
                     
-                    return PremiumCard(
-                      child: Row(
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: PremiumTheme.cardNavy,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                      ),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  player.fullName, 
-                                  style: const TextStyle(fontWeight: FontWeight.bold)
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            title: Text(player.fullName, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                            subtitle: Text("${player.birthYear ?? 'N/A'} • ${player.teamName}", style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  dropdownColor: PremiumTheme.cardNavy,
+                                  value: data['status'],
+                                  style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 12),
+                                  items: const [
+                                    DropdownMenuItem(value: 'PRESENT', child: Text('PRESENT')),
+                                    DropdownMenuItem(value: 'ABSENT', child: Text('ABSENT')),
+                                    DropdownMenuItem(value: 'LATE', child: Text('LATE')),
+                                    DropdownMenuItem(value: 'INJURED', child: Text('INJURED')),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _attendance[player.id] = {
+                                        'status': val!,
+                                        'note': data['note']!,
+                                      };
+                                    });
+                                  },
                                 ),
-                                Text(
-                                  "${player.birthYear ?? 'N/A'} • ${player.teamName}", 
-                                  style: const TextStyle(color: Colors.white38, fontSize: 11)
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                          DropdownButton<String>(
-                            dropdownColor: PremiumTheme.cardNavy,
-                            value: status,
-                            style: const TextStyle(color: Colors.white),
-                            items: const [
-                              DropdownMenuItem(value: 'PRESENT', child: Text('Present')),
-                              DropdownMenuItem(value: 'ABSENT', child: Text('Absent')),
-                              DropdownMenuItem(value: 'LATE', child: Text('Late')),
-                              DropdownMenuItem(value: 'EXCUSED', child: Text('Excused')),
-                            ],
-                            onChanged: (val) => setState(() => _attendance[player.id] = val!),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            child: TextField(
+                              style: const TextStyle(color: Colors.white70, fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText: 'Add performance note...',
+                                hintStyle: const TextStyle(color: Colors.white12),
+                                prefixIcon: const Icon(Icons.edit_note, color: Colors.white24, size: 20),
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.05),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onChanged: (val) {
+                                _attendance[player.id] = {
+                                  'status': data['status']!,
+                                  'note': val,
+                                };
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -212,19 +261,38 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   },
                 ),
               ),
-              Padding(
+              Container(
                 padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, spreadRadius: 10),
+                  ],
+                ),
                 child: ElevatedButton(
                   onPressed: () async {
+                    // Populate default values for players not interacted with
+                    for (final p in players) {
+                      if (!_attendance.containsKey(p.id)) {
+                        _attendance[p.id] = {'status': 'PRESENT', 'note': ''};
+                      }
+                    }
+
                     final success = await provider.recordAttendance(widget.session.id, _attendance);
-                    if (success && mounted) Navigator.pop(context);
+                    if (success && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Attendance recorded successfully!'), backgroundColor: PremiumTheme.neonGreen),
+                      );
+                      Navigator.pop(context);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PremiumTheme.neonGreen,
                     foregroundColor: Colors.black,
                     minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('SUBMIT ATTENDANCE'),
+                  child: const Text('SUBMIT ATTENDANCE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
               ),
             ],

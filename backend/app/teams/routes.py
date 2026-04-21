@@ -43,10 +43,11 @@ def get_team(
 @router.post("/{id}/join", response_model=schemas.PlayerTeamResponse, status_code=status.HTTP_201_CREATED)
 def request_join_team(
     id: UUID,
+    request_in: schemas.TeamJoinRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_player)
+    current_user: User = Depends(get_current_user)
 ):
-    return services.create_join_request(db=db, team_id=id, current_user=current_user)
+    return services.create_join_request(db=db, team_id=id, current_user=current_user, child_profile_id=request_in.child_profile_id)
 
 @router.patch("/{id}/join-request/{requestId}/approve", response_model=schemas.PlayerTeamResponse)
 def approve_join_request(

@@ -123,12 +123,12 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.7,
+      childAspectRatio: 1.6,
       children: [
-        _buildStatCard("Teams", "${dashboard.teams.length}", Icons.groups_rounded, PremiumTheme.electricBlue, subtitle: "Active"),
-        _buildStatCard("Players", "${dashboard.playersCount}", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "Registered"),
-        _buildStatCard("Coaches", "${dashboard.coachesCount}", Icons.person_rounded, Colors.orangeAccent, subtitle: "On Staff"),
-        _buildStatCard("Managers", "${dashboard.managersCount}", Icons.manage_accounts_rounded, Colors.purpleAccent, subtitle: "Executive"),
+        _buildStatCard("Teams", "${dashboard.teams.length}", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "ACTIVE"),
+        _buildStatCard("Players", "${dashboard.playersCount}", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "REGISTERED"),
+        _buildStatCard("Coaches", "${dashboard.coachesCount}", Icons.sports_rounded, Colors.amber, subtitle: "ON STAFF"),
+        _buildStatCard("Academies", "${dashboard.academies.length}", Icons.account_balance_rounded, Colors.purpleAccent, subtitle: "BRANCHES"),
       ],
     );
   }
@@ -228,37 +228,88 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
     if (dashboard.managers.isEmpty) {
       return _buildEmptyState("No managers assigned", Icons.person_off_rounded);
     }
+
+    final roles = ["Operations Director", "Sporting Director", "Technical Director", "Academy Director"];
+
     return Column(
-      children: dashboard.managers.map((manager) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.07)),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            leading: Container(
-              width: 40, height: 40,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF2979FF), Color(0xFF1565C0)]),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  manager.name.isNotEmpty ? manager.name[0].toUpperCase() : "M",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
-                ),
-              ),
+      children: dashboard.managers.asMap().entries.map((entry) {
+        final index = entry.key;
+        final manager = entry.value;
+        final initials = _getInitials(manager.name);
+        final role = roles[index % roles.length];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.04),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withOpacity(0.07)),
             ),
-            title: Text(manager.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: const Text("Executive Manager", style: TextStyle(color: Colors.white38, fontSize: 11)),
-            trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2979FF), Color(0xFF1565C0)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        manager.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        role,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.4),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+              ],
+            ),
           ),
-        ),
-      )).toList(),
+        );
+      }).toList(),
     );
+  }
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
   }
 
   Widget _buildPlayersList(ClubDashboard dashboard) {
@@ -388,20 +439,18 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
-          ),
+          color: Colors.white.withOpacity(0.04),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: Colors.white.withOpacity(0.07)),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: color),
@@ -410,10 +459,10 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 12, color: color.withOpacity(0.5)),
+            Icon(Icons.chevron_right_rounded, size: 18, color: color.withOpacity(0.5)),
           ],
         ),
       ),
