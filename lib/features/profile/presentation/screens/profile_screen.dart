@@ -110,138 +110,18 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: PremiumTheme.deepNavy,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        leading: Navigator.canPop(context)
-            ? GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.chevron_left_rounded, color: Colors.white70),
-                ),
-              )
-            : null,
-        title: const Text(
-          'MY PROFILE',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white70),
-        actions: [
-          Consumer<NotificationProvider>(
-            builder: (context, notifProvider, _) {
-              final count = notifProvider.unreadCount;
-              return IconButton(
-                icon: Badge(
-                  isLabelVisible: count > 0,
-                  label: Text('$count', style: const TextStyle(fontSize: 10)),
-                  backgroundColor: Colors.redAccent,
-                  child: const Icon(Icons.notifications_outlined, size: 20, color: Colors.white70),
-                ),
-                onPressed: () {
-                  notifProvider.fetchNotifications();
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-                },
-              );
-            },
-          ),
-          GestureDetector(
-            onTap: () => _showProfileMenu(context, auth),
-            child: Container(
-              width: 38,
-              height: 38,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.more_vert_rounded, color: Colors.white70, size: 20),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ProfileHeader(
+              user: user,
+              clubName: clubName,
+              canPop: Navigator.canPop(context),
+              onMenu: () => _showProfileMenu(context, auth),
             ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topRight,
-            radius: 1.5,
-            colors: [
-              PremiumTheme.electricBlue.withValues(alpha: 0.05),
-              PremiumTheme.deepNavy,
-            ],
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ProfileHeader(
-                user: user,
-                clubName: clubName,
-                onEdit: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
-                },
-              ),
-              Container(
-                color: PremiumTheme.deepNavy,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 4),
-                    _buildRoleSpecificBody(user, roles),
-                    const SizedBox(height: 32),
-                    
-                    // Unified Premium Logout
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: GestureDetector(
-                        onTap: () {
-                          auth.logout();
-                          Navigator.pushReplacementNamed(context, '/login');
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.1)),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
-                              SizedBox(width: 12),
-                              Text(
-                                "LOGOUT / QUIT SESSION",
-                                style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 12,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 60),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            _buildRoleSpecificBody(user, roles),
+            const SizedBox(height: 100),
+          ],
         ),
       ),
     );

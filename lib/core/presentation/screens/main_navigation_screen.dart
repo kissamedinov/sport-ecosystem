@@ -36,6 +36,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       return _buildClubNav(context);
     }
 
+    if (role == 'COACH') {
+      return const RoleRouter();
+    }
+
     final tabs = _getTabsByRole(role);
     final safeIndex = _selectedIndex.clamp(0, tabs.length - 1);
 

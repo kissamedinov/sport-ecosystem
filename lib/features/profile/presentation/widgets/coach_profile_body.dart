@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
 import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_dashboard_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_teams_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_performance_screen.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -43,9 +46,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         }
         
         final data = snapshot.data ?? {};
-        final perf = data['performance_stats'] ?? {};
+        final perf = (data['performance_stats'] as Map<String, dynamic>?) ?? {};
         final matches = data['upcoming_matches'] as List? ?? [];
         final teams = data['teams'] as List? ?? [];
+        final topPerformers = data['top_performers'] as List? ?? [];
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -53,19 +57,19 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              _buildAcademyHub(),
+              _buildCoachQuickActions(data, teams, perf, topPerformers),
               const SizedBox(height: 32),
-              
+
               _buildSectionHeader("PERFORMANCE OVERVIEW", Icons.analytics_rounded),
               const SizedBox(height: 16),
               _buildPerformanceStats(perf),
               const SizedBox(height: 32),
-              
+
               _buildSectionHeader("UPCOMING MATCHES", Icons.event_available_rounded),
               const SizedBox(height: 16),
               _buildUpcomingMatches(matches),
               const SizedBox(height: 32),
-              
+
               _buildSectionHeader("TEAMS COACHED  •  ${teams.length}", Icons.groups_rounded),
               const SizedBox(height: 16),
               _buildTeamsList(teams),
@@ -104,7 +108,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: PremiumCard(
+        child: OrleonCard(
           child: Column(
             children: [
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
@@ -115,8 +119,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               ),
               const SizedBox(height: 8),
               Text(
-                error, 
-                style: const TextStyle(color: Colors.white38, fontSize: 12), 
+                error,
+                style: const TextStyle(color: Colors.white38, fontSize: 12),
                 textAlign: TextAlign.center
               ),
               const SizedBox(height: 20),
@@ -169,29 +173,29 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Row(
       children: [
         Expanded(
-          child: PremiumStatCard(
-            title: "WIN RATE",
-            value: "$winRate%",
+          child: OrleonStatCard(
+            label: 'Win Rate',
+            value: '$winRate%',
             icon: Icons.auto_graph_rounded,
-            color: PremiumTheme.neonGreen,
+            accent: PremiumTheme.neonGreen,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: PremiumStatCard(
-            title: "GOALS",
-            value: "${perf['goals_scored'] ?? 0}",
+          child: OrleonStatCard(
+            label: 'Goals',
+            value: '${perf['goals_scored'] ?? 0}',
             icon: Icons.sports_soccer_rounded,
-            color: PremiumTheme.electricBlue,
+            accent: PremiumTheme.electricBlue,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: PremiumStatCard(
-            title: "CLEAN SHEETS",
-            value: "${perf['clean_sheets'] ?? 0}",
+          child: OrleonStatCard(
+            label: 'Clean',
+            value: '${perf['clean_sheets'] ?? 0}',
             icon: Icons.shield_rounded,
-            color: Colors.orangeAccent,
+            accent: PremiumTheme.amber,
           ),
         ),
       ],
@@ -205,14 +209,14 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Column(
       children: matches.map((match) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: PremiumCard(
+        child: OrleonCard(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
                 width: 44, height: 44,
                 decoration: BoxDecoration(
-                  color: PremiumTheme.electricBlue.withOpacity(0.1),
+                  color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.sports_soccer_rounded, color: PremiumTheme.electricBlue, size: 20),
@@ -298,112 +302,174 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     return Column(
       children: teams.map((team) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: PremiumCard(
-          padding: EdgeInsets.zero,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: Stack(
-              children: [
-                Container(
-                  width: 48, height: 48,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [PremiumTheme.neonGreen.withOpacity(0.2), PremiumTheme.neonGreen.withOpacity(0.05)],
-                      begin: Alignment.topLeft, end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.1)),
+        child: OrleonCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 48, height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      PremiumTheme.neonGreen.withValues(alpha: 0.18),
+                      PremiumTheme.neonGreen.withValues(alpha: 0.05),
+                    ],
+                    begin: Alignment.topLeft, end: Alignment.bottomRight,
                   ),
-                  child: const Icon(Icons.shield_rounded, color: PremiumTheme.neonGreen, size: 24),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ],
-            ),
-            title: Text(
-              team['name'].toString().toUpperCase(), 
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5)
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                children: [
-                  Icon(Icons.person_outline_rounded, size: 12, color: Colors.white.withOpacity(0.3)),
-                  const SizedBox(width: 4),
-                  Text(
-                    "${(team['players'] as List).length} ACTIVE PLAYERS", 
-                    style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11, fontWeight: FontWeight.w500)
-                  ),
-                ],
+                child: const Icon(Icons.shield_rounded, color: PremiumTheme.neonGreen, size: 24),
               ),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                shape: BoxShape.circle,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      team['name'].toString().toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.person_outline_rounded, size: 12, color: Colors.white.withValues(alpha: 0.3)),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${(team['players'] as List).length} ACTIVE PLAYERS",
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 11, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              child: const Icon(Icons.chevron_right_rounded, color: PremiumTheme.neonGreen, size: 20),
-            ),
+              Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha: 0.2), size: 18),
+            ],
           ),
         ),
       )).toList(),
     );
   }
 
-  Widget _buildAcademyHub() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
-        );
-      },
-      child: PremiumCard(
-        padding: const EdgeInsets.all(20),
-        child: Row(
+  Widget _buildCoachQuickActions(
+    Map<String, dynamic> data,
+    List teams,
+    Map<String, dynamic> perf,
+    List topPerformers,
+  ) {
+    return Column(
+      children: [
+        Row(
           children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [PremiumTheme.neonGreen, PremiumTheme.neonGreen.withOpacity(0.4)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            Expanded(
+              child: _quickActionCard(
+                icon: Icons.dashboard_rounded,
+                color: PremiumTheme.neonGreen,
+                title: 'COACH HUB',
+                subtitle: 'Dashboard & Fixtures',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CoachDashboardScreen()),
                 ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: PremiumTheme.neonGreen.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
-              child: const Icon(Icons.school_rounded, color: Colors.black, size: 28),
             ),
-            const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "ACADEMY CRM HUB",
-                    style: TextStyle(
-                      color: PremiumTheme.neonGreen,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _quickActionCard(
+                icon: Icons.groups_rounded,
+                color: PremiumTheme.electricBlue,
+                title: 'MY TEAMS',
+                subtitle: '${teams.length} teams · Players',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CoachTeamsScreen(teams: teams)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _quickActionCard(
+                icon: Icons.analytics_rounded,
+                color: Colors.amber,
+                title: 'PERFORMANCE',
+                subtitle: 'Stats & Top Performers',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CoachPerformanceScreen(
+                      perf: perf,
+                      topPerformers: topPerformers,
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Schedule, Billing & Squads",
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ],
+                ),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _quickActionCard(
+                icon: Icons.school_rounded,
+                color: Colors.purpleAccent,
+                title: 'ACADEMY CRM',
+                subtitle: 'Schedule & Billing',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _quickActionCard({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.white38, fontSize: 10),
+            ),
           ],
         ),
       ),
@@ -411,16 +477,16 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
-    return PremiumCard(
+    return OrleonCard(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
           children: [
-            Icon(icon, color: Colors.white.withOpacity(0.1), size: 32),
+            Icon(icon, color: Colors.white.withValues(alpha: 0.1), size: 32),
             const SizedBox(height: 12),
             Text(
-              message.toUpperCase(), 
-              style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+              message.toUpperCase(),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
               textAlign: TextAlign.center,
             ),
           ],
