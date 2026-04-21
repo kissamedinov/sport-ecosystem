@@ -5,7 +5,7 @@ import '../../clubs/presentation/screens/club_dashboard_screen.dart';
 
 import 'adult_player_dashboard.dart';
 import 'parent_dashboard.dart';
-import 'coach_dashboard.dart';
+import 'coach_dashboard_screen.dart';
 import 'field_owner_dashboard.dart';
 import 'child_player_dashboard.dart';
 
@@ -23,7 +23,7 @@ class RoleRouter extends StatelessWidget {
       case 'CLUB_MANAGER':
         return const ClubDashboardScreen(isHome: true);
       case 'COACH':
-        return const CoachDashboard();
+        return const CoachDashboardScreen();
       case 'PARENT':
         return const ParentDashboard();
       case 'FIELD_OWNER':
