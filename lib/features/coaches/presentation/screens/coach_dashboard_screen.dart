@@ -48,7 +48,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _buildLoading() {
     return const Center(
-      child: CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+      child: CircularProgressIndicator(
+        color: PremiumTheme.neonGreen,
+        strokeWidth: 2,
+      ),
     );
   }
 
@@ -59,12 +62,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         children: [
           const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
           const SizedBox(height: 16),
-          Text(msg, style: const TextStyle(color: Colors.white38, fontSize: 12), textAlign: TextAlign.center),
+          Text(
+            msg,
+            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           TextButton.icon(
             onPressed: _refresh,
-            icon: const Icon(Icons.refresh_rounded, size: 18, color: PremiumTheme.neonGreen),
-            label: const Text('RETRY', style: TextStyle(color: PremiumTheme.neonGreen, letterSpacing: 1)),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              size: 18,
+              color: PremiumTheme.neonGreen,
+            ),
+            label: const Text(
+              'RETRY',
+              style: TextStyle(color: PremiumTheme.neonGreen, letterSpacing: 1),
+            ),
           ),
         ],
       ),
@@ -75,11 +89,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final perf = data['performance_stats'] as Map<String, dynamic>? ?? {};
     final matches = data['upcoming_matches'] as List? ?? [];
     final teams = data['teams'] as List? ?? [];
-    final liveMatch = matches.isNotEmpty &&
+    final liveMatch =
+        matches.isNotEmpty &&
             (matches.first['status']?.toString().toUpperCase() == 'IN_PROGRESS')
         ? matches.first
         : null;
-    final needsLineup = matches.isNotEmpty && liveMatch == null ? matches.first : null;
+    final needsLineup = matches.isNotEmpty && liveMatch == null
+        ? matches.first
+        : null;
 
     return RefreshIndicator(
       onRefresh: () async => _refresh(),
@@ -130,11 +147,22 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 ),
               ),
               const Spacer(),
-              _buildIconBtn(Icons.notifications_none_rounded, onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-              }),
+              _buildIconBtn(
+                Icons.notifications_none_rounded,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationScreen(),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(width: 8),
-              _buildIconBtn(Icons.more_horiz_rounded, onTap: () => _showDashboardMenu(context)),
+              _buildIconBtn(
+                Icons.more_horiz_rounded,
+                onTap: () => _showDashboardMenu(context),
+              ),
             ],
           ),
         ),
@@ -180,7 +208,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               onTap: () {
                 Navigator.pop(context);
                 auth.logout();
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/login', (route) => false);
               },
             ),
             const SizedBox(height: 20),
@@ -190,10 +220,21 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     );
   }
 
-  Widget _menuItem({required IconData icon, required String title, required VoidCallback onTap, Color? color}) {
+  Widget _menuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
     return ListTile(
       leading: Icon(icon, color: color ?? Colors.white70),
-      title: Text(title, style: TextStyle(color: color ?? Colors.white, fontWeight: FontWeight.w600)),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: color ?? Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
@@ -218,11 +259,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _buildCoachCard(Map<String, dynamic> data) {
     final name = data['name']?.toString() ?? 'Coach';
-    final specialty = data['specialty']?.toString() ?? 'Tactics & Youth Development';
+    final specialty =
+        data['specialty']?.toString() ?? 'Tactics & Youth Development';
     final club = data['club_name']?.toString() ?? '';
     final rating = data['rating']?.toString() ?? '4.8';
     final isCertified = data['is_certified'] == true;
-    final initials = name.split(' ').take(2).map((w) => w.isNotEmpty ? w[0] : '').join().toUpperCase();
+    final initials = name
+        .split(' ')
+        .take(2)
+        .map((w) => w.isNotEmpty ? w[0] : '')
+        .join()
+        .toUpperCase();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -268,16 +315,29 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       if (isCertified) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                            color: PremiumTheme.neonGreen.withValues(
+                              alpha: 0.15,
+                            ),
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: PremiumTheme.neonGreen.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_rounded, color: PremiumTheme.neonGreen, size: 10),
+                              Icon(
+                                Icons.check_rounded,
+                                color: PremiumTheme.neonGreen,
+                                size: 10,
+                              ),
                               SizedBox(width: 2),
                               Text(
                                 'CERT',
@@ -308,7 +368,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 14,
+                    ),
                     const SizedBox(width: 2),
                     Text(
                       rating,
@@ -342,7 +406,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   Widget _buildStatsRow(Map<String, dynamic> perf) {
     final wins = (perf['wins'] ?? 0) as num;
     final total = (perf['matches_played'] ?? 0) as num;
-    final winRate = total > 0 ? '${(wins / total * 100).toStringAsFixed(0)}%' : '0%';
+    final winRate = total > 0
+        ? '${(wins / total * 100).toStringAsFixed(0)}%'
+        : '0%';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -354,11 +420,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             children: [
               _buildStatCell(winRate, 'WIN RATE', PremiumTheme.neonGreen),
               _buildDivider(),
-              _buildStatCell('${perf['matches_played'] ?? 0}', 'MATCHES', Colors.white),
+              _buildStatCell(
+                '${perf['matches_played'] ?? 0}',
+                'MATCHES',
+                Colors.white,
+              ),
               _buildDivider(),
-              _buildStatCell('${perf['goals_scored'] ?? 0}', 'GOALS', PremiumTheme.electricBlue),
+              _buildStatCell(
+                '${perf['goals_scored'] ?? 0}',
+                'GOALS',
+                PremiumTheme.electricBlue,
+              ),
               _buildDivider(),
-              _buildStatCell('${perf['clean_sheets'] ?? 0}', 'CLEAN', Colors.amber),
+              _buildStatCell(
+                '${perf['clean_sheets'] ?? 0}',
+                'CLEAN',
+                Colors.amber,
+              ),
             ],
           ),
         ),
@@ -395,10 +473,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   }
 
   Widget _buildDivider() {
-    return Container(
-      width: 1,
-      color: Colors.white.withValues(alpha: 0.06),
-    );
+    return Container(width: 1, color: Colors.white.withValues(alpha: 0.06));
   }
 
   // ─── LIVE MATCH CARD ──────────────────────────────────────────────────────
@@ -477,7 +552,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text('My team', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w600)),
+                        const Text(
+                          'My team',
+                          style: TextStyle(
+                            color: PremiumTheme.neonGreen,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -504,7 +586,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           textAlign: TextAlign.right,
                         ),
                         const SizedBox(height: 2),
-                        const Text('Opponent', style: TextStyle(color: Colors.white38, fontSize: 10)),
+                        const Text(
+                          'Opponent',
+                          style: TextStyle(color: Colors.white38, fontSize: 10),
+                        ),
                       ],
                     ),
                   ),
@@ -523,7 +608,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final homeTeam = match['home_team_name']?.toString() ?? '';
     final awayTeam = match['away_team_name']?.toString() ?? '';
     final scheduledAt = match['scheduled_at']?.toString() ?? '';
-    final matchLabel = '$homeTeam vs $awayTeam · ${_formatMatchDate(scheduledAt)}';
+    final matchLabel =
+        '$homeTeam vs $awayTeam · ${_formatMatchDate(scheduledAt)}';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -543,7 +629,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 color: Colors.amber.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.bolt_rounded, color: Colors.amber, size: 20),
+              child: const Icon(
+                Icons.bolt_rounded,
+                color: Colors.amber,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -552,7 +642,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 children: [
                   const Text(
                     'Lineup required',
-                    style: TextStyle(color: Colors.amber, fontWeight: FontWeight.w800, fontSize: 13),
+                    style: TextStyle(
+                      color: Colors.amber,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -566,7 +660,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             GestureDetector(
               onTap: () {},
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.amber,
                   borderRadius: BorderRadius.circular(10),
@@ -611,7 +708,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => CoachTeamsScreen(teams: teams)),
+                  MaterialPageRoute(
+                    builder: (_) => CoachTeamsScreen(teams: teams),
+                  ),
                 ),
                 child: const Text(
                   'ALL TEAMS →',
@@ -639,7 +738,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final players = (team['players'] as List?)?.length ?? 0;
     final isLive = team['is_live'] == true;
     final elo = team['elo_rating']?.toString() ?? '1800';
-    final form = (team['form'] as List?)?.cast<String>() ?? ['W', 'W', 'W', 'W', 'D', 'L', 'L'];
+    final form =
+        (team['form'] as List?)?.cast<String>() ??
+        ['W', 'W', 'W', 'W', 'D', 'L', 'L'];
     final wins = team['wins'] ?? 0;
     final draws = team['draws'] ?? 0;
     final losses = team['losses'] ?? 0;
@@ -660,9 +761,15 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   decoration: BoxDecoration(
                     color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                    border: Border.all(
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                    ),
                   ),
-                  child: const Icon(Icons.shield_rounded, color: PremiumTheme.neonGreen, size: 20),
+                  child: const Icon(
+                    Icons.shield_rounded,
+                    color: PremiumTheme.neonGreen,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -688,7 +795,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '$ageGroup · $campus · $players players',
-                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -696,7 +806,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 12,
+                    ),
                     const SizedBox(width: 2),
                     Text(
                       elo,
@@ -717,7 +831,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 const Spacer(),
                 Text(
                   '${wins}W ${draws}D ${losses}L',
-                  style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -739,11 +857,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 5, height: 5,
-            decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+            width: 5,
+            height: 5,
+            decoration: const BoxDecoration(
+              color: Colors.redAccent,
+              shape: BoxShape.circle,
+            ),
           ),
           const SizedBox(width: 3),
-          const Text('LIVE', style: TextStyle(color: Colors.redAccent, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+          const Text(
+            'LIVE',
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
         ],
       ),
     );
@@ -769,11 +899,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       width: 26,
       height: 26,
       margin: const EdgeInsets.only(right: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Center(
         child: Text(
           result.toUpperCase(),
-          style: TextStyle(color: text, fontSize: 10, fontWeight: FontWeight.w900),
+          style: TextStyle(
+            color: text,
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ),
     );
@@ -782,9 +919,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   // ─── UPCOMING FIXTURES ────────────────────────────────────────────────────
 
   Widget _buildUpcomingFixtures(List matches) {
-    final upcoming = matches.where((m) =>
-      (m['status']?.toString().toUpperCase() ?? '') != 'IN_PROGRESS'
-    ).take(5).toList();
+    final upcoming = matches
+        .where(
+          (m) => (m['status']?.toString().toUpperCase() ?? '') != 'IN_PROGRESS',
+        )
+        .take(5)
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -793,11 +933,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 3,
-                height: 16,
-                color: PremiumTheme.neonGreen,
-              ),
+              Container(width: 3, height: 16, color: PremiumTheme.neonGreen),
               const SizedBox(width: 8),
               const Text(
                 'UPCOMING FIXTURES',
@@ -827,7 +963,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       child: const Center(
         child: Text(
           'NO UPCOMING FIXTURES',
-          style: TextStyle(color: Colors.white24, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+          style: TextStyle(
+            color: Colors.white24,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1,
+          ),
         ),
       ),
     );
@@ -841,13 +982,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final pitch = match['pitch']?.toString() ?? '';
 
     DateTime? dt;
-    try { dt = DateTime.parse(scheduledAt); } catch (_) {}
+    try {
+      dt = DateTime.parse(scheduledAt);
+    } catch (_) {}
     final dayName = dt != null ? _weekdayShort(dt.weekday) : '';
     final dayNum = dt?.day.toString() ?? '--';
     final timeStr = dt != null
         ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
         : '';
-    final locationStr = [location, pitch].where((s) => s.isNotEmpty).join(' · ');
+    final locationStr = [
+      location,
+      pitch,
+    ].where((s) => s.isNotEmpty).join(' · ');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -866,8 +1012,24 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(dayName, style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
-                  Text(dayNum, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900, height: 1.1)),
+                  Text(
+                    dayName,
+                    style: const TextStyle(
+                      color: PremiumTheme.electricBlue,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Text(
+                    dayNum,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      height: 1.1,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -881,7 +1043,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       children: [
                         TextSpan(
                           text: homeTeam,
-                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const TextSpan(
                           text: ' vs ',
@@ -889,7 +1055,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         ),
                         TextSpan(
                           text: awayTeam,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -902,14 +1072,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.white24, size: 20),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white24,
+              size: 20,
+            ),
           ],
         ),
       ),
     );
   }
 
-  String _weekdayShort(int w) => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][w - 1];
+  String _weekdayShort(int w) =>
+      ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][w - 1];
 
   String _formatMatchDate(String iso) {
     try {
