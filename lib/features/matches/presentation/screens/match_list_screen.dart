@@ -55,7 +55,7 @@ class MatchListScreen extends StatelessWidget {
                       status: 'SCHEDULED',
                       homeScore: 2,
                       awayScore: 1,
-                      startTime: DateTime.now().add(const Duration(hours: 2)),
+                      matchDate: DateTime.now().add(const Duration(hours: 2)),
                     ),
                     homeTeamName: 'RED DRAGONS',
                     awayTeamName: 'BLUE WOLVES',

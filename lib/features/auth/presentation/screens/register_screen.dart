@@ -21,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     {'value': 'PLAYER_CHILD', 'label': 'Youth Player', 'icon': 'child_care'},
     {'value': 'PARENT', 'label': 'Parent', 'icon': 'family_restroom'},
     {'value': 'COACH', 'label': 'Coach', 'icon': 'sports'},
+    {'value': 'TOURNAMENT_ORGANIZER', 'label': 'Organizer', 'icon': 'event_note'},
     {'value': 'CLUB_OWNER', 'label': 'Club Owner', 'icon': 'business'},
     {'value': 'CLUB_MANAGER', 'label': 'Club Manager', 'icon': 'manage_accounts'},
     {'value': 'FIELD_OWNER', 'label': 'Field Owner', 'icon': 'stadium'},
@@ -177,6 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       case 'child_care': return Icons.child_care;
       case 'family_restroom': return Icons.family_restroom;
       case 'sports': return Icons.sports;
+      case 'event_note': return Icons.event_note;
       case 'stadium': return Icons.stadium;
       case 'gavel': return Icons.gavel;
       case 'business': return Icons.business;

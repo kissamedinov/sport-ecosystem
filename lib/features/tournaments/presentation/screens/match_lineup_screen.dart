@@ -204,7 +204,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                               const SizedBox(width: 8),
                               const Text('| Port: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
                               DropdownButton<String>(
-                                value: _positions[member.playerProfileId],
+                                value: _positions[member.childProfileId],
                                 isDense: true,
                                 style: const TextStyle(fontSize: 12, color: Colors.white),
                                 items: _positionOptions.map((pos) => DropdownMenuItem(

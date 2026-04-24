@@ -90,7 +90,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(widget.match.startTime?.toString().substring(0, 16) ?? 'TBD', 
+          Text(widget.match.matchDate?.toString().substring(0, 16) ?? 'TBD', 
             style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton.icon(
