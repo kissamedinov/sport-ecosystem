@@ -518,7 +518,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   children: [
                     Text(reg.team.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 4),
-                    Text('Coach: ${reg.team.coachName ?? 'Unknown'}', style: const TextStyle(fontSize: 11, color: Colors.white38)),
+                    Text(reg.team.academyName ?? 'Club Team', style: const TextStyle(fontSize: 11, color: Colors.white38)),
                   ],
                 ),
               ),
