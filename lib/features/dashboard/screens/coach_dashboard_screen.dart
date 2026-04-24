@@ -59,7 +59,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       const _HomeTab(),
       const CoachTeamsScreen(embedded: true),
       const TournamentAnnouncementsScreen(),
-      const _InboxTab(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -1038,8 +1038,8 @@ class _CoachBottomNav extends StatelessWidget {
             ),
             Expanded(
               child: _NavItem(
-                icon: Icons.notifications_rounded,
-                label: 'INBOX',
+                icon: Icons.person_rounded,
+                label: 'PROFILE',
                 active: index == 3,
                 onTap: () => onChanged(3),
               ),
