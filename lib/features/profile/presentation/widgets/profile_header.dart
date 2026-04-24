@@ -7,6 +7,7 @@ class ProfileHeader extends StatelessWidget {
   final String? clubName;
   final bool canPop;
   final VoidCallback? onMenu;
+  final VoidCallback? onNotification;
   final VoidCallback? onEdit;
 
   const ProfileHeader({
@@ -15,6 +16,7 @@ class ProfileHeader extends StatelessWidget {
     this.clubName,
     this.canPop = false,
     this.onMenu,
+    this.onNotification,
     this.onEdit,
   });
 
@@ -81,6 +83,13 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onNotification != null) ...[
+                GestureDetector(
+                  onTap: onNotification,
+                  child: _iconBtn(Icons.notifications_none_rounded),
+                ),
+                const SizedBox(width: 12),
+              ],
               if (onMenu != null)
                 GestureDetector(
                   onTap: onMenu,

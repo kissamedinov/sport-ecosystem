@@ -3,6 +3,7 @@ import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
+import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
 import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
@@ -20,24 +21,23 @@ class CoachProfileBody extends StatefulWidget {
 }
 
 class _CoachProfileBodyState extends State<CoachProfileBody> {
-  final ProfileApiService _profileApi = ProfileApiService();
-  late Future<Map<String, dynamic>> _dashboardFuture;
+  late Future<void> _dashboardFuture;
 
   @override
   void initState() {
     super.initState();
-    _dashboardFuture = _profileApi.getCoachDashboard();
+    _dashboardFuture = context.read<ClubProvider>().fetchCoachDashboard();
   }
 
   void _refresh() {
     setState(() {
-      _dashboardFuture = _profileApi.getCoachDashboard();
+      _dashboardFuture = context.read<ClubProvider>().fetchCoachDashboard();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
+    return FutureBuilder<void>(
       future: _dashboardFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -47,7 +47,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
           return _buildErrorState(snapshot.error.toString());
         }
         
-        final data = snapshot.data ?? {};
+        final data = context.watch<ClubProvider>().coachDashboard ?? {};
         final perf = (data['performance_stats'] as Map<String, dynamic>?) ?? {};
         final matches = data['upcoming_matches'] as List? ?? [];
         final teams = data['teams'] as List? ?? [];
@@ -402,7 +402,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                     subtitle: '${teams.length} teams · Players',
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => CoachTeamsScreen(teams: teams)),
+                      MaterialPageRoute(builder: (_) => const CoachTeamsScreen()),
                     ),
                   ),
                 ),
@@ -456,43 +456,45 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        splashColor: color.withValues(alpha: 0.1),
+        highlightColor: color.withValues(alpha: 0.05),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 20),
               ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: const TextStyle(color: Colors.white38, fontSize: 10),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 10),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

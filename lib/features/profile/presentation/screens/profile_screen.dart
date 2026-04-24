@@ -117,6 +117,10 @@ class ProfileScreen extends StatelessWidget {
               user: user,
               clubName: clubName,
               canPop: Navigator.canPop(context),
+              onNotification: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+              ),
               onMenu: () => _showProfileMenu(context, auth),
             ),
             _buildRoleSpecificBody(user, roles),
