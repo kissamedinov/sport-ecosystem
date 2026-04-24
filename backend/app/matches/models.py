@@ -5,6 +5,15 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
 
+# Ensure all models are in the registry for relationships
+try:
+    from app.users.models import User
+    from app.teams.models import Team
+    from app.clubs.models import ChildProfile
+    from app.tournaments.models import Tournament, TournamentDivision, TournamentGroup
+except ImportError:
+    pass
+
 class MatchStatus(str, enum.Enum):
     SCHEDULED = "SCHEDULED"
     FINISHED = "FINISHED"
