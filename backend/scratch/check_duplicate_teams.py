@@ -1,10 +1,11 @@
 
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.teams.models import Team, TeamMembership
 from app.clubs.models import Club
+from app.academies.models import Academy # Add this to resolve relationships
 
 load_dotenv()
 
