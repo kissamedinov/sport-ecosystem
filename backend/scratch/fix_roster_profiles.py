@@ -36,11 +36,14 @@ try:
             first_name = name_parts[0]
             last_name = name_parts[1] if len(name_parts) > 1 else ""
             
+            from datetime import date
             child = ChildProfile(
                 id=uuid.uuid4(),
                 linked_user_id=user.id,
                 first_name=first_name,
-                last_name=last_name
+                last_name=last_name,
+                date_of_birth=date(2013, 1, 1),
+                club_id=db.query(Team).filter(Team.id == team_id).first().academy_id # Use academy_id as club_id if they are the same
             )
             db.add(child)
             db.flush()
