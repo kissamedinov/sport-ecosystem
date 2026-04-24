@@ -9,13 +9,22 @@ class TournamentRepository {
 
   TournamentRepository(this._apiClient);
 
-  Future<List<Tournament>> getTournaments({String? season, int? year, int page = 1, int limit = 10}) async {
+  Future<List<Tournament>> getTournaments({
+    String? season, 
+    int? year, 
+    String? city,
+    bool mine = false,
+    int page = 1, 
+    int limit = 20
+  }) async {
     final Map<String, dynamic> queryParams = {
       'page': page,
       'limit': limit,
+      'mine': mine.toString(),
     };
     if (season != null) queryParams['season'] = season;
     if (year != null) queryParams['year'] = year.toString();
+    if (city != null) queryParams['city'] = city;
 
     final response = await _apiClient.get('/tournaments', queryParameters: queryParams);
     
@@ -89,5 +98,12 @@ class TournamentRepository {
     final response = await _apiClient.get('/tournaments/$tournamentId/teams');
     final List<dynamic> data = response.data;
     return data.map((json) => TournamentTeamResponse.fromJson(json)).toList();
+  }
+
+  Future<TournamentTeamResponse> updateTournamentTeamStatus(String tournamentId, String teamId, String status) async {
+    final response = await _apiClient.patch('/tournaments/$tournamentId/teams/$teamId', queryParameters: {
+      'status': status,
+    });
+    return TournamentTeamResponse.fromJson(response.data);
   }
 }

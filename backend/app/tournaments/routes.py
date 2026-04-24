@@ -40,9 +40,13 @@ def create_tournament(
 def get_tournaments(
     season: Optional[Season] = None,
     year: Optional[int] = None,
-    db: Session = Depends(get_db)
+    city: Optional[str] = None,
+    mine: bool = False,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
 ):
-    tournaments = services.get_tournaments(db=db, season=season, year=year)
+    user_id = current_user.id if mine and current_user else None
+    tournaments = services.get_tournaments(db=db, season=season, year=year, city=city, current_user_id=user_id)
     return tournaments if tournaments is not None else []
 
 # Tournament Divisions 

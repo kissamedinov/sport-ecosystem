@@ -35,7 +35,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: _isOrganizer ? 4 : 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<TournamentProvider>();
       provider.fetchTournamentDetails(widget.tournamentId);
@@ -64,11 +64,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           indicatorColor: PremiumTheme.neonGreen,
           labelColor: PremiumTheme.neonGreen,
           unselectedLabelColor: Colors.white38,
+          isScrollable: _isOrganizer,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-          tabs: const [
-            Tab(text: 'INFO'),
-            Tab(text: 'MATCHES'),
-            Tab(text: 'STANDINGS'),
+          tabs: [
+            const Tab(text: 'INFO'),
+            const Tab(text: 'MATCHES'),
+            const Tab(text: 'STANDINGS'),
+            if (_isOrganizer) const Tab(text: 'REQUESTS'),
           ],
         ),
       ),
@@ -93,6 +95,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               _buildInfoTab(tournament, provider),
               _buildMatchesTab(provider.matches, provider),
               _buildStandingsTab(provider.standings),
+              if (_isOrganizer) _buildRequestsTab(provider.registeredTeams, provider),
             ],
           );
         },
@@ -471,6 +474,85 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRequestsTab(List<TournamentTeamResponse> registrations, TournamentProvider provider) {
+    final pending = registrations.where((r) => r.status == 'PENDING').toList();
+
+    if (pending.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle_outline, size: 48, color: Colors.white10),
+            SizedBox(height: 16),
+            Text('No pending requests', style: TextStyle(color: Colors.white38)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: pending.length,
+      itemBuilder: (context, index) {
+        final reg = pending[index];
+        return PremiumCard(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.shield, color: PremiumTheme.neonGreen, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(reg.team.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    const SizedBox(height: 4),
+                    Text('Coach: ${reg.team.coachName ?? 'Unknown'}', style: const TextStyle(fontSize: 11, color: Colors.white38)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () async {
+                  final success = await provider.updateTeamStatus(widget.tournamentId, reg.teamId, 'REJECTED');
+                  if (context.mounted && !success) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error rejecting team')));
+                  }
+                },
+                icon: const Icon(Icons.cancel_outlined, color: PremiumTheme.danger, size: 20),
+              ),
+              const SizedBox(width: 4),
+              ElevatedButton(
+                onPressed: () async {
+                  final success = await provider.updateTeamStatus(widget.tournamentId, reg.teamId, 'APPROVED');
+                  if (context.mounted && !success) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error approving team')));
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PremiumTheme.neonGreen,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  minimumSize: const Size(0, 36),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('APPROVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

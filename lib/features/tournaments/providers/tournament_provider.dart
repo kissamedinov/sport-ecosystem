@@ -38,11 +38,11 @@ class TournamentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchTournaments({String? season, int? year}) async {
+  Future<void> fetchTournaments({String? season, int? year, String? city, bool mine = false}) async {
     _setLoading(true);
     _error = null;
     try {
-      _tournaments = await _repository.getTournaments(season: season, year: year);
+      _tournaments = await _repository.getTournaments(season: season, year: year, city: city, mine: mine);
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -164,6 +164,21 @@ class TournamentProvider extends ChangeNotifier {
       _error = e.toString();
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<bool> updateTeamStatus(String tournamentId, String teamId, String status) async {
+    _setLoading(true);
+    try {
+      await _repository.updateTournamentTeamStatus(tournamentId, teamId, status);
+      await fetchTournamentTeams(tournamentId);
+      await fetchTournamentStandings(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
     }
   }
 }

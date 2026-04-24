@@ -14,23 +14,48 @@ class TournamentListScreen extends StatefulWidget {
   State<TournamentListScreen> createState() => _TournamentListScreenState();
 }
 
-class _TournamentListScreenState extends State<TournamentListScreen> {
+class _TournamentListScreenState extends State<TournamentListScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String? _selectedCity;
+  int? _selectedYear;
+
+  final List<String> _kazakhstanCities = [
+    'All Cities', 'Astana', 'Almaty', 'Shymkent', 'Karaganda', 'Aktobe', 'Taraz', 'Pavlodar', 'Semey'
+  ];
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TournamentProvider>().fetchTournaments();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _refresh();
+      }
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh();
+    });
+  }
+
+  void _refresh() {
+    context.read<TournamentProvider>().fetchTournaments(
+      city: _selectedCity == 'All Cities' ? null : _selectedCity,
+      year: _selectedYear,
+      mine: _tabController.index == 1,
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final canCreate = user != null && (
-      user.roles?.contains('COACH') == true ||
       user.roles?.contains('TOURNAMENT_ORGANIZER') == true ||
-      user.roles?.contains('ACADEMY_ADMIN') == true ||
-      user.roles?.contains('FIELD_OWNER') == true ||
       user.roles?.contains('ADMIN') == true
     );
 
@@ -40,10 +65,21 @@ class _TournamentListScreenState extends State<TournamentListScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('TOURNAMENTS', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: PremiumTheme.neonGreen,
+          labelColor: PremiumTheme.neonGreen,
+          unselectedLabelColor: Colors.white38,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+          tabs: const [
+            Tab(text: 'EXPLORE'),
+            Tab(text: 'MY EVENTS'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white54),
-            onPressed: () => context.read<TournamentProvider>().fetchTournaments(),
+            onPressed: _refresh,
           ),
         ],
       ),
@@ -53,29 +89,72 @@ class _TournamentListScreenState extends State<TournamentListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CreateTournamentScreen()),
-          );
+          ).then((_) => _refresh());
         },
         child: const Icon(Icons.add, color: Colors.black),
       ) : null,
-      body: Consumer<TournamentProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
-          }
-          if (provider.error != null) {
-            return _buildErrorState(provider.error!);
-          }
-          if (provider.tournaments.isEmpty) {
-            return _buildEmptyState();
-          }
+      body: Column(
+        children: [
+          _buildFilterBar(),
+          Expanded(
+            child: Consumer<TournamentProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+                }
+                if (provider.error != null) {
+                  return _buildErrorState(provider.error!);
+                }
+                if (provider.tournaments.isEmpty) {
+                  return _buildEmptyState();
+                }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: provider.tournaments.length,
-            itemBuilder: (context, index) {
-              final tournament = provider.tournaments[index];
-              return _buildTournamentCard(tournament);
-            },
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  itemCount: provider.tournaments.length,
+                  itemBuilder: (context, index) {
+                    final tournament = provider.tournaments[index];
+                    return _buildTournamentCard(tournament);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterBar() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _kazakhstanCities.length,
+        itemBuilder: (context, index) {
+          final city = _kazakhstanCities[index];
+          final isSelected = (_selectedCity ?? 'All Cities') == city;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(city),
+              selected: isSelected,
+              onSelected: (val) {
+                setState(() => _selectedCity = val ? city : null);
+                _refresh();
+              },
+              backgroundColor: PremiumTheme.cardNavy,
+              selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+              labelStyle: TextStyle(
+                color: isSelected ? PremiumTheme.neonGreen : Colors.white54,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              checkmarkColor: PremiumTheme.neonGreen,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent)),
+            ),
           );
         },
       ),

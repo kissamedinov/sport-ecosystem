@@ -83,13 +83,26 @@ def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
         entity_id=tournament.id
     )
 
-def get_tournaments(db: Session, season: Optional[Season] = None, year: Optional[int] = None):
+def get_tournaments(db: Session, season: Optional[Season] = None, year: Optional[int] = None, city: Optional[str] = None, current_user_id: Optional[UUID] = None):
     try:
         query = db.query(Tournament)
         if season:
             query = query.filter(Tournament.season == season)
         if year:
             query = query.filter(Tournament.year == year)
+        if city:
+            query = query.filter(Tournament.location.ilike(f"%{city}%"))
+            
+        if current_user_id:
+            # Filter tournaments where user is creator OR has a registered team
+            from sqlalchemy import or_
+            query = query.outerjoin(TournamentTeam).filter(
+                or_(
+                    Tournament.created_by == current_user_id,
+                    TournamentTeam.registered_by == current_user_id
+                )
+            ).distinct()
+            
         return query.all()
     except Exception as e:
         print(f"Error fetching tournaments: {e}")
