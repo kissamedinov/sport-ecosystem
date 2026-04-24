@@ -327,6 +327,22 @@ class _HeroBlock extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (Navigator.of(context).canPop()) ...[
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 24),
+                  ),
+                ),
+              ],
               const Expanded(
                 child: Text(
                   'COACH  ·  DASHBOARD',

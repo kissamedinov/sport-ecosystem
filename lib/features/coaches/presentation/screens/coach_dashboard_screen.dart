@@ -137,6 +137,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           padding: const EdgeInsets.fromLTRB(20, 8, 16, 16),
           child: Row(
             children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.chevron_left_rounded, color: Colors.white70, size: 24),
+                ),
+              ),
+              const SizedBox(width: 12),
               const Text(
                 'COACH · DASHBOARD',
                 style: TextStyle(
