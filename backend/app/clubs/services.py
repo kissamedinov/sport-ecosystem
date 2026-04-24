@@ -621,88 +621,103 @@ def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
         raise HTTPException(status_code=500, detail="Internal Server Error during invitation decline")
 
 def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardResponse:
-    from app.matches.models import Match, MatchResult, MatchStatus
-    
-    # Get teams coached by this user
-    teams = db.query(Team).filter(Team.coach_id == coach_id).all()
-    team_ids = [t.id for t in teams]
-    
-    team_responses = []
-    for t in teams:
-        # Get players in this team
-        mems = db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).all()
-        players = []
-        for m in mems:
-            if not m.player_profile:
-                continue
-            user = m.player_profile.user
-            if not user:
-                continue
+    try:
+        from app.matches.models import Match, MatchResult, MatchStatus
+        
+        # Get teams coached by this user
+        teams = db.query(Team).filter(Team.coach_id == coach_id).all()
+        team_ids = [t.id for t in teams]
+        
+        team_responses = []
+        for t in teams:
+            try:
+                # Get players in this team
+                mems = db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).all()
+                players = []
+                for m in mems:
+                    if not m.player_profile:
+                        continue
+                    user = m.player_profile.user
+                    if not user:
+                        continue
+                        
+                    players.append(schemas.CoachPlayerResponse(
+                        user_id=user.id,
+                        name=user.name,
+                        profile_id=m.player_profile_id,
+                        position=m.player_profile.preferred_position if hasattr(m.player_profile, 'preferred_position') else None,
+                        jersey_number=m.jersey_number
+                    ))
                 
-            players.append(schemas.CoachPlayerResponse(
-                user_id=user.id,
-                name=user.name,
-                profile_id=m.player_profile_id,
-                position=m.player_profile.preferred_position if hasattr(m.player_profile, 'preferred_position') else None,
-                jersey_number=m.jersey_number
-            ))
+                team_responses.append(schemas.CoachTeamResponse(
+                    id=t.id,
+                    name=t.name,
+                    birth_year=t.birth_year,
+                    players=players
+                ))
+            except Exception as te:
+                print(f"Error processing team {t.id}: {te}")
+                continue
         
-        team_responses.append(schemas.CoachTeamResponse(
-            id=t.id,
-            name=t.name,
-            birth_year=t.birth_year,
-            players=players
-        ))
-    
-    # Calculate Performance Stats
-    perf = schemas.CoachPerformanceStats()
-    if team_ids:
-        # Finished matches
-        finished_matches = db.query(Match).filter(
-            (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
-            Match.status == MatchStatus.FINISHED
-        ).all()
-        
-        perf.matches_played = len(finished_matches)
-        for m in finished_matches:
-            if not m.result: continue
-            
-            is_home = m.home_team_id in team_ids
-            my_score = m.result.home_score if is_home else m.result.away_score
-            opp_score = m.result.away_score if is_home else m.result.home_score
-            
-            perf.goals_scored += my_score
-            perf.goals_conceded += opp_score
-            if opp_score == 0: perf.clean_sheets += 1
-            
-            if my_score > opp_score: perf.wins += 1
-            elif my_score < opp_score: perf.losses += 1
-            else: perf.draws += 1
-            
-    # Upcoming matches
-    upcoming_matches = []
-    if team_ids:
-        future_matches = db.query(Match).filter(
-            (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
-            Match.status == MatchStatus.SCHEDULED
-        ).order_by(Match.match_date.asc()).limit(5).all()
-        
-        for m in future_matches:
-            upcoming_matches.append(schemas.CoachMatchResponse(
-                id=m.id,
-                tournament_name=m.tournament.name if m.tournament else "Friendly",
-                home_team_name=m.home_team.name,
-                away_team_name=m.away_team.name,
-                home_team_id=m.home_team_id,
-                away_team_id=m.away_team_id,
-                scheduled_at=m.match_date
-            ))
+        # Calculate Performance Stats
+        perf = schemas.CoachPerformanceStats()
+        if team_ids:
+            try:
+                # Finished matches
+                finished_matches = db.query(Match).filter(
+                    (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+                    Match.status == MatchStatus.FINISHED
+                ).all()
+                
+                perf.matches_played = len(finished_matches)
+                for m in finished_matches:
+                    if not m.result: continue
+                    
+                    is_home = m.home_team_id in team_ids
+                    my_score = m.result.home_score if is_home else m.result.away_score
+                    opp_score = m.result.away_score if is_home else m.result.home_score
+                    
+                    perf.goals_scored += my_score
+                    perf.goals_conceded += opp_score
+                    if opp_score == 0: perf.clean_sheets += 1
+                    
+                    if my_score > opp_score: perf.wins += 1
+                    elif my_score < opp_score: perf.losses += 1
+                    else: perf.draws += 1
+            except Exception as pe:
+                print(f"Error calculating stats: {pe}")
+                
+        # Upcoming matches
+        upcoming_matches = []
+        if team_ids:
+            try:
+                future_matches = db.query(Match).filter(
+                    (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+                    Match.status == MatchStatus.SCHEDULED
+                ).order_by(Match.match_date.asc()).limit(5).all()
+                
+                for m in future_matches:
+                    upcoming_matches.append(schemas.CoachMatchResponse(
+                        id=m.id,
+                        tournament_name=m.tournament.name if (m.tournament and hasattr(m.tournament, 'name')) else "Friendly",
+                        home_team_name=m.home_team.name if (m.home_team and hasattr(m.home_team, 'name')) else "Unknown",
+                        away_team_name=m.away_team.name if (m.away_team and hasattr(m.away_team, 'name')) else "Unknown",
+                        home_team_id=m.home_team_id,
+                        away_team_id=m.away_team_id,
+                        scheduled_at=m.match_date
+                    ))
+            except Exception as me:
+                print(f"Error fetching upcoming matches: {me}")
 
-    return schemas.CoachDashboardResponse(
-        teams=team_responses,
-        upcoming_matches=upcoming_matches,
-        performance_stats=perf
-    )
+        return schemas.CoachDashboardResponse(
+            teams=team_responses,
+            upcoming_matches=upcoming_matches,
+            performance_stats=perf
+        )
+    except Exception as e:
+        print(f"CRITICAL ERROR in get_coach_dashboard: {str(e)}")
+        import traceback; traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error during dashboard retrieval")
 
 def update_team_coach(db: Session, team_id: UUID, new_coach_id: UUID) -> Team:
     team = db.query(Team).filter(Team.id == team_id).first()
