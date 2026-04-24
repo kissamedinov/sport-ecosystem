@@ -4,9 +4,11 @@ import uuid
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+# Import all models to avoid SQLAlchemy mapping errors
 from app.users.models import User, PlayerProfile, UserRole, Role
 from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
 from app.teams.models import Team, TeamMembership, MembershipStatus, MembershipRole
+from app.academies.models import Academy
 
 load_dotenv()
 
@@ -24,23 +26,26 @@ try:
     else:
         print(f"Updating roster for Team: {team.name} in Club: {club.name}")
         
-        # Check all players in DB
-        all_players = db.query(User).join(UserRole).filter(UserRole.role.in_([Role.PLAYER_CHILD, Role.PLAYER_YOUTH])).all()
+        # Scan for all users with player roles
+        player_roles = [Role.PLAYER_CHILD, Role.PLAYER_YOUTH]
+        all_players = db.query(User).join(UserRole).filter(UserRole.role.in_(player_roles)).all()
         print(f"Scanning {len(all_players)} players in database...")
         
         added_count = 0
         for p in all_players:
-            # Add ALL players found in DB to this team (since they are likely the ones the user wants)
+            # Ensure PlayerProfile exists
             profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == p.id).first()
             if not profile:
                 profile = PlayerProfile(user_id=p.id)
                 db.add(profile); db.flush()
             
+            # Ensure in ClubStaff as PLAYER
             staff = db.query(ClubStaff).filter(ClubStaff.club_id == club.id, ClubStaff.user_id == p.id).first()
             if not staff:
                 staff = ClubStaff(club_id=club.id, user_id=p.id, role=ClubRole.PLAYER, status=ClubMembershipStatus.ACTIVE)
                 db.add(staff)
             
+            # Ensure in TeamMembership
             mem = db.query(TeamMembership).filter(TeamMembership.team_id == team.id, TeamMembership.player_id == p.id).first()
             if not mem:
                 mem = TeamMembership(
