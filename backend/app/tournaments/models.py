@@ -83,7 +83,7 @@ class Tournament(Base):
     surface_type = Column(Enum(SurfaceType, native_enum=False), default=SurfaceType.NATURAL_GRASS, nullable=True)
     
     # Existing fields for backward compatibility or migration
-    age_category = Column(Enum(AgeCategory, native_enum=False), nullable=True) # Main category
+    age_category = Column(String, nullable=True) # Changed from Enum to String for flexibility
     allowed_age_categories = Column(String, nullable=True) # JSON string
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     

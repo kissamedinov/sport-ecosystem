@@ -14,7 +14,7 @@ class TournamentBase(BaseModel):
     registration_open: date
     registration_close: date
     format: TournamentFormat
-    age_category: AgeCategory
+    age_category: str
     allowed_age_categories: Optional[str] = None # JSON list
     created_by: Optional[UUID] = None
     history_data: Optional[str] = None # JSON string

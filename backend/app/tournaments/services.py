@@ -94,14 +94,17 @@ def get_tournaments(db: Session, season: Optional[Season] = None, year: Optional
             query = query.filter(Tournament.location.ilike(f"%{city}%"))
             
         if current_user_id:
-            # Filter tournaments where user is creator OR has a registered team
-            from sqlalchemy import or_
-            query = query.outerjoin(TournamentTeam).filter(
-                or_(
-                    Tournament.created_by == current_user_id,
-                    TournamentTeam.registered_by == current_user_id
-                )
-            ).distinct()
+            from sqlalchemy import or_, exists
+            # Tournament is mine if I created it OR if my team is in one of its divisions
+            is_creator = Tournament.created_by == current_user_id
+            
+            # Check if user has a team registered in any division of this tournament
+            has_reg = exists().where(
+                (TournamentTeam.tournament_id == Tournament.id) & 
+                (TournamentTeam.registered_by == current_user_id)
+            )
+            
+            query = query.filter(or_(is_creator, has_reg))
             
         return query.all()
     except Exception as e:
