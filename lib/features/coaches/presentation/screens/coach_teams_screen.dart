@@ -39,20 +39,33 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final clubProvider = context.read<ClubProvider>();
     final body = Column(
       children: [
         _buildTopStats(),
         Expanded(
-          child: _teams.isEmpty
-              ? _buildEmpty()
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                  itemCount: _teams.length,
-                  itemBuilder: (context, index) {
-                    final team = _teams[index] as Map<String, dynamic>;
-                    return _buildTeamCard(index, team);
-                  },
-                ),
+          child: RefreshIndicator(
+            onRefresh: () => clubProvider.fetchCoachDashboard(),
+            color: PremiumTheme.neonGreen,
+            backgroundColor: PremiumTheme.cardNavy,
+            child: _teams.isEmpty
+                ? SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: _buildEmpty(),
+                    ),
+                  )
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                    itemCount: _teams.length,
+                    itemBuilder: (context, index) {
+                      final team = _teams[index] as Map<String, dynamic>;
+                      return _buildTeamCard(index, team);
+                    },
+                  ),
+          ),
         ),
       ],
     );

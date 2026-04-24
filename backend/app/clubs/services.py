@@ -483,6 +483,13 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
                 from app.teams.models import TeamMembership, MembershipStatus
                 db.add(TeamMembership(team_id=invite.team_id, player_profile_id=profile.id, status=MembershipStatus.ACTIVE))
                 detail += " and joined team"
+        elif invite.role == ClubRole.COACH:
+            if invite.team_id:
+                from app.teams.models import Team
+                team = db.query(Team).filter(Team.id == invite.team_id).first()
+                if team:
+                    team.coach_id = target_user_id
+                    detail += f" and assigned as coach of {team.name}"
 
         db.commit()
         
@@ -625,7 +632,26 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
         from app.matches.models import Match, MatchResult, MatchStatus
         
         # Get teams coached by this user
-        teams = db.query(Team).filter(Team.coach_id == coach_id).all()
+        teams_query = db.query(Team).filter(Team.coach_id == coach_id)
+        
+        # Also include teams from clubs where user is OWNER or MANAGER
+        club_ids = [cs.club_id for cs in db.query(models.ClubStaff).filter(
+            models.ClubStaff.user_id == coach_id,
+            models.ClubStaff.role.in_([ClubRole.OWNER, ClubRole.MANAGER]),
+            models.ClubStaff.status == models.ClubMembershipStatus.ACTIVE
+        ).all()]
+        
+        if club_ids:
+            from app.academies.models import Academy
+            # Get all academies for these clubs
+            academy_ids = [a.id for a in db.query(Academy).filter(Academy.club_id.in_(club_ids)).all()]
+            if academy_ids:
+                # Add teams from these academies
+                teams_query = db.query(Team).filter(
+                    (Team.coach_id == coach_id) | (Team.academy_id.in_(academy_ids))
+                )
+        
+        teams = teams_query.all()
         team_ids = [t.id for t in teams]
         
         team_responses = []
