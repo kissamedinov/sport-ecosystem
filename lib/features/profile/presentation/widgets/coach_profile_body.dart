@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
 import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
