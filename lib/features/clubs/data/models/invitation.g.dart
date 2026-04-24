@@ -20,6 +20,7 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
   expiresAt: json['expires_at'] == null
       ? null
       : DateTime.parse(json['expires_at'] as String),
+  invitedName: json['invited_name'] as String?,
 );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
@@ -35,6 +36,7 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
       'is_approved': instance.isApproved,
       'created_at': instance.createdAt.toIso8601String(),
       'expires_at': instance.expiresAt?.toIso8601String(),
+      'invited_name': instance.invitedName,
     };
 
 const _$ClubRoleEnumMap = {

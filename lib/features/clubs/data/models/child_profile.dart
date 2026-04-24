@@ -34,6 +34,7 @@ class ChildProfile {
   });
 
   String get fullName => '$firstName $lastName';
+  int get birthYear => dateOfBirth.year;
 
   factory ChildProfile.fromJson(Map<String, dynamic> json) => _$ChildProfileFromJson(json);
   Map<String, dynamic> toJson() => _$ChildProfileToJson(this);

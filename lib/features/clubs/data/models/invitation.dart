@@ -41,6 +41,8 @@ class Invitation {
   final bool isApproved;
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'invited_name')
+  final String? invitedName;
   @JsonKey(name: 'expires_at')
   final DateTime? expiresAt;
 
@@ -50,6 +52,7 @@ class Invitation {
     this.teamId,
     required this.invitedUserId,
     required this.invitedBy,
+    this.invitedName,
     this.childProfileId,
     required this.role,
     required this.status,
