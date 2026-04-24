@@ -1,58 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/tournament_provider.dart';
+import 'tournament_details_page.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
-class TournamentAnnouncementsScreen extends StatelessWidget {
+class TournamentAnnouncementsScreen extends StatefulWidget {
   const TournamentAnnouncementsScreen({super.key});
+
+  @override
+  State<TournamentAnnouncementsScreen> createState() => _TournamentAnnouncementsScreenState();
+}
+
+class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TournamentProvider>().fetchTournaments();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('TOURNAMENT ANNOUNCEMENTS')),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildAnnouncementCard(
-            context,
-            'SD CUP FESTIVAL',
-            'March 23–25 | Astana',
-            '50,000 KZT | Age: 2011-2018',
-            Icons.emoji_events,
-          ),
-          const SizedBox(height: 16),
-          _buildAnnouncementCard(
-            context,
-            'Winter Championship',
-            'Jan 15–20 | Almaty',
-            '45,000 KZT | Age: 2010-2015',
-            Icons.sports_soccer,
-          ),
-        ],
+      backgroundColor: PremiumTheme.deepNavy,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('TOURNAMENT ANNOUNCEMENTS', style: TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 14)),
+      ),
+      body: Consumer<TournamentProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+          }
+
+          final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
+
+          if (announcements.isEmpty) {
+            return const Center(child: Text('No new announcements', style: TextStyle(color: Colors.white38)));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: announcements.length,
+            itemBuilder: (context, index) {
+              final t = announcements[index];
+              return _buildAnnouncementCard(context, t);
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAnnouncementCard(BuildContext context, String title, String subtitle, String price, IconData icon) {
-    return Card(
+  Widget _buildAnnouncementCard(BuildContext context, dynamic t) {
+    return PremiumCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            leading: Icon(icon, color: Colors.orange, size: 40),
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(subtitle),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(price, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('APPLY WITH TEAM'),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
+                child: const Icon(Icons.emoji_events, color: PremiumTheme.neonGreen, size: 30),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.name.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.5)),
+                    const SizedBox(height: 4),
+                    Text('${t.startDate} | ${t.location}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Age: ${t.ageCategory}',
+                style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TournamentDetailsPage(tournamentId: t.id),
+                    ),
+                  );
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: PremiumTheme.neonGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                child: Row(
+                  children: const [
+                    Text('APPLY WITH TEAM', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios, size: 10),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/tournament_squad_provider.dart';
 import '../../../teams/providers/team_provider.dart';
 import '../../../players/presentation/screens/player_profile_screen.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class TournamentSquadScreen extends StatefulWidget {
   final String tournamentTeamId;
@@ -31,83 +33,77 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: const Text('MANAGE TOURNAMENT SQUAD'),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        title: const Text('TOURNAMENT SQUAD', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
       body: Consumer2<TournamentSquadProvider, TeamProvider>(
         builder: (context, squadProvider, teamProvider, _) {
-          if (squadProvider.isLoading || teamProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+          if (squadProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
           }
 
-          if (squadProvider.error != null) {
-            return Center(child: Text('Error: ${squadProvider.error}'));
-          }
-
-          // We need to find the specific team to get its players
-          // Since TeamProvider.fetchTeamById doesn't update a common list, 
-          // we might need to handle the result differently.
-          // For now, let's assume we can find it in 'myTeams' or just await the result.
-          // Better: update TeamProvider to store a 'currentTeam' or similar if needed.
-          // Let's use a FutureBuilder or just rely on the fact that fetchTeamById might return it.
+          final team = teamProvider.myTeams.firstWhere((t) => t.id == widget.teamId, orElse: () => teamProvider.myTeams.isNotEmpty ? teamProvider.myTeams.first : teamProvider.myTeams.first); 
           
-          return FutureBuilder(
-            future: teamProvider.fetchTeamById(widget.teamId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              
-              final team = snapshot.data;
-              if (team == null) {
-                return const Center(child: Text('Failed to load team players.'));
-              }
+          final allPlayers = teamProvider.myTeams.any((t) => t.id == widget.teamId) 
+              ? teamProvider.myTeams.firstWhere((t) => t.id == widget.teamId).players 
+              : [];
 
-              final allPlayers = team.players;
-              final squadMembers = squadProvider.squad;
+          if (allPlayers.isEmpty) {
+            return const Center(child: Text('No players found in this team', style: TextStyle(color: Colors.white38)));
+          }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: allPlayers.length,
-                itemBuilder: (context, index) {
-                  final playerTeam = allPlayers[index];
-                  final player = playerTeam.player;
-                  if (player == null) return const SizedBox.shrink();
+          final squadMembers = squadProvider.squad;
 
-                  final isInSquad = squadMembers.any((m) => m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId));
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: allPlayers.length,
+            itemBuilder: (context, index) {
+              final playerTeam = allPlayers[index];
+              final player = playerTeam.player;
+              if (player == null) return const SizedBox.shrink();
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(player.name[0].toUpperCase()),
-                      ),
-                      title: Text(player.name),
-                      subtitle: Text(player.email),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PlayerProfileScreen(
-                              userId: playerTeam.playerId,
-                              displayName: player.name,
-                            ),
-                          ),
-                        );
-                      },
-                      trailing: isInSquad
-                          ? IconButton(
-                              icon: const Icon(Icons.remove_circle, color: Colors.red),
-                              onPressed: () => _removeFromSquad(playerTeam.playerId),
-                            )
-                          : IconButton(
-                              icon: const Icon(Icons.add_circle, color: Colors.green),
-                              onPressed: () => _addToSquad(playerTeam.playerId),
-                            ),
+              final squadMember = squadMembers.where((m) => m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId)).firstOrNull;
+              final isInSquad = squadMember != null;
+
+              return PremiumCard(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                      child: Text(player.name[0].toUpperCase(), style: const TextStyle(color: PremiumTheme.neonGreen)),
                     ),
-                  );
-                },
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(player.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                          if (isInSquad)
+                            Text(
+                              '#${squadMember.jerseyNumber ?? "???"} | ${squadMember.position ?? "TBD"}',
+                              style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 11, fontWeight: FontWeight.bold),
+                            )
+                          else
+                            const Text('Not in squad', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    if (isInSquad)
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle, color: PremiumTheme.danger),
+                        onPressed: () => _removeFromSquad(playerTeam.childProfileId ?? playerTeam.playerId),
+                      )
+                    else
+                      IconButton(
+                        icon: const Icon(Icons.add_circle, color: PremiumTheme.neonGreen),
+                        onPressed: () => _showAddDialog(playerTeam.childProfileId ?? playerTeam.playerId, player.name),
+                      ),
+                  ],
+                ),
               );
             },
           );
@@ -116,12 +112,57 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
     );
   }
 
-  void _addToSquad(String childProfileId) {
-    // Backend expects list of {child_profile_id, jersey_number, position}
+  void _showAddDialog(String childProfileId, String playerName) {
+    final numberController = TextEditingController();
+    final positionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: PremiumTheme.cardNavy,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('ADD $playerName', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PremiumTextField(
+              controller: numberController,
+              label: 'Jersey Number',
+              keyboardType: TextInputType.number,
+              icon: Icons.numbers,
+            ),
+            const SizedBox(height: 16),
+            PremiumTextField(
+              controller: positionController,
+              label: 'Position (e.g. GK, DEF, ST)',
+              icon: Icons.sports_soccer,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
+          ElevatedButton(
+            onPressed: () {
+              _addToSquad(childProfileId, numberController.text, positionController.text);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
+            child: const Text('ADD TO SQUAD'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addToSquad(String childProfileId, String number, String position) {
     context.read<TournamentSquadProvider>().addToSquad(
       widget.tournamentTeamId,
       [
-        {'child_profile_id': childProfileId}
+        {
+          'child_profile_id': childProfileId,
+          'jersey_number': int.tryParse(number),
+          'position': position,
+        }
       ],
     );
   }
