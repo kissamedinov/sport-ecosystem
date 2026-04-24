@@ -23,7 +23,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   DateTime _regClose = DateTime.now().add(const Duration(days: 5));
 
   String _selectedFormat = 'LEAGUE';
-  String _selectedAge = 'U11';
+  String _selectedAge = '2013';
   String _selectedSurface = 'NATURAL_GRASS';
 
   int _numFields = 1;
@@ -34,7 +34,10 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   bool _isLoading = false;
 
   final List<String> _formats = ['LEAGUE', 'KNOCKOUT', 'GROUP_STAGE'];
-  final List<String> _ages = ['U7', 'U9', 'U11', 'U13', 'U15', 'U17', 'ADULT'];
+  final List<String> _ages = [
+    '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012',
+    '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', 'ADULT'
+  ];
   final List<String> _surfaces = ['NATURAL_GRASS', 'ARTIFICIAL_TURF', 'INDOOR', 'CLAY'];
 
   Future<void> _pickDate(String label, DateTime initial, Function(DateTime) onPicked) async {

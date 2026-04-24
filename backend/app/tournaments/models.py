@@ -22,12 +22,22 @@ class SurfaceType(str, enum.Enum):
     OTHER = "OTHER"
 
 class AgeCategory(str, enum.Enum):
-    U7 = "U7"
-    U9 = "U9"
-    U11 = "U11"
-    U13 = "U13"
-    U15 = "U15"
-    U17 = "U17"
+    Y2005 = "2005"
+    Y2006 = "2006"
+    Y2007 = "2007"
+    Y2008 = "2008"
+    Y2009 = "2009"
+    Y2010 = "2010"
+    Y2011 = "2011"
+    Y2012 = "2012"
+    Y2013 = "2013"
+    Y2014 = "2014"
+    Y2015 = "2015"
+    Y2016 = "2016"
+    Y2017 = "2017"
+    Y2018 = "2018"
+    Y2019 = "2019"
+    Y2020 = "2020"
     ADULT = "ADULT"
 
 class RegistrationStatus(str, enum.Enum):
