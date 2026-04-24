@@ -65,10 +65,10 @@ class Match(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tournament = relationship("Tournament")
-    division = relationship("app.tournaments.models.TournamentDivision")
+    division = relationship("TournamentDivision")
     home_team = relationship("Team", foreign_keys=[home_team_id])
     away_team = relationship("Team", foreign_keys=[away_team_id])
-    group = relationship("app.tournaments.models.TournamentGroup")
+    group = relationship("TournamentGroup")
     result = relationship("MatchResult", back_populates="match", uselist=False)
 
 class MatchResult(Base):

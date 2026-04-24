@@ -11,6 +11,7 @@ try:
     from app.teams.models import Team
     from app.clubs.models import ChildProfile
     from app.academies.models import Academy
+    from app.matches.models import Match
 except ImportError:
     pass
 
@@ -135,7 +136,7 @@ class TournamentDivision(Base):
 
     edition = relationship("Tournament", back_populates="divisions")
     teams = relationship("TournamentTeam", back_populates="division", cascade="all, delete-orphan")
-    matches = relationship("app.matches.models.Match", back_populates="division", cascade="all, delete-orphan")
+    matches = relationship("Match", back_populates="division", cascade="all, delete-orphan")
     awards = relationship("TournamentAward", back_populates="division", cascade="all, delete-orphan")
     player_stats = relationship("TournamentPlayerStats", back_populates="division", cascade="all, delete-orphan")
 
