@@ -76,8 +76,6 @@ class PlayerProfile(Base):
 
     user = relationship("User", back_populates="player_profile")
     memberships = relationship("TeamMembership", back_populates="player_profile")
-    awards = relationship("TournamentAward", back_populates="player_profile")
-    tournament_stats = relationship("TournamentPlayerStats", back_populates="player_profile")
 
 class ParentChildRelation(Base):
     __tablename__ = "parent_child_relations"
