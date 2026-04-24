@@ -37,13 +37,15 @@ try:
             last_name = name_parts[1] if len(name_parts) > 1 else ""
             
             from datetime import date
+            team_obj = db.query(Team).filter(Team.id == team_id).first()
             child = ChildProfile(
                 id=uuid.uuid4(),
                 linked_user_id=user.id,
                 first_name=first_name,
                 last_name=last_name,
                 date_of_birth=date(2013, 1, 1),
-                club_id=db.query(Team).filter(Team.id == team_id).first().academy_id # Use academy_id as club_id if they are the same
+                club_id=team_obj.academy_id,
+                created_by=team_obj.coach_id
             )
             db.add(child)
             db.flush()
