@@ -3,9 +3,12 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.teams.models import Team, TeamMembership
-from app.clubs.models import Club
-from app.academies.models import Academy # Add this to resolve relationships
+
+# Import EVERYTHING to avoid mapping errors
+from app.users.models import User, PlayerProfile, UserRole, Role
+from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
+from app.teams.models import Team, TeamMembership, MembershipStatus, MembershipRole
+from app.academies.models import Academy
 
 load_dotenv()
 
