@@ -18,6 +18,8 @@ class TournamentBase(BaseModel):
     allowed_age_categories: Optional[str] = None # JSON list
     created_by: Optional[UUID] = None
     history_data: Optional[str] = None # JSON string
+    whatsapp: Optional[str] = None
+    phone: Optional[str] = None
     num_fields: int = 1
     match_half_duration: int = 20
     halftime_break_duration: int = 5

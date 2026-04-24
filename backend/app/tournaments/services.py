@@ -375,6 +375,10 @@ def update_team_standing(db: Session, tournament_id: UUID, team_id: UUID):
     db.commit()
 
 def get_tournament_standings(db: Session, tournament_id: UUID):
+    valid_fields = [
+        "minimum_rest_slots", "points_for_win", "points_for_draw", "points_for_loss",
+        "surface_type", "whatsapp", "phone"
+    ]
     return db.query(TournamentStandings).filter(
         TournamentStandings.tournament_id == tournament_id
     ).order_by(

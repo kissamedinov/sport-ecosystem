@@ -44,6 +44,9 @@ class Tournament {
   @JsonKey(name: 'created_by')
   final String? createdBy;
 
+  final String? whatsapp;
+  final String? phone;
+
   Tournament({
     required this.id,
     required this.name,
@@ -66,6 +69,8 @@ class Tournament {
     this.allowedAgeCategories,
     this.historyData,
     this.createdBy,
+    this.whatsapp,
+    this.phone,
   });
 
   factory Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);

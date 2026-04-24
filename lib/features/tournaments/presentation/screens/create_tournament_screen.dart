@@ -16,6 +16,8 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
+  final _whatsappController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 7));
@@ -79,10 +81,12 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       'format': _selectedFormat,
       'age_category': _selectedAge,
       'surface_type': _selectedSurface,
-      'num_fields': _numFields,
-      'match_half_duration': _matchHalf,
-      'halftime_break_duration': _halfBreak,
-      'break_between_matches': _matchBreak,
+      'num_fields': 1,
+      'match_half_duration': 20,
+      'halftime_break_duration': 5,
+      'break_between_matches': 10,
+      'whatsapp': _whatsappController.text,
+      'phone': _phoneController.text,
     };
 
     final success = await context.read<TournamentProvider>().createTournament(data);
@@ -124,18 +128,35 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
               PremiumCard(
                 child: Column(
                   children: [
-                    TextFormField(
+                    PremiumTextField(
                       controller: _nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: PremiumTheme.inputDecoration('Tournament Name', prefixIcon: Icons.emoji_events),
-                      validator: (v) => v!.isEmpty ? 'Name required' : null,
+                      label: 'Tournament Name',
+                      icon: Icons.emoji_events,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    PremiumTextField(
                       controller: _locationController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: PremiumTheme.inputDecoration('Location / Stadium', prefixIcon: Icons.location_on),
-                      validator: (v) => v!.isEmpty ? 'Location required' : null,
+                      label: 'Location / Stadium',
+                      icon: Icons.location_on,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildSectionTitle('ORGANIZER CONTACTS', Icons.contact_phone),
+              PremiumCard(
+                child: Column(
+                  children: [
+                    PremiumTextField(
+                      controller: _whatsappController,
+                      label: 'WhatsApp (e.g. +7...)',
+                      icon: Icons.message,
+                    ),
+                    const SizedBox(height: 16),
+                    PremiumTextField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      icon: Icons.phone,
                     ),
                   ],
                 ),

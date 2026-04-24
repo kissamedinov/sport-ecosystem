@@ -125,33 +125,17 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            PremiumTextField(
               controller: numberController,
+              label: 'Jersey Number',
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Jersey Number',
-                labelStyle: const TextStyle(color: Colors.white38),
-                prefixIcon: const Icon(Icons.numbers, color: PremiumTheme.neonGreen),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white10)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: PremiumTheme.neonGreen)),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-              ),
+              icon: Icons.numbers,
             ),
             const SizedBox(height: 16),
-            TextField(
+            PremiumTextField(
               controller: positionController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Position (e.g. GK, DEF, ST)',
-                labelStyle: const TextStyle(color: Colors.white38),
-                prefixIcon: const Icon(Icons.sports_soccer, color: PremiumTheme.neonGreen),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white10)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: PremiumTheme.neonGreen)),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-              ),
+              label: 'Position (e.g. GK, DEF, ST)',
+              icon: Icons.sports_soccer,
             ),
           ],
         ),
