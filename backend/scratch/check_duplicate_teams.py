@@ -18,7 +18,11 @@ SessionLocal = sessionmaker(bind=engine)
 db = SessionLocal()
 
 try:
-    teams = db.query(Team).filter(Team.name.ilike('%Astana City%')).all()
+    print("SEARCHING FOR ALL TEAMS WITH '2013' OR '2014':")
+    teams = db.query(Team).filter(
+        (Team.name.ilike('%2013%')) | (Team.name.ilike('%2014%'))
+    ).all()
+    
     print(f"FOUND {len(teams)} TEAMS:")
     for t in teams:
         count = db.query(TeamMembership).filter(TeamMembership.team_id == t.id).count()
