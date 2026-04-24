@@ -16,6 +16,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _bioController;
+  late TextEditingController _phoneController;
   bool _isLoading = false;
   bool _isUploadingImage = false;
   final ImagePicker _picker = ImagePicker();
@@ -26,12 +27,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = context.read<AuthProvider>().user;
     _nameController = TextEditingController(text: user?.name ?? "");
     _bioController = TextEditingController(text: user?.bio ?? "");
+    _phoneController = TextEditingController(text: user?.phone ?? "");
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _bioController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -71,6 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final success = await context.read<AuthProvider>().updateProfile({
         "name": _nameController.text,
         "bio": _bioController.text,
+        "phone": _phoneController.text,
       });
       if (success && mounted) {
         Navigator.pop(context);
@@ -127,6 +131,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _buildSectionLabel("PERSONAL INFORMATION"),
               const SizedBox(height: 16),
               _buildTextField("Full Name", _nameController, Icons.person_outline_rounded),
+              const SizedBox(height: 24),
+              _buildSectionLabel("CONTACT INFORMATION"),
+              const SizedBox(height: 16),
+              _buildTextField("Phone Number", _phoneController, Icons.phone_android_rounded, keyboardType: TextInputType.phone),
               const SizedBox(height: 24),
               _buildSectionLabel("BIO / DESCRIPTION"),
               const SizedBox(height: 16),
@@ -230,10 +238,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, IconData icon, {int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, IconData icon, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       style: const TextStyle(color: Colors.white, fontSize: 15),
       decoration: InputDecoration(
         hintText: label,

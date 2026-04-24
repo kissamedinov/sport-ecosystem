@@ -181,7 +181,7 @@ def get_coach_dashboard(
     current_user: User = Depends(get_current_user)
 ):
     user_roles = {ur.role for ur in current_user.roles}
-    if Role.COACH not in user_roles and Role.ADMIN not in user_roles:
+    if Role.COACH not in user_roles and Role.ADMIN not in user_roles and Role.TOURNAMENT_ORGANIZER not in user_roles:
          raise HTTPException(status_code=403, detail="Access denied. Coaching role required.")
     return services.get_coach_dashboard(db, current_user.id)
 

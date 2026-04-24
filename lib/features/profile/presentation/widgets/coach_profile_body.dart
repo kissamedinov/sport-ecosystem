@@ -57,6 +57,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
+              _buildUserInfo(context),
+              const SizedBox(height: 24),
               _buildCoachQuickActions(data, teams, perf, topPerformers),
               const SizedBox(height: 32),
 
@@ -357,73 +359,91 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     Map<String, dynamic> perf,
     List topPerformers,
   ) {
-    return Column(
-      children: [
-        Row(
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        final roles = auth.user?.roles ?? [];
+        final isOrganizer = roles.contains('TOURNAMENT_ORGANIZER');
+
+        return Column(
           children: [
-            Expanded(
-              child: _quickActionCard(
-                icon: Icons.dashboard_rounded,
-                color: PremiumTheme.neonGreen,
-                title: 'COACH HUB',
-                subtitle: 'Dashboard & Fixtures',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CoachDashboardScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _quickActionCard(
-                icon: Icons.groups_rounded,
-                color: PremiumTheme.electricBlue,
-                title: 'MY TEAMS',
-                subtitle: '${teams.length} teams · Players',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CoachTeamsScreen(teams: teams)),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _quickActionCard(
-                icon: Icons.analytics_rounded,
-                color: Colors.amber,
-                title: 'PERFORMANCE',
-                subtitle: 'Stats & Top Performers',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CoachPerformanceScreen(
-                      perf: perf,
-                      topPerformers: topPerformers,
+            Row(
+              children: [
+                if (isOrganizer)
+                  Expanded(
+                    child: _quickActionCard(
+                      icon: Icons.emoji_events_rounded,
+                      color: PremiumTheme.neonGreen,
+                      title: 'TOURNAMENT HUB',
+                      subtitle: 'Manage Your Events',
+                      onTap: () => Navigator.pushNamed(context, '/tournaments'),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: _quickActionCard(
+                      icon: Icons.dashboard_rounded,
+                      color: PremiumTheme.neonGreen,
+                      title: 'COACH HUB',
+                      subtitle: 'Dashboard & Fixtures',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoachDashboardScreen()),
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _quickActionCard(
+                    icon: Icons.groups_rounded,
+                    color: PremiumTheme.electricBlue,
+                    title: 'MY TEAMS',
+                    subtitle: '${teams.length} teams · Players',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => CoachTeamsScreen(teams: teams)),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _quickActionCard(
-                icon: Icons.school_rounded,
-                color: Colors.purpleAccent,
-                title: 'ACADEMY CRM',
-                subtitle: 'Schedule & Billing',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _quickActionCard(
+                    icon: Icons.analytics_rounded,
+                    color: Colors.amber,
+                    title: 'PERFORMANCE',
+                    subtitle: 'Stats & Top Performers',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CoachPerformanceScreen(
+                          perf: perf,
+                          topPerformers: topPerformers,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _quickActionCard(
+                    icon: Icons.school_rounded,
+                    color: Colors.purpleAccent,
+                    title: 'ACADEMY CRM',
+                    subtitle: 'Schedule & Billing',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -472,6 +492,52 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildUserInfo(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    if (user == null) return const SizedBox.shrink();
+
+    return OrleonCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline_rounded, size: 14, color: PremiumTheme.neonGreen.withOpacity(0.5)),
+              const SizedBox(width: 8),
+              const Text(
+                "ABOUT ME",
+                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            user.bio?.isNotEmpty == true ? user.bio! : "No biography provided yet. Tap 'Edit' to add one.",
+            style: TextStyle(
+              color: user.bio?.isNotEmpty == true ? Colors.white : Colors.white24,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          if (user.phone?.isNotEmpty == true) ...[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(Icons.phone_android_rounded, size: 14, color: PremiumTheme.electricBlue.withOpacity(0.5)),
+                const SizedBox(width: 8),
+                Text(
+                  user.phone!,
+                  style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -136,6 +136,8 @@ class ProfileScreen extends StatelessWidget {
       return const ManagerProfileBody();
     } else if (roles.contains('COACH')) {
       return CoachProfileBody(coachId: user.id);
+    } else if (roles.contains('TOURNAMENT_ORGANIZER')) {
+      return CoachProfileBody(coachId: user.id); // Reusing coach body for now as it has dashboard structure
     } else if (roles.contains('PARENT')) {
       return const ParentProfileBody();
     } else if (roles.contains('PLAYER_CHILD')) {
