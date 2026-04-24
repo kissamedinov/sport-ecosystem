@@ -1,14 +1,13 @@
 
+import os
 import uuid
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.users.models import User, PlayerProfile, UserRole, Role
 from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
 from app.teams.models import Team, TeamMembership, MembershipStatus, MembershipRole
-from app.academies.models import Academy
 
-import os
-from dotenv import load_dotenv
 load_dotenv()
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/sportseco")
@@ -17,7 +16,6 @@ SessionLocal = sessionmaker(bind=engine)
 db = SessionLocal()
 
 try:
-    # 1. Find the club and team
     club = db.query(Club).filter(Club.name.ilike('%Astana City%')).first()
     team = db.query(Team).filter(Team.name.ilike('%Astana City 2013-14%')).first()
     
@@ -26,30 +24,23 @@ try:
     else:
         print(f"Updating roster for Team: {team.name} in Club: {club.name}")
         
-        # 2. Find players to add
-        player_names = [
-            "Alikhan Kasym", "Sultan Kasym", "Aibar White", "Serikzhan White",
-            "Youth Player"
-        ]
-        
-        players_to_add = db.query(User).filter(User.name.in_(player_names)).all()
-        print(f"Found {len(players_to_add)} candidate players")
+        # Check all players in DB
+        all_players = db.query(User).join(UserRole).filter(UserRole.role.in_([Role.PLAYER_CHILD, Role.PLAYER_YOUTH])).all()
+        print(f"Scanning {len(all_players)} players in database...")
         
         added_count = 0
-        for p in players_to_add:
-            # Ensure PlayerProfile exists
+        for p in all_players:
+            # Add ALL players found in DB to this team (since they are likely the ones the user wants)
             profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == p.id).first()
             if not profile:
                 profile = PlayerProfile(user_id=p.id)
                 db.add(profile); db.flush()
             
-            # Ensure in ClubStaff as PLAYER
             staff = db.query(ClubStaff).filter(ClubStaff.club_id == club.id, ClubStaff.user_id == p.id).first()
             if not staff:
                 staff = ClubStaff(club_id=club.id, user_id=p.id, role=ClubRole.PLAYER, status=ClubMembershipStatus.ACTIVE)
                 db.add(staff)
             
-            # Ensure in TeamMembership
             mem = db.query(TeamMembership).filter(TeamMembership.team_id == team.id, TeamMembership.player_id == p.id).first()
             if not mem:
                 mem = TeamMembership(
@@ -65,6 +56,5 @@ try:
         
         db.commit()
         print(f"Roster updated. Added {added_count} players.")
-
 finally:
     db.close()
