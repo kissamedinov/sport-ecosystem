@@ -38,13 +38,14 @@ try:
             
             from datetime import date
             team_obj = db.query(Team).filter(Team.id == team_id).first()
+            academy_obj = db.query(Academy).filter(Academy.id == team_obj.academy_id).first()
             child = ChildProfile(
                 id=uuid.uuid4(),
                 linked_user_id=user.id,
                 first_name=first_name,
                 last_name=last_name,
                 date_of_birth=date(2013, 1, 1),
-                club_id=team_obj.academy_id,
+                club_id=academy_obj.club_id,
                 created_by=team_obj.coach_id
             )
             db.add(child)
