@@ -22,7 +22,7 @@ try:
     print(f"FOUND {len(teams)} TEAMS:")
     for t in teams:
         count = db.query(TeamMembership).filter(TeamMembership.team_id == t.id).count()
-        club = db.query(Club).filter(Club.id == t.club_id).first()
-        print(f"- ID: {t.id} | NAME: '{t.name}' | PLAYERS: {count} | CLUB: {club.name if club else 'None'}")
+        academy = db.query(Academy).filter(Academy.id == t.academy_id).first()
+        print(f"- ID: {t.id} | NAME: '{t.name}' | PLAYERS: {count} | ACADEMY: {academy.name if academy else 'None'}")
 finally:
     db.close()
