@@ -6,7 +6,7 @@ from app.clubs.models import Club, ClubStaff, ClubRole
 from app.teams.models import Team, TeamMembership
 from app.academies.models import Academy
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/sportseco"
+import os`nfrom dotenv import load_dotenv`nload_dotenv()`n`nSQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/sportseco")
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 db = SessionLocal()

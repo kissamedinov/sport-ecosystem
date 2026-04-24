@@ -12,7 +12,7 @@ from app.teams.models import Team, TeamMembership, MembershipStatus, MembershipR
 from app.academies.models import Academy
 
 # Database connection
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/sportseco"
+import os`nfrom dotenv import load_dotenv`nload_dotenv()`n`nSQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/sportseco")
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 db = SessionLocal()
