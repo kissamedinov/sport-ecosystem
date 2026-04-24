@@ -30,12 +30,14 @@ def generate_matches(db: Session, tournament_id: UUID):
     db.commit()
     return {"message": "Matches generated successfully"}
 
-def _generate_league_matches(db: Session, tournament_id: UUID, tt_list: List[TournamentTeam]):
+def _generate_league_matches(db: Session, tournament_id: UUID, tt_list: List[TournamentTeam], division_id: Optional[UUID] = None, group_id: Optional[UUID] = None):
     # Round robin
     for i in range(len(tt_list)):
         for j in range(i + 1, len(tt_list)):
             match = Match(
                 tournament_id=tournament_id,
+                division_id=division_id,
+                group_id=group_id,
                 home_team_id=tt_list[i].team_id,
                 away_team_id=tt_list[j].team_id,
                 status=MatchStatus.SCHEDULED,
@@ -66,7 +68,9 @@ def _generate_group_stage_matches(db: Session, tournament_id: UUID, tt_list: Lis
     for g in [group_a, group_b]:
         group_tt_ids = [m.tournament_team_id for m in db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id == g.id).all()]
         group_tts = [tt for tt in tt_list if tt.id in group_tt_ids]
-        _generate_league_matches(db, tournament_id, group_tts)
+        # Use first team's division as representative for the group matches
+        div_id = group_tts[0].division_id if group_tts else None
+        _generate_league_matches(db, tournament_id, group_tts, division_id=div_id, group_id=g.id)
 
 def _get_org_id(db: Session, team_id: UUID):
     team = db.query(Team).filter(Team.id == team_id).first()

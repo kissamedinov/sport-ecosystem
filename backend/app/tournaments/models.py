@@ -114,7 +114,7 @@ class TournamentDivision(Base):
 
     edition = relationship("Tournament", back_populates="divisions")
     teams = relationship("TournamentTeam", back_populates="division", cascade="all, delete-orphan")
-    matches = relationship("TournamentMatch", back_populates="division", cascade="all, delete-orphan")
+    matches = relationship("app.matches.models.Match", back_populates="division", cascade="all, delete-orphan")
     awards = relationship("TournamentAward", back_populates="division", cascade="all, delete-orphan")
     player_stats = relationship("TournamentPlayerStats", back_populates="division", cascade="all, delete-orphan")
 
@@ -156,13 +156,13 @@ class TournamentSquad(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_team_id = Column(UUID(as_uuid=True), ForeignKey("tournament_teams.id"), nullable=False)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
     jersey_number = Column(Integer, nullable=True)
     position = Column(String, nullable=True)
     added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tournament_team = relationship("TournamentTeam", back_populates="squad")
-    player_profile = relationship("PlayerProfile")
+    child_profile = relationship("app.clubs.models.ChildProfile")
 
 class TournamentGroup(Base):
     __tablename__ = "tournament_groups"
@@ -189,6 +189,7 @@ class TournamentStandings(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=False)
+    division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=True)
     team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
 
     played = Column(Integer, default=0)
@@ -203,6 +204,7 @@ class TournamentStandings(Base):
     group_id = Column(UUID(as_uuid=True), ForeignKey("tournament_groups.id"), nullable=True)
 
     tournament = relationship("Tournament")
+    division = relationship("TournamentDivision")
     team = relationship("Team")
     group = relationship("TournamentGroup")
 
@@ -223,80 +225,12 @@ class ScheduleTask(Base):
 
     tournament = relationship("Tournament")
 
-class TournamentMatch(Base):
-    __tablename__ = "tournament_matches"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=True)
-    tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=False)
-    home_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
-    away_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
-    field_number = Column(Integer, nullable=True)
-    start_time = Column(DateTime, nullable=True)
-    end_time = Column(DateTime, nullable=True)
-    status = Column(Enum(MatchStatus, native_enum=False), default=MatchStatus.SCHEDULED, nullable=False)
-    home_score = Column(Integer, default=0)
-    away_score = Column(Integer, default=0)
-    group_id = Column(UUID(as_uuid=True), ForeignKey("tournament_groups.id"), nullable=True)
-
-    division = relationship("TournamentDivision", back_populates="matches")
-    tournament = relationship("Tournament")
-    home_team = relationship("Team", foreign_keys=[home_team_id])
-    away_team = relationship("Team", foreign_keys=[away_team_id])
-    group = relationship("TournamentGroup")
-    player_stats = relationship("TournamentMatchPlayerStats", back_populates="match", cascade="all, delete-orphan")
-    sheets = relationship("MatchSheet", back_populates="match", cascade="all, delete-orphan")
-
-class MatchSheet(Base):
-    __tablename__ = "match_sheets"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    match_id = Column(UUID(as_uuid=True), ForeignKey("tournament_matches.id"), nullable=False)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
-    submitted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    submitted_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    match = relationship("TournamentMatch", back_populates="sheets")
-    team = relationship("Team")
-    players = relationship("MatchSheetPlayer", back_populates="sheet", cascade="all, delete-orphan")
-
-class MatchSheetPlayer(Base):
-    __tablename__ = "match_sheet_players"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    match_sheet_id = Column(UUID(as_uuid=True), ForeignKey("match_sheets.id"), nullable=False)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
-    jersey_number = Column(Integer, nullable=True)
-    is_starting = Column(Boolean, default=True)
-
-    sheet = relationship("MatchSheet", back_populates="players")
-    player_profile = relationship("PlayerProfile")
-
-class TournamentMatchPlayerStats(Base):
-    __tablename__ = "tournament_match_player_stats"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    match_id = Column(UUID(as_uuid=True), ForeignKey("tournament_matches.id"), nullable=False)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
-    
-    goals = Column(Integer, default=0)
-    assists = Column(Integer, default=0)
-    yellow_cards = Column(Integer, default=0)
-    red_cards = Column(Integer, default=0)
-    is_goalkeeper = Column(Boolean, default=False)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    match = relationship("TournamentMatch", back_populates="player_stats")
-    player_profile = relationship("PlayerProfile")
-
 class TournamentPlayerStats(Base):
     __tablename__ = "tournament_player_stats"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=False)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
     
     goals = Column(Integer, default=0)
     assists = Column(Integer, default=0)
@@ -306,17 +240,17 @@ class TournamentPlayerStats(Base):
     red_cards = Column(Integer, default=0)
 
     division = relationship("TournamentDivision", back_populates="player_stats")
-    player_profile = relationship("PlayerProfile")
+    child_profile = relationship("app.clubs.models.ChildProfile")
 
 class TournamentAward(Base):
     __tablename__ = "tournament_awards"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=False)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
+    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
     title = Column(String, nullable=False) # e.g., 'Best Player', 'Top Scorer'
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     division = relationship("TournamentDivision", back_populates="awards")
-    player_profile = relationship("PlayerProfile", back_populates="awards")
+    child_profile = relationship("app.clubs.models.ChildProfile")

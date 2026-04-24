@@ -19,6 +19,10 @@ class TournamentStanding {
   @JsonKey(name: 'goal_difference')
   final int goalDifference;
   final int points;
+  @JsonKey(name: 'division_id')
+  final String? divisionId;
+  @JsonKey(name: 'group_id')
+  final String? groupId;
 
   TournamentStanding({
     required this.teamId,
@@ -31,6 +35,8 @@ class TournamentStanding {
     required this.goalsAgainst,
     required this.goalDifference,
     required this.points,
+    this.divisionId,
+    this.groupId,
   });
 
   factory TournamentStanding.fromJson(Map<String, dynamic> json) => _$TournamentStandingFromJson(json);

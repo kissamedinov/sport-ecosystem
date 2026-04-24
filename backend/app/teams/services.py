@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.teams.models import Team, TeamMembership, MembershipRole, MembershipStatus, JoinStatus
-from app.tournaments.models import TournamentMatch, MatchStatus
+from app.matches.models import Match, MatchStatus
 from app.teams.schemas import TeamCreate
 from app.users.models import User, Role, ParentChildRelation, PlayerProfile
 from app.clubs.models import ChildProfile
@@ -88,25 +88,25 @@ def get_team_by_id(db: Session, team_id: UUID, current_user: User = None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     
     # Fetch recent completed matches
-    recent_matches = db.query(TournamentMatch).filter(
-        (TournamentMatch.home_team_id == team_id) | (TournamentMatch.away_team_id == team_id),
-        TournamentMatch.status == MatchStatus.FINISHED
-    ).order_by(TournamentMatch.start_time.desc()).limit(5).all()
+    recent_matches = db.query(Match).filter(
+        (Match.home_team_id == team_id) | (Match.away_team_id == team_id),
+        Match.status == MatchStatus.FINISHED
+    ).order_by(Match.match_date.desc()).limit(5).all()
     
     # Calculate form
     form = []
     for match in recent_matches:
+        if not match.result: continue
         if match.home_team_id == team_id:
-            if match.home_score > match.away_score: form.append("W")
-            elif match.home_score < match.away_score: form.append("L")
+            if match.result.home_score > match.result.away_score: form.append("W")
+            elif match.result.home_score < match.result.away_score: form.append("L")
             else: form.append("D")
         else:
-            if match.away_score > match.home_score: form.append("W")
-            elif match.away_score < match.home_score: form.append("L")
+            if match.result.away_score > match.result.home_score: form.append("W")
+            elif match.result.away_score < match.result.home_score: form.append("L")
             else: form.append("D")
     
     # Populate players (Memberships)
-    # This is crucial for TeamDetailResponse
     team.players = db.query(TeamMembership).filter(
         TeamMembership.team_id == team_id, 
         TeamMembership.status == MembershipStatus.ACTIVE

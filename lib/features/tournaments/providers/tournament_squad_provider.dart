@@ -45,12 +45,12 @@ class TournamentSquadProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> removeFromSquad(String tournamentTeamId, String playerProfileId) async {
+  Future<void> removeFromSquad(String tournamentTeamId, String childProfileId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _squadRepository.removeFromSquad(tournamentTeamId, playerProfileId);
-      _squad.removeWhere((m) => m.playerProfileId == playerProfileId);
+      await _squadRepository.removeFromSquad(tournamentTeamId, childProfileId);
+      _squad.removeWhere((m) => m.childProfileId == childProfileId);
     } catch (e) {
       _error = e.toString();
     } finally {

@@ -19,7 +19,7 @@ class TournamentSquadRepository {
     );
   }
 
-  Future<void> removeFromSquad(String tournamentTeamId, String playerProfileId) async {
-    await apiClient.delete('/tournaments/teams/$tournamentTeamId/squad/$playerProfileId');
+  Future<void> removeFromSquad(String tournamentTeamId, String childProfileId) async {
+    await apiClient.delete('/tournaments/teams/$tournamentTeamId/squad/$childProfileId');
   }
 }

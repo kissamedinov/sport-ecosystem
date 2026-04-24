@@ -274,7 +274,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
   Widget _buildPlayerStatRow(TournamentSquadMember member) {
     _playerStats.putIfAbsent(
-      member.playerProfileId,
+      member.childProfileId,
       () => {
         'goals': 0,
         'assists': 0,
@@ -282,7 +282,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         'red_cards': 0,
       },
     );
-    final stats = _playerStats[member.playerProfileId]!;
+    final stats = _playerStats[member.childProfileId]!;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -305,9 +305,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    member.playerProfileId.length > 8
-                        ? 'Player #${member.playerProfileId.substring(0, 8).toUpperCase()}'
-                        : member.playerProfileId,
+                    member.childProfileId.length > 8
+                        ? 'Player #${member.childProfileId.substring(0, 8).toUpperCase()}'
+                        : member.childProfileId,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -399,13 +399,67 @@ class _MatchReportScreenState extends State<MatchReportScreen>
   }
 
   Future<void> _submitPlayerStats() async {
-    // ...
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Player stats recorded!'),
-        backgroundColor: Colors.green,
-      ));
-      Navigator.pop(context);
+    final matchProvider = context.read<MatchProvider>();
+    int totalEvents = 0;
+    int successCount = 0;
+
+    // Calculate total events to submit
+    _playerStats.forEach((pid, stats) {
+      totalEvents += (stats['goals'] as int) + 
+                    (stats['assists'] as int) + 
+                    (stats['yellow_cards'] as int) + 
+                    (stats['red_cards'] as int);
+    });
+
+    if (totalEvents == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No stats to submit.')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmittingScore = true); // Reuse loading state
+
+    try {
+      for (var entry in _playerStats.entries) {
+        final pid = entry.key;
+        final stats = entry.value;
+
+        // Helper to submit multiple events of same type
+        Future<void> submitBatch(String type, int count) async {
+          for (int i = 0; i < count; i++) {
+            await matchProvider.addMatchEvent(widget.matchId, {
+              'event_type': type,
+              'minute': 0, // Placeholder
+              'child_profile_id': pid,
+              'team_id': widget.myTeamId,
+            });
+            successCount++;
+          }
+        }
+
+        if (stats['goals'] > 0) await submitBatch('GOAL', stats['goals']);
+        if (stats['assists'] > 0) await submitBatch('ASSIST', stats['assists']);
+        if (stats['yellow_cards'] > 0) await submitBatch('YELLOW_CARD', stats['yellow_cards']);
+        if (stats['red_cards'] > 0) await submitBatch('RED_CARD', stats['red_cards']);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Successfully submitted $successCount events!'),
+          backgroundColor: Colors.green,
+        ));
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmittingScore = false);
     }
   }
 

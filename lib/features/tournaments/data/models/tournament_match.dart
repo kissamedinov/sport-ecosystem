@@ -6,34 +6,37 @@ part 'tournament_match.g.dart';
 class TournamentMatch {
   final String id;
   @JsonKey(name: 'tournament_id')
-  final String tournamentId;
+  final String? tournamentId;
+  @JsonKey(name: 'division_id')
+  final String? divisionId;
   @JsonKey(name: 'home_team_id')
   final String homeTeamId;
   @JsonKey(name: 'away_team_id')
   final String awayTeamId;
-  @JsonKey(name: 'field_number')
-  final int? fieldNumber;
-  @JsonKey(name: 'start_time')
-  final DateTime? startTime;
-  @JsonKey(name: 'end_time')
-  final DateTime? endTime;
+  @JsonKey(name: 'field_id')
+  final String? fieldId;
+  @JsonKey(name: 'match_date')
+  final DateTime? matchDate;
   final String status;
   @JsonKey(name: 'home_score')
   final int homeScore;
   @JsonKey(name: 'away_score')
   final int awayScore;
+  @JsonKey(name: 'group_id')
+  final String? groupId;
 
   TournamentMatch({
     required this.id,
-    required this.tournamentId,
+    this.tournamentId,
+    this.divisionId,
     required this.homeTeamId,
     required this.awayTeamId,
-    this.fieldNumber,
-    this.startTime,
-    this.endTime,
+    this.fieldId,
+    this.matchDate,
     required this.status,
     required this.homeScore,
     required this.awayScore,
+    this.groupId,
   });
 
   factory TournamentMatch.fromJson(Map<String, dynamic> json) => _$TournamentMatchFromJson(json);

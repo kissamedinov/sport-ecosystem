@@ -75,7 +75,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                   final player = playerTeam.player;
                   if (player == null) return const SizedBox.shrink();
 
-                  final isInSquad = squadMembers.any((m) => m.playerProfileId == playerTeam.playerId);
+                  final isInSquad = squadMembers.any((m) => m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId));
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -116,20 +116,20 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
     );
   }
 
-  void _addToSquad(String playerProfileId) {
-    // Backend expects list of {player_profile_id, jersey_number, position}
+  void _addToSquad(String childProfileId) {
+    // Backend expects list of {child_profile_id, jersey_number, position}
     context.read<TournamentSquadProvider>().addToSquad(
       widget.tournamentTeamId,
       [
-        {'player_profile_id': playerProfileId}
+        {'child_profile_id': childProfileId}
       ],
     );
   }
 
-  void _removeFromSquad(String playerProfileId) {
+  void _removeFromSquad(String childProfileId) {
     context.read<TournamentSquadProvider>().removeFromSquad(
       widget.tournamentTeamId,
-      playerProfileId,
+      childProfileId,
     );
   }
 }

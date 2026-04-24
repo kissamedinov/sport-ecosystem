@@ -44,7 +44,8 @@ class Match(Base):
     __tablename__ = "matches"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=False)
+    tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
+    division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=True)
     home_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
     away_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
     field_id = Column(UUID(as_uuid=True), nullable=True) # Field service not yet fully implemented
@@ -55,6 +56,7 @@ class Match(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tournament = relationship("Tournament")
+    division = relationship("app.tournaments.models.TournamentDivision")
     home_team = relationship("Team", foreign_keys=[home_team_id])
     away_team = relationship("Team", foreign_keys=[away_team_id])
     group = relationship("app.tournaments.models.TournamentGroup")

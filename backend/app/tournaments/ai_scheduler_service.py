@@ -3,7 +3,8 @@ import uuid
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Set, Tuple
 from sqlalchemy.orm import Session
-from app.tournaments.models import Tournament, TournamentFormat, TournamentGroup, TournamentGroupTeam, TournamentTeam, TournamentMatch
+from app.tournaments.models import Tournament, TournamentFormat, TournamentGroup, TournamentGroupTeam, TournamentTeam
+from app.matches.models import Match
 from app.teams.models import Team
 
 def _get_base_team_name(name: str) -> str:
@@ -25,7 +26,7 @@ def _are_sister_teams(team1: Team, team2: Team) -> bool:
         return True
     return _get_base_team_name(team1.name) == _get_base_team_name(team2.name)
 
-def generate_sophisticated_schedule(db: Session, tournament_id: uuid.UUID) -> Optional[List[TournamentMatch]]:
+def generate_sophisticated_schedule(db: Session, tournament_id: uuid.UUID) -> Optional[List[Match]]:
     tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()
     if not tournament:
         return None
@@ -156,8 +157,8 @@ def _allocate_slots(
     slot_minutes: int, 
     num_fields: int,
     min_rest: int
-) -> List[TournamentMatch]:
-    matches: List[TournamentMatch] = []
+) -> List[Match]:
+    matches: List[Match] = []
     team_last_slot: Dict[uuid.UUID, int] = {}
     team_fields_used: Dict[uuid.UUID, Set[uuid.UUID]] = {}
     
@@ -202,14 +203,14 @@ def _allocate_slots(
                 p = pool.pop(final_idx)
                 t1_id, t2_id = p
                 if t1_id and t2_id:
-                    m = TournamentMatch(
+                    # Find division_id for these teams (assuming they are in the same division)
+                    # For simplicity, we can fetch it once or assume it's part of the pairing logic
+                    m = Match(
                         tournament_id=tournament.id,
                         home_team_id=t1_id,
                         away_team_id=t2_id,
-                        start_time=current_time,
-                        end_time=current_time + timedelta(minutes=tournament.match_half_duration * 2 + tournament.halftime_break_duration),
-                        field_number=f_idx + 1
-                        # Note: group_id can be added similarly if generating group stages directly handled here
+                        match_date=current_time,
+                        field_id=None # Map field_number to a real field UUID if available
                     )
                     setattr(m, '_slot', current_slot_index)
                     matches.append(m)

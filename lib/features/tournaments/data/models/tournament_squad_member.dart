@@ -1,13 +1,13 @@
 class TournamentSquadMember {
   final String id;
-  final String playerProfileId;
+  final String childProfileId;
   final int? jerseyNumber;
   final String? position;
   final String tournamentTeamId;
 
   TournamentSquadMember({
     required this.id,
-    required this.playerProfileId,
+    required this.childProfileId,
     this.jerseyNumber,
     this.position,
     required this.tournamentTeamId,
@@ -16,7 +16,7 @@ class TournamentSquadMember {
   factory TournamentSquadMember.fromJson(Map<String, dynamic> json) {
     return TournamentSquadMember(
       id: json['id']?.toString() ?? '',
-      playerProfileId: json['player_profile_id']?.toString() ?? '',
+      childProfileId: json['child_profile_id']?.toString() ?? '',
       jerseyNumber: json['jersey_number'] as int?,
       position: json['position'] as String?,
       tournamentTeamId: json['tournament_team_id']?.toString() ?? '',
@@ -25,7 +25,7 @@ class TournamentSquadMember {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'player_profile_id': playerProfileId,
+    'child_profile_id': childProfileId,
     'jersey_number': jerseyNumber,
     'position': position,
     'tournament_team_id': tournamentTeamId,

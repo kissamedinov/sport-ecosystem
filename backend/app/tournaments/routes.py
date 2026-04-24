@@ -8,7 +8,7 @@ from app.users.models import User, Role
 from app.common.dependencies import get_current_user, require_coach, require_tournament_organizer
 from app.tournaments import schemas, services
 from app.tournaments.models import RegistrationStatus, Season
-from app.users.models import PlayerProfile
+from app.clubs.models import ChildProfile
 
 router = APIRouter(prefix="/tournaments", tags=["Tournaments"])
 
@@ -119,23 +119,15 @@ def update_match_result(
 def get_tournament_standings(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_standings(db, id)
 
-@router.post("/match-sheets", response_model=schemas.MatchSheetCreate)
-def submit_match_sheet(
-    sheet_in: schemas.MatchSheetCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_coach)
-):
-    return services.submit_match_sheet(db, sheet_in, current_user)
-
 @router.post("/match-stats")
 def record_match_stats(
     match_id: UUID,
-    player_profile_id: UUID,
+    child_profile_id: UUID,
     stats: schemas.MatchPlayerStatsCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_tournament_organizer)
 ):
-    return services.record_match_player_stats(db, match_id, player_profile_id, stats.model_dump())
+    return services.record_match_player_stats(db, match_id, child_profile_id, stats.model_dump())
 
 @router.post("/awards", response_model=schemas.TournamentAwardResponse)
 def assign_award(
@@ -148,15 +140,13 @@ def assign_award(
 @router.get("/player/{player_id}/awards", response_model=List[schemas.TournamentAwardResponse])
 def get_player_awards(player_id: UUID, db: Session = Depends(get_db)):
     try:
-        # Note: player_id here is user_id but we need profile_id for awards usually.
-        # For now, assuming player_id passed is profile_id or retrieve profile.
-        from app.users.models import PlayerProfile
-        profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == player_id).first()
+        # Check if player_id is linked_user_id or direct child_profile_id
+        profile = db.query(ChildProfile).filter(ChildProfile.linked_user_id == player_id).first()
         if not profile:
-            profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_id).first()
+            profile = db.query(ChildProfile).filter(ChildProfile.id == player_id).first()
         
         if not profile:
-            raise HTTPException(status_code=404, detail="Player Profile not found")
+            raise HTTPException(status_code=404, detail="Child Profile not found")
             
         return services.get_player_awards(db, profile.id)
     except HTTPException as e:

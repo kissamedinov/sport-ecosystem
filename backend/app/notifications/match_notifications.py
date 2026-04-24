@@ -32,12 +32,13 @@ def notify_best_player(player_id: UUID, match_id: UUID):
         )
     finally:
         db.close()
+
 def notify_match_scheduled(db: SessionLocal, match_id: UUID):
-    from app.tournaments.models import TournamentMatch
+    from app.matches.models import Match
     from app.teams.models import Team, TeamMembership, MembershipStatus
-    from app.users.models import User, Role, ParentChildRelation, PlayerProfile
+    from app.users.models import ParentChildRelation
     
-    match = db.query(TournamentMatch).filter(TournamentMatch.id == match_id).first()
+    match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         return
 
@@ -46,16 +47,17 @@ def notify_match_scheduled(db: SessionLocal, match_id: UUID):
     teams = db.query(Team).filter(Team.id.in_(team_ids)).all()
     
     # Notify Coaches
-    coach_ids = [team.coach_id for team in teams]
-    notification_service.create_notification(
-        db,
-        user_ids=coach_ids,
-        notification_type=NotificationType.MATCH_SCHEDULED,
-        title="Match Scheduled",
-        message=f"Your team has a new match scheduled for {match.start_time}.",
-        entity_type=EntityType.MATCH,
-        entity_id=match_id
-    )
+    coach_ids = [team.coach_id for team in teams if team.coach_id]
+    if coach_ids:
+        notification_service.create_notification(
+            db,
+            user_ids=coach_ids,
+            notification_type=NotificationType.MATCH_SCHEDULED,
+            title="Match Scheduled",
+            message=f"Your team has a new match scheduled for {match.match_date}.",
+            entity_type=EntityType.MATCH,
+            entity_id=match_id
+        )
 
     # Notify Players and Parents
     memberships = db.query(TeamMembership).filter(
@@ -65,7 +67,7 @@ def notify_match_scheduled(db: SessionLocal, match_id: UUID):
     
     recipient_ids = []
     for member in memberships:
-        p_id = member.player_profile.user_id
+        p_id = member.user_id # Using user_id directly from membership
         recipient_ids.append(p_id)
         
         # Add Parents
@@ -80,7 +82,7 @@ def notify_match_scheduled(db: SessionLocal, match_id: UUID):
             user_ids=list(set(recipient_ids)), # Unique IDs
             notification_type=NotificationType.MATCH_SCHEDULED,
             title="New Match Scheduled",
-            message=f"Match scheduled for {match.start_time}.",
+            message=f"Match scheduled for {match.match_date}.",
             entity_type=EntityType.MATCH,
             entity_id=match_id
         )

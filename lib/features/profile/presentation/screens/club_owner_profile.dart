@@ -8,7 +8,7 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/profile/presentation/screens/edit_profile_screen.dart';
 
 class ClubOwnerProfile extends StatelessWidget {
-  final User user;
+  final User user;  
 
   const ClubOwnerProfile({super.key, required this.user});
 

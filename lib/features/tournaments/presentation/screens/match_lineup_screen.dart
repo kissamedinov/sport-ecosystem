@@ -41,20 +41,20 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
 
   void _toggleSelection(TournamentSquadMember member) {
     setState(() {
-      if (_starters.containsKey(member.playerProfileId)) {
-        _starters.remove(member.playerProfileId);
-        _positions.remove(member.playerProfileId);
+      if (_starters.containsKey(member.childProfileId)) {
+        _starters.remove(member.childProfileId);
+        _positions.remove(member.childProfileId);
       } else {
-        _starters[member.playerProfileId] = _startingCount < 11;
-        _positions[member.playerProfileId] = member.position ?? 'MF';
+        _starters[member.childProfileId] = _startingCount < 11;
+        _positions[member.childProfileId] = member.position ?? 'MF';
       }
     });
   }
 
-  void _toggleStarting(String playerProfileId) {
+  void _toggleStarting(String childProfileId) {
     setState(() {
-      if (_starters.containsKey(playerProfileId)) {
-        _starters[playerProfileId] = !(_starters[playerProfileId]!);
+      if (_starters.containsKey(childProfileId)) {
+        _starters[childProfileId] = !(_starters[childProfileId]!);
       }
     });
   }
@@ -68,7 +68,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     }
 
     final lineupPlayers = _starters.keys.map((pid) => LineupPlayer(
-      playerId: pid,
+      childProfileId: pid,
       isStarting: _starters[pid]!,
       position: _positions[pid],
     )).toList();
@@ -154,8 +154,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                   itemCount: provider.squad.length,
                   itemBuilder: (context, index) {
                     final member = provider.squad[index];
-                    final isSelected = _starters.containsKey(member.playerProfileId);
-                    final isStarting = isSelected && _starters[member.playerProfileId]!;
+                    final isSelected = _starters.containsKey(member.childProfileId);
+                    final isStarting = isSelected && _starters[member.childProfileId]!;
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -180,7 +180,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                           ),
                         ),
                         title: Text(
-                          member.playerProfileId.substring(0, 8).toUpperCase(),
+                          member.childProfileId.substring(0, 8).toUpperCase(),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Row(
@@ -213,7 +213,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                 )).toList(),
                                 onChanged: (val) {
                                   setState(() {
-                                    _positions[member.playerProfileId] = val!;
+                                    _positions[member.childProfileId] = val!;
                                   });
                                 },
                               ),
@@ -235,7 +235,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                   size: 20,
                                 ),
                                 onPressed: () =>
-                                    _toggleStarting(member.playerProfileId),
+                                    _toggleStarting(member.childProfileId),
                               ),
                             Checkbox(
                               value: isSelected,

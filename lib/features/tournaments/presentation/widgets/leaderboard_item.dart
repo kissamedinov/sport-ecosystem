@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/models/top_scorer.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class LeaderboardItem extends StatelessWidget {
   final TopScorer scorer;
@@ -13,65 +15,99 @@ class LeaderboardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: rank <= 3 ? 6 : 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: rank <= 3
-            ? BorderSide(color: _getMedalColor().withOpacity(0.5), width: 2)
-            : BorderSide.none,
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: _buildRankBadge(),
-        title: Text(
-          scorer.name,
-          style: TextStyle(
-            fontWeight: rank <= 3 ? FontWeight.bold : FontWeight.normal,
-            fontSize: 18,
-          ),
-        ),
-        subtitle: scorer.teamName != null
-            ? Text(scorer.teamName!)
-            : null,
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            "${scorer.goals} Goals",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-              fontSize: 16,
+    final bool isTop3 = rank <= 3;
+    final Color medalColor = _getMedalColor();
+
+    return PremiumCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          _buildRankBadge(medalColor),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  scorer.name.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: isTop3 ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 14,
+                    color: isTop3 ? Colors.white : Colors.white70,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                if (scorer.teamName != null)
+                  Text(
+                    scorer.teamName!,
+                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                  ),
+              ],
             ),
           ),
-        ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.1)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.sports_soccer, size: 12, color: PremiumTheme.neonGreen),
+                const SizedBox(width: 6),
+                Text(
+                  "${scorer.goals}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: PremiumTheme.neonGreen,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildRankBadge() {
+  Widget _buildRankBadge(Color medalColor) {
     if (rank <= 3) {
-      return Text(
-        rank == 1 ? "🥇" : (rank == 2 ? "🥈" : "🥉"),
-        style: const TextStyle(fontSize: 32),
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: medalColor.withValues(alpha: 0.15),
+          shape: BoxShape.circle,
+          border: Border.all(color: medalColor.withValues(alpha: 0.5), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: medalColor.withValues(alpha: 0.2),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            rank == 1 ? "🥇" : (rank == 2 ? "🥈" : "🥉"),
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
       );
     }
     return Container(
-      width: 40,
-      height: 40,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white.withValues(alpha: 0.05),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
-          "#$rank",
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          "$rank",
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white38, fontSize: 13),
         ),
       ),
     );
@@ -79,8 +115,8 @@ class LeaderboardItem extends StatelessWidget {
 
   Color _getMedalColor() {
     if (rank == 1) return Colors.amber;
-    if (rank == 2) return Colors.blueGrey[300]!;
-    if (rank == 3) return Colors.brown[300]!;
+    if (rank == 2) return const Color(0xFFC0C0C0); // Silver
+    if (rank == 3) return const Color(0xFFCD7F32); // Bronze
     return Colors.transparent;
   }
 }

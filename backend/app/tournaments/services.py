@@ -6,15 +6,17 @@ from datetime import date
 
 from app.tournaments.models import (
     Tournament, TournamentRegistration, RegistrationStatus, TournamentTeam, 
-    TournamentStandings, TournamentMatch, TournamentFormat, MatchStatus, 
-    TournamentSquad, TournamentMatchPlayerStats, TournamentSeries, TournamentDivision,
-    MatchSheet, MatchSheetPlayer, TournamentPlayerStats, TournamentAward, Season
+    TournamentStandings, TournamentFormat, 
+    TournamentSquad, TournamentSeries, TournamentDivision,
+    TournamentPlayerStats, TournamentAward, Season
 )
+from app.matches.models import Match, MatchStatus, MatchResult, MatchEvent, EventType, ResultStatus
 from app.tournaments.schemas import (
     TournamentCreate, TournamentSeriesCreate, TournamentDivisionCreate,
-    MatchSheetCreate, TournamentAwardCreate, TournamentSquadCreate
+    TournamentAwardCreate, TournamentSquadCreate
 )
-from app.users.models import User, Role, PlayerProfile
+from app.users.models import User, Role
+from app.clubs.models import ChildProfile
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
 
@@ -51,9 +53,6 @@ def create_tournament(db: Session, tournament_in: TournamentCreate, current_user
     return new_tournament
 
 def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
-    # Find all players and parents who match the age category
-    # This is a broad notification. For simplicity, we notify everyone with PLAYER_YOUTH or PARENT role.
-    # In a real app, we would filter by age and child's age.
     eligible_roles = [Role.PLAYER_YOUTH, Role.PARENT]
     users_to_notify = db.query(User).filter(User.roles.any(role=Role.PLAYER_YOUTH) | User.roles.any(role=Role.PARENT)).all()
     
@@ -61,7 +60,7 @@ def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
         notification_service.create_notification(
             db,
             user.id,
-            notification_type=NotificationType.TOURNAMENT_START, # Assuming this is available or use another
+            notification_type=NotificationType.TOURNAMENT_START,
             title="New Tournament Open!",
             message=f"Tournament {tournament.name} is now open for registration until {tournament.registration_close}.",
             entity_type=EntityType.TOURNAMENT,
@@ -93,7 +92,6 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     
     tournament = division.edition
     
-    # Requirement: Only COACH or TEAM_OWNER can register teams.
     from app.teams.models import Team, Academy
     team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
@@ -106,19 +104,16 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     if not (is_coach or is_owner):
         raise HTTPException(status_code=403, detail="Operation not permitted. Only the team's coach or owner can register it.")
     
-    # Check registration dates
     today = date.today()
     if today < tournament.registration_open or today > tournament.registration_close:
         raise HTTPException(status_code=400, detail="Registration is closed or not yet open")
     
-    # Age Category validation (Birth Year check)
     if team.birth_year and team.birth_year != division.birth_year:
          raise HTTPException(
             status_code=400, 
             detail=f"Team birth year ({team.birth_year}) does not match division requirement ({division.birth_year})"
         )
     
-    # Check if already registered in this division
     existing = db.query(TournamentTeam).filter(
         TournamentTeam.division_id == division_id,
         TournamentTeam.team_id == team_id
@@ -155,21 +150,19 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
     db.commit()
     db.refresh(team_reg)
     
-    # Requirement: Notify Coach when team is accepted (APPROVED)
     if status == RegistrationStatus.APPROVED:
         from app.teams.models import Team
         team = db.query(Team).filter(Team.id == team_id).first()
         notification_service.create_notification(
             db,
             team.coach_id,
-            notification_type=NotificationType.BOOKING_APPROVED, # Using existing type or TOURNAMENT_START
+            notification_type=NotificationType.BOOKING_APPROVED,
             title="Team Accepted!",
-            message=f"Your team {team.name} has been approved for {tournament.name}.",
+            message=f"Your team {team.name} has been approved for the tournament.",
             entity_type=EntityType.TOURNAMENT,
             entity_id=tournament_id
         )
     
-    # If approved, initialize standings for this team if not exists
     if status == RegistrationStatus.APPROVED:
         existing_standing = db.query(TournamentStandings).filter(
             TournamentStandings.tournament_id == tournament_id,
@@ -178,7 +171,8 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
         if not existing_standing:
             new_standing = TournamentStandings(
                 tournament_id=tournament_id,
-                team_id=team_id
+                team_id=team_id,
+                division_id=team_reg.division_id
             )
             db.add(new_standing)
             db.commit()
@@ -196,14 +190,12 @@ def approve_registration(db: Session, tournament_id: UUID, registration_id: UUID
     reg.status = RegistrationStatus.APPROVED
     db.commit()
     
-    # Notify Team (simplified: notifying the coach of the team)
-    # We need to fetch team to get coach_id
     from app.teams.models import Team
     team = db.query(Team).filter(Team.id == reg.team_id).first()
     notification_service.create_notification(
         db,
         team.coach_id,
-        notification_type=NotificationType.BOOKING_APPROVED, # Re-using approved status or better TOURNAMENT_START if we had it
+        notification_type=NotificationType.BOOKING_APPROVED,
         title="Tournament Registration Approved",
         message=f"Your team {team.name} has been approved for the tournament!",
         entity_type=EntityType.TOURNAMENT,
@@ -239,13 +231,13 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     if len(approved_teams) < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed to generate schedule")
     
-    # Simple Round Robin (Every team plays every other team once)
     teams = [t.team_id for t in approved_teams]
     match_count = 0
     for i in range(len(teams)):
         for j in range(i + 1, len(teams)):
-            new_match = TournamentMatch(
+            new_match = Match(
                 tournament_id=tournament_id,
+                division_id=approved_teams[0].division_id, # Simplified for demo
                 home_team_id=teams[i],
                 away_team_id=teams[j],
                 status=MatchStatus.SCHEDULED
@@ -255,23 +247,34 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     
     db.commit()
     
-    # Notify involved parties
     from app.notifications.match_notifications import notify_match_scheduled
-    # We need to refresh or fetch the matches to get their IDs if they were just added
-    # For simplicity, we'll re-query
-    matches = db.query(TournamentMatch).filter(TournamentMatch.tournament_id == tournament_id).all()
+    matches = db.query(Match).filter(Match.tournament_id == tournament_id).all()
     for m in matches:
         notify_match_scheduled(db, m.id)
 
     return {"matches_generated": match_count}
 
 def update_match_result(db: Session, match_id: UUID, home_score: int, away_score: int):
-    match = db.query(TournamentMatch).filter(TournamentMatch.id == match_id).first()
+    match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
     
-    match.home_score = home_score
-    match.away_score = away_score
+    # Update or create MatchResult
+    result = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
+    if not result:
+        result = MatchResult(
+            match_id=match_id,
+            home_score=home_score,
+            away_score=away_score,
+            status=ResultStatus.FINAL,
+            submitted_by=match.tournament.created_by # Organizer
+        )
+        db.add(result)
+    else:
+        result.home_score = home_score
+        result.away_score = away_score
+        result.status = ResultStatus.FINAL
+        
     match.status = MatchStatus.FINISHED
     db.commit()
     
@@ -292,17 +295,17 @@ def update_team_standing(db: Session, tournament_id: UUID, team_id: UUID):
         standing = TournamentStandings(tournament_id=tournament_id, team_id=team_id)
         db.add(standing)
     
-    # Calculate stats from finished matches
-    home_matches = db.query(TournamentMatch).filter(
-        TournamentMatch.tournament_id == tournament_id,
-        TournamentMatch.home_team_id == team_id,
-        TournamentMatch.status == MatchStatus.FINISHED
+    # Calculate stats from finished matches with results
+    home_matches = db.query(Match).join(MatchResult).filter(
+        Match.tournament_id == tournament_id,
+        Match.home_team_id == team_id,
+        Match.status == MatchStatus.FINISHED
     ).all()
     
-    away_matches = db.query(TournamentMatch).filter(
-        TournamentMatch.tournament_id == tournament_id,
-        TournamentMatch.away_team_id == team_id,
-        TournamentMatch.status == MatchStatus.FINISHED
+    away_matches = db.query(Match).join(MatchResult).filter(
+        Match.tournament_id == tournament_id,
+        Match.away_team_id == team_id,
+        Match.status == MatchStatus.FINISHED
     ).all()
     
     played = 0
@@ -314,18 +317,18 @@ def update_team_standing(db: Session, tournament_id: UUID, team_id: UUID):
     
     for m in home_matches:
         played += 1
-        gf += m.home_score
-        ga += m.away_score
-        if m.home_score > m.away_score: wins += 1
-        elif m.home_score == m.away_score: draws += 1
+        gf += m.result.home_score
+        ga += m.result.away_score
+        if m.result.home_score > m.result.away_score: wins += 1
+        elif m.result.home_score == m.result.away_score: draws += 1
         else: losses += 1
         
     for m in away_matches:
         played += 1
-        gf += m.away_score
-        ga += m.home_score
-        if m.away_score > m.home_score: wins += 1
-        elif m.away_score == m.home_score: draws += 1
+        gf += m.result.away_score
+        ga += m.result.home_score
+        if m.result.away_score > m.result.home_score: wins += 1
+        elif m.result.away_score == m.result.home_score: draws += 1
         else: losses += 1
         
     standing.played = played
@@ -349,73 +352,91 @@ def get_tournament_standings(db: Session, tournament_id: UUID):
     ).all()
 
 def get_tournament_matches(db: Session, tournament_id: UUID):
-    return db.query(TournamentMatch).filter(TournamentMatch.tournament_id == tournament_id).order_by(TournamentMatch.start_time).all()
+    return db.query(Match).filter(Match.tournament_id == tournament_id).order_by(Match.match_date).all()
 
 def add_player_to_tournament_squad(db: Session, tournament_team_id: UUID, player_id: UUID):
-    # Check for profile
-    profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == player_id).first()
+    profile = db.query(ChildProfile).filter(ChildProfile.linked_user_id == player_id).first()
     if not profile:
-        profile = PlayerProfile(user_id=player_id)
-        db.add(profile)
-        db.flush()
+        raise HTTPException(status_code=404, detail="Child profile not found for this player")
 
     new_squad_member = TournamentSquad(
         tournament_team_id=tournament_team_id,
-        player_profile_id=profile.id
+        child_profile_id=profile.id
     )
     db.add(new_squad_member)
     db.commit()
     return new_squad_member
 
 def record_match_player_stats(db: Session, match_id: UUID, player_profile_id: UUID, stats: dict):
-    # Requirement: Enable player statistics tracking per match
-    db_stats = db.query(TournamentMatchPlayerStats).filter(
-        TournamentMatchPlayerStats.match_id == match_id,
-        TournamentMatchPlayerStats.player_profile_id == player_profile_id
-    ).first()
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+        
+    # In Tournament 2.0, we use MatchEvent for discrete actions
+    # We clear previous events for this match/player to avoid duplicates if re-reporting
+    db.query(MatchEvent).filter(
+        MatchEvent.match_id == match_id,
+        MatchEvent.child_profile_id == player_profile_id
+    ).delete()
     
-    is_new = False
-    if not db_stats:
-        db_stats = TournamentMatchPlayerStats(
+    events_to_add = []
+    
+    # Goals
+    for _ in range(stats.get("goals", 0)):
+        events_to_add.append(MatchEvent(
             match_id=match_id,
-            player_profile_id=player_profile_id
-        )
-        db.add(db_stats)
-        is_new = True
-    
-    # Store old values for diff update
-    old_goals = db_stats.goals if not is_new else 0
-    old_assists = db_stats.assists if not is_new else 0
-    old_yellow = db_stats.yellow_cards if not is_new else 0
-    old_red = db_stats.red_cards if not is_new else 0
-    
-    db_stats.goals = stats.get("goals", 0)
-    db_stats.assists = stats.get("assists", 0)
-    db_stats.yellow_cards = stats.get("yellow_cards", 0)
-    db_stats.red_cards = stats.get("red_cards", 0)
-    db_stats.is_goalkeeper = stats.get("is_goalkeeper", False)
-    
+            child_profile_id=player_profile_id,
+            event_type=EventType.GOAL,
+            minute=0 # Simplified
+        ))
+        
+    # Assists
+    for _ in range(stats.get("assists", 0)):
+        events_to_add.append(MatchEvent(
+            match_id=match_id,
+            child_profile_id=player_profile_id,
+            event_type=EventType.ASSIST,
+            minute=0
+        ))
+        
+    # Cards
+    for _ in range(stats.get("yellow_cards", 0)):
+        events_to_add.append(MatchEvent(
+            match_id=match_id,
+            child_profile_id=player_profile_id,
+            event_type=EventType.YELLOW_CARD,
+            minute=0
+        ))
+        
+    if stats.get("red_cards", 0) > 0:
+        events_to_add.append(MatchEvent(
+            match_id=match_id,
+            child_profile_id=player_profile_id,
+            event_type=EventType.RED_CARD,
+            minute=0
+        ))
+        
+    db.add_all(events_to_add)
     db.commit()
-    db.refresh(db_stats)
     
     # Update Division Aggregated Stats
     update_tournament_player_stats(
         db, 
-        db_stats.match.division_id, 
+        match.division_id, 
         player_profile_id, 
-        goals_diff=db_stats.goals - old_goals,
-        assists_diff=db_stats.assists - old_assists,
-        matches_diff=1 if is_new else 0,
-        yellow_diff=db_stats.yellow_cards - old_yellow,
-        red_diff=db_stats.red_cards - old_red
+        goals_diff=stats.get("goals", 0),
+        assists_diff=stats.get("assists", 0),
+        matches_diff=1,
+        yellow_diff=stats.get("yellow_cards", 0),
+        red_diff=stats.get("red_cards", 0)
     )
     
-    return db_stats
+    return {"status": "success", "events_recorded": len(events_to_add)}
 
 def update_tournament_player_stats(
     db: Session, 
     division_id: UUID, 
-    player_profile_id: UUID, 
+    child_profile_id: UUID, 
     goals_diff: int = 0,
     assists_diff: int = 0,
     matches_diff: int = 0,
@@ -427,13 +448,13 @@ def update_tournament_player_stats(
     
     agg_stats = db.query(TournamentPlayerStats).filter(
         TournamentPlayerStats.division_id == division_id,
-        TournamentPlayerStats.player_profile_id == player_profile_id
+        TournamentPlayerStats.child_profile_id == child_profile_id
     ).first()
     
     if not agg_stats:
         agg_stats = TournamentPlayerStats(
             division_id=division_id,
-            player_profile_id=player_profile_id
+            child_profile_id=child_profile_id
         )
         db.add(agg_stats)
     
@@ -446,95 +467,30 @@ def update_tournament_player_stats(
     
     db.commit()
 
-def submit_match_sheet(db: Session, sheet_in: MatchSheetCreate, current_user: User):
-    match = db.query(TournamentMatch).filter(TournamentMatch.id == sheet_in.match_id).first()
-    if not match:
-        raise HTTPException(status_code=404, detail="Match not found")
-        
-    # Validation: Only team coach can submit
-    from app.teams.models import Team
-    team = db.query(Team).filter(Team.id == sheet_in.team_id).first()
-    if team.coach_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Only the team's coach can submit the match sheet")
-        
-    new_sheet = MatchSheet(
-        match_id=sheet_in.match_id,
-        team_id=sheet_in.team_id,
-        submitted_by=current_user.id
-    )
-    db.add(new_sheet)
-    db.flush()
-    
-    for p in sheet_in.players:
-        sheet_player = MatchSheetPlayer(
-            match_sheet_id=new_sheet.id,
-            player_profile_id=p.player_profile_id,
-            jersey_number=p.jersey_number,
-            is_starting=p.is_starting
-        )
-        db.add(sheet_player)
-        
-    db.commit()
-    db.refresh(new_sheet)
-    return new_sheet
-
 def assign_tournament_award(db: Session, award_in: TournamentAwardCreate):
     new_award = TournamentAward(**award_in.model_dump())
     db.add(new_award)
     db.commit()
     db.refresh(new_award)
-    
-    # Requirement: Trigger notification for awards
-    # Notify Player
-    from app.users.models import User, ParentChildRelation
-    player_user = db.query(User).filter(User.id == new_award.player_profile.user_id).first()
-    if player_user:
-        notification_service.create_notification(
-            db,
-            player_user.id,
-            notification_type=NotificationType.BOOKING_APPROVED, # Or a generic ACHIEVEMENT type
-            title="New Award!",
-            message=f"Congratulations! You've been awarded: {new_award.title}",
-            entity_type=EntityType.PLAYER,
-            entity_id=new_award.player_profile_id
-        )
-        
-        # Notify Parent
-        parent_relations = db.query(ParentChildRelation).filter(ParentChildRelation.child_id == player_user.id).all()
-        for rel in parent_relations:
-            notification_service.create_notification(
-                db,
-                rel.parent_id,
-                notification_type=NotificationType.BOOKING_APPROVED,
-                title="Child Achievement!",
-                message=f"Your child {player_user.name} has received an award: {new_award.title}",
-                entity_type=EntityType.PLAYER,
-                entity_id=new_award.player_profile_id
-            )
-            
     return new_award
 
-def get_player_awards(db: Session, player_profile_id: UUID):
-    return db.query(TournamentAward).filter(TournamentAward.player_profile_id == player_profile_id).all()
+def get_player_awards(db: Session, child_profile_id: UUID):
+    return db.query(TournamentAward).filter(TournamentAward.child_profile_id == child_profile_id).all()
 
-def get_match_player_stats(db: Session, match_id: UUID):
-    return db.query(TournamentMatchPlayerStats).filter(TournamentMatchPlayerStats.match_id == match_id).all()
 def add_to_tournament_squad(db: Session, tt_id: UUID, squad_in: TournamentSquadCreate, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()
     if not tt:
         raise HTTPException(status_code=404, detail="Tournament team registration not found")
         
-    # Check if user is the coach of the team
     from app.teams.models import Team
     team = db.query(Team).filter(Team.id == tt.team_id).first()
     if team.coach_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only the coach can manage the tournament squad")
         
     for p in squad_in.players:
-        # Check if already in squad
         existing = db.query(TournamentSquad).filter(
             TournamentSquad.tournament_team_id == tt_id,
-            TournamentSquad.player_profile_id == p.player_profile_id
+            TournamentSquad.child_profile_id == p.child_profile_id
         ).first()
         
         if existing:
@@ -543,7 +499,7 @@ def add_to_tournament_squad(db: Session, tt_id: UUID, squad_in: TournamentSquadC
         else:
             new_member = TournamentSquad(
                 tournament_team_id=tt_id,
-                player_profile_id=p.player_profile_id,
+                child_profile_id=p.child_profile_id,
                 jersey_number=p.jersey_number,
                 position=p.position
             )
@@ -557,7 +513,6 @@ def get_tournament_squad(db: Session, tt_id: UUID):
 
 def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()
-    # auth check same as above
     from app.teams.models import Team
     team = db.query(Team).filter(Team.id == tt.team_id).first()
     if team.coach_id != current_user.id:
@@ -565,7 +520,7 @@ def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, cur
         
     db.query(TournamentSquad).filter(
         TournamentSquad.tournament_team_id == tt_id,
-        TournamentSquad.player_profile_id == profile_id
+        TournamentSquad.child_profile_id == profile_id
     ).delete()
     db.commit()
     return {"message": "Player removed from squad"}

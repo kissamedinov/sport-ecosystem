@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 from typing import List, Optional
 from datetime import date, datetime
 from uuid import UUID
-from app.tournaments.models import TournamentFormat, AgeCategory, RegistrationStatus, SurfaceType, Season, MatchStatus as TournamentMatchStatus
+from app.tournaments.models import TournamentFormat, AgeCategory, RegistrationStatus, SurfaceType, Season
+from app.matches.models import MatchStatus as TournamentMatchStatus
 from app.teams.schemas import TeamResponse
 
 class TournamentBase(BaseModel):
@@ -103,16 +104,35 @@ class ScheduleTaskResponse(BaseModel):
 
 class TournamentMatchResponse(BaseModel):
     id: UUID
-    tournament_id: UUID
+    tournament_id: Optional[UUID] = None
+    division_id: Optional[UUID] = None
     home_team_id: UUID
     away_team_id: UUID
-    field_number: Optional[int] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    field_id: Optional[UUID] = None
+    match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
-    home_score: int = 0
-    away_score: int = 0
     group_id: Optional[UUID] = None
+    
+    # We'll use this to fetch scores from the nested result object
+    result: Optional[dict] = None 
+
+    @computed_field
+    @property
+    def home_score(self) -> int:
+        if self.result and isinstance(self.result, dict):
+            return self.result.get('home_score', 0)
+        if hasattr(self.result, 'home_score'):
+            return self.result.home_score
+        return 0
+
+    @computed_field
+    @property
+    def away_score(self) -> int:
+        if self.result and isinstance(self.result, dict):
+            return self.result.get('away_score', 0)
+        if hasattr(self.result, 'away_score'):
+            return self.result.away_score
+        return 0
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -156,7 +176,7 @@ class TournamentDivisionResponse(TournamentDivisionBase):
     model_config = ConfigDict(from_attributes=True)
 
 class MatchSheetPlayerBase(BaseModel):
-    player_profile_id: UUID
+    child_profile_id: UUID
     jersey_number: Optional[int] = None
     is_starting: bool = True
 
@@ -174,14 +194,14 @@ class MatchPlayerStatsCreate(BaseModel):
 
 class TournamentAwardCreate(BaseModel):
     division_id: UUID
-    player_profile_id: UUID
+    child_profile_id: UUID
     title: str
     description: Optional[str] = None
 
 class TournamentAwardResponse(BaseModel):
     id: UUID
     division_id: UUID
-    player_profile_id: UUID
+    child_profile_id: UUID
     title: str
     description: Optional[str] = None
     created_at: datetime
@@ -190,7 +210,7 @@ class TournamentAwardResponse(BaseModel):
 
 class TournamentPlayerStatsResponse(BaseModel):
     division_id: UUID
-    player_profile_id: UUID
+    child_profile_id: UUID
     goals: int
     assists: int
     matches_played: int
@@ -201,7 +221,7 @@ class TournamentPlayerStatsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class TournamentSquadMemberBase(BaseModel):
-    player_profile_id: UUID
+    child_profile_id: UUID
     jersey_number: Optional[int] = None
     position: Optional[str] = None
 

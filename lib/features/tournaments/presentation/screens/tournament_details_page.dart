@@ -11,6 +11,8 @@ import 'match_lineup_screen.dart';
 import 'match_report_screen.dart';
 import 'tournament_squad_screen.dart';
 import 'tournament_leaderboard_screen.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class TournamentDetailsPage extends StatefulWidget {
   final String tournamentId;
@@ -26,8 +28,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   bool get _isOrganizer {
     final user = context.read<AuthProvider>().user;
-    return user?.roles?.contains('tournament_organizer') == true ||
-        user?.roles?.contains('admin') == true;
+    return user?.roles?.contains('TOURNAMENT_ORGANIZER') == true ||
+        user?.roles?.contains('ADMIN') == true;
   }
 
   @override
@@ -52,31 +54,37 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PremiumTheme.deepNavy,
       appBar: AppBar(
-        title: const Text('TOURNAMENT'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('TOURNAMENT', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: PremiumTheme.neonGreen,
+          labelColor: PremiumTheme.neonGreen,
+          unselectedLabelColor: Colors.white38,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
           tabs: const [
             Tab(text: 'INFO'),
             Tab(text: 'MATCHES'),
             Tab(text: 'STANDINGS'),
           ],
-          indicatorColor: Colors.orangeAccent,
         ),
       ),
       body: Consumer<TournamentProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading && provider.selectedTournament == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
           }
 
           if (provider.error != null && provider.selectedTournament == null) {
-            return Center(child: Text('Error: ${provider.error}'));
+            return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)));
           }
 
           final tournament = provider.selectedTournament;
           if (tournament == null) {
-            return const Center(child: Text('Tournament not found'));
+            return const Center(child: Text('Tournament not found', style: TextStyle(color: Colors.white38)));
           }
 
           return TabBarView(
@@ -94,30 +102,89 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildInfoTab(Tournament tournament, TournamentProvider provider) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(tournament),
+          _buildPremiumHeader(tournament),
           const SizedBox(height: 24),
           if (provider.divisions.isNotEmpty) ...[
-            const Text('Age Divisions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            _buildSectionTitle('AGE DIVISIONS', Icons.groups),
             const SizedBox(height: 12),
             ...provider.divisions.map((d) => _buildDivisionCard(d, provider)),
             const SizedBox(height: 24),
           ],
-          _buildInfoSection(tournament),
-          const SizedBox(height: 24),
-          _buildScheduleSettings(tournament),
+          _buildSectionTitle('CONFIGURATION', Icons.settings),
+          _buildInfoGrid(tournament),
         ],
       ),
     );
   }
+
+  Widget _buildPremiumHeader(Tournament t) {
+    return PremiumCard(
+      child: Row(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+            ),
+            child: const Icon(Icons.emoji_events, size: 40, color: PremiumTheme.neonGreen),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.name.toUpperCase(),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 14, color: Colors.white54),
+                    const SizedBox(width: 4),
+                    Text(t.location, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 14, color: Colors.white54),
+                    const SizedBox(width: 4),
+                    Text('${t.startDate} - ${t.endDate}',
+                        style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: PremiumTheme.neonGreen),
+          const SizedBox(width: 8),
+          Text(title, style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDivisionCard(Map<String, dynamic> division, TournamentProvider provider) {
     final birthYear = division['birth_year'];
     final name = division['name'];
-    
-    // Check if any of user's teams are in this division
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
     
     TournamentTeamResponse? myRegisteredTeam;
@@ -126,265 +193,168 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         (rt) => rt.id == division['id'] && myTeamIds.contains(rt.teamId)
       );
     } catch (_) {
-      // Not found in this specific division, check by team ID in general for this tournament
       try {
-        myRegisteredTeam = provider.registeredTeams.firstWhere(
-          (rt) => myTeamIds.contains(rt.teamId)
-        );
+        myRegisteredTeam = provider.registeredTeams.firstWhere((rt) => myTeamIds.contains(rt.teamId));
       } catch (_) {}
     }
 
     final registeredTeam = myRegisteredTeam;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('Birth Year Requirement: $birthYear'),
-        trailing: registeredTeam != null
-          ? ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TournamentSquadScreen(
-                      tournamentTeamId: registeredTeam.id,
-                      teamId: registeredTeam.teamId,
+    return PremiumCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                Text('Requirement: Born $birthYear', style: const TextStyle(fontSize: 12, color: Colors.white38)),
+              ],
+            ),
+          ),
+          if (registeredTeam != null)
+            SizedBox(
+              height: 36,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TournamentSquadScreen(
+                        tournamentTeamId: registeredTeam.id,
+                        teamId: registeredTeam.teamId,
+                      ),
                     ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('MANAGE SQUAD'),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                  foregroundColor: PremiumTheme.neonGreen,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('MANAGE SQUAD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
             )
-          : ElevatedButton(
-              onPressed: () => _showRegisterTeamDialog(context, division['id'], birthYear),
-              child: const Text('REGISTER'),
-            ),
-      ),
-    );
-  }
-
-  void _showRegisterTeamDialog(BuildContext context, String divisionId, int requiredBirthYear) {
-    final teamProvider = context.read<TeamProvider>();
-    final tournamentProvider = context.read<TournamentProvider>();
-
-    teamProvider.fetchMyTeams();
-
-    showDialog(
-      context: context,
-      builder: (context) => Consumer<TeamProvider>(
-        builder: (context, tp, _) {
-          return AlertDialog(
-            title: const Text('Register for Division'),
-            content: tp.isLoading 
-              ? const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()))
-              : tp.myTeams.isEmpty
-                ? const Text('No teams found.')
-                : SizedBox(
-                    width: double.maxFinite,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: tp.myTeams.length,
-                      itemBuilder: (context, index) {
-                        final team = tp.myTeams[index];
-                        final isEligible = team.birthYear == requiredBirthYear;
-                        
-                        return ListTile(
-                          title: Text(team.name),
-                          subtitle: Text('Team Birth Year: ${team.birthYear ?? 'Unknown'}'),
-                          trailing: isEligible 
-                            ? const Icon(Icons.check_circle, color: Colors.green)
-                            : const Icon(Icons.error_outline, color: Colors.red),
-                          enabled: isEligible,
-                          onTap: () async {
-                            final success = await tournamentProvider.registerTeamToDivision(
-                              divisionId, 
-                              team.id, 
-                              '{"source": "mobile_app"}'
-                            );
-                            
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(success 
-                                    ? 'Registration submitted!' 
-                                    : 'Failed: ${tournamentProvider.error}'),
-                                  backgroundColor: success ? Colors.green : Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHeader(Tournament t) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.emoji_events, size: 48, color: Colors.orange),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.name,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(t.location, style: const TextStyle(color: Colors.grey)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text('${t.startDate} - ${t.endDate}',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                    ],
-                  ),
-                ],
+          else
+            SizedBox(
+              height: 36,
+              child: ElevatedButton(
+                onPressed: () => _showRegisterTeamDialog(context, division['id'], birthYear),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PremiumTheme.neonGreen,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('REGISTER', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoSection(Tournament t) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Tournament Info',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Column(
-            children: [
-              _buildInfoTile(Icons.format_list_bulleted, 'Format', t.format),
-              _buildInfoTile(Icons.terrain, 'Surface', t.surfaceType ?? 'Grass'),
-              _buildInfoTile(Icons.groups, 'Age Category', t.ageCategory),
-            ],
-          ),
-        ),
-      ],
+  Widget _buildInfoGrid(Tournament t) {
+    return PremiumCard(
+      child: Column(
+        children: [
+          _buildInfoRow(Icons.format_list_bulleted, 'Format', t.format),
+          const Divider(color: Colors.white10),
+          _buildInfoRow(Icons.terrain, 'Surface', t.surfaceType ?? 'Natural Grass'),
+          const Divider(color: Colors.white10),
+          _buildInfoRow(Icons.timer, 'Match Time', '${t.matchHalfDuration}m halves'),
+          const Divider(color: Colors.white10),
+          _buildInfoRow(Icons.coffee, 'Break', '${t.breakBetweenMatches}m rest'),
+        ],
+      ),
     );
   }
 
-  Widget _buildScheduleSettings(Tournament t) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Schedule Settings',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Column(
-            children: [
-              _buildInfoTile(Icons.timer, 'Match Duration', '${t.matchHalfDuration}m per half'),
-              _buildInfoTile(Icons.coffee, 'Break Duration', '${t.breakBetweenMatches}m between matches'),
-              _buildInfoTile(Icons.sports_soccer, 'Fields Available', '${t.numFields}'),
-            ],
-          ),
-        ),
-      ],
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: PremiumTheme.neonGreen),
+          const SizedBox(width: 12),
+          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          const Spacer(),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
+      ),
     );
   }
 
   Widget _buildMatchesTab(List<TournamentMatch> matches, TournamentProvider provider) {
     if (matches.isEmpty) {
-      return const Center(child: Text('No matches scheduled yet'));
+      return const Center(child: Text('No matches scheduled yet', style: TextStyle(color: Colors.white38)));
     }
 
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       itemCount: matches.length,
       itemBuilder: (context, index) {
         final match = matches[index];
-
-        // Find if a coach's registered team plays in this match
         TournamentTeamResponse? myTournamentTeam;
         try {
           myTournamentTeam = provider.registeredTeams.firstWhere(
-            (rt) =>
-                myTeamIds.contains(rt.teamId) &&
-                (rt.teamId == match.homeTeamId || rt.teamId == match.awayTeamId),
+            (rt) => myTeamIds.contains(rt.teamId) && (rt.teamId == match.homeTeamId || rt.teamId == match.awayTeamId),
           );
         } catch (_) {}
 
-        final memberTeam = myTournamentTeam;
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+        return _buildMatchItem(match, myTournamentTeam);
+      },
+    );
+  }
+
+  Widget _buildMatchItem(TournamentMatch match, TournamentTeamResponse? memberTeam) {
+    return PremiumCard(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                match.matchDate != null ? match.matchDate.toString().substring(0, 16) : 'TBD',
+                style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              if (match.status == 'finished')
+                const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Text('HOME TEAM', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${match.homeScore} - ${match.awayScore}',
+                  style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Text('AWAY TEAM', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          if (memberTeam != null || _isOrganizer) ...[
+            const SizedBox(height: 16),
+            const Divider(color: Colors.white10),
+            const SizedBox(height: 8),
+            Row(
               children: [
-                Text(
-                  match.startTime != null
-                      ? match.startTime.toString().substring(0, 16)
-                      : 'TBD',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Expanded(
-                      child: Text('Home Team',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold))),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(4)),
-                      child: Text('${match.homeScore} - ${match.awayScore}',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    Expanded(
-                      child: Text('Away Team',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold))),
-                  ],
-                ),
-                        if (memberTeam != null) ...[
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
+                if (memberTeam != null) ...[
+                  Expanded(
+                    child: OutlinedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -393,22 +363,21 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               matchId: match.id,
                               tournamentTeamId: memberTeam.id,
                               teamId: memberTeam.teamId,
-                              isHomeTeam:
-                                  memberTeam.teamId == match.homeTeamId,
+                              isHomeTeam: memberTeam.teamId == match.homeTeamId,
                             ),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.sports_soccer, size: 16),
-                      label: const Text('SET LINEUP'),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.orangeAccent),
+                        side: const BorderSide(color: Colors.white10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('LINEUP', style: TextStyle(color: Colors.white, fontSize: 11)),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -418,23 +387,23 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               tournamentId: widget.tournamentId,
                               myTournamentTeamId: memberTeam.id,
                               myTeamId: memberTeam.teamId,
-                              isHomeTeam:
-                                  memberTeam.teamId == match.homeTeamId,
+                              isHomeTeam: memberTeam.teamId == match.homeTeamId,
                             ),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.bar_chart, size: 16),
-                      label: const Text('PLAYER STATS'),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.lightBlueAccent),
+                        side: const BorderSide(color: Colors.white10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('STATS', style: TextStyle(color: Colors.white, fontSize: 11)),
                     ),
                   ),
-                ] else if (_isOrganizer) ...[
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
+                ],
+                if (_isOrganizer && memberTeam == null)
+                  Expanded(
+                    child: PremiumButton(
+                      text: 'REPORT SCORE',
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -446,81 +415,115 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                           ),
                         );
                       },
-                      icon: const Icon(Icons.scoreboard, size: 16),
-                      label: const Text('REPORT SCORE'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.black,
-                      ),
                     ),
                   ),
-                ],
               ],
             ),
-          ),
-        );
-      },
+          ],
+        ],
+      ),
     );
   }
 
   Widget _buildStandingsTab(List<TournamentStanding> standings) {
     if (standings.isEmpty) {
-      return const Center(child: Text('No standings data available'));
+      return const Center(child: Text('No standings data available', style: TextStyle(color: Colors.white38)));
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TournamentLeaderboardScreen(tournamentId: widget.tournamentId),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.leaderboard),
-              label: const Text('VIEW ALL-TIME TOP SCORERS'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[800],
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          PremiumButton(
+            text: 'VIEW TOP SCORERS',
+            icon: Icons.leaderboard,
+            color: PremiumTheme.electricBlue,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TournamentLeaderboardScreen(tournamentId: widget.tournamentId),
+                ),
+              );
+            },
           ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          const SizedBox(height: 24),
+          _buildSectionTitle('LEADERBOARD', Icons.table_chart),
+          PremiumCard(
+            padding: EdgeInsets.zero,
             child: DataTable(
+              columnSpacing: 20,
+              horizontalMargin: 16,
+              headingRowHeight: 40,
               columns: const [
-                DataColumn(label: Text('Team')),
-                DataColumn(label: Text('MP')),
-                DataColumn(label: Text('PTS')),
+                DataColumn(label: Text('TEAM', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('MP', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('PTS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
               ],
               rows: standings.map((s) => DataRow(
                 cells: [
-                  DataCell(Text(s.teamName ?? 'Team ${s.teamId.substring(0, 4)}')),
-                  DataCell(Text(s.played.toString())),
-                  DataCell(Text(s.points.toString(), style: const TextStyle(fontWeight: FontWeight.bold))),
+                  DataCell(Text(s.teamName ?? 'Team', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
+                  DataCell(Text(s.played.toString(), style: const TextStyle(color: Colors.white70, fontSize: 12))),
+                  DataCell(Text(s.points.toString(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 14))),
                 ],
               )).toList(),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildInfoTile(IconData icon, String label, String value) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.orangeAccent, size: 20),
-      title: Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-      trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+  void _showRegisterTeamDialog(BuildContext context, String divisionId, int requiredBirthYear) {
+    final teamProvider = context.read<TeamProvider>();
+    teamProvider.fetchMyTeams();
+
+    showDialog(
+      context: context,
+      builder: (context) => Consumer<TeamProvider>(
+        builder: (context, tp, _) {
+          return AlertDialog(
+            backgroundColor: PremiumTheme.cardNavy,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: const Text('REGISTER TEAM', style: TextStyle(color: Colors.white, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
+            content: tp.isLoading 
+              ? const SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
+              : tp.myTeams.isEmpty
+                ? const Text('No teams found.', style: TextStyle(color: Colors.white38))
+                : SizedBox(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: tp.myTeams.length,
+                      itemBuilder: (context, index) {
+                        final team = tp.myTeams[index];
+                        final isEligible = team.birthYear == requiredBirthYear;
+                        return ListTile(
+                          title: Text(team.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          subtitle: Text('Birth Year: ${team.birthYear ?? '?'}', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                          trailing: isEligible 
+                            ? const Icon(Icons.check_circle, color: PremiumTheme.neonGreen)
+                            : const Icon(Icons.error_outline, color: PremiumTheme.danger),
+                          onTap: isEligible ? () async {
+                            final success = await context.read<TournamentProvider>().registerTeamToDivision(divisionId, team.id, '{"source": "mobile_app"}');
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(success ? 'Registration submitted!' : 'Error'),
+                                backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
+                              ));
+                            }
+                          } : null,
+                        );
+                      },
+                    ),
+                  ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
+            ],
+          );
+        },
+      ),
     );
   }
 }

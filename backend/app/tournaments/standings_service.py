@@ -4,43 +4,53 @@ from typing import List, Optional, Dict
 from app.tournaments.models import Tournament, TournamentStandings, TournamentGroup
 from app.matches.models import Match, MatchResult
 
-def update_standings(db: Session, tournament_id: UUID, team_id: UUID):
+def update_standings(db: Session, tournament_id: UUID, team_id: UUID, division_id: Optional[UUID] = None):
     """
-    Recalculates standings for a specific team in a tournament.
+    Recalculates standings for a specific team in a tournament/division.
     """
     tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()
     if not tournament:
         return
 
-    # Get team's group if applicable
-    match_with_group = db.query(Match).filter(
+    # Get team's group and division if not provided
+    match_info = db.query(Match).filter(
         Match.tournament_id == tournament_id,
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id))
     ).first()
-    group_id = match_with_group.group_id if match_with_group else None
+    
+    group_id = match_info.group_id if match_info else None
+    if not division_id and match_info:
+        division_id = match_info.division_id
 
     # Get or create standing entry
     standing = db.query(TournamentStandings).filter(
         TournamentStandings.tournament_id == tournament_id,
-        TournamentStandings.team_id == team_id
+        TournamentStandings.team_id == team_id,
+        TournamentStandings.division_id == division_id
     ).first()
     
     if not standing:
         standing = TournamentStandings(
             tournament_id=tournament_id, 
+            division_id=division_id,
             team_id=team_id,
             group_id=group_id
         )
         db.add(standing)
     else:
         standing.group_id = group_id
+        standing.division_id = division_id
         
     # Recalculate everything from finalized matches
-    all_team_matches = db.query(Match).join(MatchResult).filter(
+    query = db.query(Match).join(MatchResult).filter(
         Match.tournament_id == tournament_id,
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id)),
         MatchResult.status == "FINAL"
-    ).all()
+    )
+    if division_id:
+        query = query.filter(Match.division_id == division_id)
+        
+    all_team_matches = query.all()
     
     played: int = 0
     wins: int = 0
