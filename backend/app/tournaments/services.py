@@ -41,31 +41,47 @@ def get_tournament_divisions(db: Session, edition_id: UUID):
     return db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == edition_id).all()
 
 def create_tournament(db: Session, tournament_in: TournamentCreate, current_user: User):
-    new_tournament = Tournament(**tournament_in.model_dump())
+    # Only use fields that exist in the Tournament model to avoid unexpected keyword errors
+    tournament_data = tournament_in.model_dump(exclude_unset=True)
+    
+    # List of valid columns in Tournament model
+    valid_cols = {c.name for c in Tournament.__table__.columns}
+    filtered_data = {k: v for k, v in tournament_data.items() if k in valid_cols}
+    
+    new_tournament = Tournament(**filtered_data)
     new_tournament.created_by = current_user.id
     db.add(new_tournament)
     db.commit()
     db.refresh(new_tournament)
     
     # Requirement: Notify eligible users of tournament registration opening
-    notify_eligible_users_of_tournament(db, new_tournament)
+    try:
+        notify_eligible_users_of_tournament(db, new_tournament)
+    except Exception as e:
+        print(f"Non-critical error in notification: {e}")
     
     return new_tournament
 
 def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
-    eligible_roles = [Role.PLAYER_YOUTH, Role.PARENT]
-    users_to_notify = db.query(User).filter(User.roles.any(role=Role.PLAYER_YOUTH) | User.roles.any(role=Role.PARENT)).all()
+    from app.users.models import UserRole
+    users_to_notify = db.query(User).filter(
+        User.roles.any(UserRole.role == Role.PLAYER_YOUTH) | 
+        User.roles.any(UserRole.role == Role.PARENT)
+    ).all()
     
-    for user in users_to_notify:
-        notification_service.create_notification(
-            db,
-            user.id,
-            notification_type=NotificationType.TOURNAMENT_START,
-            title="New Tournament Open!",
-            message=f"Tournament {tournament.name} is now open for registration until {tournament.registration_close}.",
-            entity_type=EntityType.TOURNAMENT,
-            entity_id=tournament.id
-        )
+    user_ids = [u.id for u in users_to_notify]
+    if not user_ids:
+        return
+
+    notification_service.create_notification(
+        db,
+        user_ids,
+        notification_type=NotificationType.TOURNAMENT_START,
+        title="New Tournament Open!",
+        message=f"Tournament {tournament.name} is now open for registration until {tournament.registration_close}.",
+        entity_type=EntityType.TOURNAMENT,
+        entity_id=tournament.id
+    )
 
 def get_tournaments(db: Session, season: Optional[Season] = None, year: Optional[int] = None):
     try:
