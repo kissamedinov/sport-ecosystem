@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
+import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'coach_teams_screen.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
@@ -127,13 +130,72 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 ),
               ),
               const Spacer(),
-              _buildIconBtn(Icons.notifications_outlined, onTap: () {}),
+              _buildIconBtn(Icons.notifications_none_rounded, onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              }),
               const SizedBox(width: 8),
-              _buildIconBtn(Icons.more_vert_rounded, onTap: () {}),
+              _buildIconBtn(Icons.more_horiz_rounded, onTap: () => _showDashboardMenu(context)),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showDashboardMenu(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color(0xFF0F1720),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _menuItem(
+              icon: Icons.edit_rounded,
+              title: 'Edit Profile',
+              onTap: () {
+                Navigator.pop(context);
+                // Navigate to edit profile if needed
+              },
+            ),
+            _menuItem(
+              icon: Icons.logout_rounded,
+              title: 'Logout',
+              color: Colors.redAccent,
+              onTap: () {
+                Navigator.pop(context);
+                auth.logout();
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _menuItem({required IconData icon, required String title, required VoidCallback onTap, Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Colors.white70),
+      title: Text(title, style: TextStyle(color: color ?? Colors.white, fontWeight: FontWeight.w600)),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
