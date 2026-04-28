@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/theme/premium_theme.dart';
 import '../../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -85,14 +86,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     itemBuilder: (context, index) {
                       final role = _roles[index];
                       final isSelected = _selectedRole == role['value'];
+                      final accent = PremiumTheme.accent(context);
+                      final muted = Theme.of(context).colorScheme.onSurfaceVariant;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedRole = role['value']!),
                         child: Container(
                           width: 90,
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF00E676).withValues(alpha: 0.1) : Colors.transparent,
+                            color: isSelected ? accent.withValues(alpha: 0.1) : Colors.transparent,
                             border: Border.all(
-                              color: isSelected ? const Color(0xFF00E676) : Colors.white24,
+                              color: isSelected ? accent : Theme.of(context).colorScheme.outline,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(12),
@@ -102,14 +105,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             children: [
                               Icon(
                                 _getIconData(role['icon']!),
-                                color: isSelected ? const Color(0xFF00E676) : Colors.white70,
+                                color: isSelected ? accent : muted,
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 role['label']!,
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: isSelected ? const Color(0xFF00E676) : Colors.white70,
+                                  color: isSelected ? accent : muted,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                 ),
                                 textAlign: TextAlign.center,
