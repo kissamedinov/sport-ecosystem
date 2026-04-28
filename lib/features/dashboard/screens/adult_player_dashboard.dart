@@ -97,8 +97,8 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                   ),
                 ),
                 
-                const Text('YOUR NEXT CHALLENGE', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('YOUR NEXT CHALLENGE',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 PremiumCard(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Match Details'))),
@@ -124,12 +124,12 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                             const SizedBox(height: 4),
                             Text(
                               nextMatch != null ? nextMatch.scheduledAt : 'Stay tuned for updates',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.chevron_right, color: Colors.white24),
+                      Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ],
                   ),
                 ),
@@ -161,8 +161,8 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                 ),
 
                 const SizedBox(height: 24),
-                const Text('EXPLORE', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('EXPLORE',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 
                 GridView.count(

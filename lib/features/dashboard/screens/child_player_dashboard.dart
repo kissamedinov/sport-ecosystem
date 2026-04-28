@@ -126,7 +126,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('ACTION REQUIRED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                      Text('ACTION REQUIRED', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                       TextButton(
                         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
                         child: const Text('See All', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 12)),
@@ -138,8 +138,8 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                 ],
 
                 const SizedBox(height: 24),
-                const Text('YOUR NEXT MATCH', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('YOUR NEXT MATCH',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 PremiumCard(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Match Details'))),
@@ -165,12 +165,12 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                             const SizedBox(height: 4),
                             Text(
                               nextMatch != null ? nextMatch.scheduledAt : 'Train hard, stay ready',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.chevron_right, color: Colors.white24),
+                      Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ],
                   ),
                 ),
@@ -202,8 +202,8 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                 ),
 
                 const SizedBox(height: 24),
-                const Text('MY ACTIVITY', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('MY ACTIVITY',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 
                 GridView.count(
@@ -308,7 +308,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                       ),
                       Text(
                         invite.message,
-                        style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                       ),
                     ],
                   ),

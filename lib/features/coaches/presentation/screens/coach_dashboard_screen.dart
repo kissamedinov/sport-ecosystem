@@ -64,7 +64,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           const SizedBox(height: 16),
           Text(
             msg,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -319,8 +319,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                         ),
@@ -370,7 +370,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   const SizedBox(height: 3),
                   Text(
                     club.isNotEmpty ? '$specialty · $club' : specialty,
-                    style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                   ),
                 ],
               ),
@@ -389,18 +389,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     const SizedBox(width: 2),
                     Text(
                       rating,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],
                 ),
-                const Text(
+                Text(
                   'RATING',
                   style: TextStyle(
-                    color: Colors.white38,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1,
@@ -436,7 +436,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               _buildStatCell(
                 '${perf['matches_played'] ?? 0}',
                 'MATCHES',
-                Colors.white,
+                Theme.of(context).colorScheme.onSurface,
               ),
               _buildDivider(),
               _buildStatCell(
@@ -473,8 +473,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white38,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
@@ -486,7 +486,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   }
 
   Widget _buildDivider() {
-    return Container(width: 1, color: Colors.white.withValues(alpha: 0.06));
+    return Container(width: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08));
   }
 
   // ─── LIVE MATCH CARD ──────────────────────────────────────────────────────
@@ -545,7 +545,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   const Spacer(),
                   Text(
                     location,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                   ),
                 ],
               ),
@@ -558,8 +558,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       children: [
                         Text(
                           homeTeam,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
                           ),
@@ -578,8 +578,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   ),
                   Text(
                     '$homeScore : $awayScore',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
@@ -591,17 +591,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       children: [
                         Text(
                           awayTeam,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
                           ),
                           textAlign: TextAlign.right,
                         ),
                         const SizedBox(height: 2),
-                        const Text(
+                        Text(
                           'Opponent',
-                          style: TextStyle(color: Colors.white38, fontSize: 10),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
                         ),
                       ],
                     ),
@@ -664,7 +664,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   const SizedBox(height: 2),
                   Text(
                     matchLabel,
-                    style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                   ),
                 ],
               ),
@@ -710,8 +710,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             children: [
               Text(
                 'MY TEAMS · ${teams.length}',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
@@ -793,8 +793,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         children: [
                           Text(
                             name,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
                             ),
@@ -808,8 +808,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '$ageGroup · $campus · $players players',
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 11,
                         ),
                       ),
@@ -844,8 +844,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 const Spacer(),
                 Text(
                   '${wins}W ${draws}D ${losses}L',
-                  style: const TextStyle(
-                    color: Colors.white38,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -901,8 +901,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         text = PremiumTheme.neonGreen;
         break;
       case 'D':
-        bg = Colors.white.withValues(alpha: 0.1);
-        text = Colors.white54;
+        bg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1);
+        text = Theme.of(context).colorScheme.onSurfaceVariant;
         break;
       default:
         bg = Colors.redAccent.withValues(alpha: 0.2);
@@ -948,10 +948,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             children: [
               Container(width: 3, height: 16, color: PremiumTheme.neonGreen),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'UPCOMING FIXTURES',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
@@ -973,11 +973,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
-      child: const Center(
+      child: Center(
         child: Text(
           'NO UPCOMING FIXTURES',
           style: TextStyle(
-            color: Colors.white24,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
@@ -1036,8 +1036,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   ),
                   Text(
                     dayNum,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                       height: 1.1,
@@ -1056,20 +1056,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       children: [
                         TextSpan(
                           text: homeTeam,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const TextSpan(
+                        TextSpan(
                           text: ' vs ',
-                          style: TextStyle(color: Colors.white38, fontSize: 11),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                         ),
                         TextSpan(
                           text: awayTeam,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1080,14 +1080,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   const SizedBox(height: 3),
                   Text(
                     '$timeStr · $locationStr',
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                   ),
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
-              color: Colors.white24,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
           ],

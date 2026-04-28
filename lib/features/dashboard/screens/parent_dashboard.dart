@@ -91,8 +91,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
                   ),
                 ),
 
-                const Text('FAMILY ACTIVITY', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('FAMILY ACTIVITY',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 
                 Row(
@@ -122,19 +122,19 @@ class _ParentDashboardState extends State<ParentDashboard> {
                 const SizedBox(height: 16),
                 PremiumCard(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChildListScreen())),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.people_outline, color: PremiumTheme.neonGreen),
-                      SizedBox(width: 16),
-                      Expanded(child: Text('MANAGE CHILDREN PROFILES', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Icon(Icons.chevron_right, color: Colors.white24),
+                      const Icon(Icons.people_outline, color: PremiumTheme.neonGreen),
+                      const SizedBox(width: 16),
+                      const Expanded(child: Text('MANAGE CHILDREN PROFILES', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 24),
-                const Text('PARENT TOOLS', 
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                Text('PARENT TOOLS',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                 const SizedBox(height: 12),
                 
                 GridView.count(
