@@ -117,14 +117,14 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             children: [
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 "SYSTEM ERROR",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
               Text(
                 error,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                 textAlign: TextAlign.center
               ),
               const SizedBox(height: 20),
@@ -148,10 +148,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 11, 
-            fontWeight: FontWeight.w900, 
-            color: Colors.white54, 
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -232,16 +232,16 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   children: [
                     Text(
                       "${match['home_team_name']} VS ${match['away_team_name']}",
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.2),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.2),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.emoji_events_rounded, size: 10, color: Colors.white.withOpacity(0.3)),
+                        Icon(Icons.emoji_events_rounded, size: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           (match['tournament_name'] ?? "REGULAR MATCH").toString().toUpperCase(),
-                          style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                         ),
                       ],
                     ),
@@ -255,7 +255,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                     match['scheduled_at'] != null
                       ? match['scheduled_at'].toString().split('T').first
                       : "TBD",
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700, fontSize: 12),
                   ),
                   const SizedBox(height: 6),
                   GestureDetector(
@@ -331,23 +331,23 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   children: [
                     Text(
                       team['name'].toString().toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.person_outline_rounded, size: 12, color: Colors.white.withValues(alpha: 0.3)),
+                        Icon(Icons.person_outline_rounded, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           "${(team['players'] as List).length} ACTIVE PLAYERS",
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 11, fontWeight: FontWeight.w500),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha: 0.2), size: 18),
+              Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
             ],
           ),
         ),
@@ -484,12 +484,12 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               const SizedBox(height: 12),
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 10),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -513,9 +513,9 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             children: [
               Icon(Icons.info_outline_rounded, size: 14, color: PremiumTheme.neonGreen.withOpacity(0.5)),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 "ABOUT ME",
-                style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
             ],
           ),
@@ -523,7 +523,9 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
           Text(
             user.bio?.isNotEmpty == true ? user.bio! : "No biography provided yet. Tap 'Edit' to add one.",
             style: TextStyle(
-              color: user.bio?.isNotEmpty == true ? Colors.white : Colors.white24,
+              color: user.bio?.isNotEmpty == true
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               fontSize: 13,
               height: 1.5,
             ),
@@ -547,16 +549,17 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return OrleonCard(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
           children: [
-            Icon(icon, color: Colors.white.withValues(alpha: 0.1), size: 32),
+            Icon(icon, color: muted.withValues(alpha: 0.4), size: 32),
             const SizedBox(height: 12),
             Text(
               message.toUpperCase(),
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+              style: TextStyle(color: muted, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
               textAlign: TextAlign.center,
             ),
           ],

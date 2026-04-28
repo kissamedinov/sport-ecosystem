@@ -48,13 +48,19 @@ class ProfileHeader extends StatelessWidget {
           (r) => r.contains('OWNER') || r.contains('ADMIN') || r.contains('MANAGER'),
         ) ??
         false;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceMuted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final gradientColors = isDark
+        ? const [Color(0xFF0D2E14), Color(0xFF0A0E12)]
+        : const [Color(0xFFE8F5E9), Color(0xFFF5F5F5)];
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF0D2E14), Color(0xFF0A0E12)],
+          colors: gradientColors,
         ),
       ),
       padding: EdgeInsets.fromLTRB(20, safeTop + 12, 20, 28),
@@ -67,16 +73,16 @@ class ProfileHeader extends StatelessWidget {
               if (canPop)
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: _iconBtn(Icons.chevron_left_rounded),
+                  child: _iconBtn(context, Icons.chevron_left_rounded),
                 )
               else
                 const SizedBox(width: 40),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'MY PROFILE',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: PremiumTheme.neonGreen,
+                    color: PremiumTheme.accent(context),
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
@@ -86,14 +92,14 @@ class ProfileHeader extends StatelessWidget {
               if (onNotification != null) ...[
                 GestureDetector(
                   onTap: onNotification,
-                  child: _iconBtn(Icons.notifications_none_rounded),
+                  child: _iconBtn(context, Icons.notifications_none_rounded),
                 ),
                 const SizedBox(width: 12),
               ],
               if (onMenu != null)
                 GestureDetector(
                   onTap: onMenu,
-                  child: _iconBtn(Icons.more_horiz_rounded),
+                  child: _iconBtn(context, Icons.more_horiz_rounded),
                 )
               else
                 const SizedBox(width: 40),
@@ -135,10 +141,10 @@ class ProfileHeader extends StatelessWidget {
                   children: [
                     Text(
                       user.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 21,
                         fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                        color: onSurface,
                         letterSpacing: -0.3,
                       ),
                     ),
@@ -147,7 +153,7 @@ class ProfileHeader extends StatelessWidget {
                       clubName != null ? '$roleLabel  ·  $clubName' : roleLabel,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: onSurfaceMuted,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -155,14 +161,14 @@ class ProfileHeader extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 6,
                       children: [
-                        _tag(roleLabel.toUpperCase(), PremiumTheme.neonGreen),
+                        _tag(roleLabel.toUpperCase(), PremiumTheme.accent(context)),
                         if (isVerified)
                           _tag('VERIFIED', PremiumTheme.electricBlue,
                               icon: Icons.verified_rounded),
                         if (onEdit != null)
                           GestureDetector(
                             onTap: onEdit,
-                            child: _tag('EDIT', Colors.white54,
+                            child: _tag('EDIT', onSurfaceMuted,
                                 icon: Icons.edit_rounded),
                           ),
                       ],
@@ -177,15 +183,16 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _iconBtn(IconData icon) {
+  Widget _iconBtn(BuildContext context, IconData icon) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: onSurface.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, color: Colors.white70, size: 22),
+      child: Icon(icon, color: onSurface.withValues(alpha: 0.7), size: 22),
     );
   }
 

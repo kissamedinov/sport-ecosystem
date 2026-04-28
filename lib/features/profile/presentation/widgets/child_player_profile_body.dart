@@ -45,13 +45,13 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final base = Theme.of(context);
         return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: ColorScheme.dark(
+          data: base.copyWith(
+            colorScheme: base.colorScheme.copyWith(
               primary: PremiumTheme.electricBlue,
               onPrimary: Colors.white,
               surface: PremiumTheme.surfaceCard(context),
-              onSurface: Colors.white,
             ),
           ),
           child: child!,
@@ -121,10 +121,10 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -242,8 +242,8 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
             ),
             title: Text(
               team.name.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w900,
                 fontSize: 14,
                 letterSpacing: 0.5,
@@ -270,7 +270,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
             trailing: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.chevron_right_rounded, color: PremiumTheme.neonGreen, size: 20),
@@ -335,25 +335,25 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
             ),
             title: Text(
               parent['name'] ?? 'Unknown',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
             ),
-            subtitle: const Padding(
-              padding: EdgeInsets.only(top: 4),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
               child: Text(
                 "PARENT / GUARDIAN",
                 style: TextStyle(
-                  color: Colors.white38,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
                 ),
               ),
             ),
-            trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+            trailing: Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
           ),
         ),
       )).toList(),
@@ -361,17 +361,18 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return PremiumCard(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
           children: [
-            Icon(icon, color: Colors.white.withValues(alpha: 0.1), size: 32),
+            Icon(icon, color: muted.withValues(alpha: 0.4), size: 32),
             const SizedBox(height: 12),
             Text(
               message.toUpperCase(),
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: muted,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,

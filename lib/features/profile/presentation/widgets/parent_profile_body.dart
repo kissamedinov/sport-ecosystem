@@ -141,14 +141,14 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
             children: [
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 "SYSTEM ERROR",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
               Text(
                 error,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -179,10 +179,10 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -218,6 +218,8 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     if (children.isEmpty) {
       return _buildEmptyCard("No children profiles linked", Icons.child_care_rounded);
     }
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       children: children.map((child) {
         final age = _calculateAge(child.dateOfBirth);
@@ -250,8 +252,8 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               ),
               title: Text(
                 child.fullName.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: onSurface,
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
                   letterSpacing: 0.5,
@@ -261,23 +263,23 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.sports_soccer_rounded, size: 11, color: Colors.white.withValues(alpha: 0.3)),
+                    Icon(Icons.sports_soccer_rounded, size: 11, color: muted),
                     const SizedBox(width: 4),
                     Text(
                       (child.position ?? "PLAYER").toUpperCase(),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: muted,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Icon(Icons.cake_rounded, size: 11, color: Colors.white.withValues(alpha: 0.3)),
+                    Icon(Icons.cake_rounded, size: 11, color: muted),
                     const SizedBox(width: 4),
                     Text(
                       "$age YRS",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: muted,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -288,7 +290,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               trailing: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: onSurface.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.analytics_rounded, color: PremiumTheme.neonGreen, size: 18),
@@ -304,6 +306,8 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     if (matches.isEmpty) {
       return _buildEmptyCard("No upcoming matches scheduled", Icons.event_busy_rounded);
     }
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       children: matches.map((match) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -331,8 +335,8 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   children: [
                     Text(
                       "MATCH",
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: onSurface,
                         fontWeight: FontWeight.w900,
                         fontSize: 13,
                         letterSpacing: 0.2,
@@ -342,7 +346,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                     Text(
                       match.id.substring(0, 8).toUpperCase(),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: muted,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'monospace',
@@ -356,8 +360,8 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 children: [
                   Text(
                     match.scheduledAt.substring(0, 10),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: onSurface,
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
@@ -382,17 +386,18 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return PremiumCard(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
           children: [
-            Icon(icon, color: Colors.white.withValues(alpha: 0.1), size: 32),
+            Icon(icon, color: muted.withValues(alpha: 0.4), size: 32),
             const SizedBox(height: 12),
             Text(
               message.toUpperCase(),
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: muted,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,

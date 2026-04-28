@@ -23,50 +23,54 @@ class ProfileScreen extends StatelessWidget {
   void _showProfileMenu(BuildContext context, AuthProvider auth) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF161B22),
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white12,
-                borderRadius: BorderRadius.circular(2),
+      builder: (ctx) {
+        final muted = Theme.of(ctx).colorScheme.onSurfaceVariant;
+        final divider = Theme.of(ctx).dividerColor;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildMenuItem(Icons.edit_rounded, 'Edit Profile', Colors.white70, () {
-              Navigator.pop(ctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
-            }),
-            _buildMenuItem(Icons.notifications_outlined, 'Notifications', Colors.white70, () {
-              Navigator.pop(ctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-            }),
-            _buildMenuItem(Icons.settings_outlined, 'Settings', Colors.white70, () {
-              Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            }),
-            const Divider(color: Colors.white12, height: 24),
-            _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
-              Navigator.pop(ctx);
-              await auth.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            }),
-          ],
-        ),
-      ),
+              const SizedBox(height: 20),
+              _buildMenuItem(Icons.edit_rounded, 'Edit Profile', muted, () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
+              }),
+              _buildMenuItem(Icons.notifications_outlined, 'Notifications', muted, () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              }),
+              _buildMenuItem(Icons.settings_outlined, 'Settings', muted, () {
+                Navigator.pop(ctx);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              }),
+              Divider(color: divider, height: 24),
+              _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
+                Navigator.pop(ctx);
+                await auth.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -161,7 +165,6 @@ class ProfileScreen extends StatelessWidget {
           child: Text(
             "Account setup in progress. Please contact your club administrator.",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white38),
           ),
         ),
       );

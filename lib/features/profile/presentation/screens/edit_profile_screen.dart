@@ -103,7 +103,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Colors.white70),
+          icon: Icon(Icons.close_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -145,10 +145,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 maxLines: 4,
               ),
               const SizedBox(height: 40),
-              const Center(
+              Center(
                 child: Text(
                   "Your information is visible to other club members and professionals.",
-                  style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -192,11 +192,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   : null,
                 border: Border.all(color: PremiumTheme.surfaceBase(context), width: 4),
               ),
-              child: user?.avatarUrl == null 
+              child: user?.avatarUrl == null
                 ? Center(
                     child: Text(
                       user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : "?",
-                      style: const TextStyle(fontSize: 48, color: Colors.white, fontWeight: FontWeight.w900),
+                      style: TextStyle(fontSize: 48, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900),
                     ),
                   )
                 : null,
@@ -206,7 +206,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           if (_isUploadingImage)
             Container(
               width: 124, height: 124,
-              decoration: BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
               child: const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2)),
             ),
           // Edit badge
@@ -234,27 +234,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildSectionLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 1.5),
+      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 1.5),
     );
   }
 
   Widget _buildTextField(String label, TextEditingController controller, IconData icon, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white, fontSize: 15),
+      style: TextStyle(color: onSurface, fontSize: 15),
       decoration: InputDecoration(
         hintText: label,
-        hintStyle: const TextStyle(color: Colors.white24),
-        prefixIcon: Icon(icon, color: PremiumTheme.neonGreen.withOpacity(0.5), size: 20),
+        hintStyle: TextStyle(color: muted.withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon, color: PremiumTheme.accent(context).withValues(alpha: 0.6), size: 20),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.04),
+        fillColor: onSurface.withValues(alpha: 0.04),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
-          borderSide: BorderSide(color: PremiumTheme.neonGreen.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: PremiumTheme.accent(context).withValues(alpha: 0.5)),
         ),
         contentPadding: const EdgeInsets.all(18),
       ),

@@ -30,14 +30,14 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
       future: _dashboardFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(48),
+              padding: const EdgeInsets.all(48),
               child: Column(
                 children: [
-                  CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
-                  SizedBox(height: 16),
-                  Text("Loading dashboard...", style: TextStyle(color: Colors.white38, fontSize: 12, letterSpacing: 1)),
+                  const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+                  const SizedBox(height: 16),
+                  Text("Loading dashboard...", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, letterSpacing: 1)),
                 ],
               ),
             ),
@@ -51,7 +51,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
                   const SizedBox(height: 12),
-                  Text("Error: ${snapshot.error}", style: const TextStyle(color: Colors.white54), textAlign: TextAlign.center),
+                  Text("Error: ${snapshot.error}", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -105,10 +105,10 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -166,7 +166,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
           ),
           const SizedBox(height: 8),
           Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: color, letterSpacing: -1)),
-          Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1.5)),
+          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 1.5)),
         ],
       ),
     );
@@ -218,7 +218,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
           const SizedBox(height: 12),
           Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: color, letterSpacing: -1)),
           const SizedBox(height: 2),
-          Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, color: Colors.white38, fontWeight: FontWeight.w700, letterSpacing: 1)),
+          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 1)),
         ],
       ),
     );
@@ -238,14 +238,16 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
         final initials = _getInitials(manager.name);
         final role = roles[index % roles.length];
 
+        final onSurface = Theme.of(context).colorScheme.onSurface;
+        final muted = Theme.of(context).colorScheme.onSurfaceVariant;
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.04),
+              color: onSurface.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.07)),
+              border: Border.all(color: onSurface.withValues(alpha: 0.07)),
             ),
             child: Row(
               children: [
@@ -278,8 +280,8 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                     children: [
                       Text(
                         manager.name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: onSurface,
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
                         ),
@@ -288,14 +290,14 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                       Text(
                         role,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.4),
+                          color: muted,
                           fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+                Icon(Icons.chevron_right_rounded, color: muted, size: 20),
               ],
             ),
           ),
@@ -318,14 +320,16 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
     }
     final displayPlayers = dashboard.players.length > 5 ? dashboard.players.take(5).toList() : dashboard.players;
 
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Column(
       children: displayPlayers.map((player) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: onSurface.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.07)),
+            border: Border.all(color: onSurface.withValues(alpha: 0.07)),
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -344,9 +348,9 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                 ),
               ),
             ),
-            title: Text(player.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: Text(player.position ?? "Player", style: const TextStyle(color: Colors.white38, fontSize: 11)),
-            trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+            title: Text(player.name, style: TextStyle(color: onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+            subtitle: Text(player.position ?? "Player", style: TextStyle(color: muted, fontSize: 11)),
+            trailing: Icon(Icons.chevron_right_rounded, color: muted, size: 20),
           ),
         ),
       )).toList(),
@@ -389,8 +393,8 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(academy.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(academy.city, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                      Text(academy.name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(academy.city, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
                     ],
                   ),
                 ],
@@ -436,14 +440,15 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
   }
 
   Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
+          color: onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.07)),
+          border: Border.all(color: onSurface.withValues(alpha: 0.07)),
         ),
         child: Row(
           children: [
@@ -470,18 +475,20 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
   }
 
   Widget _buildEmptyState(String message, IconData icon) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: onSurface.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: onSurface.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white24, size: 24),
+          Icon(icon, color: muted, size: 24),
           const SizedBox(width: 12),
-          Text(message, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          Text(message, style: TextStyle(color: muted, fontSize: 13)),
         ],
       ),
     );

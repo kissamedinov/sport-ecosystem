@@ -104,14 +104,14 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
             children: [
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 "SYSTEM ERROR",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
               Text(
                 error,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -142,10 +142,10 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -178,18 +178,20 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
   }
 
   Widget _buildMatchList(List matches) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     if (matches.isEmpty) {
       return PremiumCard(
         padding: const EdgeInsets.all(24),
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.sports_soccer_rounded, color: Colors.white.withValues(alpha: 0.1), size: 32),
+              Icon(Icons.sports_soccer_rounded, color: muted.withValues(alpha: 0.4), size: 32),
               const SizedBox(height: 12),
               Text(
                 "NO MATCHES",
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: muted,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
@@ -211,7 +213,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
         Color statusColor = status == 'SCHEDULED'
             ? PremiumTheme.neonGreen
             : status == 'FINISHED'
-                ? Colors.white38
+                ? muted
                 : Colors.orangeAccent;
 
         return Padding(
@@ -238,10 +240,10 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "MATCH",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: onSurface,
                           fontWeight: FontWeight.w900,
                           fontSize: 13,
                           letterSpacing: 0.2,
@@ -251,7 +253,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
                       Text(
                         id.length >= 8 ? id.substring(0, 8).toUpperCase() : id.toUpperCase(),
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: muted,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           fontFamily: 'monospace',
@@ -265,8 +267,8 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
                   children: [
                     Text(
                       date,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: onSurface,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),

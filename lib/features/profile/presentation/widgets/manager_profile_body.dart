@@ -117,7 +117,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
             const SizedBox(height: 12),
             Text(
               "Error: $error",
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -147,10 +147,10 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: 2,
           ),
         ),
@@ -222,10 +222,10 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
           ),
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: Colors.white38,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 1.5,
             ),
           ),
@@ -272,8 +272,8 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                   children: [
                     Text(
                       team.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
@@ -283,7 +283,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                     const SizedBox(height: 2),
                     Text(
                       team.ageCategory ?? "Academy",
-                      style: const TextStyle(color: Colors.white38, fontSize: 10),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
                     ),
                   ],
                 ),
@@ -301,6 +301,8 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
     }
 
     final displayMatches = matches.length > 3 ? matches.take(3).toList() : matches;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Column(
       children: displayMatches.map((match) => Padding(
@@ -313,9 +315,9 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: onSurface.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+              border: Border.all(color: onSurface.withValues(alpha: 0.07)),
             ),
             child: Row(
               children: [
@@ -335,8 +337,8 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                     children: [
                       Text(
                         "Match vs ${match.awayTeamId.substring(0, 4).toUpperCase()}...",
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: onSurface,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                         ),
@@ -346,7 +348,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                         match.status.toUpperCase(),
                         style: TextStyle(
                           color: match.status == 'FINISHED'
-                              ? Colors.white38
+                              ? muted
                               : PremiumTheme.neonGreen.withValues(alpha: 0.7),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -356,7 +358,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+                Icon(Icons.chevron_right_rounded, color: muted, size: 20),
               ],
             ),
           ),
@@ -388,14 +390,15 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
   }
 
   Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          border: Border.all(color: onSurface.withValues(alpha: 0.07)),
         ),
         child: Row(
           children: [
@@ -422,18 +425,20 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
   }
 
   Widget _buildEmptyState(String message, IconData icon) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.02),
+        color: onSurface.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: onSurface.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white24, size: 24),
+          Icon(icon, color: muted, size: 24),
           const SizedBox(width: 12),
-          Text(message, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          Text(message, style: TextStyle(color: muted, fontSize: 13)),
         ],
       ),
     );

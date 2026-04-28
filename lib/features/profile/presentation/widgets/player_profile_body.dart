@@ -41,7 +41,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: PremiumTheme.neonGreen)));
         }
         if (snapshot.hasError) {
-          return Center(child: Text("Error loading stats: ${snapshot.error}", style: const TextStyle(color: Colors.white70)));
+          return Center(child: Text("Error loading stats: ${snapshot.error}", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
         }
         final stats = snapshot.data!;
 
@@ -123,13 +123,13 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                           context,
                           MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
                         ),
-                        child: const ListTile(
+                        child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.white10,
-                            child: Icon(Icons.analytics, color: PremiumTheme.electricBlue),
+                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+                            child: const Icon(Icons.analytics, color: PremiumTheme.electricBlue),
                           ),
-                          title: Text("View Detailed Career", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                          title: Text("View Detailed Career", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                          trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -139,13 +139,13 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                           context,
                           MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
                         ),
-                        child: const ListTile(
+                        child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.white10,
-                            child: Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
+                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+                            child: const Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
                           ),
-                          title: Text("Parent Requests", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          trailing: Icon(Icons.chevron_right, color: Colors.white24),
+                          title: Text("Parent Requests", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                          trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ),
                     ],
@@ -164,10 +164,10 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 12, 
-          fontWeight: FontWeight.w900, 
-          color: Colors.white38, 
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           letterSpacing: 2,
         ),
       ),
@@ -175,14 +175,15 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
   }
 
   Widget _buildMatchCard(MatchHistoryItem match) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       width: 160,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: onSurface.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +194,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
               Expanded(
                 child: Text(
                   match.opponent,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(color: onSurface, fontWeight: FontWeight.bold, fontSize: 13),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -205,7 +206,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           const SizedBox(height: 4),
           Text(
             match.tournamentName,
-            style: const TextStyle(color: Colors.white38, fontSize: 10),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -355,7 +356,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
