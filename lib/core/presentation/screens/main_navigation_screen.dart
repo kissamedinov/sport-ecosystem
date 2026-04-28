@@ -91,15 +91,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ),
         child: FloatingActionButton(
           onPressed: _showQuickActions,
-          backgroundColor: PremiumTheme.neonGreen,
-          foregroundColor: Colors.black,
+          backgroundColor: PremiumTheme.accent(context),
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           elevation: 0,
           child: const Icon(Icons.add, size: 28, weight: 700),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF0D1117),
+        color: PremiumTheme.surfaceCard(context),
         shape: const CircularNotchedRectangle(),
         notchMargin: 6,
         child: SizedBox(
@@ -131,7 +131,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? PremiumTheme.neonGreen : Colors.white38,
+              color: isSelected ? PremiumTheme.accent(context) : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 22,
             ),
             const SizedBox(height: 2),
@@ -140,7 +140,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                color: isSelected ? PremiumTheme.neonGreen : Colors.white38,
+                color: isSelected ? PremiumTheme.accent(context) : Theme.of(context).colorScheme.onSurfaceVariant,
                 letterSpacing: 0.5,
               ),
             ),
@@ -155,7 +155,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF161B22),
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -170,23 +170,24 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white12,
+                  color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'QUICK ACTIONS',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
-                color: Colors.white38,
+                color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                 letterSpacing: 2,
               ),
             ),
             const SizedBox(height: 16),
             _buildQuickAction(
+              ctx,
               Icons.group_add_outlined,
               'Invite Member',
               PremiumTheme.electricBlue,
@@ -200,6 +201,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               },
             ),
             _buildQuickAction(
+              ctx,
               Icons.sports_soccer_outlined,
               'Add Player Profile',
               PremiumTheme.neonGreen,
@@ -213,6 +215,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               },
             ),
             _buildQuickAction(
+              ctx,
               Icons.shield_outlined,
               'Create Team',
               Colors.tealAccent,
@@ -222,6 +225,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               },
             ),
             _buildQuickAction(
+              ctx,
               Icons.account_balance_outlined,
               'Add Academy',
               Colors.amber,
@@ -249,7 +253,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         builder: (dialogContext, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Create New Team', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          title: Text('Create New Team', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -277,10 +281,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 else ...[
                   DropdownButtonFormField<String>(
                     dropdownColor: PremiumTheme.surfaceCard(dialogContext),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                    decoration: InputDecoration(
                       labelText: 'Academy *',
-                      labelStyle: TextStyle(color: Colors.white54),
+                      labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                     ),
                     items: academies.map((a) => DropdownMenuItem(
                       value: a.id.toString(),
@@ -291,23 +295,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                    decoration: InputDecoration(
                       labelText: 'Team Name *',
-                      labelStyle: TextStyle(color: Colors.white54),
+                      labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                       hintText: 'e.g. U-17 First Squad',
-                      hintStyle: TextStyle(color: Colors.white24),
+                      hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: birthYearController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                    decoration: InputDecoration(
                       labelText: 'Birth Year',
-                      labelStyle: TextStyle(color: Colors.white54),
+                      labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                       hintText: '2015',
-                      hintStyle: TextStyle(color: Colors.white24),
+                      hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                     ),
                     keyboardType: TextInputType.number,
                   ),
@@ -318,7 +322,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+              child: Text('Cancel', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
             ),
             ElevatedButton(
               onPressed: isLoading || academies.isEmpty
@@ -372,14 +376,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: PremiumTheme.neonGreen,
-                foregroundColor: Colors.black,
+                backgroundColor: PremiumTheme.accent(dialogContext),
+                foregroundColor: Theme.of(dialogContext).colorScheme.onPrimary,
               ),
               child: isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(dialogContext).colorScheme.onPrimary),
                     )
                   : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
@@ -402,40 +406,40 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         builder: (dialogContext, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Add New Academy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          title: Text('Add New Academy', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                decoration: InputDecoration(
                   labelText: 'Name *',
-                  labelStyle: TextStyle(color: Colors.white54),
+                  labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                   hintText: 'e.g. Main Campus',
-                  hintStyle: TextStyle(color: Colors.white24),
+                  hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: cityController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                decoration: InputDecoration(
                   labelText: 'City *',
-                  labelStyle: TextStyle(color: Colors.white54),
+                  labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                   hintText: 'e.g. Almaty',
-                  hintStyle: TextStyle(color: Colors.white24),
+                  hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: addressController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
+                decoration: InputDecoration(
                   labelText: 'Address',
-                  labelStyle: TextStyle(color: Colors.white54),
+                  labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                   hintText: 'e.g. Abay 100',
-                  hintStyle: TextStyle(color: Colors.white24),
+                  hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
             ],
@@ -443,7 +447,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+              child: Text('Cancel', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -511,7 +515,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildQuickAction(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -533,14 +537,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               const SizedBox(width: 16),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
+              Icon(Icons.arrow_forward_ios_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), size: 14),
             ],
           ),
         ),
