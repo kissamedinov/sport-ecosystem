@@ -32,16 +32,6 @@ class PremiumTheme {
   static bool _isDark(BuildContext c) =>
       Theme.of(c).brightness == Brightness.dark;
 
-  // === Deprecated constants (remove after call-site migration) ===
-  @Deprecated('Use PremiumTheme.surfaceBase(context)')
-  static const Color deepNavy = Color(0xFF0A0E12);
-
-  @Deprecated('Use PremiumTheme.surfaceCard(context)')
-  static const Color cardNavy = Color(0xFF161B22);
-
-  @Deprecated('Use PremiumTheme.borderSubtle(context)')
-  static const Color borderGrey = Color(0xFF30363D);
-
   // === Gradients (theme-independent) ===
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -78,18 +68,6 @@ class PremiumTheme {
     ];
   }
 
-  // Deprecated zero-arg getter — replaced by `softShadowOf(context)`.
-  // We keep the old name returning the dark-mode shadow so unmigrated
-  // call-sites compile (and look correct in dark, slightly heavy in light).
-  @Deprecated('Use PremiumTheme.softShadowOf(context)')
-  static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.2),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ];
-
   static List<BoxShadow> softShadowOf(BuildContext c) {
     final dark = _isDark(c);
     return [
@@ -102,16 +80,6 @@ class PremiumTheme {
   }
 
   // === Theme-aware glassmorphism ===
-  // Old zero-arg version kept and deprecated; new version takes context.
-  @Deprecated('Use PremiumTheme.glassDecorationOf(context, ...)')
-  static BoxDecoration glassDecoration({double blur = 10.0, double radius = 16.0}) {
-    return BoxDecoration(
-      color: Colors.white.withValues(alpha: 0.05),
-      borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-    );
-  }
-
   static BoxDecoration glassDecorationOf(BuildContext c, {double radius = 16.0}) {
     final dark = _isDark(c);
     final tint = dark ? Colors.white : Colors.black;
@@ -128,25 +96,6 @@ class PremiumTheme {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
         child: child,
-      ),
-    );
-  }
-
-  @Deprecated('Use PremiumTheme.inputDecorationOf(context, label, prefixIcon: ...)')
-  static InputDecoration inputDecoration(String label, {IconData? prefixIcon}) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Colors.white38),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: neonGreen, size: 20) : null,
-      filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.05),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: neonGreen),
       ),
     );
   }
