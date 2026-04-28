@@ -13,6 +13,7 @@ import 'package:mobile/features/profile/presentation/widgets/child_player_profil
 import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
 import 'package:mobile/features/notifications/providers/notification_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
@@ -50,6 +51,10 @@ class ProfileScreen extends StatelessWidget {
             }),
             _buildMenuItem(Icons.settings_outlined, 'Settings', Colors.white70, () {
               Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
             }),
             const Divider(color: Colors.white12, height: 24),
             _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
