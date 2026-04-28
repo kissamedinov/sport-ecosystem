@@ -63,7 +63,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     ];
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       extendBody: true,
       body: FadeTransition(
         opacity: CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
@@ -126,7 +126,7 @@ class _HomeTab extends StatelessWidget {
             await notif.fetchNotifications();
           },
           color: PremiumTheme.neonGreen,
-          backgroundColor: PremiumTheme.cardNavy,
+          backgroundColor: PremiumTheme.surfaceCard(context),
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [

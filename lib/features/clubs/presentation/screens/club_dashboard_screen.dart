@@ -51,7 +51,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: Consumer<ClubProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.dashboard == null) {
@@ -140,12 +140,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
 
   Widget _buildHomeHeader(BuildContext context, dynamic dashboard) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF1A3A6B), Color(0xFF0A1220), PremiumTheme.deepNavy],
-          stops: [0.0, 0.6, 1.0],
+          colors: [const Color(0xFF1A3A6B), const Color(0xFF0A1220), PremiumTheme.surfaceBase(context)],
+          stops: const [0.0, 0.6, 1.0],
         ),
       ),
       child: Stack(
@@ -937,7 +937,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             expandedHeight: 200.0,
             floating: false,
             pinned: true,
-            backgroundColor: PremiumTheme.deepNavy,
+            backgroundColor: PremiumTheme.surfaceBase(context),
             elevation: 0,
             actions: [
               if (context.read<AuthProvider>().user?.roles?.contains('ADMIN') ?? false)
@@ -970,11 +970,11 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topRight,
                         end: Alignment.bottomLeft,
-                        colors: [Color(0xFF1A3A6B), PremiumTheme.deepNavy],
+                        colors: [const Color(0xFF1A3A6B), PremiumTheme.surfaceBase(context)],
                       ),
                     ),
                   ),
@@ -1817,7 +1817,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         title: const Text('Request Club Creation', style: TextStyle(color: Colors.white)),
         content: SingleChildScrollView(
           child: Column(
@@ -1857,7 +1857,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         title: const Text('Add New Academy', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1897,14 +1897,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: PremiumTheme.cardNavy,
+          backgroundColor: PremiumTheme.surfaceCard(context),
           title: const Text('Create New Team', style: TextStyle(color: Colors.white)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  dropdownColor: PremiumTheme.cardNavy,
+                  dropdownColor: PremiumTheme.surfaceCard(context),
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(labelText: 'Academy'),
                   items: academies.map((a) => DropdownMenuItem(value: a.id.toString(), child: Text(a.name))).toList(),

@@ -15,7 +15,7 @@ class ChildPlayerProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
@@ -50,7 +50,7 @@ class ChildPlayerProfile extends StatelessWidget {
             radius: 1.5,
             colors: [
               PremiumTheme.electricBlue.withValues(alpha: 0.05),
-              PremiumTheme.deepNavy,
+              PremiumTheme.surfaceBase(context),
             ],
           ),
         ),
@@ -67,7 +67,7 @@ class ChildPlayerProfile extends StatelessWidget {
                 },
               ),
               Container(
-                color: PremiumTheme.deepNavy,
+                color: PremiumTheme.surfaceBase(context),
                 child: Column(
                   children: [
                     const SizedBox(height: 4),

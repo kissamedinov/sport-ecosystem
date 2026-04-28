@@ -33,7 +33,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
     final user = authProvider.user;
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: const Text('PARENT HUB', style: TextStyle(letterSpacing: 2)),

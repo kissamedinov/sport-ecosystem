@@ -28,7 +28,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -138,7 +138,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
         if (events.isEmpty) {
           return Container(
             padding: const EdgeInsets.all(32),
-            decoration: PremiumTheme.glassDecoration(radius: 16),
+            decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: Center(
               child: Column(
                 children: [
@@ -228,7 +228,7 @@ class _EventTile extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12, top: 8),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: PremiumTheme.glassDecoration(radius: 14),
+                decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
                 child: Row(
                   children: [
                     Expanded(

@@ -32,7 +32,7 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
     final user = context.watch<AuthProvider>().user;
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: const Text('FOOTBALL HUB', style: TextStyle(letterSpacing: 2)),

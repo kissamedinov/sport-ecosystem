@@ -33,7 +33,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -62,10 +62,10 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [PremiumTheme.electricBlue, PremiumTheme.deepNavy],
+                colors: [PremiumTheme.electricBlue, PremiumTheme.surfaceBase(context)],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
@@ -125,10 +125,10 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: PremiumTheme.glassDecoration(radius: 16),
+            decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: DropdownButtonFormField<String>(
               value: _selectedCoachId,
-              dropdownColor: PremiumTheme.cardNavy,
+              dropdownColor: PremiumTheme.surfaceCard(context),
               style: const TextStyle(color: Colors.white, fontSize: 14),
               icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
               decoration: InputDecoration(
@@ -205,7 +205,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   Widget _buildMiniStat(String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: PremiumTheme.glassDecoration(radius: 12),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 12),
       child: Column(
         children: [
           Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
@@ -245,7 +245,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
-      decoration: PremiumTheme.glassDecoration(radius: 14),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
       child: Row(
         children: [
           Container(

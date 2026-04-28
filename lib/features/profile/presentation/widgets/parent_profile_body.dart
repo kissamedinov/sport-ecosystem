@@ -57,18 +57,15 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildSectionHeader("OVERVIEW", Icons.dashboard_rounded),
-                  const SizedBox(height: 16),
+                  _buildSectionLabel("OVERVIEW"),
+                  const SizedBox(height: 12),
                   _buildStatsRow(children.length, matches.length),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
                   Row(
                     children: [
                       Expanded(
-                        child: _buildSectionHeader(
-                          "MY CHILDREN  •  ${children.length}",
-                          Icons.child_care_rounded,
-                        ),
+                        child: _buildSectionLabel("MY CHILDREN  •  ${children.length}"),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(
@@ -95,14 +92,14 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildChildrenList(children),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
-                  _buildSectionHeader("UPCOMING MATCHES", Icons.event_available_rounded),
-                  const SizedBox(height: 16),
+                  _buildSectionLabel("UPCOMING MATCHES"),
+                  const SizedBox(height: 12),
                   _buildUpcomingMatches(matches),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 40),
                 ],
               ),
             );
@@ -168,28 +165,25 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildSectionLabel(String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: PremiumTheme.neonGreen.withValues(alpha: 0.5)),
-        const SizedBox(width: 8),
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 10),
         Text(
-          title,
+          text,
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: Colors.white54,
             letterSpacing: 2,
-          ),
-        ),
-        const Spacer(),
-        Container(
-          width: 40,
-          height: 1,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [PremiumTheme.neonGreen.withValues(alpha: 0.3), Colors.transparent],
-            ),
           ),
         ),
       ],

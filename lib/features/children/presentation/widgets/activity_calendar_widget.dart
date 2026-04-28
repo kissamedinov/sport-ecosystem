@@ -150,7 +150,7 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: PremiumTheme.cardNavy,
+            color: PremiumTheme.surfaceCard(context),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),

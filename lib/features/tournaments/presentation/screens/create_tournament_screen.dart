@@ -51,13 +51,13 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: PremiumTheme.neonGreen,
               onPrimary: Colors.black,
-              surface: PremiumTheme.cardNavy,
+              surface: PremiumTheme.surfaceCard(context),
               onSurface: Colors.white,
             ),
-            dialogBackgroundColor: PremiumTheme.deepNavy,
+            dialogBackgroundColor: PremiumTheme.surfaceBase(context),
           ),
           child: child!,
         );
@@ -109,7 +109,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -242,9 +242,9 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged) {
     return DropdownButtonFormField<String>(
       value: value,
-      dropdownColor: PremiumTheme.cardNavy,
+      dropdownColor: PremiumTheme.surfaceCard(context),
       style: const TextStyle(color: Colors.white),
-      decoration: PremiumTheme.inputDecoration(label),
+      decoration: PremiumTheme.inputDecorationOf(context, label),
       items: items.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
       onChanged: onChanged,
     );
@@ -281,7 +281,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       initialValue: initial.toString(),
       keyboardType: TextInputType.number,
       style: const TextStyle(color: Colors.white),
-      decoration: PremiumTheme.inputDecoration(label),
+      decoration: PremiumTheme.inputDecorationOf(context, label),
       onChanged: (v) => onChanged(int.tryParse(v) ?? initial),
     );
   }

@@ -20,7 +20,7 @@ class AcademyManagementScreen extends StatelessWidget {
     final academyTeams = dashboard.teams.where((t) => t.academyName == academy.name).toList();
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         title: Text(academy.name.toUpperCase()),
         backgroundColor: Colors.transparent,

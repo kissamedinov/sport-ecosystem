@@ -115,7 +115,7 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: PremiumTheme.cardNavy,
+              color: PremiumTheme.surfaceCard(context),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: Colors.white.withOpacity(0.05)),
             ),
@@ -152,7 +152,7 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [PremiumTheme.cardNavy, Colors.blue.withOpacity(0.1)],
+                colors: [PremiumTheme.surfaceCard(context), Colors.blue.withOpacity(0.1)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -215,7 +215,7 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: PremiumTheme.cardNavy,
+            color: PremiumTheme.surfaceCard(context),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),

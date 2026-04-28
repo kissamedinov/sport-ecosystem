@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/teams/data/models/team.dart';
 import 'package:mobile/features/matches/data/models/match.dart';
 import 'package:mobile/features/matches/presentation/screens/match_events_screen.dart';
@@ -24,109 +25,58 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
     _matchesFuture = _profileApi.getRecentMatches();
   }
 
+  void _refresh() {
+    setState(() {
+      _teamsFuture = _profileApi.getManagedTeams();
+      _matchesFuture = _profileApi.getRecentMatches();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle("OPERATIONAL TEAMS"),
-        _buildTeamsList(),
-        const SizedBox(height: 24),
-        _buildSectionTitle("RECENT MATCH LOGS"),
-        _buildMatchesList(),
-        const SizedBox(height: 24),
-        _buildSectionTitle("MANAGER CONTROLS"),
-        _buildActionCard(context, "Academy CRM Management", Icons.school_rounded, Colors.blue, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()));
-        }),
-        _buildActionCard(context, "Register Team for Tournament", Icons.emoji_events, Colors.amber, () {}),
-        _buildActionCard(context, "Coordinate Field Schedules", Icons.stadium, Colors.green, () {}),
-      ],
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
-      ),
-    );
-  }
-
-  Widget _buildTeamsList() {
     return FutureBuilder<List<Team>>(
       future: _teamsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()));
-        }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("No teams under management.", style: TextStyle(color: Colors.grey)),
-          );
-        }
+      builder: (context, teamSnapshot) {
+        return FutureBuilder<List<MatchModel>>(
+          future: _matchesFuture,
+          builder: (context, matchSnapshot) {
+            final isLoading =
+                teamSnapshot.connectionState == ConnectionState.waiting ||
+                matchSnapshot.connectionState == ConnectionState.waiting;
 
-        return SizedBox(
-          height: 90,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            scrollDirection: Axis.horizontal,
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final team = snapshot.data![index];
-              return Container(
-                width: 140,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Text(team.ageCategory ?? "Academy", style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+            if (isLoading) return _buildLoadingState();
 
-  Widget _buildMatchesList() {
-    return FutureBuilder<List<MatchModel>>(
-      future: _matchesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()));
-        }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("No recent match activity.", style: TextStyle(color: Colors.grey)),
-          );
-        }
+            if (teamSnapshot.hasError && matchSnapshot.hasError) {
+              return _buildErrorState(teamSnapshot.error.toString());
+            }
 
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: snapshot.data!.length > 3 ? 3 : snapshot.data!.length,
-          itemBuilder: (context, index) {
-            final match = snapshot.data![index];
-            return ListTile(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: match.id))),
-              leading: const Icon(Icons.history, size: 20),
-              title: Text("Match vs ${match.awayTeamId.substring(0, 4)}..."),
-              subtitle: Text(match.status),
-              trailing: const Icon(Icons.chevron_right, size: 16),
+            final teams = teamSnapshot.data ?? [];
+            final matches = matchSnapshot.data ?? [];
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildSectionLabel("OVERVIEW"),
+                  const SizedBox(height: 12),
+                  _buildStatsRow(teams.length, matches.length),
+                  const SizedBox(height: 28),
+                  _buildSectionLabel("OPERATIONAL TEAMS  •  ${teams.length}"),
+                  const SizedBox(height: 12),
+                  _buildTeamsList(teams),
+                  const SizedBox(height: 28),
+                  _buildSectionLabel("RECENT MATCH LOGS"),
+                  const SizedBox(height: 12),
+                  _buildMatchesList(matches),
+                  const SizedBox(height: 28),
+                  _buildSectionLabel("QUICK ACTIONS"),
+                  const SizedBox(height: 12),
+                  _buildActions(),
+                  const SizedBox(height: 40),
+                ],
+              ),
             );
           },
         );
@@ -134,20 +84,357 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          onTap: onTap,
-          leading: CircleAvatar(
-            backgroundColor: color.withOpacity(0.1),
-            child: Icon(icon, color: color),
-          ),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          trailing: const Icon(Icons.chevron_right),
+  Widget _buildLoadingState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          children: [
+            const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+            const SizedBox(height: 16),
+            Text(
+              "SYNCING DATA...",
+              style: TextStyle(
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+            const SizedBox(height: 12),
+            Text(
+              "Error: $error",
+              style: const TextStyle(color: Colors.white54),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: _refresh,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text("RETRY"),
+              style: TextButton.styleFrom(foregroundColor: PremiumTheme.neonGreen),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String text) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: Colors.white54,
+            letterSpacing: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(int teamCount, int matchCount) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard("Teams", "$teamCount", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "MANAGED"),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard("Matches", "$matchCount", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "RECENT"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color, {String? subtitle}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: color.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: color,
+              letterSpacing: -1,
+            ),
+          ),
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: Colors.white38,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamsList(List<Team> teams) {
+    if (teams.isEmpty) {
+      return _buildEmptyState("No teams under management", Icons.shield_outlined);
+    }
+
+    return SizedBox(
+      height: 110,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: teams.length,
+        itemBuilder: (context, index) {
+          final team = teams[index];
+          final colors = [PremiumTheme.electricBlue, PremiumTheme.neonGreen, Colors.orangeAccent, Colors.purpleAccent];
+          final color = colors[index % colors.length];
+
+          return Container(
+            width: 150,
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.03)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.shield_rounded, color: color, size: 22),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      team.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      team.ageCategory ?? "Academy",
+                      style: const TextStyle(color: Colors.white38, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMatchesList(List<MatchModel> matches) {
+    if (matches.isEmpty) {
+      return _buildEmptyState("No recent match activity", Icons.history_rounded);
+    }
+
+    final displayMatches = matches.length > 3 ? matches.take(3).toList() : matches;
+
+    return Column(
+      children: displayMatches.map((match) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: match.id)),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.history_rounded, color: PremiumTheme.electricBlue, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Match vs ${match.awayTeamId.substring(0, 4).toUpperCase()}...",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        match.status.toUpperCase(),
+                        style: TextStyle(
+                          color: match.status == 'FINISHED'
+                              ? Colors.white38
+                              : PremiumTheme.neonGreen.withValues(alpha: 0.7),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: Colors.white12, size: 20),
+              ],
+            ),
+          ),
+        ),
+      )).toList(),
+    );
+  }
+
+  Widget _buildActions() {
+    return Column(
+      children: [
+        _buildActionButton("Academy CRM Management", Icons.school_rounded, PremiumTheme.electricBlue, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()));
+        }),
+        const SizedBox(height: 10),
+        _buildActionButton("Register for Tournament", Icons.emoji_events_rounded, Colors.amber, () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Tournament registration coming soon")),
+          );
+        }),
+        const SizedBox(height: 10),
+        _buildActionButton("Coordinate Field Schedules", Icons.stadium_rounded, PremiumTheme.neonGreen, () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Field scheduling coming soon")),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 18, color: color),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, size: 18, color: color.withValues(alpha: 0.5)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String message, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white24, size: 24),
+          const SizedBox(width: 12),
+          Text(message, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+        ],
       ),
     );
   }

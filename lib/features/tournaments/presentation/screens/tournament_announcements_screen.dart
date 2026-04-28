@@ -25,7 +25,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -135,7 +135,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('APPLY FOR TOURNAMENT', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(

@@ -22,7 +22,7 @@ class CoachPerformanceScreen extends StatelessWidget {
     final xPoints = perf['xpoints'] ?? 0;
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -54,11 +54,11 @@ class CoachPerformanceScreen extends StatelessWidget {
         children: [
           _buildSeasonHeader(),
           const SizedBox(height: 20),
-          _buildWinRateCard(winRate, total.toInt()),
+          _buildWinRateCard(context, winRate, total.toInt()),
           const SizedBox(height: 12),
           _buildStatsGrid(goals, conceded, cleanSheets, xPoints),
           const SizedBox(height: 24),
-          _buildTopPerformersSection(),
+          _buildTopPerformersSection(context),
         ],
       ),
     );
@@ -86,10 +86,10 @@ class CoachPerformanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWinRateCard(double winRate, int matchesPlayed) {
+  Widget _buildWinRateCard(BuildContext context, double winRate, int matchesPlayed) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: PremiumTheme.glassDecoration(radius: 20),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -257,7 +257,7 @@ class CoachPerformanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopPerformersSection() {
+  Widget _buildTopPerformersSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -280,7 +280,7 @@ class CoachPerformanceScreen extends StatelessWidget {
         if (topPerformers.isEmpty)
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: PremiumTheme.glassDecoration(radius: 16),
+            decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: const Center(
               child: Text(
                 'NO PERFORMER DATA',
@@ -290,13 +290,13 @@ class CoachPerformanceScreen extends StatelessWidget {
           )
         else
           ...topPerformers.asMap().entries.map((entry) {
-            return _performerRow(entry.key + 1, entry.value as Map<String, dynamic>);
+            return _performerRow(context, entry.key + 1, entry.value as Map<String, dynamic>);
           }),
       ],
     );
   }
 
-  Widget _performerRow(int rank, Map<String, dynamic> player) {
+  Widget _performerRow(BuildContext context, int rank, Map<String, dynamic> player) {
     final name = player['name']?.toString() ?? player['player_name']?.toString() ?? 'Player';
     final jersey = player['jersey_number']?.toString() ?? '—';
     final position = player['position']?.toString() ?? 'FW';
@@ -314,7 +314,7 @@ class CoachPerformanceScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: PremiumTheme.glassDecoration(radius: 14),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
         child: Row(
           children: [
             Container(

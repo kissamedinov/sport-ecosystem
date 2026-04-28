@@ -50,7 +50,7 @@ class _LineupScreenState extends State<LineupScreen> {
     final submitEnabled = selectedCount == 11;
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -66,7 +66,7 @@ class _LineupScreenState extends State<LineupScreen> {
                     decoration: BoxDecoration(
                       gradient: PremiumTheme.pitchGradient,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: PremiumTheme.softShadow,
+                      boxShadow: PremiumTheme.softShadowOf(context),
                     ),
                     child: LayoutBuilder(
                       builder: (ctx, c) {
@@ -263,7 +263,7 @@ class _LineupScreenState extends State<LineupScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           borderColor: sel
               ? PremiumTheme.neonGreen.withValues(alpha: 0.5)
-              : PremiumTheme.borderGrey,
+              : PremiumTheme.borderSubtle(context),
           onTap: () {
             setState(() {
               if (sel) {
@@ -348,7 +348,7 @@ class _LineupScreenState extends State<LineupScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: BoxDecoration(
-        color: PremiumTheme.cardNavy,
+        color: PremiumTheme.surfaceCard(context),
         border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
       ),
       child: SafeArea(

@@ -20,7 +20,7 @@ class PerformanceScreen extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: () => club.fetchCoachDashboard(),
           color: PremiumTheme.neonGreen,
-          backgroundColor: PremiumTheme.cardNavy,
+          backgroundColor: PremiumTheme.surfaceCard(context),
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
@@ -43,7 +43,7 @@ class PerformanceScreen extends StatelessWidget {
 
     if (embedded) return body;
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: SafeArea(child: body),
     );
   }

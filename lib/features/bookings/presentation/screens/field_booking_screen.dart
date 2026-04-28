@@ -150,7 +150,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: PremiumTheme.cardNavy,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(

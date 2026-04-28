@@ -22,7 +22,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -169,7 +169,7 @@ class _InvitationCard extends StatelessWidget {
                   onPressed: () => provider.acceptInvitation(invitation.id),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PremiumTheme.neonGreen,
-                    foregroundColor: PremiumTheme.deepNavy,
+                    foregroundColor: PremiumTheme.surfaceBase(context),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                   ),

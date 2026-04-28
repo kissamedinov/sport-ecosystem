@@ -103,10 +103,10 @@ class _TrainingManagementScreenState extends State<TrainingManagementScreen> {
       lastDate: DateTime.now().add(const Duration(days: 90)),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.dark(
+          colorScheme: ColorScheme.dark(
             primary: PremiumTheme.neonGreen,
             onPrimary: Colors.black,
-            surface: PremiumTheme.cardNavy,
+            surface: PremiumTheme.surfaceCard(context),
             onSurface: Colors.white,
           ),
         ),
@@ -192,7 +192,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: PremiumTheme.cardNavy,
+                        color: PremiumTheme.surfaceCard(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Colors.white.withOpacity(0.05)),
                       ),
@@ -210,7 +210,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
-                                  dropdownColor: PremiumTheme.cardNavy,
+                                  dropdownColor: PremiumTheme.surfaceCard(context),
                                   value: data['status'],
                                   style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 12),
                                   items: const [

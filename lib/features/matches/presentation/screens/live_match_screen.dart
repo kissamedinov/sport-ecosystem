@@ -87,7 +87,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: PremiumTheme.cardNavy,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -158,7 +158,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         title: const Text('SUBMIT FINAL RESULT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
         content: Text(
           'Final score: $_homeScore - $_awayScore\n\nThis cannot be undone.',
@@ -194,7 +194,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -226,7 +226,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(20),
-      decoration: PremiumTheme.glassDecoration(radius: 20),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 20),
       child: Column(
         children: [
           Row(
@@ -380,7 +380,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   Widget _buildScoreButton(String team, int score, {required VoidCallback onAdd, required VoidCallback onRemove}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: PremiumTheme.glassDecoration(radius: 12),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

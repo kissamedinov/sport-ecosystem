@@ -15,7 +15,7 @@ class CoachProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: SingleChildScrollView(
         child: Column(
           children: [

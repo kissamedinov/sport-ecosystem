@@ -47,10 +47,10 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: PremiumTheme.electricBlue,
               onPrimary: Colors.white,
-              surface: PremiumTheme.cardNavy,
+              surface: PremiumTheme.surfaceCard(context),
               onSurface: Colors.white,
             ),
           ),
@@ -74,7 +74,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
           SnackBar(
             content: Text(success ? 'Birthday updated!' : 'Failed: ${authProvider.error}'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: success ? PremiumTheme.cardNavy : Colors.redAccent.withValues(alpha: 0.8),
+            backgroundColor: success ? PremiumTheme.surfaceCard(context) : Colors.redAccent.withValues(alpha: 0.8),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
@@ -90,45 +90,42 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          _buildSectionHeader("CAREER STATS", Icons.bar_chart_rounded),
-          const SizedBox(height: 16),
+          _buildSectionLabel("CAREER STATS"),
+          const SizedBox(height: 12),
           _buildCareerStats(context),
-          const SizedBox(height: 32),
-          _buildSectionHeader("MY TEAM", Icons.shield_rounded),
-          const SizedBox(height: 16),
+          const SizedBox(height: 28),
+          _buildSectionLabel("MY TEAM"),
+          const SizedBox(height: 12),
           _buildMyTeamsSection(context),
-          const SizedBox(height: 32),
-          _buildSectionHeader("MY FAMILY", Icons.family_restroom_rounded),
-          const SizedBox(height: 16),
+          const SizedBox(height: 28),
+          _buildSectionLabel("MY FAMILY"),
+          const SizedBox(height: 12),
           _buildMyFamilySection(context),
-          const SizedBox(height: 48),
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildSectionLabel(String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: PremiumTheme.neonGreen.withValues(alpha: 0.5)),
-        const SizedBox(width: 8),
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 10),
         Text(
-          title,
+          text,
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: Colors.white54,
             letterSpacing: 2,
-          ),
-        ),
-        const Spacer(),
-        Container(
-          width: 40,
-          height: 1,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [PremiumTheme.neonGreen.withValues(alpha: 0.3), Colors.transparent],
-            ),
           ),
         ),
       ],

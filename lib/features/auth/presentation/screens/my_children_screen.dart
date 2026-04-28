@@ -119,7 +119,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
     
     showModalBottomSheet(
       context: context,
-      backgroundColor: PremiumTheme.cardNavy,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => _AcademyPicker(
@@ -147,7 +147,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: PremiumTheme.cardNavy,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => StatefulBuilder(
@@ -165,9 +165,9 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Expanded(child: TextField(controller: firstNameController, decoration: PremiumTheme.inputDecoration('First Name'))),
+                    Expanded(child: TextField(controller: firstNameController, decoration: PremiumTheme.inputDecorationOf(context, 'First Name'))),
                     const SizedBox(width: 12),
-                    Expanded(child: TextField(controller: lastNameController, decoration: PremiumTheme.inputDecoration('Last Name'))),
+                    Expanded(child: TextField(controller: lastNameController, decoration: PremiumTheme.inputDecorationOf(context, 'Last Name'))),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -180,7 +180,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
                       lastDate: DateTime.now(),
                       builder: (context, child) => Theme(
                         data: Theme.of(context).copyWith(
-                          colorScheme: const ColorScheme.dark(primary: PremiumTheme.neonGreen, onPrimary: Colors.black, surface: PremiumTheme.cardNavy),
+                          colorScheme: ColorScheme.dark(primary: PremiumTheme.neonGreen, onPrimary: Colors.black, surface: PremiumTheme.surfaceCard(context)),
                         ),
                         child: child!,
                       ),
@@ -201,11 +201,11 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                TextField(controller: emailController, decoration: PremiumTheme.inputDecoration('Child Email')),
+                TextField(controller: emailController, decoration: PremiumTheme.inputDecorationOf(context, 'Child Email')),
                 const SizedBox(height: 12),
-                TextField(controller: passwordController, obscureText: true, decoration: PremiumTheme.inputDecoration('Child Password')),
+                TextField(controller: passwordController, obscureText: true, decoration: PremiumTheme.inputDecorationOf(context, 'Child Password')),
                 const SizedBox(height: 12),
-                TextField(controller: inviteCodeController, decoration: PremiumTheme.inputDecoration('Academy Invite Code (Optional)')),
+                TextField(controller: inviteCodeController, decoration: PremiumTheme.inputDecorationOf(context, 'Academy Invite Code (Optional)')),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -245,7 +245,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
   void _showAddChildOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: PremiumTheme.cardNavy,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24.0),
@@ -288,14 +288,14 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Link Child by Email', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: TextField(
           controller: controller,
           style: const TextStyle(color: Colors.white),
           keyboardType: TextInputType.emailAddress,
-          decoration: PremiumTheme.inputDecoration('Child\'s Email Address'),
+          decoration: PremiumTheme.inputDecorationOf(context, 'Child\'s Email Address'),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white54))),

@@ -33,7 +33,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -119,7 +119,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.cardNavy,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text('ADD $playerName', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(

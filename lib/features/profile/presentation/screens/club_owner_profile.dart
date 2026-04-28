@@ -15,7 +15,7 @@ class ClubOwnerProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
@@ -43,7 +43,7 @@ class ClubOwnerProfile extends StatelessWidget {
         ],
       ),
       body: Container(
-        color: PremiumTheme.deepNavy,
+        color: PremiumTheme.surfaceBase(context),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -57,7 +57,7 @@ class ClubOwnerProfile extends StatelessWidget {
                 },
               ),
               Container(
-                color: PremiumTheme.deepNavy,
+                color: PremiumTheme.surfaceBase(context),
                 child: const Column(
                   children: [
                     SizedBox(height: 4),

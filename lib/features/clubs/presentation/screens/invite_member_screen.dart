@@ -58,7 +58,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     final teams = dashboard?.teams ?? [];
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -184,7 +184,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonFormField<String>(
                 value: _selectedTeamId,
-                dropdownColor: PremiumTheme.cardNavy,
+                dropdownColor: PremiumTheme.surfaceCard(context),
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
                 decoration: const InputDecoration(

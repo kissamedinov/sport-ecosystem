@@ -49,7 +49,7 @@ class CareerHistoryChart extends StatelessWidget {
       height: 220,
       padding: const EdgeInsets.fromLTRB(16, 24, 24, 16),
       decoration: BoxDecoration(
-        color: PremiumTheme.cardNavy.withValues(alpha: 0.8),
+        color: PremiumTheme.surfaceCard(context).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
         boxShadow: [
@@ -133,7 +133,7 @@ class CareerHistoryChart extends StatelessWidget {
                       show: true,
                       getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
                         radius: 4,
-                        color: PremiumTheme.deepNavy,
+                        color: PremiumTheme.surfaceBase(context),
                         strokeWidth: 2,
                         strokeColor: PremiumTheme.neonGreen,
                       ),

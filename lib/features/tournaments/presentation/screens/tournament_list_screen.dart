@@ -60,7 +60,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
     );
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -145,7 +145,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 setState(() => _selectedCity = val ? city : null);
                 _refresh();
               },
-              backgroundColor: PremiumTheme.cardNavy,
+              backgroundColor: PremiumTheme.surfaceCard(context),
               selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
               labelStyle: TextStyle(
                 color: isSelected ? PremiumTheme.neonGreen : Colors.white54,

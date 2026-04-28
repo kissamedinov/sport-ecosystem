@@ -100,16 +100,16 @@ class ProfileScreen extends StatelessWidget {
     final clubName = clubProvider.dashboard?.club.name;
 
     if (user == null) {
-      return const Scaffold(
-        backgroundColor: PremiumTheme.deepNavy,
-        body: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)),
+      return Scaffold(
+        backgroundColor: PremiumTheme.surfaceBase(context),
+        body: const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)),
       );
     }
 
     final roles = user.roles ?? [];
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: SingleChildScrollView(
         child: Column(
           children: [

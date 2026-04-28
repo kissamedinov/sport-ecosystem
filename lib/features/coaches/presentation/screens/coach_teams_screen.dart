@@ -47,7 +47,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           child: RefreshIndicator(
             onRefresh: () => clubProvider.fetchCoachDashboard(),
             color: PremiumTheme.neonGreen,
-            backgroundColor: PremiumTheme.cardNavy,
+            backgroundColor: PremiumTheme.surfaceCard(context),
             child: _teams.isEmpty
                 ? SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -71,13 +71,13 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     );
     if (widget.embedded) {
       return Container(
-        color: PremiumTheme.deepNavy,
+        color: PremiumTheme.surfaceBase(context),
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8),
         child: body,
       );
     }
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -143,7 +143,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: PremiumTheme.glassDecoration(radius: 16),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
         child: IntrinsicHeight(
           child: Row(
             children: [
@@ -209,7 +209,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
-        decoration: PremiumTheme.glassDecoration(radius: 18),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 18),
         child: Column(
           children: [
             GestureDetector(

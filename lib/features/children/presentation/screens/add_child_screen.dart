@@ -49,7 +49,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _firstNameController,
-                      decoration: PremiumTheme.inputDecoration('First Name'),
+                      decoration: PremiumTheme.inputDecorationOf(context, 'First Name'),
                       validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                     ),
                   ),
@@ -57,7 +57,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _lastNameController,
-                      decoration: PremiumTheme.inputDecoration('Last Name'),
+                      decoration: PremiumTheme.inputDecorationOf(context, 'Last Name'),
                       validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                     ),
                   ),
@@ -75,10 +75,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
                     lastDate: DateTime.now(),
                     builder: (context, child) => Theme(
                       data: Theme.of(context).copyWith(
-                        colorScheme: const ColorScheme.dark(
+                        colorScheme: ColorScheme.dark(
                           primary: PremiumTheme.neonGreen,
                           onPrimary: Colors.black,
-                          surface: PremiumTheme.cardNavy,
+                          surface: PremiumTheme.surfaceCard(context),
                         ),
                       ),
                       child: child!,
@@ -114,7 +114,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // Email Field
               TextFormField(
                 controller: _emailController,
-                decoration: PremiumTheme.inputDecoration('Child Email Address'),
+                decoration: PremiumTheme.inputDecorationOf(context, 'Child Email Address'),
                 keyboardType: TextInputType.emailAddress,
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
@@ -123,7 +123,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // Password Field
               TextFormField(
                 controller: _passwordController,
-                decoration: PremiumTheme.inputDecoration('Child Account Password'),
+                decoration: PremiumTheme.inputDecorationOf(context, 'Child Account Password'),
                 obscureText: true,
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
@@ -132,7 +132,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // Invite Code Field (Optional)
               TextFormField(
                 controller: _inviteCodeController,
-                decoration: PremiumTheme.inputDecoration('Academy Invite Code (Optional)'),
+                decoration: PremiumTheme.inputDecorationOf(context, 'Academy Invite Code (Optional)'),
               ),
               const SizedBox(height: 32),
               

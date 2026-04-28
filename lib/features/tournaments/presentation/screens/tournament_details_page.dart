@@ -54,7 +54,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -565,7 +565,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       builder: (context) => Consumer<TeamProvider>(
         builder: (context, tp, _) {
           return AlertDialog(
-            backgroundColor: PremiumTheme.cardNavy,
+            backgroundColor: PremiumTheme.surfaceCard(context),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: const Text('REGISTER TEAM', style: TextStyle(color: Colors.white, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
             content: tp.isLoading 

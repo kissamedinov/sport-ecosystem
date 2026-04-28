@@ -26,7 +26,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -76,7 +76,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     onPressed: () => provider.fetchNotifications(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: PremiumTheme.neonGreen,
-                      foregroundColor: PremiumTheme.deepNavy,
+                      foregroundColor: PremiumTheme.surfaceBase(context),
                     ),
                     child: const Text('Retry', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),

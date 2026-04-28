@@ -29,7 +29,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (context, snapshot) {
@@ -101,7 +101,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     return RefreshIndicator(
       onRefresh: () async => _refresh(),
       color: PremiumTheme.neonGreen,
-      backgroundColor: PremiumTheme.cardNavy,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _buildHeader()),
@@ -123,12 +123,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _buildHeader() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xFF0D2A1A), Color(0xFF0A1510), PremiumTheme.deepNavy],
-          stops: [0.0, 0.5, 1.0],
+          colors: [const Color(0xFF0D2A1A), const Color(0xFF0A1510), PremiumTheme.surfaceBase(context)],
+          stops: const [0.0, 0.5, 1.0],
         ),
       ),
       child: SafeArea(
@@ -288,7 +288,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: PremiumTheme.glassDecoration(radius: 20),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 20),
         child: Row(
           children: [
             Container(
@@ -427,7 +427,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: PremiumTheme.glassDecoration(radius: 16),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
         child: IntrinsicHeight(
           child: Row(
             children: [
@@ -762,7 +762,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         padding: const EdgeInsets.all(14),
-        decoration: PremiumTheme.glassDecoration(radius: 16),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -972,7 +972,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   Widget _buildEmptyFixtures() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: PremiumTheme.glassDecoration(radius: 16),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
       child: const Center(
         child: Text(
           'NO UPCOMING FIXTURES',
@@ -1012,7 +1012,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: PremiumTheme.glassDecoration(radius: 14),
+        decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
         child: Row(
           children: [
             Container(

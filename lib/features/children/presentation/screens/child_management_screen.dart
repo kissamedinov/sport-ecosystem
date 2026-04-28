@@ -169,10 +169,10 @@ class _ChildManagementScreenState extends State<ChildManagementScreen> with Sing
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(
+          colorScheme: ColorScheme.dark(
             primary: PremiumTheme.neonGreen,
             onPrimary: Colors.black,
-            surface: PremiumTheme.cardNavy,
+            surface: PremiumTheme.surfaceCard(context),
           ),
         ),
         child: child!,
@@ -328,7 +328,7 @@ class _ChildManagementScreenState extends State<ChildManagementScreen> with Sing
 
   Widget _buildActivityItem(Map<String, dynamic> activity) {
     return Card(
-      color: PremiumTheme.cardNavy,
+      color: PremiumTheme.surfaceCard(context),
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: const CircleAvatar(backgroundColor: Colors.white10, child: Icon(Icons.sports_soccer, color: Colors.white70)),
@@ -341,7 +341,7 @@ class _ChildManagementScreenState extends State<ChildManagementScreen> with Sing
 
   Widget _buildAwardItem(Map<String, dynamic> award) {
     return Card(
-      color: PremiumTheme.cardNavy,
+      color: PremiumTheme.surfaceCard(context),
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: const Icon(Icons.emoji_events, color: Colors.orange, size: 30),

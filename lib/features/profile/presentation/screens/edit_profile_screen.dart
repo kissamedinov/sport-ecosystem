@@ -96,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         title: const Text("EDIT PROFILE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
         centerTitle: true,
@@ -186,11 +186,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               width: 124, height: 124,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: PremiumTheme.cardNavy,
+                color: PremiumTheme.surfaceCard(context),
                 image: user?.avatarUrl != null 
                   ? DecorationImage(image: NetworkImage(user!.avatarUrl!), fit: BoxFit.cover)
                   : null,
-                border: Border.all(color: PremiumTheme.deepNavy, width: 4),
+                border: Border.all(color: PremiumTheme.surfaceBase(context), width: 4),
               ),
               child: user?.avatarUrl == null 
                 ? Center(

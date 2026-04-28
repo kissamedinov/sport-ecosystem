@@ -91,14 +91,14 @@ class _UploadMediaScreenState extends State<UploadMediaScreen> {
             const SizedBox(height: 24),
             TextField(
               controller: _titleController,
-              decoration: PremiumTheme.inputDecoration('Title', prefixIcon: Icons.title),
+              decoration: PremiumTheme.inputDecorationOf(context, 'Title', prefixIcon: Icons.title),
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _descriptionController,
               maxLines: 3,
-              decoration: PremiumTheme.inputDecoration('Description', prefixIcon: Icons.description),
+              decoration: PremiumTheme.inputDecorationOf(context, 'Description', prefixIcon: Icons.description),
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 40),

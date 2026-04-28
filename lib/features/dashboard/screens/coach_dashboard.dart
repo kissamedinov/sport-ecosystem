@@ -43,7 +43,7 @@ class _CoachDashboardState extends State<CoachDashboard> {
     final clubProvider = context.watch<ClubProvider>();
 
     return Scaffold(
-      backgroundColor: PremiumTheme.deepNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: const Text('COACH HUB', style: TextStyle(letterSpacing: 2)),
