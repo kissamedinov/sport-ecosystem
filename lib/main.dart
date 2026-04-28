@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/api/api_client.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/tournaments/data/repositories/tournament_repository.dart';
@@ -37,7 +39,11 @@ import 'features/admin/providers/admin_provider.dart';
 import 'features/bookings/data/repositories/booking_repository.dart';
 import 'features/bookings/providers/booking_provider.dart' as general_booking;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final themeProvider = ThemeProvider(prefs);
+
   final apiClient = ApiClient();
   final authRepository = AuthRepository(apiClient);
   final tournamentRepository = TournamentRepository(apiClient);
@@ -57,6 +63,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
         ChangeNotifierProvider(create: (_) => TournamentProvider(tournamentRepository)),
         ChangeNotifierProvider(create: (_) => TeamProvider(teamRepository)),
@@ -89,9 +96,12 @@ class SportsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = context.watch<ThemeProvider>().themeMode;
     return MaterialApp(
       title: 'Football Ecosystem',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeMode,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {

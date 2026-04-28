@@ -59,10 +59,6 @@ class AppTheme {
         cardBorder: _lightOutline,
       );
 
-  // Backwards compatibility alias — main.dart currently calls AppTheme.darkTheme.
-  // Remove once main.dart is updated in Task 3.
-  static ThemeData get darkTheme => dark;
-
   static ThemeData _build({
     required Brightness brightness,
     required ColorScheme scheme,
