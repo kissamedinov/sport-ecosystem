@@ -23,7 +23,7 @@ class PremiumCard extends StatelessWidget {
       height: height,
       width: width,
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: PremiumTheme.glassDecoration(),
+      decoration: PremiumTheme.glassDecorationOf(context),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

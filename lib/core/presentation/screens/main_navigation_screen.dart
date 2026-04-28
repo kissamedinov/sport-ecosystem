@@ -247,7 +247,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) => AlertDialog(
-          backgroundColor: PremiumTheme.cardNavy,
+          backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text('Create New Team', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           content: SingleChildScrollView(
@@ -276,7 +276,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   )
                 else ...[
                   DropdownButtonFormField<String>(
-                    dropdownColor: PremiumTheme.cardNavy,
+                    dropdownColor: PremiumTheme.surfaceCard(dialogContext),
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
                       labelText: 'Academy *',
@@ -400,7 +400,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) => AlertDialog(
-          backgroundColor: PremiumTheme.cardNavy,
+          backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text('Add New Academy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           content: Column(

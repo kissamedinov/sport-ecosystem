@@ -42,14 +42,14 @@ class _OrleonCardState extends State<OrleonCard> {
         curve: Curves.easeOut,
         padding: widget.padding,
         decoration: BoxDecoration(
-          color: widget.gradient == null ? (widget.background ?? PremiumTheme.cardNavy) : null,
+          color: widget.gradient == null ? (widget.background ?? PremiumTheme.surfaceCard(context)) : null,
           gradient: widget.gradient,
           borderRadius: BorderRadius.circular(widget.radius),
           border: Border.all(
-            color: widget.borderColor ?? PremiumTheme.borderGrey,
+            color: widget.borderColor ?? PremiumTheme.borderSubtle(context),
             width: 1,
           ),
-          boxShadow: widget.shadow ?? PremiumTheme.softShadow,
+          boxShadow: widget.shadow ?? PremiumTheme.softShadowOf(context),
         ),
         child: widget.child,
       ),
