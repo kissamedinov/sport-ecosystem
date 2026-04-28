@@ -2,78 +2,144 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Primary Colors (Vibrant Sports Accents)
-  static const Color primaryColor = Color(0xFF00E676); // Neon Green
-  static const Color secondaryColor = Color(0xFF2979FF); // Electric Blue
-  
-  // Background Colors (Deep Dark)
-  static const Color backgroundColor = Color(0xFF121212);
-  static const Color surfaceColor = Color(0xFF1E1E1E);
-  static const Color cardColor = Color(0xFF252525);
+  // Brand accent colors (theme-independent)
+  static const Color brandNeonGreen = Color(0xFF00E676);
+  static const Color brandElectricBlue = Color(0xFF2979FF);
 
-  // Text Colors
-  static const Color textPrimary = Colors.white;
-  static const Color textSecondary = Colors.white70;
+  // Dark theme palette
+  static const Color _darkBg = Color(0xFF121212);
+  static const Color _darkSurface = Color(0xFF1E1E1E);
+  static const Color _darkCard = Color(0xFF252525);
 
-  static ThemeData get darkTheme {
+  // Light theme palette
+  static const Color _lightBg = Color(0xFFF5F5F5);
+  static const Color _lightSurface = Colors.white;
+  static const Color _lightOnSurface = Color(0xFF1A1A1A);
+  static const Color _lightOnSurfaceVariant = Color(0xFF757575);
+  static const Color _lightOutline = Color(0xFFE0E0E0);
+  static const Color _lightPrimary = Color(0xFF00C853); // muted neonGreen for contrast on white
+
+  static ThemeData get dark => _build(
+        brightness: Brightness.dark,
+        scheme: const ColorScheme.dark(
+          primary: brandNeonGreen,
+          secondary: brandElectricBlue,
+          surface: _darkSurface,
+          onPrimary: Colors.black,
+          onSecondary: Colors.white,
+          onSurface: Colors.white,
+          surfaceTint: Colors.transparent,
+        ),
+        scaffoldBg: _darkBg,
+        cardColor: _darkCard,
+        inputFill: _darkSurface,
+        bottomNavBg: _darkSurface,
+        primaryButtonFg: Colors.black,
+        cardBorder: null,
+      );
+
+  static ThemeData get light => _build(
+        brightness: Brightness.light,
+        scheme: const ColorScheme.light(
+          primary: _lightPrimary,
+          secondary: brandElectricBlue,
+          surface: _lightSurface,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: _lightOnSurface,
+          onSurfaceVariant: _lightOnSurfaceVariant,
+          outline: _lightOutline,
+          surfaceTint: Colors.transparent,
+        ),
+        scaffoldBg: _lightBg,
+        cardColor: _lightSurface,
+        inputFill: _lightSurface,
+        bottomNavBg: _lightSurface,
+        primaryButtonFg: Colors.white,
+        cardBorder: _lightOutline,
+      );
+
+  // Backwards compatibility alias — main.dart currently calls AppTheme.darkTheme.
+  // Remove once main.dart is updated in Task 3.
+  static ThemeData get darkTheme => dark;
+
+  static ThemeData _build({
+    required Brightness brightness,
+    required ColorScheme scheme,
+    required Color scaffoldBg,
+    required Color cardColor,
+    required Color inputFill,
+    required Color bottomNavBg,
+    required Color primaryButtonFg,
+    required Color? cardBorder,
+  }) {
+    final isLight = brightness == Brightness.light;
+    final secondaryTextColor =
+        isLight ? _lightOnSurfaceVariant : Colors.white70;
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      primaryColor: primaryColor,
-      scaffoldBackgroundColor: backgroundColor,
-      canvasColor: backgroundColor,
-      dialogBackgroundColor: surfaceColor,
-      colorScheme: const ColorScheme.dark(
-        primary: primaryColor,
-        secondary: secondaryColor,
-        surface: surfaceColor,
-        onPrimary: Colors.black,
-        onSecondary: Colors.white,
-        onSurface: textPrimary,
-        // Disable M3 surface tint that makes everything look white/light
-        surfaceTint: Colors.transparent,
-      ),
+      brightness: brightness,
+      primaryColor: scheme.primary,
+      scaffoldBackgroundColor: scaffoldBg,
+      canvasColor: scaffoldBg,
+      dialogTheme: DialogThemeData(backgroundColor: scheme.surface),
+      colorScheme: scheme,
       cardTheme: CardThemeData(
         color: cardColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      listTileTheme: const ListTileThemeData(
-        tileColor: Colors.transparent,
-        textColor: Colors.white,
-        iconColor: Colors.white70,
-      ),
-      textTheme: GoogleFonts.outfitTextTheme(
-        const TextTheme(
-          headlineMedium: TextStyle(fontWeight: FontWeight.bold, color: textPrimary),
-          titleLarge: TextStyle(fontWeight: FontWeight.w600, color: textPrimary),
-          bodyLarge: TextStyle(color: textPrimary),
-          bodyMedium: TextStyle(color: textSecondary),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: cardBorder == null
+              ? BorderSide.none
+              : BorderSide(color: cardBorder, width: 1),
         ),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+      listTileTheme: ListTileThemeData(
+        tileColor: Colors.transparent,
+        textColor: scheme.onSurface,
+        iconColor: secondaryTextColor,
+      ),
+      dividerTheme: DividerThemeData(
+        color: isLight
+            ? _lightOutline
+            : Colors.white.withValues(alpha: 0.12),
+        thickness: 1,
+      ),
+      textTheme: GoogleFonts.outfitTextTheme(
+        TextTheme(
+          headlineMedium:
+              TextStyle(fontWeight: FontWeight.bold, color: scheme.onSurface),
+          titleLarge:
+              TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface),
+          bodyLarge: TextStyle(color: scheme.onSurface),
+          bodyMedium: TextStyle(color: secondaryTextColor),
+        ),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: isLight ? Colors.white : Colors.transparent,
+        foregroundColor: scheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w900,
-          color: textPrimary,
+          color: scheme.onSurface,
           letterSpacing: 2,
         ),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceColor,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: textSecondary,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: bottomNavBg,
+        selectedItemColor: scheme.primary,
+        unselectedItemColor: secondaryTextColor,
         type: BottomNavigationBarType.fixed,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.black,
+          backgroundColor: scheme.primary,
+          foregroundColor: primaryButtonFg,
           textStyle: const TextStyle(fontWeight: FontWeight.bold),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -81,20 +147,24 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceColor,
+        fillColor: inputFill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+          borderSide: isLight
+              ? const BorderSide(color: _lightOutline)
+              : BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+          borderSide: isLight
+              ? const BorderSide(color: _lightOutline)
+              : BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: primaryColor, width: 1),
+          borderSide: BorderSide(color: scheme.primary, width: 1),
         ),
-        labelStyle: const TextStyle(color: textSecondary),
+        labelStyle: TextStyle(color: secondaryTextColor),
       ),
     );
   }
