@@ -82,15 +82,34 @@ class PremiumTheme {
   // === Theme-aware glassmorphism ===
   static BoxDecoration glassDecorationOf(BuildContext c, {double radius = 16.0}) {
     final dark = _isDark(c);
-    final tint = dark ? Colors.white : Colors.black;
+    if (!dark) {
+      return BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.07)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      );
+    }
     return BoxDecoration(
-      color: tint.withValues(alpha: dark ? 0.05 : 0.04),
+      color: Colors.white.withValues(alpha: 0.05),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: tint.withValues(alpha: dark ? 0.10 : 0.08)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
     );
   }
 
-  static Widget glassEffect({required Widget child, double blur = 10.0, double radius = 16.0}) {
+  static Widget glassEffect(BuildContext c, {required Widget child, double blur = 10.0, double radius = 16.0}) {
+    if (!_isDark(c)) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: child,
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: BackdropFilter(

@@ -31,17 +31,17 @@ class CoachPerformanceScreen extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'PERFORMANCE',
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -52,11 +52,11 @@ class CoachPerformanceScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
-          _buildSeasonHeader(),
+          _buildSeasonHeader(context),
           const SizedBox(height: 20),
           _buildWinRateCard(context, winRate, total.toInt()),
           const SizedBox(height: 12),
-          _buildStatsGrid(goals, conceded, cleanSheets, xPoints),
+          _buildStatsGrid(context, goals, conceded, cleanSheets, xPoints),
           const SizedBox(height: 24),
           _buildTopPerformersSection(context),
         ],
@@ -64,23 +64,23 @@ class CoachPerformanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSeasonHeader() {
+  Widget _buildSeasonHeader(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
           'Season Stats',
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 26,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           '2025/26 · All teams combined',
-          style: TextStyle(color: Colors.white38, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
         ),
       ],
     );
@@ -93,10 +93,10 @@ class CoachPerformanceScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'WIN RATE',
             style: TextStyle(
-              color: Colors.white38,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 10,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.5,
@@ -116,14 +116,14 @@ class CoachPerformanceScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$matchesPlayed matches played this season',
-            style: const TextStyle(color: Colors.white38, fontSize: 13),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
           ),
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: winRate / 100,
-              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
               valueColor: const AlwaysStoppedAnimation<Color>(PremiumTheme.neonGreen),
               minHeight: 5,
             ),
@@ -133,13 +133,14 @@ class CoachPerformanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid(int goals, int conceded, int cleanSheets, int xPoints) {
+  Widget _buildStatsGrid(BuildContext context, int goals, int conceded, int cleanSheets, int xPoints) {
     return Row(
       children: [
         Expanded(
           child: Column(
             children: [
               _statsCard(
+                context: context,
                 icon: Icons.sports_soccer_rounded,
                 iconColor: PremiumTheme.electricBlue,
                 value: '$goals',
@@ -150,6 +151,7 @@ class CoachPerformanceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               _statsCard(
+                context: context,
                 icon: Icons.shield_outlined,
                 iconColor: Colors.amber,
                 value: '$cleanSheets',
@@ -166,6 +168,7 @@ class CoachPerformanceScreen extends StatelessWidget {
           child: Column(
             children: [
               _statsCard(
+                context: context,
                 icon: Icons.sports_soccer_rounded,
                 iconColor: Colors.redAccent,
                 value: '$conceded',
@@ -176,6 +179,7 @@ class CoachPerformanceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               _statsCard(
+                context: context,
                 icon: Icons.bar_chart_rounded,
                 iconColor: Colors.purpleAccent,
                 value: '$xPoints',
@@ -193,6 +197,7 @@ class CoachPerformanceScreen extends StatelessWidget {
   }
 
   Widget _statsCard({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String value,
@@ -220,12 +225,12 @@ class CoachPerformanceScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.06),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     badge,
-                    style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 8, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                   ),
                 ),
               ],
@@ -245,8 +250,8 @@ class CoachPerformanceScreen extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white38,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
@@ -262,13 +267,13 @@ class CoachPerformanceScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
-            Icon(Icons.local_fire_department_rounded, color: Colors.orangeAccent, size: 16),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.local_fire_department_rounded, color: Colors.orangeAccent, size: 16),
+            const SizedBox(width: 8),
             Text(
               'TOP PERFORMERS',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.5,
@@ -281,10 +286,10 @@ class CoachPerformanceScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
-            child: const Center(
+            child: Center(
               child: Text(
                 'NO PERFORMER DATA',
-                style: TextStyle(color: Colors.white24, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ),
           )
@@ -306,9 +311,9 @@ class CoachPerformanceScreen extends StatelessWidget {
 
     Color rankColor;
     if (rank == 1) rankColor = Colors.amber;
-    else if (rank == 2) rankColor = Colors.white54;
+    else if (rank == 2) rankColor = Theme.of(context).colorScheme.onSurfaceVariant;
     else if (rank == 3) rankColor = Colors.orangeAccent;
-    else rankColor = Colors.white24;
+    else rankColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -353,11 +358,11 @@ class CoachPerformanceScreen extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     position,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                   ),
                 ],
               ),

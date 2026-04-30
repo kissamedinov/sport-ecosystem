@@ -246,9 +246,10 @@ class _HeroBlock extends StatelessWidget {
   }
 
   void _showDashboardMenu(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF161B22),
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -261,24 +262,24 @@ class _HeroBlock extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white12,
+                color: cs.onSurface.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
-            _menuItem(ctx, Icons.person_outline_rounded, 'My Profile', Colors.white70, () {
+            _menuItem(ctx, Icons.person_outline_rounded, 'My Profile', cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProfileScreen()),
               );
             }),
-            _menuItem(ctx, Icons.notifications_outlined, 'Notifications', Colors.white70, () {
+            _menuItem(ctx, Icons.notifications_outlined, 'Notifications', cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const NotificationScreen()),
               );
             }),
-            _menuItem(ctx, Icons.settings_outlined, 'Settings', Colors.white70, () {
+            _menuItem(ctx, Icons.settings_outlined, 'Settings', cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
             }),
           ],
@@ -311,14 +312,19 @@ class _HeroBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final unread = notif.notifications.where((n) => !n.isRead).length;
     final safeTop = MediaQuery.of(context).padding.top;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradientColors = isDark
+        ? const [Color(0xFF0D2E14), Color(0xFF0A0E12)]
+        : const [Color(0xFFE8F5E9), Color(0xFFF5F5F5)];
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF0D2E14), Color(0xFF0A0E12)],
-          stops: [0.0, 1.0],
+          colors: gradientColors,
+          stops: const [0.0, 1.0],
         ),
       ),
       padding: EdgeInsets.fromLTRB(20, safeTop + 12, 20, 24),
@@ -335,11 +341,11 @@ class _HeroBlock extends StatelessWidget {
                     height: 44,
                     margin: const EdgeInsets.only(right: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: cs.onSurface.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
                     ),
-                    child: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 24),
+                    child: Icon(Icons.chevron_left_rounded, color: cs.onSurface, size: 24),
                   ),
                 ),
               ],
@@ -402,8 +408,8 @@ class _HeroBlock extends StatelessWidget {
                           child: Text(
                             name,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: cs.onSurface,
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.3,
@@ -434,8 +440,8 @@ class _HeroBlock extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       specialty.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.0,
@@ -448,17 +454,17 @@ class _HeroBlock extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: cs.onSurface,
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'coach rating',
                           style: TextStyle(
-                            color: Colors.white54,
+                            color: cs.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -487,7 +493,7 @@ class _HeroBlock extends StatelessWidget {
                   icon: Icons.sports_soccer_outlined,
                   label: 'Matches',
                   value: (perf['matches_played'] ?? perf['matches'] ?? 0).toString(),
-                  accent: Colors.white54,
+                  accent: cs.onSurfaceVariant,
                 ),
               ),
               const SizedBox(width: 8),
@@ -523,6 +529,7 @@ class _HeroIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -530,11 +537,11 @@ class _HeroIconButton extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.06),
+            color: cs.onSurface.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white12),
+            border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
           ),
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: cs.onSurface, size: 20),
         ),
         if (badge > 0)
           Positioned(
@@ -603,8 +610,8 @@ class _LineupAlertCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'vs $opponent · $when',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -694,8 +701,8 @@ class _TeamsList extends StatelessWidget {
                               child: Text(
                                 (team['name'] ?? 'Team').toString(),
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -733,8 +740,8 @@ class _TeamsList extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${team['category'] ?? 'U-18'} · ${team['players_count'] ?? 0} players',
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -853,8 +860,8 @@ class _TrainingsList extends StatelessWidget {
                       children: [
                         Text(
                           (tr['title'] ?? 'Training').toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                           ),
@@ -862,8 +869,8 @@ class _TrainingsList extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${tr['day'] ?? ''} · ${tr['time'] ?? ''} · ${tr['venue'] ?? ''}',
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -871,7 +878,7 @@ class _TrainingsList extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Colors.white38),
+                  Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                 ],
               ),
             ),
@@ -930,8 +937,8 @@ class _CoachingToolsGrid extends StatelessWidget {
                       ),
                       Text(
                         i.label,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
@@ -960,6 +967,7 @@ class _EmptyPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: OrleonCard(
@@ -967,12 +975,12 @@ class _EmptyPlaceholder extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white38, size: 18),
+            Icon(icon, color: muted.withValues(alpha: 0.5), size: 18),
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white54,
+              style: TextStyle(
+                color: muted,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -1008,15 +1016,22 @@ class _CoachBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
       decoration: BoxDecoration(
-        color: const Color(0xFF161B22).withValues(alpha: 0.92),
+        color: isDark
+            ? const Color(0xFF161B22).withValues(alpha: 0.92)
+            : Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.07)
+              : Colors.black.withValues(alpha: 0.07),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -1083,8 +1098,8 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = active
-        ? const Color(0xFF00E676)
-        : Colors.white.withValues(alpha: 0.54);
+        ? PremiumTheme.accent(context)
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,

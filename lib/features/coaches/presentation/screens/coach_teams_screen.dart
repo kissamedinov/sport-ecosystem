@@ -86,17 +86,17 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 16),
+            child: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), size: 16),
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'MY TEAMS',
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -110,10 +110,10 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.search_rounded, color: Colors.white70, size: 18),
+              child: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), size: 18),
             ),
           ),
         ],
@@ -179,8 +179,8 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white38,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
@@ -191,7 +191,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     );
   }
 
-  Widget _divider() => Container(width: 1, color: Colors.white.withValues(alpha: 0.06));
+  Widget _divider() => Container(width: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08));
 
   Widget _buildTeamCard(int index, Map<String, dynamic> team) {
     final isExpanded = _expanded.contains(index);
@@ -248,8 +248,8 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
                                 children: [
                                   Text(
                                     name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -263,14 +263,14 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 '$ageGroup · $campus · ${players.length} players',
-                                style: const TextStyle(color: Colors.white38, fontSize: 11),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                               ),
                             ],
                           ),
                         ),
                         Icon(
                           isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                          color: Colors.white38,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           size: 22,
                         ),
                       ],
@@ -285,7 +285,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           '${draws}D',
-                          style: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w800),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -310,7 +310,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
               ),
             ),
             if (isExpanded) ...[
-              Container(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+              Container(height: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
               if (players.isNotEmpty)
                 _buildPlayerTable(players),
               if (nextMatch != null)
@@ -360,13 +360,13 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Row(
-        children: const [
-          SizedBox(width: 36, child: Text('#', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700))),
-          Expanded(child: Text('PLAYER', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5))),
-          SizedBox(width: 36, child: Center(child: Text('POS', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 30, child: Center(child: Text('G', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 30, child: Center(child: Text('A', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 36, child: Center(child: Text('RTG', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w700)))),
+        children: [
+          SizedBox(width: 36, child: Text('#', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700))),
+          Expanded(child: Text('PLAYER', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5))),
+          SizedBox(width: 36, child: Center(child: Text('POS', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          SizedBox(width: 30, child: Center(child: Text('G', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          SizedBox(width: 30, child: Center(child: Text('A', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          SizedBox(width: 36, child: Center(child: Text('RTG', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
         ],
       ),
     );
@@ -404,7 +404,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -484,10 +484,10 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           children: [
             const Icon(Icons.calendar_today_rounded, color: PremiumTheme.electricBlue, size: 13),
             const SizedBox(width: 8),
-            const Text('Next: ', style: TextStyle(color: Colors.white38, fontSize: 11)),
+            Text('Next: ', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
             Text(
               '$home vs $away',
-              style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w700),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 11, fontWeight: FontWeight.w700),
             ),
             const Spacer(),
             Text(dateStr, style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 11, fontWeight: FontWeight.w700)),
@@ -500,15 +500,16 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
   String _weekday(int w) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][w - 1];
 
   Widget _buildEmpty() {
-    return const Center(
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.group_off_rounded, color: Colors.white12, size: 64),
-          SizedBox(height: 16),
+          Icon(Icons.group_off_rounded, color: muted.withValues(alpha: 0.3), size: 64),
+          const SizedBox(height: 16),
           Text(
             'NO TEAMS ASSIGNED',
-            style: TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+            style: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
         ],
       ),

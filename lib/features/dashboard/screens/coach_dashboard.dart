@@ -109,17 +109,17 @@ class _CoachDashboardState extends State<CoachDashboard> {
                     onTap: () => _copyToClipboard(user?.id ?? '', 'User ID'),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(4)),
                       child: Text(
                         'COACH ID: ${user?.id.substring(0, 8).toUpperCase()}...',
-                        style: const TextStyle(fontSize: 9, color: Colors.white38, fontFamily: 'monospace'),
+                        style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant, fontFamily: 'monospace'),
                       ),
                     ),
                   ),
                   
                   const SizedBox(height: 24),
-                  const Text('MATCH & PERFORMANCE', 
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  Text('MATCH & PERFORMANCE',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                   const SizedBox(height: 12),
                   
                   Row(
@@ -145,12 +145,12 @@ class _CoachDashboardState extends State<CoachDashboard> {
                   ),
 
                   const SizedBox(height: 24),
-                  const Text('TEAM MANAGEMENT', 
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  Text('TEAM MANAGEMENT',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                   const SizedBox(height: 12),
                   
                   if (clubProvider.coachDashboard?['teams']?.isEmpty ?? true)
-                    const PremiumCard(child: Center(child: Text('No teams assigned yet', style: TextStyle(color: Colors.white38))))
+                    PremiumCard(child: Center(child: Text('No teams assigned yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))))
                   else
                     ...((clubProvider.coachDashboard?['teams'] as List).map((team) {
                       return PremiumCard(
@@ -163,19 +163,19 @@ class _CoachDashboardState extends State<CoachDashboard> {
                               decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
                               child: const Icon(Icons.groups, color: Colors.green, size: 20),
                             ),
-                            title: Text(team['name'], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                            subtitle: Text('Category: ${team['age_category'] ?? team['birth_year']} | Players: ${(team['players'] as List).length}', 
-                              style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                            title: Text(team['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                            subtitle: Text('Category: ${team['age_category'] ?? team['birth_year']} | Players: ${(team['players'] as List).length}',
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
                             children: [
-                              const Divider(color: Colors.white10),
+                              Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
                               ...(team['players'] as List).map((player) {
                                 return ListTile(
                                   dense: true,
-                                  leading: const Icon(Icons.person_outline, size: 18, color: Colors.white24),
-                                  title: Text(player['name'], style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                                  subtitle: Text('Pos: ${player['position'] ?? 'N/A'} | #: ${player['jersey_number'] ?? 'N/A'}', 
-                                    style: const TextStyle(color: Colors.white24, fontSize: 11)),
-                                  trailing: const Icon(Icons.chevron_right, size: 14, color: Colors.white10),
+                                  leading: Icon(Icons.person_outline, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  title: Text(player['name'], style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13)),
+                                  subtitle: Text('Pos: ${player['position'] ?? 'N/A'} | #: ${player['jersey_number'] ?? 'N/A'}',
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
+                                  trailing: Icon(Icons.chevron_right, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 );
                               }),
                               const SizedBox(height: 8),
@@ -186,8 +186,8 @@ class _CoachDashboardState extends State<CoachDashboard> {
                     })),
 
                   const SizedBox(height: 24),
-                  const Text('COACHING TOOLS', 
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+                  Text('COACHING TOOLS',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
                   const SizedBox(height: 12),
                   
                   GridView.count(

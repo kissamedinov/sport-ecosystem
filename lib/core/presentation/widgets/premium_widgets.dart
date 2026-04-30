@@ -29,7 +29,7 @@ class PremiumCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          child: PremiumTheme.glassEffect(
+          child: PremiumTheme.glassEffect(context,
             child: Padding(
               padding: padding,
               child: child,
@@ -72,7 +72,7 @@ class PremiumStatCard extends StatelessWidget {
               if (subtitle != null)
                 Text(
                   subtitle!,
-                  style: const TextStyle(fontSize: 10, color: Colors.white54),
+                  style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
             ],
           ),
@@ -87,10 +87,10 @@ class PremiumStatCard extends StatelessWidget {
           ),
           Text(
             title.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: Colors.white54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 1,
             ),
           ),

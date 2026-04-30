@@ -215,8 +215,8 @@ class OrleonStatCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
@@ -225,8 +225,8 @@ class OrleonStatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white54,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -448,8 +448,8 @@ class OrleonFixtureRow extends StatelessWidget {
               children: [
                 Text(
                   'vs $opponent',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
@@ -457,26 +457,26 @@ class OrleonFixtureRow extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.access_time, color: Colors.white54, size: 12),
+                    Icon(Icons.access_time, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 12),
                     const SizedBox(width: 4),
                     Text(
                       time,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     if (venue != null) ...[
                       const SizedBox(width: 10),
-                      const Icon(Icons.place_outlined, color: Colors.white54, size: 12),
+                      Icon(Icons.place_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 12),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
                           venue!,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -488,7 +488,7 @@ class OrleonFixtureRow extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.white38),
+          Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         ],
       ),
     );
@@ -563,8 +563,8 @@ class OrleonSectionHeader extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             title.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 13,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
