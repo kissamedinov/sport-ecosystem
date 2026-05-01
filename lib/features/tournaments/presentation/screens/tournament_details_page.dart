@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
 import '../../../teams/providers/team_provider.dart';
@@ -35,7 +36,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _isOrganizer ? 4 : 3, vsync: this);
+    _tabController = TabController(length: _isOrganizer ? 5 : 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<TournamentProvider>();
       provider.fetchTournamentDetails(widget.tournamentId);
@@ -70,6 +71,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             const Tab(text: 'INFO'),
             const Tab(text: 'MATCHES'),
             const Tab(text: 'STANDINGS'),
+            const Tab(text: 'CONTACT'),
             if (_isOrganizer) const Tab(text: 'REQUESTS'),
           ],
         ),
@@ -95,6 +97,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               _buildInfoTab(tournament, provider),
               _buildMatchesTab(provider.matches, provider),
               _buildStandingsTab(provider.standings),
+              _buildContactTab(tournament),
               if (_isOrganizer) _buildRequestsTab(provider.registeredTeams, provider),
             ],
           );
@@ -165,9 +168,119 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   ],
                 ),
               ],
+          ),
+          if (t.registrationClose != null && t.status == 'upcoming')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.danger.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: PremiumTheme.danger.withValues(alpha: 0.2)),
+                  ),
+                  child: const Text('DEADLINE', style: TextStyle(color: PremiumTheme.danger, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 4),
+                Text(t.registrationClose!.split('T').first, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch contact application')),
+        );
+      }
+    }
+  }
+
+  Widget _buildContactTab(Tournament t) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('ORGANIZER CONTACTS', Icons.contact_support),
+          PremiumCard(
+            child: Column(
+              children: [
+                if (t.whatsapp != null)
+                  _buildContactItem(
+                    Icons.message,
+                    'WhatsApp',
+                    t.whatsapp!,
+                    onTap: () {
+                      final cleanPhone = t.whatsapp!.replaceAll(RegExp(r'[^0-9]'), '');
+                      _launchURL('https://wa.me/$cleanPhone');
+                    },
+                  ),
+                if (t.whatsapp != null && t.phone != null) const Divider(color: Colors.white10),
+                if (t.phone != null)
+                  _buildContactItem(
+                    Icons.phone,
+                    'Phone Number',
+                    t.phone!,
+                    onTap: () => _launchURL('tel:${t.phone}'),
+                  ),
+                if (t.whatsapp == null && t.phone == null)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: Text('No contact information provided', style: TextStyle(color: Colors.white38))),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSectionTitle('LOCATION', Icons.map),
+          PremiumCard(
+            child: Row(
+              children: [
+                const Icon(Icons.location_on, color: PremiumTheme.neonGreen),
+                const SizedBox(width: 12),
+                Text(t.location, style: const TextStyle(color: Colors.white)),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildContactItem(IconData icon, String label, String value, {required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: PremiumTheme.neonGreen, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              ],
+            ),
+            const Spacer(),
+            const Icon(Icons.chevron_right, color: Colors.white24),
+          ],
+        ),
       ),
     );
   }
@@ -324,7 +437,18 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
               ),
               if (match.status == 'finished')
-                const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold))
+              else if (match.matchDate != null) ...[
+                if (match.matchDate!.difference(DateTime.now()).inHours < 2)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: PremiumTheme.danger.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text('LINEUP DEADLINE', style: TextStyle(color: PremiumTheme.danger, fontSize: 9, fontWeight: FontWeight.bold)),
+                  ),
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -560,51 +684,134 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     final teamProvider = context.read<TeamProvider>();
     teamProvider.fetchMyTeams();
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => Consumer<TeamProvider>(
-        builder: (context, tp, _) {
-          return AlertDialog(
-            backgroundColor: PremiumTheme.surfaceCard(context),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            title: const Text('REGISTER TEAM', style: TextStyle(color: Colors.white, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
-            content: tp.isLoading 
-              ? const SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
-              : tp.myTeams.isEmpty
-                ? const Text('No teams found.', style: TextStyle(color: Colors.white38))
-                : SizedBox(
-                    width: double.maxFinite,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: PremiumTheme.surfaceCard(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Consumer<TeamProvider>(
+          builder: (context, tp, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'APPLY FOR TOURNAMENT',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Select one of your teams to participate in this division (Born $requiredBirthYear).',
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+                const SizedBox(height: 24),
+                if (tp.isLoading)
+                  const Expanded(child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
+                else if (tp.myTeams.isEmpty)
+                  const Expanded(child: Center(child: Text('No teams found in your profile.', style: TextStyle(color: Colors.white38))))
+                else
+                  Expanded(
                     child: ListView.builder(
-                      shrinkWrap: true,
                       itemCount: tp.myTeams.length,
                       itemBuilder: (context, index) {
                         final team = tp.myTeams[index];
                         final isEligible = team.birthYear == requiredBirthYear;
-                        return ListTile(
-                          title: Text(team.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          subtitle: Text('Birth Year: ${team.birthYear ?? '?'}', style: const TextStyle(color: Colors.white38, fontSize: 12)),
-                          trailing: isEligible 
-                            ? const Icon(Icons.check_circle, color: PremiumTheme.neonGreen)
-                            : const Icon(Icons.error_outline, color: PremiumTheme.danger),
-                          onTap: isEligible ? () async {
-                            final success = await context.read<TournamentProvider>().registerTeamToDivision(divisionId, team.id, '{"source": "mobile_app"}');
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(success ? 'Registration submitted!' : 'Error'),
-                                backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
-                              ));
-                            }
-                          } : null,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: InkWell(
+                            onTap: isEligible ? () async {
+                              final success = await context.read<TournamentProvider>().registerTeamToDivision(divisionId, team.id, '{"source": "mobile_app"}');
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(success ? 'Registration request sent!' : 'Error submitting registration'),
+                                  backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ));
+                              }
+                            } : null,
+                            borderRadius: BorderRadius.circular(16),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isEligible 
+                                    ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
+                                    : Colors.white.withValues(alpha: 0.05),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.shield,
+                                      color: isEligible ? PremiumTheme.neonGreen : Colors.white24,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          team.name,
+                                          style: TextStyle(
+                                            color: isEligible ? Colors.white : Colors.white38,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Birth Year: ${team.birthYear ?? "N/A"}',
+                                          style: const TextStyle(color: Colors.white38, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isEligible)
+                                    const Icon(Icons.arrow_forward_ios, color: PremiumTheme.neonGreen, size: 14)
+                                  else
+                                    const Icon(Icons.block, color: Colors.white10, size: 14),
+                                ],
+                              ),
+                            ),
+                          ),
                         );
                       },
                     ),
                   ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

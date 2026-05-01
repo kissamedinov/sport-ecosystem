@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_squad_provider.dart';
 import '../../data/models/tournament_squad_member.dart';
 import '../../../lineups/providers/lineup_provider.dart';
 import '../../../lineups/models/lineup.dart';
+import '../../../../core/theme/premium_theme.dart';
+import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class MatchLineupScreen extends StatefulWidget {
   final String matchId;
@@ -24,7 +27,6 @@ class MatchLineupScreen extends StatefulWidget {
 }
 
 class _MatchLineupScreenState extends State<MatchLineupScreen> {
-  // Maps player_profile_id -> {is_starting, position}
   final Map<String, bool> _starters = {};
   final Map<String, String> _positions = {};
   final List<String> _positionOptions = ['GK', 'DF', 'MF', 'FW'];
@@ -40,6 +42,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   int get _startingCount => _starters.values.where((v) => v).length;
 
   void _toggleSelection(TournamentSquadMember member) {
+    HapticFeedback.lightImpact();
     setState(() {
       if (_starters.containsKey(member.childProfileId)) {
         _starters.remove(member.childProfileId);
@@ -52,6 +55,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   }
 
   void _toggleStarting(String childProfileId) {
+    HapticFeedback.mediumImpact();
     setState(() {
       if (_starters.containsKey(childProfileId)) {
         _starters[childProfileId] = !(_starters[childProfileId]!);
@@ -60,6 +64,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   }
 
   Future<void> _submit() async {
+    HapticFeedback.heavyImpact();
     if (_starters.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select at least one player.')),
@@ -89,14 +94,22 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lineup submitted successfully!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('LINEUP SUBMITTED SUCCESSFULLY'),
+            backgroundColor: PremiumTheme.neonGreen,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: PremiumTheme.danger,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -107,17 +120,28 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     final lineupProvider = context.watch<LineupProvider>();
     
     return Scaffold(
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('MATCH LINEUP'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('MATCH LINEUP', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white10),
+            ),
             child: Center(
               child: Text(
-                '$_startingCount / 11 Starting',
+                '$_startingCount / 11 STARTING',
                 style: TextStyle(
-                  color: _startingCount == 11 ? Colors.green : Colors.orangeAccent,
-                  fontWeight: FontWeight.bold,
+                  color: _startingCount == 11 ? PremiumTheme.neonGreen : Colors.white54,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
                 ),
               ),
             ),
@@ -127,20 +151,28 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       body: Consumer<TournamentSquadProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading || lineupProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
           }
 
           if (provider.error != null) {
-            return Center(child: Text('Error: ${provider.error}'));
+            return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)));
           }
 
           if (provider.squad.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'No squad members found. Please add players to the tournament squad first.',
-                  textAlign: TextAlign.center,
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.group_off_rounded, size: 64, color: Colors.white.withValues(alpha: 0.1)),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'NO SQUAD MEMBERS FOUND\nPlease add players to the tournament squad first.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white38, height: 1.5),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -150,123 +182,132 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   itemCount: provider.squad.length,
                   itemBuilder: (context, index) {
                     final member = provider.squad[index];
                     final isSelected = _starters.containsKey(member.childProfileId);
                     final isStarting = isSelected && _starters[member.childProfileId]!;
+                    final name = member.childProfileId.substring(0, 8).toUpperCase();
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      color: isStarting
-                          ? Colors.green.withOpacity(0.15)
-                          : isSelected
-                              ? Colors.orange.withOpacity(0.10)
-                              : null,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: isStarting
-                              ? Colors.green
-                              : isSelected
-                                  ? Colors.orange
-                                  : Colors.grey.shade700,
-                          child: Text(
-                            member.jerseyNumber?.toString() ??
-                                (index + 1).toString(),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GestureDetector(
+                        onTap: () => _toggleSelection(member),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(12),
+                          decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
+                            border: Border.all(
+                              color: isStarting 
+                                ? PremiumTheme.neonGreen.withValues(alpha: 0.3)
+                                : isSelected 
+                                  ? Colors.orange.withValues(alpha: 0.3)
+                                  : Colors.white.withValues(alpha: 0.05),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : Colors.white10,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    member.jerseyNumber?.toString() ?? '?',
+                                    style: TextStyle(
+                                      color: (isStarting || isSelected) ? Colors.black : Colors.white70,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: TextStyle(
+                                        color: isSelected ? Colors.white : Colors.white54,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      isStarting ? 'STARTING XI' : isSelected ? 'SUBSTITUTE' : 'NOT SELECTED',
+                                      style: TextStyle(
+                                        color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : Colors.white24,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isSelected) ...[
+                                GestureDetector(
+                                  onTap: () => _toggleStarting(member.childProfileId),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: isStarting ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      isStarting ? Icons.sports_soccer : Icons.airline_seat_recline_normal,
+                                      color: isStarting ? PremiumTheme.neonGreen : Colors.orange,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: _positions[member.childProfileId],
+                                    underline: const SizedBox(),
+                                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white24, size: 16),
+                                    style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                    dropdownColor: PremiumTheme.surfaceCard(context),
+                                    items: _positionOptions.map((pos) => DropdownMenuItem(
+                                      value: pos,
+                                      child: Text(pos),
+                                    )).toList(),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _positions[member.childProfileId] = val!;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(width: 12),
+                              Icon(
+                                isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                                color: isSelected ? PremiumTheme.neonGreen : Colors.white12,
+                                size: 24,
+                              ),
+                            ],
                           ),
                         ),
-                        title: Text(
-                          member.childProfileId.substring(0, 8).toUpperCase(),
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Row(
-                          children: [
-                             Text(
-                              isStarting
-                                  ? 'Starting'
-                                  : isSelected
-                                      ? 'Substitute'
-                                      : 'Not selected',
-                              style: TextStyle(
-                                color: isStarting
-                                    ? Colors.green
-                                    : isSelected
-                                        ? Colors.orange
-                                        : Colors.grey,
-                                fontSize: 12,
-                              ),
-                            ),
-                            if (isSelected) ...[
-                              const SizedBox(width: 8),
-                              const Text('| Port: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                              DropdownButton<String>(
-                                value: _positions[member.childProfileId],
-                                isDense: true,
-                                style: const TextStyle(fontSize: 12, color: Colors.white),
-                                items: _positionOptions.map((pos) => DropdownMenuItem(
-                                  value: pos,
-                                  child: Text(pos),
-                                )).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _positions[member.childProfileId] = val!;
-                                  });
-                                },
-                              ),
-                            ]
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (isSelected)
-                              IconButton(
-                                icon: Icon(
-                                  isStarting
-                                      ? Icons.sports_soccer
-                                      : Icons.airline_seat_recline_normal,
-                                  color: isStarting
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  size: 20,
-                                ),
-                                onPressed: () =>
-                                    _toggleStarting(member.childProfileId),
-                              ),
-                            Checkbox(
-                              value: isSelected,
-                              activeColor: Colors.orangeAccent,
-                              onChanged: (_) => _toggleSelection(member),
-                            ),
-                          ],
-                        ),
-                        onTap: () => _toggleSelection(member),
                       ),
                     );
                   },
                 ),
               ),
-              _buildLegend(),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: (provider.isLoading || lineupProvider.isLoading) ? null : _submit,
-                    icon: const Icon(Icons.send),
-                    label: const Text('SUBMIT LINEUP'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-              ),
+              _buildSubmitSection(),
             ],
           );
         },
@@ -274,17 +315,57 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     );
   }
 
-  Widget _buildLegend() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
-        children: [
-          _legendItem(Colors.green, 'Starting XI'),
-          const SizedBox(width: 16),
-          _legendItem(Colors.orange, 'Substitute'),
-          const SizedBox(width: 16),
-          _legendItem(Colors.grey, 'Not selected'),
-        ],
+  Widget _buildSubmitSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: PremiumTheme.surfaceCard(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _legendItem(PremiumTheme.neonGreen, 'STARTING'),
+                _legendItem(Colors.orange, 'SUBSTITUTE'),
+                _legendItem(Colors.white24, 'OFF'),
+              ],
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: _submit,
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: PremiumTheme.neonGreen,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    'SUBMIT LINEUP',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -293,12 +374,15 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     return Row(
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 8,
+          height: 8,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        ),
       ],
     );
   }
