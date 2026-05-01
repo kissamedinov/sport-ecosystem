@@ -181,4 +181,18 @@ class TournamentProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> updateMatchDetails(String tournamentId, String matchId, Map<String, dynamic> details) async {
+    _setLoading(true);
+    try {
+      await _repository.updateMatchDetails(matchId, details);
+      await fetchTournamentMatches(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
 }

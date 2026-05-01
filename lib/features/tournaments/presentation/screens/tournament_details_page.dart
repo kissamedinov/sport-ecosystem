@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
+import '../../../auth/providers/auth_provider.dart';
+import './assign_match_details_screen.dart';
 import '../../providers/tournament_provider.dart';
 import '../../../teams/providers/team_provider.dart';
-import '../../../auth/providers/auth_provider.dart';
 import '../../data/models/tournament.dart';
 import '../../data/models/tournament_match.dart';
 import '../../data/models/tournament_standing.dart';
@@ -528,23 +529,58 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     ),
                   ),
                 ],
-                if (_isOrganizer && memberTeam == null)
+                if (_isOrganizer) ...[
+                  if (memberTeam != null) const SizedBox(width: 12),
                   Expanded(
-                    child: PremiumButton(
-                      text: 'REPORT SCORE',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MatchReportScreen(
-                              matchId: match.id,
-                              tournamentId: widget.tournamentId,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AssignMatchDetailsScreen(
+                                    match: match,
+                                    tournamentId: widget.tournamentId,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: PremiumTheme.electricBlue),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
+                            child: const Text('MANAGE', style: TextStyle(color: PremiumTheme.electricBlue, fontSize: 10, fontWeight: FontWeight.bold)),
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MatchReportScreen(
+                                    matchId: match.id,
+                                    tournamentId: widget.tournamentId,
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: PremiumTheme.neonGreen,
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              elevation: 0,
+                            ),
+                            child: const Text('SCORE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                ],
               ],
             ),
           ],
@@ -555,18 +591,28 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildStandingsTab(List<TournamentStanding> standings) {
     if (standings.isEmpty) {
-      return const Center(child: Text('No standings data available', style: TextStyle(color: Colors.white38)));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.leaderboard_outlined, size: 64, color: Colors.white.withValues(alpha: 0.1)),
+            const SizedBox(height: 16),
+            const Text('No standings data available', style: TextStyle(color: Colors.white38)),
+          ],
+        ),
+      );
     }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          PremiumButton(
-            text: 'VIEW TOP SCORERS',
-            icon: Icons.leaderboard,
-            color: PremiumTheme.electricBlue,
-            onPressed: () {
+          _buildActionCard(
+            'GOLDEN BOOT RACE',
+            'View top goal scorers of the tournament',
+            Icons.military_tech,
+            PremiumTheme.neonGreen,
+            () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -575,29 +621,154 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               );
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           _buildSectionTitle('LEADERBOARD', Icons.table_chart),
-          PremiumCard(
-            padding: EdgeInsets.zero,
-            child: DataTable(
-              columnSpacing: 20,
-              horizontalMargin: 16,
-              headingRowHeight: 40,
-              columns: const [
-                DataColumn(label: Text('TEAM', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('MP', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('PTS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+          Container(
+            decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
+            child: Column(
+              children: [
+                _buildStandingsHeader(),
+                const Divider(color: Colors.white10, height: 1),
+                ...standings.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final s = entry.value;
+                  return _buildStandingsRow(index + 1, s);
+                }),
               ],
-              rows: standings.map((s) => DataRow(
-                cells: [
-                  DataCell(Text(s.teamName ?? 'Team', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
-                  DataCell(Text(s.played.toString(), style: const TextStyle(color: Colors.white70, fontSize: 12))),
-                  DataCell(Text(s.points.toString(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 14))),
-                ],
-              )).toList(),
+            ),
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStandingsHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: const [
+          SizedBox(width: 24, child: Text('#', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+          SizedBox(width: 12),
+          Expanded(child: Text('TEAM', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+          SizedBox(width: 30, child: Text('MP', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+          SizedBox(width: 30, child: Text('GD', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+          SizedBox(width: 40, child: Text('PTS', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStandingsRow(int rank, TournamentStanding s) {
+    final isTop3 = rank <= 3;
+    final teamName = s.teamName ?? 'Team';
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: isTop3 ? PremiumTheme.neonGreen.withValues(alpha: 0.03) : null,
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            child: Text(
+              rank.toString(),
+              style: TextStyle(
+                color: isTop3 ? PremiumTheme.neonGreen : Colors.white38,
+                fontWeight: isTop3 ? FontWeight.w900 : FontWeight.normal,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                teamName[0].toUpperCase(),
+                style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              teamName.toUpperCase(),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 30,
+            child: Text(
+              s.played.toString(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ),
+          SizedBox(
+            width: 30,
+            child: Text(
+              (s.goalsFor - s.goalsAgainst).toString(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white38, fontSize: 11),
+            ),
+          ),
+          SizedBox(
+            width: 40,
+            child: Text(
+              s.points.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isTop3 ? PremiumTheme.neonGreen : Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 15,
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, color: color.withValues(alpha: 0.3), size: 16),
+          ],
+        ),
       ),
     );
   }

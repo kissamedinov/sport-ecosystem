@@ -106,4 +106,9 @@ class TournamentRepository {
     });
     return TournamentTeamResponse.fromJson(response.data);
   }
+
+  Future<TournamentMatch> updateMatchDetails(String matchId, Map<String, dynamic> details) async {
+    final response = await _apiClient.patch('/tournaments/matches/$matchId', data: details);
+    return TournamentMatch.fromJson(response.data);
+  }
 }
