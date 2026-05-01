@@ -12,6 +12,8 @@ from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
 from app.academies.models import Academy
 from app.notifications.service import create_notification, log_debug, mark_notifications_by_entity
 from app.notifications.models import NotificationType, EntityType
+from app.matches.models import Match, MatchStatus, MatchResult
+from app.teams.models import TeamRatingHistory
 
 def create_club(db: Session, club_in: schemas.ClubCreate, owner_id: UUID) -> Club:
     try:
@@ -659,77 +661,109 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
         team_ids = [t.id for t in teams]
         
         team_responses = []
-        for t in teams:
-            try:
-                # Get players in this team
-                mems = db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).all()
-                players = []
-                for m in mems:
-                    # Fallback to user name if profile name is missing
-                    player_name = "Player"
-                    if m.player_profile and m.player_profile.user:
-                        player_name = m.player_profile.user.name
-                    elif m.player_profile and (m.player_profile.first_name or m.player_profile.last_name):
-                        player_name = f"{m.player_profile.first_name or ''} {m.player_profile.last_name or ''}".strip()
-
-                    players.append(schemas.CoachPlayerResponse(
-                        user_id=m.player_profile.user_id if (m.player_profile and m.player_profile.user_id) else UUID('00000000-0000-0000-0000-000000000000'),
-                        name=player_name,
-                        profile_id=m.player_profile_id,
-                        position=m.player_profile.preferred_position if (m.player_profile and hasattr(m.player_profile, 'preferred_position')) else None,
-                        jersey_number=m.jersey_number
-                    ))
+                # Calculate team-specific stats
+                team_wins = 0
+                team_draws = 0
+                team_losses = 0
+                team_goals_scored = 0
+                team_goals_conceded = 0
+                team_clean_sheets = 0
                 
+                # Form calculation
+                team_form = []
+                
+                team_matches = db.query(Match).filter(
+                    (Match.home_team_id == t.id) | (Match.away_team_id == t.id),
+                    Match.status == MatchStatus.FINISHED
+                ).order_by(Match.match_date.desc()).all()
+                
+                for m in team_matches:
+                    if not m.result: continue
+                    is_home = m.home_team_id == t.id
+                    my_score = m.result.home_score if is_home else m.result.away_score
+                    opp_score = m.result.away_score if is_home else m.result.home_score
+                    
+                    team_goals_scored += my_score
+                    team_goals_conceded += opp_score
+                    if opp_score == 0: team_clean_sheets += 1
+                    
+                    if my_score > opp_score:
+                        team_wins += 1
+                        team_form.append("W")
+                    elif my_score < opp_score:
+                        team_losses += 1
+                        team_form.append("L")
+                    else:
+                        team_draws += 1
+                        team_form.append("D")
+                
+                # Get last 5 for form
+                team_form = team_form[:5]
+                
+                # Latest rating
+                latest_rating = db.query(TeamRatingHistory).filter(TeamRatingHistory.team_id == t.id).order_by(TeamRatingHistory.timestamp.desc()).first()
+                elo_rating = latest_rating.rating_after if latest_rating else 1200
+
                 # ALWAYS add the team even if it has 0 players, for consistency
                 team_responses.append(schemas.CoachTeamResponse(
                     id=t.id,
                     name=t.name,
                     birth_year=t.birth_year,
-                    players=players
+                    players=players,
+                    wins=team_wins,
+                    draws=team_draws,
+                    losses=team_losses,
+                    goals_scored=team_goals_scored,
+                    goals_conceded=team_goals_conceded,
+                    clean_sheets=team_clean_sheets,
+                    elo_rating=elo_rating,
+                    form=team_form
                 ))
             except Exception as te:
                 print(f"Error processing team {t.id}: {te}")
                 continue
         
-        # Calculate Performance Stats
-        perf = schemas.CoachPerformanceStats()
+        # Calculate stats and find upcoming matches
+        match_responses = []
+        total_wins = 0
+        total_draws = 0
+        total_losses = 0
+        total_goals_scored = 0
+        total_goals_conceded = 0
+        total_clean_sheets = 0
+        total_matches = 0
+
         if team_ids:
             try:
-                # Finished matches
+                # Finished matches for stats
                 finished_matches = db.query(Match).filter(
                     (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
                     Match.status == MatchStatus.FINISHED
                 ).all()
                 
-                perf.matches_played = len(finished_matches)
+                total_matches = len(finished_matches)
                 for m in finished_matches:
                     if not m.result: continue
-                    
                     is_home = m.home_team_id in team_ids
                     my_score = m.result.home_score if is_home else m.result.away_score
                     opp_score = m.result.away_score if is_home else m.result.home_score
                     
-                    perf.goals_scored += my_score
-                    perf.goals_conceded += opp_score
-                    if opp_score == 0: perf.clean_sheets += 1
+                    total_goals_scored += my_score
+                    total_goals_conceded += opp_score
+                    if opp_score == 0: total_clean_sheets += 1
                     
-                    if my_score > opp_score: perf.wins += 1
-                    elif my_score < opp_score: perf.losses += 1
-                    else: perf.draws += 1
-            except Exception as pe:
-                print(f"Error calculating stats: {pe}")
-                
-        # Upcoming matches
-        upcoming_matches = []
-        if team_ids:
-            try:
+                    if my_score > opp_score: total_wins += 1
+                    elif my_score < opp_score: total_losses += 1
+                    else: total_draws += 1
+                    
+                # Upcoming matches
                 future_matches = db.query(Match).filter(
                     (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
                     Match.status == MatchStatus.SCHEDULED
                 ).order_by(Match.match_date.asc()).limit(5).all()
                 
                 for m in future_matches:
-                    upcoming_matches.append(schemas.CoachMatchResponse(
+                    match_responses.append(schemas.CoachMatchResponse(
                         id=m.id,
                         tournament_name=m.tournament.name if (m.tournament and hasattr(m.tournament, 'name')) else "Friendly",
                         home_team_name=m.home_team.name if (m.home_team and hasattr(m.home_team, 'name')) else "Unknown",
@@ -739,12 +773,36 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                         scheduled_at=m.match_date
                     ))
             except Exception as me:
-                print(f"Error fetching upcoming matches: {me}")
+                print(f"Error fetching match data: {me}")
 
+        perf_stats = schemas.CoachPerformanceStats(
+            matches_played=total_matches,
+            wins=total_wins,
+            draws=total_draws,
+            losses=total_losses,
+            goals_scored=total_goals_scored,
+            goals_conceded=total_goals_conceded,
+            clean_sheets=total_clean_sheets
+        )
+
+        # Get coach info
+        coach_user = db.query(User).filter(User.id == coach_id).first()
+        
+        club_name = None
+        if academy_ids:
+            first_academy = db.query(Academy).filter(Academy.id == academy_ids[0]).first()
+            if first_academy:
+                club_name = first_academy.name
+        
         return schemas.CoachDashboardResponse(
+            name=coach_user.name if coach_user else "Coach",
             teams=team_responses,
-            upcoming_matches=upcoming_matches,
-            performance_stats=perf
+            upcoming_matches=match_responses,
+            performance_stats=perf_stats,
+            rating=4.5,
+            is_certified=True,
+            specialty="Head Coach",
+            club_name=club_name
         )
     except Exception as e:
         print(f"CRITICAL ERROR in get_coach_dashboard: {str(e)}")

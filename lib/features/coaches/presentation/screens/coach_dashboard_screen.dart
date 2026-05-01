@@ -272,15 +272,15 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _buildCoachCard(Map<String, dynamic> data) {
     final name = data['name']?.toString() ?? 'Coach';
-    final specialty =
-        data['specialty']?.toString() ?? 'Tactics & Youth Development';
+    final specialty = data['specialty']?.toString() ?? 'Head Coach';
     final club = data['club_name']?.toString() ?? '';
-    final rating = data['rating']?.toString() ?? '4.8';
+    final rating = data['rating']?.toString() ?? '0.0';
     final isCertified = data['is_certified'] == true;
     final initials = name
         .split(' ')
+        .where((w) => w.isNotEmpty)
         .take(2)
-        .map((w) => w.isNotEmpty ? w[0] : '')
+        .map((w) => w[0])
         .join()
         .toUpperCase();
 
@@ -317,12 +317,16 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        name,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                      Flexible(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (isCertified) ...[
@@ -371,6 +375,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   Text(
                     club.isNotEmpty ? '$specialty · $club' : specialty,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -746,14 +752,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _buildTeamCard(Map<String, dynamic> team) {
     final name = team['name']?.toString() ?? 'Team';
-    final ageGroup = team['age_group']?.toString() ?? '';
-    final campus = team['campus']?.toString() ?? 'Main Campus';
+    final ageGroup = team['age_category']?.toString() ?? team['birth_year']?.toString() ?? '';
     final players = (team['players'] as List?)?.length ?? 0;
     final isLive = team['is_live'] == true;
-    final elo = team['elo_rating']?.toString() ?? '1800';
-    final form =
-        (team['form'] as List?)?.cast<String>() ??
-        ['W', 'W', 'W', 'W', 'D', 'L', 'L'];
+    final elo = team['elo_rating']?.toString() ?? '1200';
+    final form = (team['form'] as List?)?.cast<String>() ?? [];
     final wins = team['wins'] ?? 0;
     final draws = team['draws'] ?? 0;
     final losses = team['losses'] ?? 0;
@@ -799,6 +802,13 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                               fontWeight: FontWeight.w900,
                             ),
                           ),
+                          if (ageGroup.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              'U$ageGroup',
+                              style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
                           if (isLive) ...[
                             const SizedBox(width: 8),
                             _buildLiveBadge(),
@@ -807,32 +817,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '$ageGroup · $campus · $players players',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 11,
-                        ),
+                        '$players players · $wins W - $draws D - $losses L',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                       ),
                     ],
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Colors.amber,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 2),
                     Text(
                       elo,
-                      style: const TextStyle(
-                        color: Colors.amber,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w900),
                     ),
+                    const Text('ELO', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],

@@ -162,6 +162,14 @@ class CoachTeamResponse(BaseModel):
     name: str
     birth_year: Optional[int] = None
     players: List[CoachPlayerResponse]
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    goals_scored: int = 0
+    goals_conceded: int = 0
+    clean_sheets: int = 0
+    elo_rating: int = 1200
+    form: List[str] = []
 
 class CoachMatchResponse(BaseModel):
     id: UUID
@@ -182,9 +190,14 @@ class CoachPerformanceStats(BaseModel):
     clean_sheets: int = 0
 
 class CoachDashboardResponse(BaseModel):
+    name: str
     teams: List[CoachTeamResponse]
     upcoming_matches: List[CoachMatchResponse]
     performance_stats: Optional[CoachPerformanceStats] = None
+    rating: float = 0.0
+    is_certified: bool = False
+    specialty: str = "Tactics & Youth Development"
+    club_name: Optional[str] = None
 
 class ClubDashboardResponse(BaseModel):
     club: ClubResponse
