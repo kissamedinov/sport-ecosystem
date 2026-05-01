@@ -719,16 +719,16 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 # Get last 5 for form
                 team_form = team_form[:5]
                 
-                # Latest rating
+                # Latest rating (DEBUG: disabled)
                 elo_rating = 1200
-                try:
-                    latest_rating = db.query(TeamRatingHistory).filter(TeamRatingHistory.team_id == t.id).order_by(TeamRatingHistory.timestamp.desc()).first()
-                    if latest_rating:
-                        elo_rating = latest_rating.rating_after
-                except Exception as re:
-                    # Table might not exist yet, rollback to clear aborted transaction
-                    db.rollback()
-                    pass
+                # try:
+                #     latest_rating = db.query(TeamRatingHistory).filter(TeamRatingHistory.team_id == t.id).order_by(TeamRatingHistory.timestamp.desc()).first()
+                #     if latest_rating:
+                #         elo_rating = latest_rating.rating_after
+                # except Exception as re:
+                #     # Table might not exist yet, rollback to clear aborted transaction
+                #     db.rollback()
+                #     pass
 
                 # ALWAYS add the team even if it has 0 players, for consistency
                 team_responses.append(schemas.CoachTeamResponse(
@@ -759,47 +759,48 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
         total_clean_sheets = 0
         total_matches = 0
 
-        if team_ids:
-            try:
-                # Finished matches for stats
-                finished_matches = db.query(Match).filter(
-                    (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
-                    Match.status == MatchStatus.FINISHED
-                ).all()
-                
-                total_matches = len(finished_matches)
-                for m in finished_matches:
-                    if not m.result: continue
-                    is_home = m.home_team_id in team_ids
-                    my_score = m.result.home_score if is_home else m.result.away_score
-                    opp_score = m.result.away_score if is_home else m.result.home_score
-                    
-                    total_goals_scored += my_score
-                    total_goals_conceded += opp_score
-                    if opp_score == 0: total_clean_sheets += 1
-                    
-                    if my_score > opp_score: total_wins += 1
-                    elif my_score < opp_score: total_losses += 1
-                    else: total_draws += 1
-                    
-                # Upcoming matches
-                future_matches = db.query(Match).filter(
-                    (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
-                    Match.status == MatchStatus.SCHEDULED
-                ).order_by(Match.match_date.asc()).limit(5).all()
-                
-                for m in future_matches:
-                    match_responses.append(schemas.CoachMatchResponse(
-                        id=m.id,
-                        tournament_name=m.tournament.name if (m.tournament and hasattr(m.tournament, 'name')) else "Friendly",
-                        home_team_name=m.home_team.name if (m.home_team and hasattr(m.home_team, 'name')) else "Unknown",
-                        away_team_name=m.away_team.name if (m.away_team and hasattr(m.away_team, 'name')) else "Unknown",
-                        home_team_id=m.home_team_id,
-                        away_team_id=m.away_team_id,
-                        scheduled_at=m.match_date
-                    ))
-            except Exception as me:
-                print(f"Error fetching match data: {me}")
+        # DEBUG: Match stats temporarily disabled
+        # if team_ids:
+        #     try:
+        #         # Finished matches for stats
+        #         finished_matches = db.query(Match).filter(
+        #             (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+        #             Match.status == MatchStatus.FINISHED
+        #         ).all()
+        #         
+        #         total_matches = len(finished_matches)
+        #         for m in finished_matches:
+        #             if not m.result: continue
+        #             is_home = m.home_team_id in team_ids
+        #             my_score = m.result.home_score if is_home else m.result.away_score
+        #             opp_score = m.result.away_score if is_home else m.result.home_score
+        #             
+        #             total_goals_scored += my_score
+        #             total_goals_conceded += opp_score
+        #             if opp_score == 0: total_clean_sheets += 1
+        #             
+        #             if my_score > opp_score: total_wins += 1
+        #             elif my_score < opp_score: total_losses += 1
+        #             else: total_draws += 1
+        #             
+        #         # Upcoming matches
+        #         future_matches = db.query(Match).filter(
+        #             (Match.home_team_id.in_(team_ids)) | (Match.away_team_id.in_(team_ids)),
+        #             Match.status == MatchStatus.SCHEDULED
+        #         ).order_by(Match.match_date.asc()).limit(5).all()
+        #         
+        #         for m in future_matches:
+        #             match_responses.append(schemas.CoachMatchResponse(
+        #                 id=m.id,
+        #                 tournament_name=m.tournament.name if (m.tournament and hasattr(m.tournament, 'name')) else "Friendly",
+        #                 home_team_name=m.home_team.name if (m.home_team and hasattr(m.home_team, 'name')) else "Unknown",
+        #                 away_team_name=m.away_team.name if (m.away_team and hasattr(m.away_team, 'name')) else "Unknown",
+        #                 home_team_id=m.home_team_id,
+        #                 away_team_id=m.away_team_id,
+        #                 scheduled_at=m.match_date
+        #             ))
+        #     except Exception as me:
+        #         print(f"Error fetching match data: {me}")
 
         perf_stats = schemas.CoachPerformanceStats(
             matches_played=total_matches,
