@@ -55,7 +55,8 @@ class AcademyResponse(AcademyBase):
 # Academy Team schemas
 class AcademyTeamBase(BaseModel):
     name: str
-    age_group: str
+    age_group: Optional[str] = None
+    age_category: Optional[str] = None
 
 class AcademyTeamCreate(AcademyTeamBase):
     coach_id: Optional[UUID] = None
@@ -80,6 +81,9 @@ class AcademyPlayerCreate(AcademyPlayerBase):
 class AcademyPlayerResponse(AcademyPlayerBase):
     id: UUID
     academy_id: UUID
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    position: Optional[str] = None
     joined_at: datetime
     updated_at: datetime
 
@@ -97,6 +101,7 @@ class AcademyTeamPlayerCreate(AcademyTeamPlayerBase):
 class AcademyTeamPlayerResponse(AcademyTeamPlayerBase):
     id: UUID
     team_id: UUID
+    full_name: Optional[str] = None
     joined_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

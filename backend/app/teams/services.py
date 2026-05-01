@@ -67,7 +67,9 @@ def get_team_rankings(db: Session):
 def get_my_teams(db: Session, user: User):
     user_roles = [ur.role for ur in user.roles]
     if any(role in user_roles for role in [Role.COACH, Role.TEAM_OWNER, Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN]):
-        return db.query(Team).filter(Team.coach_id == user.id).all()
+        teams = db.query(Team).filter(Team.coach_id == user.id).all()
+        # Filter out teams with 0 active members as per user request
+        return [t for t in teams if db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).count() > 0]
     
     # If it's a player, find teams via TeamMembership
     profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == user.id).first()

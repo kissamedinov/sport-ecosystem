@@ -3,9 +3,10 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import date, timedelta, datetime
 import calendar
+from app.teams.models import Team, TeamMembership, MembershipRole, MembershipStatus
 from app.academies.models import (
-    Academy, AcademyRanking, AcademyTeam, AcademyPlayer, 
-    AcademyTeamPlayer, TrainingSession, TrainingAttendance, 
+    Academy, AcademyRanking, AcademyPlayer, 
+    TrainingSession, TrainingAttendance, 
     CoachFeedback, TrainingSchedule, AcademyBranch, AcademyBillingConfig, DayOfWeek, AttendanceStatus
 )
 from app.users.models import User, PlayerProfile
@@ -38,7 +39,7 @@ def calculate_academy_rankings(db: Session, tournament_id: str):
 
     for index, standing in enumerate(standings[:4]):
         points_to_award = point_distribution.get(index, 0)
-        academy_team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == standing.team.coach_id).first() 
+        academy_team = db.query(Team).filter(Team.id == standing.team.id).first() 
         if academy_team:
             acc_id = academy_team.academy_id
             academy_points_gained[acc_id] = academy_points_gained.get(acc_id, 0) + points_to_award
@@ -108,7 +109,7 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     
     # 3. Check if coach of any team in any academy
     print(f"[DEBUG] Checking coach status...")
-    team = db.query(AcademyTeam).filter(AcademyTeam.coach_id == user_id).first()
+    team = db.query(Team).filter(Team.coach_id == user_id).first()
     if team:
         print(f"[DEBUG] Found team coached by user (via AcademyTeam): {team.id}")
         return db.query(Academy).filter(Academy.id == team.academy_id).first()
@@ -116,7 +117,7 @@ def get_user_related_academy(db: Session, user_id: UUID) -> Optional[Academy]:
     print("[DEBUG] No academy found for this user.")
     return None
 
-def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[AcademyTeam]:
+def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = None) -> List[Team]:
     from app.clubs.models import Club
     
     # If user_id provided, check if they are a club owner
@@ -124,15 +125,15 @@ def get_academy_teams(db: Session, academy_id: UUID, user_id: Optional[UUID] = N
         club = db.query(Club).filter(Club.owner_id == user_id).first()
         if club:
             # Aggregate teams from ALL academies of this club
-            return db.query(AcademyTeam).join(Academy).filter(Academy.club_id == club.id).all()
+            return db.query(Team).join(Academy).filter(Academy.club_id == club.id).all()
             
-    return db.query(AcademyTeam).filter(AcademyTeam.academy_id == academy_id).all()
+    return db.query(Team).filter(Team.academy_id == academy_id).all()
 
-def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyTeamCreate) -> AcademyTeam:
-    new_team = AcademyTeam(
+def create_academy_team(db: Session, academy_id: UUID, team_in: schemas.AcademyTeamCreate) -> Team:
+    new_team = Team(
         academy_id=academy_id,
         name=team_in.name,
-        age_group=team_in.age_group,
+        age_category=team_in.age_group,
         coach_id=team_in.coach_id
     )
     db.add(new_team)
@@ -152,25 +153,67 @@ def get_academy_players(db: Session, academy_id: UUID, user_id: Optional[UUID] =
     return db.query(AcademyPlayer).filter(AcademyPlayer.academy_id == academy_id).all()
 
 def add_player_to_academy(db: Session, academy_id: UUID, player_in: schemas.AcademyPlayerCreate) -> AcademyPlayer:
+    # Get user_id from profile
+    profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_in.player_profile_id).first()
+    if not profile:
+        raise Exception("Player profile not found")
+    
+    # Check if already in academy
+    existing = db.query(AcademyPlayer).filter(AcademyPlayer.academy_id == academy_id, AcademyPlayer.player_profile_id == player_in.player_profile_id).first()
+    if existing:
+        return existing
+
     new_player = AcademyPlayer(
         academy_id=academy_id,
+        player_id=profile.user_id,
         player_profile_id=player_in.player_profile_id,
         status=player_in.status
     )
     db.add(new_player)
+    
+    # Also ensure they are in the club staff if academy belongs to a club
+    academy = db.query(Academy).filter(Academy.id == academy_id).first()
+    if academy and academy.club_id:
+        from app.clubs.models import ClubStaff, ClubRole, ClubMembershipStatus
+        staff_exists = db.query(ClubStaff).filter(ClubStaff.club_id == academy.club_id, ClubStaff.user_id == profile.user_id).first()
+        if not staff_exists:
+            new_staff = ClubStaff(
+                club_id=academy.club_id,
+                user_id=profile.user_id,
+                role=ClubRole.PLAYER,
+                status=ClubMembershipStatus.ACTIVE
+            )
+            db.add(new_staff)
+            
     db.commit()
     db.refresh(new_player)
     return new_player
 
-def get_academy_team_players(db: Session, team_id: UUID) -> List[AcademyTeamPlayer]:
-    return db.query(AcademyTeamPlayer).filter(AcademyTeamPlayer.team_id == team_id).all()
+def get_academy_team_players(db: Session, team_id: UUID) -> List[TeamMembership]:
+    return db.query(TeamMembership).filter(TeamMembership.team_id == team_id, TeamMembership.status == MembershipStatus.ACTIVE).all()
 
-def add_player_to_team(db: Session, team_id: UUID, player_in: schemas.AcademyTeamPlayerCreate) -> AcademyTeamPlayer:
-    new_team_player = AcademyTeamPlayer(
+def add_player_to_team(db: Session, team_id: UUID, player_in: schemas.AcademyTeamPlayerCreate) -> TeamMembership:
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise Exception("Team not found")
+    
+    # Ensure player is in academy registry
+    add_player_to_academy(db, team.academy_id, schemas.AcademyPlayerCreate(player_profile_id=player_in.player_profile_id))
+
+    # Check if already in team
+    existing = db.query(TeamMembership).filter(TeamMembership.team_id == team_id, TeamMembership.player_profile_id == player_in.player_profile_id).first()
+    if existing:
+        existing.status = MembershipStatus.ACTIVE
+        db.commit()
+        return existing
+
+    profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_in.player_profile_id).first()
+    new_team_player = TeamMembership(
         team_id=team_id,
+        player_id=profile.user_id if profile else None,
         player_profile_id=player_in.player_profile_id,
-        position=player_in.position,
-        jersey_number=player_in.jersey_number
+        jersey_number=player_in.jersey_number,
+        status=MembershipStatus.ACTIVE
     )
     db.add(new_team_player)
     db.commit()
@@ -188,7 +231,6 @@ def create_training_session(db: Session, academy_id: UUID, coach_id: UUID, sessi
     )
     # Link teams
     if session_in.team_ids:
-        from app.teams.models import Team
         teams = db.query(Team).filter(Team.id.in_(session_in.team_ids)).all()
         new_session.teams = teams
 
@@ -281,8 +323,7 @@ def create_training_schedule(db: Session, academy_id: UUID, schedule_in: schemas
     )
     # Link teams
     if schedule_in.team_ids:
-        # Use AcademyTeam instead of generic Team
-        teams = db.query(AcademyTeam).filter(AcademyTeam.id.in_(schedule_in.team_ids)).all()
+        teams = db.query(Team).filter(Team.id.in_(schedule_in.team_ids)).all()
         new_schedule.teams = teams
 
     db.add(new_schedule)
@@ -300,7 +341,7 @@ def create_training_schedules_batch(db: Session, academy_id: UUID, batch_in: sch
 def get_academy_schedules(db: Session, academy_id: UUID, team_id: Optional[UUID] = None) -> List[TrainingSchedule]:
     query = db.query(TrainingSchedule).filter(TrainingSchedule.academy_id == academy_id)
     if team_id:
-        query = query.join(TrainingSchedule.teams).filter(AcademyTeam.id == team_id)
+        query = query.join(TrainingSchedule.teams).filter(Team.id == team_id)
     return query.all()
 
 def delete_training_schedule(db: Session, schedule_id: UUID) -> bool:
@@ -369,12 +410,12 @@ def generate_sessions_from_schedules(db: Session, academy_id: UUID, start_date: 
     db.commit()
     return sessions_created
 
-def move_player_between_teams(db: Session, player_profile_id: UUID, target_team_id: UUID) -> Optional[AcademyTeamPlayer]:
+def move_player_between_teams(db: Session, player_profile_id: UUID, target_team_id: UUID) -> Optional[TeamMembership]:
     # Remove from existing academy teams if any
-    db.query(AcademyTeamPlayer).filter(AcademyTeamPlayer.player_profile_id == player_profile_id).delete()
+    db.query(TeamMembership).filter(TeamMembership.player_profile_id == player_profile_id).update(dict(status=MembershipStatus.LEFT))
     
     # Add to new team
-    new_team_player = AcademyTeamPlayer(
+    new_team_player = TeamMembership(
         team_id=target_team_id,
         player_profile_id=player_profile_id
     )
@@ -450,9 +491,9 @@ def get_players_activities(db: Session, player_ids: List[UUID]) -> List[Training
     Returns all upcoming training sessions for a list of player profiles.
     """
     # 1. Find all AcademyTeams these players belong to
-    from app.academies.models import AcademyTeamPlayer
-    team_ids = db.query(AcademyTeamPlayer.team_id).filter(
-        AcademyTeamPlayer.player_profile_id.in_(player_ids)
+    
+    team_ids = db.query(TeamMembership.team_id).filter(
+        TeamMembership.player_profile_id.in_(player_ids), TeamMembership.status == MembershipStatus.ACTIVE
     ).all()
     team_ids = [t[0] for t in team_ids]
 

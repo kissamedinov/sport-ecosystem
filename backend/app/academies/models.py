@@ -48,28 +48,12 @@ class Academy(Base):
 
     club = relationship("Club", back_populates="academies")
     owner = relationship("User", foreign_keys=[owner_id])
-    teams = relationship("AcademyTeam", back_populates="academy", cascade="all, delete-orphan")
-    youth_teams = relationship("Team", back_populates="academy")
+    teams = relationship("Team", back_populates="academy", cascade="all, delete-orphan")
     players = relationship("AcademyPlayer", back_populates="academy", cascade="all, delete-orphan")
     managed_users = relationship("User", back_populates="academy", foreign_keys="[User.academy_id]")
     schedules = relationship("TrainingSchedule", back_populates="academy", cascade="all, delete-orphan")
     branches = relationship("AcademyBranch", back_populates="academy", cascade="all, delete-orphan")
     billing_config = relationship("AcademyBillingConfig", back_populates="academy", uselist=False, cascade="all, delete-orphan")
-
-class AcademyTeam(Base):
-    __tablename__ = "academy_teams"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
-    name = Column(String, nullable=False)
-    age_group = Column(String, nullable=False)
-    coach_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    academy = relationship("Academy", back_populates="teams")
-    coach = relationship("User")
-    players = relationship("AcademyTeamPlayer", back_populates="team", cascade="all, delete-orphan")
 
 class AcademyPlayer(Base):
     __tablename__ = "academy_players"
@@ -80,31 +64,32 @@ class AcademyPlayer(Base):
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=False)
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    status = Column(Enum(AcademyPlayerStatus), default=AcademyPlayerStatus.ACTIVE, nullable=False)
+    status = Column(String, default="ACTIVE", nullable=False)
 
     player_user = relationship("User")
     player_profile = relationship("PlayerProfile")
     academy = relationship("Academy", back_populates="players")
 
-class AcademyTeamPlayer(Base):
-    __tablename__ = "academy_team_players"
+    @property
+    def first_name(self):
+        return self.player_profile.first_name if self.player_profile else ""
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("academy_teams.id"), nullable=False)
-    position = Column(String, nullable=True)
-    jersey_number = Column(Integer, nullable=True)
-    joined_at = Column(DateTime(timezone=True), server_default=func.now())
+    @property
+    def last_name(self):
+        return self.player_profile.last_name if self.player_profile else ""
 
-    player_profile = relationship("PlayerProfile")
-    team = relationship("AcademyTeam", back_populates="players")
+    @property
+    def position(self):
+        return self.player_profile.preferred_position if self.player_profile else ""
+
+# Removed AcademyTeam and AcademyTeamPlayer to unify with core Team model
 
 # Association table for multi-team training sessions
 training_session_teams = Table(
     "training_session_teams",
     Base.metadata,
     Column("training_session_id", UUID(as_uuid=True), ForeignKey("training_sessions.id", ondelete="CASCADE"), primary_key=True),
-    Column("team_id", UUID(as_uuid=True), ForeignKey("academy_teams.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
 )
 
 # Association table for multi-team training schedules
@@ -112,7 +97,7 @@ training_schedule_teams = Table(
     "training_schedule_teams",
     Base.metadata,
     Column("training_schedule_id", UUID(as_uuid=True), ForeignKey("academy_training_schedules.id", ondelete="CASCADE"), primary_key=True),
-    Column("team_id", UUID(as_uuid=True), ForeignKey("academy_teams.id", ondelete="CASCADE"), primary_key=True),
+    Column("team_id", UUID(as_uuid=True), ForeignKey("teams.id", ondelete="CASCADE"), primary_key=True),
 )
 
 class TrainingSession(Base):
@@ -127,7 +112,7 @@ class TrainingSession(Base):
     description = Column(String, nullable=True)
 
     academy = relationship("Academy")
-    teams = relationship("AcademyTeam", secondary=training_session_teams)
+    teams = relationship("Team", secondary=training_session_teams)
     coach = relationship("User")
     attendance = relationship("TrainingAttendance", back_populates="session", cascade="all, delete-orphan")
 
@@ -205,7 +190,7 @@ class TrainingSchedule(Base):
 
     academy = relationship("Academy", back_populates="schedules")
     branch = relationship("AcademyBranch", back_populates="schedules")
-    teams = relationship("AcademyTeam", secondary=training_schedule_teams)
+    teams = relationship("Team", secondary=training_schedule_teams)
 
     @property
     def team_ids(self):

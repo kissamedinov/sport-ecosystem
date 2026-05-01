@@ -120,7 +120,9 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
             
         academies = db.query(Academy).filter(Academy.club_id == club.id).all()
         academy_ids = [a.id for a in academies]
-        teams = db.query(Team).filter(Team.academy_id.in_(academy_ids)).all() if academy_ids else []
+        teams_raw = db.query(Team).filter(Team.academy_id.in_(academy_ids)).all() if academy_ids else []
+        # Filter out teams with 0 active members as per user request
+        teams = [t for t in teams_raw if db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).count() > 0]
 
         academy_responses = []
         for a in academies:
@@ -675,12 +677,13 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                         jersey_number=m.jersey_number
                     ))
                 
-                team_responses.append(schemas.CoachTeamResponse(
-                    id=t.id,
-                    name=t.name,
-                    birth_year=t.birth_year,
-                    players=players
-                ))
+                if players:
+                    team_responses.append(schemas.CoachTeamResponse(
+                        id=t.id,
+                        name=t.name,
+                        birth_year=t.birth_year,
+                        players=players
+                    ))
             except Exception as te:
                 print(f"Error processing team {t.id}: {te}")
                 continue

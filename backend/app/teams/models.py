@@ -69,3 +69,9 @@ class TeamMembership(Base):
     player_profile = relationship("PlayerProfile", back_populates="memberships")
     player = relationship("User") # Added for easier access
     child_profile = relationship("ChildProfile")
+
+    @property
+    def full_name(self):
+        if self.player_profile:
+            return f"{self.player_profile.first_name} {self.player_profile.last_name}"
+        return ""
