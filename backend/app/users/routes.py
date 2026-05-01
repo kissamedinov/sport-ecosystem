@@ -545,3 +545,34 @@ def get_player_profile(
         "tournament_stats": tournament_stats,
         "awards": awards,
     }
+@router.get("/referees", response_model=List[schemas.UserResponse])
+def get_referees(
+    db: Session = Depends(get_db)
+):
+    """
+    Returns a list of all users with the REFEREE role.
+    """
+    referee_roles = db.query(models.UserRole).filter(models.UserRole.role == models.Role.REFEREE).all()
+    referee_ids = [r.user_id for r in referee_roles]
+    referees = db.query(models.User).filter(models.User.id.in_(referee_ids)).all()
+    
+    response = []
+    for ref in referees:
+        stmt = select(models.UserRole.role).where(models.UserRole.user_id == ref.id)
+        roles_list = [r.value for r in db.execute(stmt).scalars().all()]
+        
+        response.append({
+            "id": ref.id,
+            "name": ref.name,
+            "email": ref.email,
+            "roles": roles_list,
+            "role": "REFEREE",
+            "created_at": ref.created_at,
+            "date_of_birth": ref.date_of_birth,
+            "phone": ref.phone,
+            "onboarding_completed": ref.onboarding_completed,
+            "avatar_url": ref.avatar_url,
+            "bio": ref.bio
+        })
+        
+    return response

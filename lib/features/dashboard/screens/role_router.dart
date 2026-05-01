@@ -8,6 +8,7 @@ import 'parent_dashboard.dart';
 import 'coach_dashboard_screen.dart';
 import 'field_owner_dashboard.dart';
 import 'child_player_dashboard.dart';
+import 'organizer_dashboard_screen.dart';
 
 class RoleRouter extends StatelessWidget {
   const RoleRouter({super.key});
@@ -30,6 +31,8 @@ class RoleRouter extends StatelessWidget {
         return const FieldOwnerDashboard();
       case 'PLAYER_CHILD':
         return const ChildPlayerDashboard();
+      case 'TOURNAMENT_ORGANIZER':
+        return const OrganizerDashboardScreen();
       case 'PLAYER_ADULT':
       default:
         return const AdultPlayerDashboard();

@@ -54,4 +54,10 @@ class ProfileApiService {
     final response = await _apiClient.patch('/users/me', data: data);
     return response.data;
   }
+
+  /// Fetch list of all referees
+  Future<List<Map<String, dynamic>>> getReferees() async {
+    final response = await _apiClient.get('/users/referees');
+    return (response.data as List).map((e) => e as Map<String, dynamic>).toList();
+  }
 }
