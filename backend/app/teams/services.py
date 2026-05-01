@@ -67,9 +67,17 @@ def get_team_rankings(db: Session):
 def get_my_teams(db: Session, user: User):
     user_roles = [ur.role for ur in user.roles]
     if any(role in user_roles for role in [Role.COACH, Role.TEAM_OWNER, Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN]):
-        teams = db.query(Team).filter(Team.coach_id == user.id).all()
-        # Filter out teams with 0 active members as per user request
-        return [t for t in teams if db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).count() > 0]
+        # Teams coached by me
+        my_coached_teams = db.query(Team).filter(Team.coach_id == user.id).all()
+        
+        # Teams in academies owned by me
+        from app.academies.models import Academy
+        owned_academy_ids = [a.id for a in db.query(Academy).filter(Academy.owner_id == user.id).all()]
+        my_academy_teams = db.query(Team).filter(Team.academy_id.in_(owned_academy_ids)).all() if owned_academy_ids else []
+        
+        # Combine and deduplicate
+        all_teams = {t.id: t for t in my_coached_teams + my_academy_teams}
+        return list(all_teams.values())
     
     # If it's a player, find teams via TeamMembership
     profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == user.id).first()

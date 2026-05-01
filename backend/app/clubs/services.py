@@ -643,15 +643,17 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
             models.ClubStaff.status == models.ClubMembershipStatus.ACTIVE
         ).all()]
         
-        if club_ids:
-            from app.academies.models import Academy
-            # Get all academies for these clubs
-            academy_ids = [a.id for a in db.query(Academy).filter(Academy.club_id.in_(club_ids)).all()]
-            if academy_ids:
-                # Add teams from these academies
-                teams_query = db.query(Team).filter(
-                    (Team.coach_id == coach_id) | (Team.academy_id.in_(academy_ids))
-                )
+        # Include academies where user is specifically set as owner
+        from app.academies.models import Academy
+        academy_ids = [a.id for a in db.query(Academy).filter(
+            (Academy.owner_id == coach_id) | (Academy.club_id.in_(club_ids))
+        ).all()]
+
+        if academy_ids:
+            # Add teams from these academies
+            teams_query = db.query(Team).filter(
+                (Team.coach_id == coach_id) | (Team.academy_id.in_(academy_ids))
+            )
         
         teams = teams_query.all()
         team_ids = [t.id for t in teams]
@@ -663,27 +665,28 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 mems = db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).all()
                 players = []
                 for m in mems:
-                    if not m.player_profile:
-                        continue
-                    user = m.player_profile.user
-                    if not user:
-                        continue
-                        
+                    # Fallback to user name if profile name is missing
+                    player_name = "Player"
+                    if m.player_profile and m.player_profile.user:
+                        player_name = m.player_profile.user.name
+                    elif m.player_profile and (m.player_profile.first_name or m.player_profile.last_name):
+                        player_name = f"{m.player_profile.first_name or ''} {m.player_profile.last_name or ''}".strip()
+
                     players.append(schemas.CoachPlayerResponse(
-                        user_id=user.id,
-                        name=user.name,
+                        user_id=m.player_profile.user_id if (m.player_profile and m.player_profile.user_id) else UUID('00000000-0000-0000-0000-000000000000'),
+                        name=player_name,
                         profile_id=m.player_profile_id,
-                        position=m.player_profile.preferred_position if hasattr(m.player_profile, 'preferred_position') else None,
+                        position=m.player_profile.preferred_position if (m.player_profile and hasattr(m.player_profile, 'preferred_position')) else None,
                         jersey_number=m.jersey_number
                     ))
                 
-                if players:
-                    team_responses.append(schemas.CoachTeamResponse(
-                        id=t.id,
-                        name=t.name,
-                        birth_year=t.birth_year,
-                        players=players
-                    ))
+                # ALWAYS add the team even if it has 0 players, for consistency
+                team_responses.append(schemas.CoachTeamResponse(
+                    id=t.id,
+                    name=t.name,
+                    birth_year=t.birth_year,
+                    players=players
+                ))
             except Exception as te:
                 print(f"Error processing team {t.id}: {te}")
                 continue
