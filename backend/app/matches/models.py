@@ -61,7 +61,7 @@ class Match(Base):
     group_id = Column(UUID(as_uuid=True), ForeignKey("tournament_groups.id"), nullable=True)
     round_number = Column(Integer, nullable=False, default=1)
     match_date = Column(DateTime(timezone=True), nullable=True)
-    status = Column(Enum(MatchStatus), default=MatchStatus.SCHEDULED, nullable=False)
+    status = Column(String, default=MatchStatus.SCHEDULED.value, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tournament = relationship("Tournament")
