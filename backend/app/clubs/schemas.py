@@ -131,7 +131,7 @@ class AcademyResponse(AcademyBase):
 
 class TeamCreateInAcademy(BaseModel):
     name: str
-    birth_year: int
+    birth_year: Optional[int] = None
     coach_id: UUID
 
 class TeamResponseSimplified(BaseModel):
@@ -160,7 +160,7 @@ class CoachPlayerResponse(BaseModel):
 class CoachTeamResponse(BaseModel):
     id: UUID
     name: str
-    birth_year: int
+    birth_year: Optional[int] = None
     players: List[CoachPlayerResponse]
 
 class CoachMatchResponse(BaseModel):
