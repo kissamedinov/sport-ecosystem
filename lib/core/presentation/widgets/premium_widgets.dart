@@ -162,6 +162,7 @@ class PremiumButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color? color;
   final bool isLoading;
+  final double? height;
 
   const PremiumButton({
     super.key,
@@ -170,13 +171,14 @@ class PremiumButton extends StatelessWidget {
     required this.onPressed,
     this.color,
     this.isLoading = false,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 54,
+      height: height ?? 54,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
