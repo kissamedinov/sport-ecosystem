@@ -3,11 +3,12 @@ import uuid
 import random
 from datetime import datetime, timedelta
 from app.database import SessionLocal
-from app.users.models import User
+from app.users.models import User, UserRole, Role, PlayerProfile
+# Import other models to satisfy relationships
+import app.academies.models
+import app.teams.models
+import app.tournaments.models
 from app.auth.security import hash_password
-
-# Note: This script assumes a RefereeAvailability model exists or we are creating users
-# Since we don't have the model file yet, I'll create the users first.
 
 async def create_mock_referees():
     db = SessionLocal()
@@ -24,22 +25,26 @@ async def create_mock_referees():
             # Check if user exists
             existing_user = db.query(User).filter(User.email == ref_data["email"]).first()
             if not existing_user:
+                new_user_id = uuid.uuid4()
                 new_user = User(
-                    id=str(uuid.uuid4()),
+                    id=new_user_id,
                     email=ref_data["email"],
-                    hashed_password=hash_password("password123"),
+                    password_hash=hash_password("password123"),
                     name=ref_data["name"],
-                    phone=ref_data["phone"],
-                    roles=["REFEREE"],
-                    is_active=True
+                    phone=ref_data["phone"]
                 )
                 db.add(new_user)
+                
+                # Add REFEREE role
+                db.add(UserRole(user_id=new_user_id, role=Role.REFEREE))
                 print(f"Created referee: {ref_data['name']}")
+            else:
+                print(f"Referee already exists: {ref_data['name']}")
         
         db.commit()
         print("Successfully created mock referees.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error during referee creation: {e}")
         db.rollback()
     finally:
         db.close()
