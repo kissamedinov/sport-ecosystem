@@ -33,7 +33,7 @@ class Team(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    academy = relationship("Academy", back_populates="youth_teams")
+    academy = relationship("Academy", back_populates="teams")
     coach = relationship("User", foreign_keys=[coach_id])
     memberships = relationship("TeamMembership", back_populates="team", cascade="all, delete-orphan")
     rating_history = relationship("TeamRatingHistory", back_populates="team", cascade="all, delete-orphan")
