@@ -297,8 +297,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               ),
               const SizedBox(width: 12),
               _actionBtn(
-                icon: Icons.tactic_rounded, // Assuming tactic_rounded or similar exists
-                fallbackIcon: Icons.architecture_rounded,
+                icon: Icons.architecture_rounded,
                 label: 'TACTICS',
                 color: PremiumTheme.electricBlue,
                 onTap: () {

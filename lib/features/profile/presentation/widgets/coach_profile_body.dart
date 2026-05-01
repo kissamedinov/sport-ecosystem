@@ -370,6 +370,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
         return Column(
           children: [
+            Row(
+              children: [
                 Expanded(
                   child: _quickActionCard(
                     icon: Icons.how_to_reg_rounded,
