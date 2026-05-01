@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/premium_theme.dart';
-import '../../../core/presentation/widgets/premium_widgets.dart';
-import '../../providers/tournament_provider.dart';
-import '../../data/models/tournament.dart';
-import '../screens/tournament_details_page.dart';
-import '../screens/create_tournament_screen.dart';
+import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
+import 'package:mobile/features/tournaments/data/models/tournament.dart';
+import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
+import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
 
 class OrganizerProfileBody extends StatefulWidget {
   const OrganizerProfileBody({super.key});
@@ -113,7 +113,7 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
         _buildStatCard("Active", "$active", Icons.play_circle_filled_rounded, PremiumTheme.neonGreen),
         _buildStatCard("Finished", "$finished", Icons.check_circle_rounded, PremiumTheme.electricBlue),
         _buildStatCard("Total Teams", "48", Icons.groups_rounded, Colors.amber),
-        _buildStatCard("Total Revenue", "$1.2k", Icons.payments_rounded, Colors.purpleAccent),
+        _buildStatCard("Total Revenue", "\$1.2k", Icons.payments_rounded, Colors.purpleAccent),
       ],
     );
   }
