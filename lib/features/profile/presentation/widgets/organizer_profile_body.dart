@@ -7,6 +7,7 @@ import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
 import 'package:mobile/features/tournaments/data/models/tournament.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
 import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
+import 'package:mobile/features/tournaments/presentation/screens/referee_search_screen.dart';
 
 class OrganizerProfileBody extends StatefulWidget {
   const OrganizerProfileBody({super.key});
@@ -171,11 +172,12 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
         const SizedBox(width: 12),
         Expanded(
           child: _actionBtn(
-            label: "REQUESTS",
-            icon: Icons.notifications_active_rounded,
+            label: "REFEREES",
+            icon: Icons.gavel_rounded,
             color: Colors.orangeAccent,
             onTap: () {
               HapticFeedback.mediumImpact();
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const RefereeSearchScreen()));
             },
           ),
         ),

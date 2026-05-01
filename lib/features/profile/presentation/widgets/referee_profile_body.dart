@@ -64,12 +64,109 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
               _buildSectionLabel("RECENTLY OFFICIATED"),
               const SizedBox(height: 12),
               _buildMatchList(recent),
+              const SizedBox(height: 28),
+
+              _buildSectionLabel("AVAILABILITY"),
+              const SizedBox(height: 12),
+              _buildAvailabilityCard(),
               const SizedBox(height: 40),
             ],
           ),
         );
       },
     );
+  }
+
+  Widget _buildAvailabilityCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.calendar_today_rounded, color: PremiumTheme.neonGreen, size: 20),
+              const SizedBox(width: 12),
+              const Text("MANAGE SCHEDULE", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
+              const Spacer(),
+              _buildSwitch(true), // Status: Available by default
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "Mark yourself as unavailable for specific dates to stop receiving tournament invites.",
+            style: TextStyle(color: Colors.white38, fontSize: 11),
+          ),
+          const SizedBox(height: 20),
+          _buildBlockedDatesList(),
+          const SizedBox(height: 20),
+          PremiumButton(
+            text: "BLOCK NEW DATE",
+            height: 40,
+            color: Colors.white.withValues(alpha: 0.05),
+            onPressed: () => _pickAndBlockDate(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitch(bool value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Container(width: 8, height: 8, decoration: const BoxDecoration(color: PremiumTheme.neonGreen, shape: BoxShape.circle)),
+          const SizedBox(width: 8),
+          const Text("ACTIVE", style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlockedDatesList() {
+    final dates = ["2026-05-15", "2026-05-16"];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: dates.map((date) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(date, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            const SizedBox(width: 8),
+            const Icon(Icons.close_rounded, size: 14, color: Colors.white30),
+          ],
+        ),
+      )).toList(),
+    );
+  }
+
+  Future<void> _pickAndBlockDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.dark(primary: PremiumTheme.neonGreen, onPrimary: Colors.black, surface: Color(0xFF1A1A1A)),
+        ),
+        child: child!,
+      ),
+    );
+    // Logic to save would go here
   }
 
   Widget _buildLoadingState() {
