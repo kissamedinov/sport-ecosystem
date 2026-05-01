@@ -168,6 +168,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   ],
                 ),
               ],
+            ),
           ),
           if (t.registrationClose != null && t.status == 'upcoming')
             Column(
