@@ -12,8 +12,6 @@ from app.clubs.models import Club, ClubStaff, ClubRole, ClubMembershipStatus
 from app.academies.models import Academy
 from app.notifications.service import create_notification, log_debug, mark_notifications_by_entity
 from app.notifications.models import NotificationType, EntityType
-from app.matches.models import Match, MatchStatus, MatchResult
-from app.teams.models import TeamRatingHistory
 
 def create_club(db: Session, club_in: schemas.ClubCreate, owner_id: UUID) -> Club:
     try:
@@ -634,6 +632,7 @@ def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
 def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardResponse:
     try:
         from app.matches.models import Match, MatchResult, MatchStatus
+        from app.teams.models import TeamRatingHistory
         
         # Get teams coached by this user
         teams_query = db.query(Team).filter(Team.coach_id == coach_id)
