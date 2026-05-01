@@ -13,7 +13,6 @@ class RefereeSearchScreen extends StatefulWidget {
 class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   
-  // Mock data for referees
   final List<Map<String, dynamic>> _referees = [
     {
       "name": "Ivan Ivanov",
@@ -21,8 +20,8 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
       "matches": 156,
       "status": "Available",
       "specialty": "Main Referee",
+      "experience": "10+ Years",
       "phone": "+7 701 222 33 44",
-      "unavailable_dates": ["2026-05-02", "2026-05-03"]
     },
     {
       "name": "Sergey Petrov",
@@ -30,50 +29,84 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
       "matches": 89,
       "status": "Busy",
       "specialty": "Linesman",
+      "experience": "5 Years",
       "phone": "+7 701 333 44 55",
-      "unavailable_dates": ["2026-05-01"]
     },
     {
       "name": "Dmitry Sidorov",
       "rating": 4.9,
       "matches": 210,
       "status": "Available",
-      "specialty": "VAR / Main",
+      "specialty": "VAR Specialist",
+      "experience": "12 Years",
       "phone": "+7 701 444 55 66",
-      "unavailable_dates": []
     },
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: PremiumTheme.surfaceBase(context),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('SEARCH REFEREES', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
-      ),
-      body: Column(
+    return Column(
+      children: [
+        _buildSearchRow(),
+        _buildFilterChips(),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            itemCount: _referees.length,
+            itemBuilder: (context, index) {
+              return _buildRefereeCard(_referees[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchRow() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: PremiumTextField(
-              controller: _searchController,
-              label: "SEARCH BY NAME OR SKILL",
-              icon: Icons.search_rounded,
-            ),
-          ),
-          _buildFilterChips(),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: _referees.length,
-              itemBuilder: (context, index) {
-                return _buildRefereeCard(_referees[index]);
-              },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: "Search by name...",
+                  hintStyle: TextStyle(color: Colors.white24, fontSize: 13),
+                  prefixIcon: Icon(Icons.search_rounded, color: Colors.white24, size: 20),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
             ),
           ),
+          const SizedBox(width: 12),
+          _buildIconButton(Icons.tune_rounded, () {}),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 50,
+        width: 50,
+        decoration: BoxDecoration(
+          color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+        ),
+        child: Icon(icon, color: PremiumTheme.neonGreen, size: 20),
       ),
     );
   }
@@ -87,8 +120,8 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
           _filterChip("All", true),
           _filterChip("Available", false),
           _filterChip("Top Rated", false),
-          _filterChip("Linesman", false),
           _filterChip("VAR", false),
+          _filterChip("Main", false),
         ],
       ),
     );
@@ -98,13 +131,14 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        label: Text(label, style: TextStyle(fontSize: 11, color: isSelected ? Colors.black : Colors.white70)),
+        label: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.white70)),
         selected: isSelected,
         onSelected: (_) {},
         backgroundColor: Colors.white.withValues(alpha: 0.05),
         selectedColor: PremiumTheme.neonGreen,
         checkmarkColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -114,165 +148,189 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: PremiumTheme.glassDecorationOf(context, radius: 28),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              _buildAvatar(ref["name"]),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showInviteSheet(ref),
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
                   children: [
-                    Text(ref["name"].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5)),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                        const SizedBox(width: 4),
-                        Text(ref["rating"].toString(), style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
-                        const SizedBox(width: 8),
-                        Text("${ref["matches"]} matches", style: const TextStyle(color: Colors.white38, fontSize: 11)),
-                      ],
+                    _buildAvatar(ref["name"]),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(ref["name"], style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                          const SizedBox(height: 2),
+                          Text(ref["specialty"].toUpperCase(), style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                        ],
+                      ),
                     ),
+                    _buildStatusPill(isAvailable),
                   ],
                 ),
-              ),
-              _buildStatusBadge(isAvailable),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildInfoColumn("SPECIALTY", ref["specialty"]),
-              _buildInfoColumn("NEXT FREE", isAvailable ? "TODAY" : "03 MAY"),
-              ElevatedButton(
-                onPressed: () => _showInviteSheet(ref),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: PremiumTheme.neonGreen,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
+                const SizedBox(height: 16),
+                const Divider(color: Colors.white10, height: 1),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatCol("RATING", "⭐ ${ref["rating"]}"),
+                    _buildStatCol("MATCHES", ref["matches"].toString()),
+                    _buildStatCol("EXP", ref["experience"]),
+                    _buildQuickActions(),
+                  ],
                 ),
-                child: const Text('INVITE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildAvatar(String name) {
     return Container(
-      width: 50,
-      height: 50,
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
-        color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.2)),
+        gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.05)]),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Center(
-        child: Text(
-          name[0].toUpperCase(),
-          style: const TextStyle(color: PremiumTheme.electricBlue, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
+        child: Text(name[0], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       ),
     );
   }
 
-  Widget _buildStatusBadge(bool available) {
+  Widget _buildStatusPill(bool available) {
+    final color = available ? PremiumTheme.neonGreen : Colors.redAccent;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: (available ? PremiumTheme.neonGreen : Colors.redAccent).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        available ? "AVAILABLE" : "BUSY",
-        style: TextStyle(
-          color: available ? PremiumTheme.neonGreen : Colors.redAccent,
-          fontSize: 8,
-          fontWeight: FontWeight.bold,
-        ),
+        available ? "READY" : "BUSY",
+        style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5),
       ),
     );
   }
 
-  Widget _buildInfoColumn(String label, String value) {
+  Widget _buildStatCol(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+        Text(label, style: const TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       ],
     );
   }
 
+  Widget _buildQuickActions() {
+    return Row(
+      children: [
+        _circleIcon(Icons.phone_rounded),
+        const SizedBox(width: 8),
+        _circleIcon(Icons.chat_bubble_rounded),
+      ],
+    );
+  }
+
+  Widget _circleIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 14, color: Colors.white70),
+    );
+  }
+
   void _showInviteSheet(Map<String, dynamic> ref) {
-    HapticFeedback.mediumImpact();
+    HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: PremiumTheme.surfaceCard(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          border: Border.all(color: Colors.white10),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 40)],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("SEND INVITATION", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 1)),
-            const SizedBox(height: 8),
-            Text("Inviting ${ref["name"]} for a match assignment.", style: const TextStyle(color: Colors.white54, fontSize: 13)),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 24),
-            _buildPickerRow("MATCH DATE", "Select Date", Icons.calendar_month_rounded),
-            const SizedBox(height: 12),
-            _buildPickerRow("LOCATION", "Central Arena", Icons.location_on_rounded),
+            Row(
+              children: [
+                _buildAvatar(ref["name"]),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("SEND ASSIGNMENT", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2)),
+                    Text(ref["name"], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  ],
+                ),
+              ],
+            ),
             const SizedBox(height: 32),
+            _buildActionInput("SELECT MATCH", "Champions League Final", Icons.sports_soccer_rounded),
+            const SizedBox(height: 12),
+            _buildActionInput("DATE & TIME", "Tomorrow, 18:00", Icons.access_time_filled_rounded),
+            const SizedBox(height: 40),
             PremiumButton(
-              text: "SEND INVITE",
+              text: "SEND OFFICIAL INVITE",
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("INVITATION SENT"), backgroundColor: PremiumTheme.neonGreen),
+                  const SnackBar(content: Text("INVITATION DISPATCHED"), backgroundColor: PremiumTheme.neonGreen),
                 );
               },
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPickerRow(String label, String value, IconData icon) {
+  Widget _buildActionInput(String label, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: PremiumTheme.neonGreen, size: 20),
+          Icon(icon, color: PremiumTheme.neonGreen, size: 18),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold)),
+              Text(label, style: const TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
           const Spacer(),
-          const Icon(Icons.arrow_drop_down_rounded, color: Colors.white38),
+          const Icon(Icons.chevron_right_rounded, color: Colors.white24),
         ],
       ),
     );

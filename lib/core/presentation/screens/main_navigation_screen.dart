@@ -5,6 +5,7 @@ import 'package:mobile/features/dashboard/screens/role_router.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
 import 'package:mobile/features/matches/presentation/screens/match_list_screen.dart';
 import 'package:mobile/features/bookings/presentation/screens/booking_screen.dart';
+import 'package:mobile/features/bookings/presentation/screens/organizer_logistics_screen.dart';
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
 import 'package:mobile/features/football_hub/presentation/screens/football_hub_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_announcements_screen.dart';
@@ -613,6 +614,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           icon: Icons.business_outlined,
           activeIcon: Icons.business,
           label: 'Management',
+        );
+        break;
+      case 'TOURNAMENT_ORGANIZER':
+        dynamicTab = _TabItem(
+          screen: const OrganizerLogisticsScreen(),
+          icon: Icons.inventory_2_outlined,
+          activeIcon: Icons.inventory_2,
+          label: 'Logistics',
         );
         break;
       default:
