@@ -160,57 +160,77 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   }
 
   Widget _buildTeamsTab(AcademyProvider provider) {
-    return RefreshIndicator(
-      onRefresh: () => provider.fetchMyAcademy(),
-      child: provider.teams.isEmpty
-          ? SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: const Center(child: Text('No teams added yet.')),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('My Academy Teams (${provider.teams.length})', style: const TextStyle(fontWeight: FontWeight.bold)),
+              TextButton.icon(
+                onPressed: () => _showLinkTeamDialog(),
+                icon: const Icon(Icons.link, size: 18),
+                label: const Text('Add Existing'),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: provider.teams.length,
-              itemBuilder: (context, index) {
-                final team = provider.teams[index];
-                return Card(
-                  child: ListTile(
-                    leading: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          team.ageGroup,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                      ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => provider.fetchMyAcademy(),
+            child: provider.teams.isEmpty
+                ? SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: const Center(child: Text('No teams added yet.')),
                     ),
-                    title: Text(team.name),
-                    subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AcademyTeamDetailsScreen(team: team),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: provider.teams.length,
+                    itemBuilder: (context, index) {
+                      final team = provider.teams[index];
+                      return Card(
+                        child: ListTile(
+                          leading: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                team.ageGroup,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ),
+                          ),
+                          title: Text(team.name),
+                          subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AcademyTeamDetailsScreen(team: team),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
                   ),
-                );
-              },
-            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -610,8 +630,54 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     );
   }
 
-  void _showAddPlayerDialog() {
-    // TODO: Implement Add Player Dialog
+  void _showLinkTeamDialog() {
+    final clubProvider = context.read<ClubProvider>();
+    final academyProvider = context.read<AcademyProvider>();
+    
+    // Get teams from coach dashboard that are NOT in the current academy
+    final allCoachTeams = (clubProvider.coachDashboard?['teams'] as List?) ?? [];
+    final currentAcademyTeamIds = academyProvider.teams.map((t) => t.id).toSet();
+    
+    final availableTeams = allCoachTeams.where((t) => !currentAcademyTeamIds.contains(t['id'].toString())).toList();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Link Existing Team'),
+        content: availableTeams.isEmpty
+            ? const Text('All your teams are already linked to this academy.')
+            : SizedBox(
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: availableTeams.length,
+                  itemBuilder: (context, index) {
+                    final team = availableTeams[index];
+                    return ListTile(
+                      leading: const CircleAvatar(child: Icon(Icons.groups)),
+                      title: Text(team['name'] ?? 'Unnamed Team'),
+                      subtitle: Text(team['age_group'] ?? 'No age group'),
+                      onTap: () async {
+                        final academyId = academyProvider.myAcademy?.id;
+                        if (academyId != null) {
+                          final success = await academyProvider.linkExistingTeam(academyId, team['id'].toString());
+                          if (mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(success ? 'Team linked successfully' : 'Failed to link team')),
+                            );
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
+    );
   }
 
   void _showGenerateSessionsDialog() {

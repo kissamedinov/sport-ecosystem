@@ -50,4 +50,9 @@ class TeamRepository {
     final response = await _apiClient.patch('/teams/$teamId/join-request/$requestId/reject');
     return PlayerTeam.fromJson(response.data);
   }
+
+  Future<Team> updateTeam(String teamId, Map<String, dynamic> data) async {
+    final response = await _apiClient.patch('/teams/$teamId', data: data);
+    return Team.fromJson(response.data);
+  }
 }

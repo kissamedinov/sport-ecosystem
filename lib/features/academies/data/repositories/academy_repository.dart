@@ -138,6 +138,10 @@ class AcademyRepository {
     return AcademyTeamPlayer.fromJson(response.data);
   }
 
+  Future<void> linkTeamToAcademy(String teamId, String academyId) async {
+    await _apiClient.patch('/teams/$teamId', data: {'academy_id': academyId});
+  }
+
   Future<AcademyBillingConfig?> getBillingConfig(String academyId) async {
     try {
       final response = await _apiClient.get('/academies/$academyId/billing/config');

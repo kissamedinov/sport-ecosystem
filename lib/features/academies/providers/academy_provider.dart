@@ -188,6 +188,25 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> linkExistingTeam(String academyId, String teamId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // We use a generic PATCH /teams/{id} but since we don't have TeamRepository here, 
+      // we might need to add a method to AcademyRepository or just call it directly.
+      // Let's assume AcademyRepository can handle it for convenience.
+      await _repository.linkTeamToAcademy(teamId, academyId);
+      await fetchAcademyTeams(academyId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> addPlayerToTeam(String teamId, String playerName, String position, String jerseyNumber) async {
     _isLoading = true;
     notifyListeners();

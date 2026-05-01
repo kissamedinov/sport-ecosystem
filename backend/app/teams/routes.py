@@ -82,3 +82,12 @@ def get_team_members(
     db: Session = Depends(get_db)
 ):
     return services.get_team_members(db=db, team_id=id)
+
+@router.patch("/{id}", response_model=schemas.TeamResponse)
+def update_team(
+    id: UUID,
+    team_in: schemas.TeamUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.update_team(db=db, team_id=id, team_in=team_in, current_user=current_user)

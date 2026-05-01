@@ -14,6 +14,15 @@ class TeamBase(BaseModel):
 class TeamCreate(TeamBase):
     pass
 
+class TeamUpdate(BaseModel):
+    name: Optional[str] = None
+    academy_id: Optional[UUID] = None
+    age_category: Optional[str] = None
+    birth_year: Optional[int] = None
+    division: Optional[str] = None
+    coach_id: Optional[UUID] = None
+    is_active: Optional[bool] = None
+
 class TeamResponse(TeamBase):
     id: UUID
     coach_id: UUID

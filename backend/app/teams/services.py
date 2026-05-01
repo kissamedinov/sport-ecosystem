@@ -332,3 +332,37 @@ def reject_join_request(db: Session, team_id: UUID, request_id: UUID, current_us
     db.commit()
     db.refresh(membership)
     return membership
+
+def update_team(db: Session, team_id: UUID, team_in: any, current_user: User):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
+    
+    # Authorization check
+    user_roles = {ur.role for ur in current_user.roles}
+    is_owner = team.coach_id == current_user.id or Role.ADMIN in user_roles
+    
+    if not is_owner:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this team")
+
+    update_data = team_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(team, field, value)
+
+    # If academy_id was updated, ensure all players are in the academy registry
+    if 'academy_id' in update_data and update_data['academy_id']:
+        from app.academies.models import AcademyPlayer
+        from app.academies.schemas import AcademyPlayerCreate
+        from app.academies.services import add_player_to_academy
+        
+        memberships = db.query(TeamMembership).filter(
+            TeamMembership.team_id == team.id,
+            TeamMembership.status == MembershipStatus.ACTIVE
+        ).all()
+        
+        for m in memberships:
+            add_player_to_academy(db, team.academy_id, AcademyPlayerCreate(player_profile_id=m.player_profile_id))
+
+    db.commit()
+    db.refresh(team)
+    return team
