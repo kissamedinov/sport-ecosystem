@@ -720,8 +720,15 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 team_form = team_form[:5]
                 
                 # Latest rating
-                latest_rating = db.query(TeamRatingHistory).filter(TeamRatingHistory.team_id == t.id).order_by(TeamRatingHistory.timestamp.desc()).first()
-                elo_rating = latest_rating.rating_after if latest_rating else 1200
+                elo_rating = 1200
+                try:
+                    latest_rating = db.query(TeamRatingHistory).filter(TeamRatingHistory.team_id == t.id).order_by(TeamRatingHistory.timestamp.desc()).first()
+                    if latest_rating:
+                        elo_rating = latest_rating.rating_after
+                except Exception as re:
+                    # Table might not exist yet, rollback to clear aborted transaction
+                    db.rollback()
+                    pass
 
                 # ALWAYS add the team even if it has 0 players, for consistency
                 team_responses.append(schemas.CoachTeamResponse(
