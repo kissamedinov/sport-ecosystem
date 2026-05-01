@@ -6,6 +6,7 @@ import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
 import 'training_management_screen.dart';
 import 'package:intl/intl.dart';
+import '../../../../features/clubs/providers/club_provider.dart';
 
 class AcademyDashboardScreen extends StatefulWidget {
   const AcademyDashboardScreen({super.key});
