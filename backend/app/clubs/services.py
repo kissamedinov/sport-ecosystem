@@ -660,6 +660,26 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
         team_ids = [t.id for t in teams]
         
         team_responses = []
+        for t in teams:
+            try:
+                # Get players in this team
+                mems = db.query(TeamMembership).filter(TeamMembership.team_id == t.id, TeamMembership.status == MembershipStatus.ACTIVE).all()
+                players = []
+                for m in mems:
+                    player_name = "Player"
+                    if m.player_profile and m.player_profile.user:
+                        player_name = m.player_profile.user.name
+                    elif m.player_profile and (m.player_profile.first_name or m.player_profile.last_name):
+                        player_name = f"{m.player_profile.first_name or ''} {m.player_profile.last_name or ''}".strip()
+
+                    players.append(schemas.CoachPlayerResponse(
+                        user_id=m.player_profile.user_id if (m.player_profile and m.player_profile.user_id) else UUID('00000000-0000-0000-0000-000000000000'),
+                        name=player_name,
+                        profile_id=m.player_profile_id,
+                        position=m.player_profile.preferred_position if (m.player_profile and hasattr(m.player_profile, 'preferred_position')) else None,
+                        jersey_number=m.jersey_number
+                    ))
+
                 # Calculate team-specific stats
                 team_wins = 0
                 team_draws = 0
