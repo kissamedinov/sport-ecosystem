@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:mobile/features/academies/presentation/screens/academy_dashboard
 import 'package:mobile/features/coaches/presentation/screens/coach_dashboard_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_teams_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_performance_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_attendance_screen.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -368,42 +370,32 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
         return Column(
           children: [
-            Row(
-              children: [
-                if (isOrganizer)
-                  Expanded(
-                    child: _quickActionCard(
-                      icon: Icons.emoji_events_rounded,
-                      color: PremiumTheme.neonGreen,
-                      title: 'TOURNAMENT HUB',
-                      subtitle: 'Manage Your Events',
-                      onTap: () => Navigator.pushNamed(context, '/tournaments'),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: _quickActionCard(
-                      icon: Icons.dashboard_rounded,
-                      color: PremiumTheme.neonGreen,
-                      title: 'COACH HUB',
-                      subtitle: 'Dashboard & Fixtures',
-                      onTap: () => Navigator.push(
+                Expanded(
+                  child: _quickActionCard(
+                    icon: Icons.how_to_reg_rounded,
+                    color: PremiumTheme.neonGreen,
+                    title: 'ATTENDANCE',
+                    subtitle: 'Track Training',
+                    onTap: () {
+                      HapticFeedback.heavyImpact();
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CoachDashboardScreen()),
-                      ),
-                    ),
+                        MaterialPageRoute(builder: (_) => CoachAttendanceScreen(teams: teams)),
+                      );
+                    },
                   ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _quickActionCard(
-                    icon: Icons.groups_rounded,
+                    icon: Icons.architecture_rounded,
                     color: PremiumTheme.electricBlue,
-                    title: 'MY TEAMS',
-                    subtitle: '${teams.length} teams · Players',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const CoachTeamsScreen()),
-                    ),
+                    title: 'TACTICS',
+                    subtitle: 'Formations',
+                    onTap: () {
+                      HapticFeedback.heavyImpact();
+                      // Navigate
+                    },
                   ),
                 ),
               ],
@@ -413,32 +405,29 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               children: [
                 Expanded(
                   child: _quickActionCard(
-                    icon: Icons.analytics_rounded,
+                    icon: Icons.calendar_month_rounded,
                     color: Colors.amber,
-                    title: 'PERFORMANCE',
-                    subtitle: 'Stats & Top Performers',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CoachPerformanceScreen(
-                          perf: perf,
-                          topPerformers: topPerformers,
-                        ),
-                      ),
-                    ),
+                    title: 'PLANNER',
+                    subtitle: 'Daily Agenda',
+                    onTap: () {
+                      HapticFeedback.heavyImpact();
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _quickActionCard(
-                    icon: Icons.school_rounded,
+                    icon: Icons.dashboard_rounded,
                     color: Colors.purpleAccent,
-                    title: 'ACADEMY CRM',
-                    subtitle: 'Schedule & Billing',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
-                    ),
+                    title: 'DASHBOARD',
+                    subtitle: 'Stats & Fixtures',
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoachDashboardScreen()),
+                      );
+                    },
                   ),
                 ),
               ],

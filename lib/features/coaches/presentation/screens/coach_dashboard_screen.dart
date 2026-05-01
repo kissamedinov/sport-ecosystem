@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
@@ -6,6 +7,7 @@ import 'package:mobile/features/notifications/presentation/screens/notification_
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'coach_teams_screen.dart';
+import 'coach_attendance_screen.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -111,6 +113,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             SliverToBoxAdapter(child: _buildLiveMatchCard(liveMatch)),
           if (needsLineup != null)
             SliverToBoxAdapter(child: _buildLineupActionCard(needsLineup)),
+          SliverToBoxAdapter(child: _buildActionGrid(teams)),
           SliverToBoxAdapter(child: _buildTeamsSection(teams)),
           SliverToBoxAdapter(child: _buildUpcomingFixtures(matches)),
           const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
@@ -138,7 +141,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  Navigator.pop(context);
+                },
                 child: Container(
                   width: 38,
                   height: 38,
@@ -163,6 +169,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               _buildIconBtn(
                 Icons.notifications_none_rounded,
                 onTap: () {
+                  HapticFeedback.lightImpact();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -174,7 +181,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               const SizedBox(width: 8),
               _buildIconBtn(
                 Icons.more_horiz_rounded,
-                onTap: () => _showDashboardMenu(context),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  _showDashboardMenu(context);
+                },
               ),
             ],
           ),
@@ -250,6 +260,115 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       ),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+
+  // ─── ACTION GRID ──────────────────────────────────────────────────────────
+  
+  Widget _buildActionGrid(List teams) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'QUICK ACTIONS',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _actionBtn(
+                icon: Icons.how_to_reg_rounded,
+                label: 'ATTENDANCE',
+                color: PremiumTheme.neonGreen,
+                onTap: () {
+                  HapticFeedback.heavyImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => CoachAttendanceScreen(teams: teams)),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              _actionBtn(
+                icon: Icons.tactic_rounded, // Assuming tactic_rounded or similar exists
+                fallbackIcon: Icons.architecture_rounded,
+                label: 'TACTICS',
+                color: PremiumTheme.electricBlue,
+                onTap: () {
+                  HapticFeedback.heavyImpact();
+                  // TODO: Navigate to Tactics Board
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _actionBtn(
+                icon: Icons.calendar_month_rounded,
+                label: 'PLANNER',
+                color: Colors.amber,
+                onTap: () {
+                  HapticFeedback.heavyImpact();
+                  // TODO: Navigate to Training Planner
+                },
+              ),
+              const SizedBox(width: 12),
+              _actionBtn(
+                icon: Icons.star_outline_rounded,
+                label: 'SCOUTING',
+                color: Colors.purpleAccent,
+                onTap: () {
+                  HapticFeedback.heavyImpact();
+                  // TODO: Navigate to Scouting/Evaluation
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionBtn({
+    required IconData icon,
+    IconData? fallbackIcon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: PremiumTheme.glassDecorationOf(context, radius: 18).copyWith(
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 28),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
