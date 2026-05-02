@@ -132,7 +132,8 @@ class AcademyResponse(AcademyBase):
 class TeamCreateInAcademy(BaseModel):
     name: str
     birth_year: Optional[int] = None
-    coach_id: UUID
+    coach_id: Optional[UUID] = None
+
 
 class TeamResponseSimplified(BaseModel):
     id: UUID
@@ -140,7 +141,8 @@ class TeamResponseSimplified(BaseModel):
     academy_id: UUID
     academy_name: Optional[str] = None
     city: str
-    coach_id: UUID
+    coach_id: Optional[UUID] = None
+
     rating: int = 0
     matches_played: int = 0
     wins: int = 0
