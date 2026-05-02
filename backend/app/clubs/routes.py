@@ -238,6 +238,19 @@ def create_team(
     # Ownership/permission check is usually handled in service or manually
     return services.create_team_in_academy(db, academy_id, team_in)
 
+@router.get("/academies/{academy_id}/full-dashboard", response_model=schemas.ClubDashboardResponse)
+def get_academy_full_dashboard(
+    academy_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # This is a helper route for the mobile app
+    academy = db.query(models.Academy).filter(models.Academy.id == academy_id).first()
+    if not academy:
+        raise HTTPException(status_code=404, detail="Academy not found")
+    
+    return services.get_club_dashboard(db, academy.club_id)
+
 @router.patch("/teams/{team_id}/coach", response_model=schemas.TeamResponseSimplified)
 def reassign_team_coach(
     team_id: UUID,
