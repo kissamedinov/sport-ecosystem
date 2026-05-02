@@ -48,9 +48,11 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
             "role": role_value.value,
             "roles": [role_value.value],
             "onboarding_completed": False,
+            "unique_code": new_user.unique_code,
             "access_token": token,
             "token_type": "bearer"
         }
+
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -89,4 +91,6 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "role": primary_role,
         "roles": role_values,
         "onboarding_completed": current_user.onboarding_completed,
+        "unique_code": current_user.unique_code,
     }
+
