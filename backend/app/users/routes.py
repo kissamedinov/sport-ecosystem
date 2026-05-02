@@ -45,8 +45,10 @@ def get_my_children(
                 "created_at": child.created_at,
                 "date_of_birth": child.date_of_birth,
                 "phone": child.phone,
-                "onboarding_completed": child.onboarding_completed
+                "onboarding_completed": child.onboarding_completed,
+                "unique_code": child.unique_code
             }
+
             response.append(child_data)
             
         return response
@@ -197,8 +199,10 @@ def get_parents(
                 "created_at": parent.created_at,
                 "date_of_birth": parent.date_of_birth,
                 "phone": parent.phone,
-                "onboarding_completed": parent.onboarding_completed
+                "onboarding_completed": parent.onboarding_completed,
+                "unique_code": parent.unique_code
             }
+
             parents_response.append(parent_data)
     return parents_response
 
@@ -243,8 +247,10 @@ def update_my_profile(
         "phone": current_user.phone,
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
-        "onboarding_completed": current_user.onboarding_completed
+        "onboarding_completed": current_user.onboarding_completed,
+        "unique_code": current_user.unique_code
     }
+
 
 @router.patch("/{user_id}", response_model=schemas.UserResponse)
 def update_user_profile(
@@ -302,8 +308,10 @@ def update_user_profile(
         "phone": target_user.phone,
         "bio": target_user.bio,
         "avatar_url": target_user.avatar_url,
-        "onboarding_completed": target_user.onboarding_completed
+        "onboarding_completed": target_user.onboarding_completed,
+        "unique_code": target_user.unique_code
     }
+
 
 
 @router.get("/parent-requests", response_model=List[schemas.ParentChildRequestResponse])
@@ -572,7 +580,9 @@ def get_referees(
             "phone": ref.phone,
             "onboarding_completed": ref.onboarding_completed,
             "avatar_url": ref.avatar_url,
-            "bio": ref.bio
+            "bio": ref.bio,
+            "unique_code": ref.unique_code
         })
+
         
     return response
