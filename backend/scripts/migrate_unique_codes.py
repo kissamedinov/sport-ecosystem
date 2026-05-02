@@ -8,14 +8,11 @@ from sqlalchemy import create_engine, text
 sys.path.append(os.path.join(os.getcwd(), 'backend'))
 
 def get_db_url():
-    # Try to load from .env file
     if os.path.exists('.env'):
         with open('.env', 'r') as f:
             for line in f:
                 if line.startswith('DATABASE_URL='):
                     return line.split('=', 1)[1].strip()
-    
-    # Default for this specific server if .env parsing fails
     return "postgresql://sportuser:sportpassword123@localhost:5432/sportseco"
 
 SQLALCHEMY_DATABASE_URL = get_db_url()
@@ -27,28 +24,27 @@ def generate_code(length=5):
 
 def migrate_and_populate():
     with engine.connect() as conn:
-        print(f"Connecting to: {SQLALCHEMY_DATABASE_URL.split('@')[-1]}")
-        print("Migrating database: adding 'unique_code' column...")
-        try:
-            # Check if column exists first
-            check_col = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='unique_code';")).fetchone()
-            if not check_col:
-                conn.execute(text("ALTER TABLE users ADD COLUMN unique_code VARCHAR;"))
-                conn.execute(text("CREATE UNIQUE INDEX ix_users_unique_code ON users (unique_code);"))
-                conn.commit()
-                print("Column added successfully.")
-            else:
-                print("Column 'unique_code' already exists.")
-        except Exception as e:
-            print(f"Error during column addition: {e}")
-            conn.rollback()
-
-        print("Populating unique codes for existing users...")
-        users = conn.execute(text("SELECT id, email FROM users WHERE unique_code IS NULL;")).fetchall()
+        print(f"Connecting to DB...")
         
-        for user_id, email in users:
+        # 1. Check current status
+        total = conn.execute(text("SELECT count(*) FROM users")).scalar()
+        with_code = conn.execute(text("SELECT count(*) FROM users WHERE unique_code IS NOT NULL AND unique_code != ''")).scalar()
+        print(f"Total users: {total}, Users with IDs: {with_code}")
+
+        # 2. Add column if missing (safety check)
+        check_col = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='unique_code';")).fetchone()
+        if not check_col:
+            print("Adding unique_code column...")
+            conn.execute(text("ALTER TABLE users ADD COLUMN unique_code VARCHAR;"))
+            conn.execute(text("CREATE UNIQUE INDEX ix_users_unique_code ON users (unique_code);"))
+            conn.commit()
+
+        # 3. Force update users who have NULL or empty unique_code
+        users_to_update = conn.execute(text("SELECT id, email FROM users WHERE unique_code IS NULL OR unique_code = '';")).fetchall()
+        print(f"Found {len(users_to_update)} users to update.")
+
+        for user_id, email in users_to_update:
             code = f"ID-{generate_code()}"
-            # Ensure uniqueness
             while conn.execute(text("SELECT 1 FROM users WHERE unique_code = :c"), {"c": code}).fetchone():
                 code = f"ID-{generate_code()}"
             
@@ -59,7 +55,7 @@ def migrate_and_populate():
             print(f"Assigned {code} to {email}")
         
         conn.commit()
-        print("Migration and population complete.")
+        print("Done!")
 
 if __name__ == "__main__":
     migrate_and_populate()
