@@ -1,9 +1,17 @@
 import uuid
 import enum
+import random
+import string
+
 from sqlalchemy import Column, String, Date, DateTime, Enum, func, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
+
+def generate_unique_code():
+    chars = string.ascii_uppercase + string.digits
+    return 'ID-' + ''.join(random.choice(chars) for _ in range(5))
+
 
 class Role(str, enum.Enum):
     ADMIN = "ADMIN"
@@ -54,7 +62,7 @@ class User(Base):
     bio = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=True)
-    unique_code = Column(String, unique=True, index=True, nullable=True)
+    unique_code = Column(String, unique=True, index=True, nullable=True, default=generate_unique_code)
     onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
