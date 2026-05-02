@@ -361,12 +361,30 @@ def reject_club_request(db: Session, request_id: UUID) -> models.ClubRequest:
 
 def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_id: UUID) -> models.Invitation:
     try:
-        if invite_in.invited_user_id == inviter_id:
+        # Resolve invited_user_id (could be email, phone, or UUID)
+        target_user = None
+        try:
+            # Try as UUID first
+            potential_id = UUID(invite_in.invited_user_id)
+            target_user = db.query(User).filter(User.id == potential_id).first()
+        except (ValueError, AttributeError):
+            # Try as email or phone
+            target_user = db.query(User).filter(
+                (User.email == invite_in.invited_user_id) | 
+                (User.phone == invite_in.invited_user_id)
+            ).first()
+        
+        if not target_user:
+            raise HTTPException(status_code=404, detail=f"User '{invite_in.invited_user_id}' not found. They must register first.")
+            
+        resolved_user_id = target_user.id
+
+        if resolved_user_id == inviter_id:
             raise HTTPException(status_code=400, detail="Cannot invite yourself")
         
         # Check for duplicate pending invitation
         existing = db.query(models.Invitation).filter(
-            models.Invitation.invited_user_id == invite_in.invited_user_id,
+            models.Invitation.invited_user_id == resolved_user_id,
             models.Invitation.club_id == invite_in.club_id,
             models.Invitation.role == invite_in.role,
             models.Invitation.status == models.InvitationStatus.PENDING
@@ -379,7 +397,7 @@ def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_
         is_owner = club.owner_id == inviter_id
         
         if existing:
-            log_debug(f"Found existing pending invitation for user {invite_in.invited_user_id}. Re-triggering notification.")
+            log_debug(f"Found existing pending invitation for user {resolved_user_id}. Re-triggering notification.")
             db_obj = existing
             is_approved = existing.is_approved
             # Optionally update team_id if it changed
@@ -388,13 +406,14 @@ def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_
             db.commit()
             db.refresh(db_obj)
         else:
-            log_debug(f"Creating new invitation for user {invite_in.invited_user_id}")
+            log_debug(f"Creating new invitation for user {resolved_user_id}")
             is_approved = True
             if not is_owner and invite_in.role in [ClubRole.MANAGER, ClubRole.COACH]:
                 is_approved = False # Manager can invite, but Owner must approve staff
             
             db_obj = models.Invitation(
-                **invite_in.model_dump(),
+                **invite_in.model_dump(exclude={"invited_user_id"}),
+                invited_user_id=resolved_user_id,
                 invited_by=inviter_id,
                 is_approved=is_approved,
                 status=models.InvitationStatus.PENDING
@@ -412,10 +431,10 @@ def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_
             log_debug(f"Inviter name: {inviter_name}")
             
             if is_approved:
-                log_debug(f"Notifying invited user: {invite_in.invited_user_id}")
+                log_debug(f"Notifying invited user: {resolved_user_id}")
                 create_notification(
                     db,
-                    user_ids=[invite_in.invited_user_id],
+                    user_ids=[resolved_user_id],
                     notification_type=NotificationType.TEAM_INVITE,
                     title="New Club Invitation",
                     message=f"{inviter_name} invited you to join {club.name} as {invite_in.role.value}",

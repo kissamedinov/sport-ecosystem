@@ -52,8 +52,13 @@ class InvitationBase(BaseModel):
     child_profile_id: Optional[UUID] = None
     expires_at: Optional[datetime] = None
 
-class InvitationCreate(InvitationBase):
-    pass
+class InvitationCreate(BaseModel):
+    invited_user_id: str
+    role: ClubRole
+    club_id: UUID
+    team_id: Optional[UUID] = None
+    child_profile_id: Optional[UUID] = None
+    expires_at: Optional[datetime] = None
 
 class InvitationResponse(InvitationBase):
     id: UUID
