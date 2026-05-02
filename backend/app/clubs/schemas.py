@@ -1,6 +1,5 @@
 from __future__ import annotations
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
-
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
@@ -130,6 +129,9 @@ class AcademyResponse(AcademyBase):
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+class TeamCreateInAcademy(BaseModel):
+    name: str
+    birth_year: Optional[int] = None
     coach_id: Optional[UUID] = None
 
     @field_validator('coach_id', mode='before')
@@ -139,8 +141,6 @@ class AcademyResponse(AcademyBase):
             return None
         return v
 
-
-
 class TeamResponseSimplified(BaseModel):
     id: UUID
     name: str
@@ -148,7 +148,6 @@ class TeamResponseSimplified(BaseModel):
     academy_name: Optional[str] = None
     city: str
     coach_id: Optional[UUID] = None
-
     rating: int = 0
     matches_played: int = 0
     wins: int = 0
