@@ -60,4 +60,10 @@ class ProfileApiService {
     final response = await _apiClient.get('/users/referees');
     return (response.data as List).map((e) => e as Map<String, dynamic>).toList();
   }
+
+  /// Link a child by email
+  Future<Map<String, dynamic>> linkChildByEmail(String email) async {
+    final response = await _apiClient.post('/users/link-child-by-email', data: {'email': email});
+    return response.data;
+  }
 }

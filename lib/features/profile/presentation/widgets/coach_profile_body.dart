@@ -61,6 +61,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
+              _buildCoachIdCard(context),
+              const SizedBox(height: 16),
               _buildUserInfo(context),
               const SizedBox(height: 24),
               _buildCoachQuickActions(data, teams, perf, topPerformers),
@@ -535,6 +537,95 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildCoachIdCard(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final String code = user?.uniqueCode ?? "ID-PENDING";
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            PremiumTheme.neonGreen.withValues(alpha: 0.15),
+            PremiumTheme.neonGreen.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.badge_rounded, color: PremiumTheme.neonGreen, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "UNIQUE COACH ID",
+                  style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  code,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  "Use this ID to be invited to a team",
+                  style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          _circleIconButton(
+            icon: Icons.copy_all_rounded,
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: code));
+              HapticFeedback.heavyImpact();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("ID COPIED TO CLIPBOARD"),
+                  backgroundColor: PremiumTheme.neonGreen,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _circleIconButton({required IconData icon, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(50),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Icon(icon, color: Colors.white70, size: 18),
+        ),
       ),
     );
   }

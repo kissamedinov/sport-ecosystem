@@ -29,6 +29,7 @@ class UserResponse(UserBase):
     phone: Optional[str] = None
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
+    unique_code: Optional[str] = None
     onboarding_completed: bool = False
 
     model_config = ConfigDict(from_attributes=True)

@@ -21,6 +21,8 @@ class User {
   final String? bio;
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
+  @JsonKey(name: 'unique_code')
+  final String? uniqueCode;
 
   User({
     required this.id,
@@ -34,6 +36,7 @@ class User {
     this.phone,
     this.bio,
     this.avatarUrl,
+    this.uniqueCode,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

@@ -54,6 +54,7 @@ class User(Base):
     bio = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     academy_id = Column(UUID(as_uuid=True), ForeignKey("football_academies.id"), nullable=True)
+    unique_code = Column(String, unique=True, index=True, nullable=True)
     onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

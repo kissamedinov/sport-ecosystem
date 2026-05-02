@@ -134,7 +134,7 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
                 club_id=a.club_id,
                 owner_id=a.owner_id or club.owner_id,
                 logo_url=None,
-                teams_count=len(a.youth_teams),
+                teams_count=len(a.teams),
                 players_count=len(a.players),
                 created_at=a.created_at
             ))
