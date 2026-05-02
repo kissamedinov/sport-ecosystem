@@ -132,7 +132,8 @@ class AcademyResponse(AcademyBase):
 class TeamCreateInAcademy(BaseModel):
     name: str
     birth_year: Optional[int] = None
-    coach_id: Optional[UUID] = None
+    coach_id: Optional[str] = None
+
 
     @field_validator('coach_id', mode='before')
     @classmethod

@@ -94,11 +94,24 @@ def create_team_in_academy(db: Session, academy_id: UUID, team_in: schemas.TeamC
         if not academy:
             raise HTTPException(status_code=404, detail="Academy not found")
         
+        resolved_coach_id = None
+        if team_in.coach_id and team_in.coach_id.strip():
+            # Check if it's a UUID
+            try:
+                resolved_coach_id = UUID(team_in.coach_id)
+            except (ValueError, AttributeError):
+                # Try as unique_code
+                coach = db.query(User).filter(User.unique_code == team_in.coach_id).first()
+                if coach:
+                    resolved_coach_id = coach.id
+                else:
+                    raise HTTPException(status_code=404, detail=f"Coach with code '{team_in.coach_id}' not found")
+        
         team = Team(
             name=team_in.name,
             academy_id=academy_id,
             birth_year=team_in.birth_year,
-            coach_id=team_in.coach_id
+            coach_id=resolved_coach_id
         )
         db.add(team)
         db.commit()
