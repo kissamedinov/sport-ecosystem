@@ -86,4 +86,8 @@ class ClubRepository {
   Future<void> addClubStaff(String clubId, Map<String, dynamic> staffData) async {
     await _apiClient.post('/clubs/$clubId/staff', data: staffData);
   }
+
+  Future<void> reassignTeamCoach(String teamId, String coachId) async {
+    await _apiClient.patch('/clubs/teams/$teamId/coach', data: coachId);
+  }
 }

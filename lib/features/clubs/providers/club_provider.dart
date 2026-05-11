@@ -259,6 +259,19 @@ class ClubProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> reassignTeamCoach(String teamId, String coachId) async {
+    _setLoading(true);
+    try {
+      await _repository.reassignTeamCoach(teamId, coachId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
