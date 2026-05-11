@@ -20,11 +20,24 @@ class FieldRepository {
   }
 
   Future<Booking> createBooking(String fieldId, String startTime, String endTime) async {
-    final response = await _apiClient.post('/bookings', data: {
-      'field_id': fieldId,
+    final response = await _apiClient.post('/bookings/fields/$fieldId/book', data: {
       'start_time': startTime,
       'end_time': endTime,
     });
     return Booking.fromJson(response.data);
+  }
+
+  Future<List<Booking>> getMyBookings() async {
+    final response = await _apiClient.get('/bookings/mine'); // Ensure this endpoint exists
+    final List<dynamic> data = response.data;
+    return data.map((json) => Booking.fromJson(json)).toList();
+  }
+
+  Future<void> cancelBooking(String bookingId) async {
+    await _apiClient.delete('/bookings/bookings/$bookingId');
+  }
+
+  Future<void> generateSlots(String fieldId, Map<String, dynamic> data) async {
+    await _apiClient.post('/fields/$fieldId/slots/generate', data: data);
   }
 }

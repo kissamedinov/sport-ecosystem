@@ -16,6 +16,7 @@ import 'package:mobile/features/notifications/providers/notification_provider.da
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
+import 'package:mobile/features/fields/presentation/screens/my_bookings_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -52,6 +53,10 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(Icons.notifications_outlined, 'Notifications', muted, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              }),
+              _buildMenuItem(Icons.calendar_month_outlined, 'My Bookings', muted, () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
               }),
               _buildMenuItem(Icons.settings_outlined, 'Settings', muted, () {
                 Navigator.pop(ctx);

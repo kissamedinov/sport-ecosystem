@@ -86,8 +86,20 @@ class TournamentRepository {
     return TournamentMatch.fromJson(response.data);
   }
 
-  Future<void> generateSchedule(String tournamentId) async {
-    await _apiClient.post('/tournaments/$tournamentId/generate-schedule');
+  Future<Map<String, dynamic>> generateSchedule(String tournamentId) async {
+    final response = await _apiClient.post('/tournaments/$tournamentId/generate-schedule');
+    return response.data;
+  }
+
+  Future<void> finalizeSchedule(String tournamentId) async {
+    await _apiClient.post('/tournaments/$tournamentId/finalize-schedule');
+  }
+
+  Future<void> swapTeams(String tournamentId, String teamAId, String teamBId) async {
+    await _apiClient.post('/tournaments/$tournamentId/swap-teams', data: {
+      'team_a_id': teamAId,
+      'team_b_id': teamBId,
+    });
   }
 
   Future<void> submitMatchSheet(Map<String, dynamic> sheetData) async {

@@ -19,6 +19,7 @@ class TournamentProvider extends ChangeNotifier {
   
   bool _isLoading = false;
   String? _error;
+  String? _aiReport;
 
   TournamentProvider(this._repository);
 
@@ -32,6 +33,7 @@ class TournamentProvider extends ChangeNotifier {
   List<TournamentTeamResponse> get registeredTeams => _registeredTeams;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get aiReport => _aiReport;
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -146,13 +148,44 @@ class TournamentProvider extends ChangeNotifier {
 
   Future<void> generateSchedule(String tournamentId) async {
     _setLoading(true);
+    _aiReport = null;
     try {
-      await _repository.generateSchedule(tournamentId);
+      final result = await _repository.generateSchedule(tournamentId);
+      _aiReport = result['ai_report'];
       await fetchTournamentMatches(tournamentId);
     } catch (e) {
       _error = e.toString();
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<bool> finalizeSchedule(String tournamentId) async {
+    _setLoading(true);
+    try {
+      await _repository.finalizeSchedule(tournamentId);
+      await fetchTournamentMatches(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> swapTeams(String tournamentId, String teamAId, String teamBId) async {
+    _setLoading(true);
+    try {
+      await _repository.swapTeams(tournamentId, teamAId, teamBId);
+      await fetchTournamentMatches(tournamentId);
+      await fetchTournamentStandings(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
     }
   }
 

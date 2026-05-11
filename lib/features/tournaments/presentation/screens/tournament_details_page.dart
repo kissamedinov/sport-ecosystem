@@ -404,26 +404,215 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildMatchesTab(List<TournamentMatch> matches, TournamentProvider provider) {
-    if (matches.isEmpty) {
-      return const Center(child: Text('No matches scheduled yet', style: TextStyle(color: Colors.white38)));
-    }
-
+    final isOrganizer = _isOrganizer;
+    final hasDraft = matches.any((m) => m.status == 'DRAFT');
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: matches.length,
-      itemBuilder: (context, index) {
-        final match = matches[index];
-        TournamentTeamResponse? myTournamentTeam;
-        try {
-          myTournamentTeam = provider.registeredTeams.firstWhere(
-            (rt) => myTeamIds.contains(rt.teamId) && (rt.teamId == match.homeTeamId || rt.teamId == match.awayTeamId),
-          );
-        } catch (_) {}
+    return Column(
+      children: [
+        if (isOrganizer && (matches.isEmpty || hasDraft)) 
+          _buildOrganizerSchedulingPanel(matches, provider),
+        
+        if (matches.isEmpty)
+          const Expanded(
+            child: Center(
+              child: Text('No matches scheduled yet', style: TextStyle(color: Colors.white38)),
+            ),
+          )
+        else
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: matches.length,
+              itemBuilder: (context, index) {
+                final match = matches[index];
+                TournamentTeamResponse? myTournamentTeam;
+                try {
+                  myTournamentTeam = provider.registeredTeams.firstWhere(
+                    (rt) => myTeamIds.contains(rt.teamId) && (rt.teamId == match.homeTeamId || rt.teamId == match.awayTeamId),
+                  );
+                } catch (_) {}
 
-        return _buildMatchItem(match, myTournamentTeam);
-      },
+                return _buildMatchItem(match, myTournamentTeam);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildOrganizerSchedulingPanel(List<TournamentMatch> matches, TournamentProvider provider) {
+    final bool hasMatches = matches.isNotEmpty;
+    final bool isDraft = matches.any((m) => m.status == 'DRAFT');
+
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: PremiumTheme.neonGreen.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                !hasMatches ? 'AI SCHEDULER' : 'AI DRAFT REVIEW',
+                style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 12),
+              ),
+              const Spacer(),
+              if (isDraft)
+                TextButton(
+                  onPressed: () => _showAIDetails(provider.aiReport ?? 'AI analyzed team balance and field availability.'),
+                  child: const Text('VIEW REPORT', style: TextStyle(color: Colors.white70, fontSize: 10, decoration: TextDecoration.underline)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            !hasMatches 
+                ? 'Ready to generate the tournament schedule using AI optimization?' 
+                : 'The schedule is currently in DRAFT mode. Review it and finalize to make it public.',
+            style: const TextStyle(color: Colors.white70, fontSize: 11),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              if (!hasMatches)
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => provider.generateSchedule(widget.tournamentId),
+                    icon: const Icon(Icons.bolt, size: 16),
+                    label: const Text('GENERATE WITH AI'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PremiumTheme.neonGreen,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                )
+              else if (isDraft) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => provider.generateSchedule(widget.tournamentId),
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('RE-GENERATE'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white70,
+                      side: const BorderSide(color: Colors.white24),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      final success = await provider.finalizeSchedule(widget.tournamentId);
+                      if (success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Schedule finalized and published!')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.check, size: 16),
+                    label: const Text('FINALIZE'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PremiumTheme.neonGreen,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSwapDialog(TournamentStanding teamToSwap) {
+    final provider = context.read<TournamentProvider>();
+    final otherTeams = provider.standings.where((s) => s.teamId != teamToSwap.teamId).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: PremiumTheme.surfaceBase(context),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2))),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen),
+                const SizedBox(width: 12),
+                Text('SWAP ${teamToSwap.teamName?.toUpperCase()} WITH...', style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: otherTeams.length,
+              itemBuilder: (context, index) {
+                final team = otherTeams[index];
+                return ListTile(
+                  leading: const Icon(Icons.group, color: Colors.white38),
+                  title: Text(team.teamName ?? 'Team', style: const TextStyle(color: Colors.white, fontSize: 14)),
+                  subtitle: Text('Current: Group ${team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final success = await provider.swapTeams(widget.tournamentId, teamToSwap.teamId, team.teamId);
+                    if (success && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Teams swapped and matches updated!')),
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  void _showAIDetails(String report) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: PremiumTheme.surfaceBase(context),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), 
+          side: BorderSide(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+        ),
+        title: Row(
+          children: const [
+            Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
+            SizedBox(width: 12),
+            Text('AI Logic Report', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ],
+        ),
+        content: Text(report, style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CLOSE', style: TextStyle(color: PremiumTheme.neonGreen)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -440,6 +629,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               ),
               if (match.status == 'finished')
                 const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold))
+              else if (match.status == 'DRAFT')
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.3)),
+                  ),
+                  child: const Text('AI DRAFT', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.bold)),
+                )
               else if (match.matchDate != null) ...[
                 if (match.matchDate!.difference(DateTime.now()).inHours < 2)
                   Container(
@@ -590,6 +789,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildStandingsTab(List<TournamentStanding> standings) {
+    final provider = context.read<TournamentProvider>();
+    final tournament = provider.selectedTournament;
+    final isGroupStage = tournament?.format == 'GROUP_STAGE';
+
     if (standings.isEmpty) {
       return Center(
         child: Column(
@@ -600,6 +803,39 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             const Text('No standings data available', style: TextStyle(color: Colors.white38)),
           ],
         ),
+      );
+    }
+
+    if (isGroupStage) {
+      // Group standings by group_id
+      final groupedStandings = <String?, List<TournamentStanding>>{};
+      for (var s in standings) {
+        groupedStandings.putIfAbsent(s.groupId, () => []).add(s);
+      }
+
+      return ListView(
+        padding: const EdgeInsets.all(20),
+        children: groupedStandings.entries.map((entry) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle('GROUP ${entry.key?.toString().split("-").last.toUpperCase() ?? "A"}', Icons.grid_view),
+              Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
+                child: Column(
+                  children: [
+                    _buildStandingsHeader(),
+                    const Divider(color: Colors.white10, height: 1),
+                    ...entry.value.asMap().entries.map((item) {
+                      return _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT'));
+                    }),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       );
     }
 
@@ -659,7 +895,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     );
   }
 
-  Widget _buildStandingsRow(int rank, TournamentStanding s) {
+  Widget _buildStandingsRow(int rank, TournamentStanding s, {bool canSwap = false}) {
     final isTop3 = rank <= 3;
     final teamName = s.teamName ?? 'Team';
     
@@ -705,6 +941,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (canSwap)
+            IconButton(
+              icon: const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen, size: 18),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () => _showSwapDialog(s),
+            ),
           SizedBox(
             width: 30,
             child: Text(

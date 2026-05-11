@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 from uuid import UUID
 from app.database import get_db
 from app.users import models, schemas
@@ -554,35 +555,34 @@ def get_player_profile(
         "awards": awards,
     }
 @router.get("/referees", response_model=List[schemas.UserResponse])
-def get_referees(
-    db: Session = Depends(get_db)
-):
+def get_referees(db: Session = Depends(get_db)):
     """
     Returns a list of all users with the REFEREE role.
     """
-    referee_roles = db.query(models.UserRole).filter(models.UserRole.role == models.Role.REFEREE).all()
-    referee_ids = [r.user_id for r in referee_roles]
-    referees = db.query(models.User).filter(models.User.id.in_(referee_ids)).all()
-    
-    response = []
-    for ref in referees:
-        stmt = select(models.UserRole.role).where(models.UserRole.user_id == ref.id)
-        roles_list = [r.value for r in db.execute(stmt).scalars().all()]
-        
-        response.append({
-            "id": ref.id,
-            "name": ref.name,
-            "email": ref.email,
-            "roles": roles_list,
-            "role": "REFEREE",
-            "created_at": ref.created_at,
-            "date_of_birth": ref.date_of_birth,
-            "phone": ref.phone,
-            "onboarding_completed": ref.onboarding_completed,
-            "avatar_url": ref.avatar_url,
-            "bio": ref.bio,
-            "unique_code": ref.unique_code
-        })
+    try:
+        from datetime import datetime
+        referees = db.query(models.User).join(models.UserRole).filter(models.UserRole.role == models.Role.REFEREE).all()
+        response = []
+        for ref in referees:
+            user_roles = [ur.role.value for ur in ref.roles]
+            response.append({
+                'id': ref.id,
+                'name': ref.name or 'Referee',
+                'email': ref.email,
+                'roles': user_roles,
+                'role': models.Role.REFEREE,
+                'created_at': ref.created_at or datetime.now(),
+                'date_of_birth': ref.date_of_birth,
+                'phone': ref.phone,
+                'onboarding_completed': bool(ref.onboarding_completed),
+                'avatar_url': ref.avatar_url,
+                'bio': ref.bio,
+                'unique_code': ref.unique_code
+            })
+        return response
+    except Exception as e:
+        import traceback
+        error_msg = f"ERROR: {e}\n{traceback.format_exc()}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=str(e))
 
-        
-    return response

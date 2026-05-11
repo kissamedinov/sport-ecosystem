@@ -90,31 +90,71 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
-    }
-
-    return Column(
-      children: [
-        _buildSearchRow(),
-        _buildFilterChips(),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchReferees,
-            color: PremiumTheme.neonGreen,
-            backgroundColor: const Color(0xFF1A1A1A),
-            child: _filteredReferees.isEmpty 
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  itemCount: _filteredReferees.length,
-                  itemBuilder: (context, index) {
-                    return _buildRefereeCard(_filteredReferees[index]);
-                  },
-                ),
-          ),
+    return Scaffold(
+      backgroundColor: PremiumTheme.surfaceBase(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('REFEREE HUB', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => Navigator.pop(context),
         ),
-      ],
+      ),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
+        : _error.isNotEmpty
+          ? _buildErrorState()
+          : Column(
+              children: [
+                _buildSearchRow(),
+                _buildFilterChips(),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _fetchReferees,
+                    color: PremiumTheme.neonGreen,
+                    backgroundColor: const Color(0xFF1A1A1A),
+                    child: _filteredReferees.isEmpty 
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          itemCount: _filteredReferees.length,
+                          itemBuilder: (context, index) {
+                            return _buildRefereeCard(_filteredReferees[index]);
+                          },
+                        ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+            const SizedBox(height: 16),
+            Text(_error, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  _error = '';
+                });
+                _fetchReferees();
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
+              child: const Text('RETRY'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -148,18 +188,21 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: _searchController.text.isNotEmpty ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white10),
               ),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: "Search by name...",
-                  hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Colors.white24, size: 20),
-                  suffixIcon: _searchController.text.isNotEmpty 
-                    ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: () => _searchController.clear())
-                    : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              child: Material(
+                color: Colors.transparent,
+                child: TextField(
+                  controller: _searchController,
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: "Search by name...",
+                    hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                    prefixIcon: const Icon(Icons.search_rounded, color: Colors.white24, size: 20),
+                    suffixIcon: _searchController.text.isNotEmpty 
+                      ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: () => _searchController.clear())
+                      : null,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                 ),
               ),
             ),

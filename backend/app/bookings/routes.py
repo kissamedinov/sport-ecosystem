@@ -8,7 +8,11 @@ from app.users.models import User, Role
 from app.common.dependencies import get_current_user, require_permission
 from app.bookings import schemas, services, payment_service
 
-router = APIRouter(tags=["Bookings"])
+router = APIRouter(prefix="/bookings", tags=["Bookings"])
+
+@router.get("/mine", response_model=List[schemas.FieldBookingResponse])
+def get_my_bookings(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return services.get_user_bookings(db, current_user.id)
 
 @router.post("/fields/{field_id}/book", response_model=schemas.FieldBookingResponse, status_code=status.HTTP_201_CREATED)
 def book_field(

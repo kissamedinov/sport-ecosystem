@@ -29,16 +29,59 @@ class BookingProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> bookField(String fieldId, String start, String end) async {
+  Future<void> fetchMyBookings() async {
     _setLoading(true);
     _error = null;
     try {
-      final booking = await _repository.createBooking(fieldId, start, end);
-      _myBookings.add(booking);
+      final bookings = await _repository.getMyBookings();
+      _myBookings.clear();
+      _myBookings.addAll(bookings);
     } catch (e) {
       _error = e.toString();
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<void> bookField(String fieldId, String start, String end) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.createBooking(fieldId, start, end);
+      await fetchMyBookings();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> cancelBooking(String bookingId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.cancelBooking(bookingId);
+      await fetchMyBookings();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> generateFieldSlots(String fieldId, Map<String, dynamic> data) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.generateSlots(fieldId, data);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
     }
   }
 

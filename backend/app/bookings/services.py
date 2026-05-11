@@ -54,6 +54,9 @@ def create_field_booking(db: Session, field_id: UUID, user_id: UUID, start_time:
 def get_field_bookings(db: Session, field_id: UUID):
     return db.query(Booking).filter(Booking.field_id == field_id).all()
 
+def get_user_bookings(db: Session, user_id: UUID):
+    return db.query(Booking).filter(Booking.user_id == user_id).all()
+
 def get_user_payments(db: Session, user_id: UUID):
     from app.bookings.models import Payment
     return db.query(Payment).filter(Payment.user_id == user_id).all()
