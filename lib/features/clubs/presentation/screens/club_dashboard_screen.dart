@@ -15,7 +15,7 @@ import '../../../notifications/presentation/screens/notification_screen.dart';
 import '../../../media/presentation/screens/media_gallery_screen.dart';
 import 'academy_management_screen.dart';
 import 'team_management_screen.dart';
-import '../../teams/providers/team_provider.dart';
+import 'package:mobile/features/teams/providers/team_provider.dart';
 
 class ClubDashboardScreen extends StatefulWidget {
   final bool isHome;
