@@ -71,6 +71,15 @@ def get_tournaments_by_series(series_name: str, db: Session = Depends(get_db)):
 def get_tournament(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_by_id(db=db, tournament_id=id)
 
+@router.patch("/{id}", response_model=schemas.TournamentResponse)
+def update_tournament(
+    id: UUID,
+    tournament_in: schemas.TournamentUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.update_tournament(db=db, tournament_id=id, tournament_in=tournament_in)
+
 # Team Registration 
 
 @router.post("/divisions/{division_id}/register-team", response_model=schemas.TournamentTeamResponse)

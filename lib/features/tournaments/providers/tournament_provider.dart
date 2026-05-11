@@ -67,6 +67,27 @@ class TournamentProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateTournament(String id, Map<String, dynamic> tournamentData) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final updatedTournament = await _repository.updateTournament(id, tournamentData);
+      final index = _tournaments.indexWhere((t) => t.id == id);
+      if (index != -1) {
+        _tournaments[index] = updatedTournament;
+      }
+      if (_selectedTournament?.id == id) {
+        _selectedTournament = updatedTournament;
+      }
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<void> fetchTournamentDetails(String id) async {
     _setLoading(true);
     _error = null;

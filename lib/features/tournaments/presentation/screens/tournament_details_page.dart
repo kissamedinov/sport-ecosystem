@@ -13,6 +13,7 @@ import 'match_lineup_screen.dart';
 import 'match_report_screen.dart';
 import 'tournament_squad_screen.dart';
 import 'tournament_leaderboard_screen.dart';
+import 'create_tournament_screen.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 
@@ -61,6 +62,24 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text('TOURNAMENT', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        actions: [
+          if (_isOrganizer)
+            IconButton(
+              icon: const Icon(Icons.edit_note_rounded, color: PremiumTheme.neonGreen),
+              onPressed: () {
+                final tournament = context.read<TournamentProvider>().selectedTournament;
+                if (tournament != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateTournamentScreen(initialTournament: tournament),
+                    ),
+                  );
+                }
+              },
+            ),
+          const SizedBox(width: 8),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: PremiumTheme.neonGreen,

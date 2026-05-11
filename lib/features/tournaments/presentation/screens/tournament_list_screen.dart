@@ -8,7 +8,8 @@ import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class TournamentListScreen extends StatefulWidget {
-  const TournamentListScreen({super.key});
+  final int initialIndex;
+  const TournamentListScreen({super.key, this.initialIndex = 0});
 
   @override
   State<TournamentListScreen> createState() => _TournamentListScreenState();
@@ -26,7 +27,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _refresh();

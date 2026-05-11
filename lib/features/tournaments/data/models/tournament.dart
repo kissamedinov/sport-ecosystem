@@ -47,6 +47,23 @@ class Tournament {
   final String? whatsapp;
   final String? phone;
 
+  @JsonKey(name: 'year')
+  final int? year;
+  @JsonKey(name: 'season')
+  final String? season;
+  @JsonKey(name: 'start_time')
+  final String? startTime;
+  @JsonKey(name: 'end_time')
+  final String? endTime;
+  @JsonKey(name: 'minimum_rest_slots')
+  final int minimumRestSlots;
+  @JsonKey(name: 'points_for_win')
+  final int pointsForWin;
+  @JsonKey(name: 'points_for_draw')
+  final int pointsForDraw;
+  @JsonKey(name: 'points_for_loss')
+  final int pointsForLoss;
+
   Tournament({
     required this.id,
     required this.name,
@@ -71,6 +88,14 @@ class Tournament {
     this.createdBy,
     this.whatsapp,
     this.phone,
+    this.year,
+    this.season,
+    this.startTime,
+    this.endTime,
+    this.minimumRestSlots = 1,
+    this.pointsForWin = 3,
+    this.pointsForDraw = 1,
+    this.pointsForLoss = 0,
   });
 
   factory Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);

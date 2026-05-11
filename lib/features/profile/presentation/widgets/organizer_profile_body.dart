@@ -188,6 +188,7 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
             color: PremiumTheme.electricBlue,
             onTap: () {
               HapticFeedback.mediumImpact();
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen(initialIndex: 1)));
             },
           ),
         ),

@@ -12,7 +12,7 @@ from app.tournaments.models import (
 )
 from app.matches.models import Match, MatchStatus, MatchResult, MatchEvent, EventType, ResultStatus
 from app.tournaments.schemas import (
-    TournamentCreate, TournamentSeriesCreate, TournamentDivisionCreate,
+    TournamentCreate, TournamentUpdate, TournamentSeriesCreate, TournamentDivisionCreate,
     TournamentAwardCreate, TournamentSquadCreate
 )
 from app.users.models import User, Role
@@ -61,6 +61,22 @@ def create_tournament(db: Session, tournament_in: TournamentCreate, current_user
         print(f"Non-critical error in notification: {e}")
     
     return new_tournament
+
+def update_tournament(db: Session, tournament_id: UUID, tournament_in: TournamentUpdate):
+    tournament = get_tournament_by_id(db, tournament_id)
+    
+    update_data = tournament_in.model_dump(exclude_unset=True)
+    
+    # List of valid columns in Tournament model
+    valid_cols = {c.name for c in Tournament.__table__.columns}
+    
+    for field, value in update_data.items():
+        if field in valid_cols:
+            setattr(tournament, field, value)
+            
+    db.commit()
+    db.refresh(tournament)
+    return tournament
 
 def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
     from app.users.models import UserRole

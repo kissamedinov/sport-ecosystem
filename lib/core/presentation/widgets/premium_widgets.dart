@@ -239,6 +239,7 @@ class PremiumTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool obscureText;
   final String? Function(String?)? validator;
+  final String? hintText;
 
   const PremiumTextField({
     super.key,
@@ -248,6 +249,7 @@ class PremiumTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.validator,
+    this.hintText,
   });
 
   @override
@@ -260,6 +262,8 @@ class PremiumTextField extends StatelessWidget {
       style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
         labelStyle: const TextStyle(color: Colors.white38, fontSize: 12),
         prefixIcon: icon != null ? Icon(icon, color: PremiumTheme.neonGreen, size: 20) : null,
         enabledBorder: OutlineInputBorder(

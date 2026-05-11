@@ -37,6 +37,11 @@ class TournamentRepository {
     return Tournament.fromJson(response.data);
   }
 
+  Future<Tournament> updateTournament(String id, Map<String, dynamic> tournamentData) async {
+    final response = await _apiClient.patch('/tournaments/$id', data: tournamentData);
+    return Tournament.fromJson(response.data);
+  }
+
   Future<Tournament> getTournamentById(String id) async {
     final response = await _apiClient.get('/tournaments/$id');
     return Tournament.fromJson(response.data);

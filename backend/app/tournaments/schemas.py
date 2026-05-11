@@ -40,6 +40,28 @@ class TournamentBase(BaseModel):
 class TournamentCreate(TournamentBase):
     pass
 
+class TournamentUpdate(BaseModel):
+    name: Optional[str] = None
+    location: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    registration_open: Optional[date] = None
+    registration_close: Optional[date] = None
+    format: Optional[TournamentFormat] = None
+    age_category: Optional[str] = None
+    whatsapp: Optional[str] = None
+    phone: Optional[str] = None
+    num_fields: Optional[int] = None
+    match_half_duration: Optional[int] = None
+    halftime_break_duration: Optional[int] = None
+    break_between_matches: Optional[int] = None
+    points_for_win: Optional[int] = None
+    points_for_draw: Optional[int] = None
+    points_for_loss: Optional[int] = None
+    surface_type: Optional[SurfaceType] = None
+    year: Optional[int] = None
+    season: Optional[Season] = None
+
 class TournamentResponse(TournamentBase):
     id: UUID
     created_at: datetime
