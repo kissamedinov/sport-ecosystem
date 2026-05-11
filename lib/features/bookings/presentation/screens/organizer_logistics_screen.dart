@@ -98,33 +98,40 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Row(
         children: [
-          _miniStat("12", "REFS", Icons.gavel_rounded, PremiumTheme.neonGreen),
+          _miniStat("12", "REFS", Icons.gavel_rounded, PremiumTheme.neonGreen, onTap: () => _tabController.animateTo(0)),
           const SizedBox(width: 12),
-          _miniStat("4", "VENUES", Icons.stadium_rounded, PremiumTheme.electricBlue),
+          _miniStat("4", "VENUES", Icons.stadium_rounded, PremiumTheme.electricBlue, onTap: () => _tabController.animateTo(1)),
           const SizedBox(width: 12),
-          _miniStat("85%", "STAFF", Icons.verified_user_rounded, Colors.orangeAccent),
+          _miniStat("85%", "STAFF", Icons.verified_user_rounded, Colors.orangeAccent, onTap: () => _tabController.animateTo(2)),
         ],
       ),
     );
   }
 
-  Widget _miniStat(String value, String label, IconData icon, Color color) {
+  Widget _miniStat(String value, String label, IconData icon, Color color, {VoidCallback? onTap}) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(height: 12),
-            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
-            Text(label.toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: Colors.white24, letterSpacing: 1)),
-          ],
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          if (onTap != null) onTap();
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: color.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(height: 12),
+              Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
+              Text(label.toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: Colors.white24, letterSpacing: 1)),
+            ],
+          ),
         ),
       ),
     );

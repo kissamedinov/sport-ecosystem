@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:flutter/services.dart';
+import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
+import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
+import 'package:mobile/features/teams/presentation/screens/team_management_screen.dart';
+import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
+import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 
 class OrganizerDashboardScreen extends StatelessWidget {
   const OrganizerDashboardScreen({super.key});
@@ -66,7 +72,10 @@ class OrganizerDashboardScreen extends StatelessWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications_none_rounded),
-          onPressed: () {},
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+          },
         ),
         const SizedBox(width: 8),
       ],
@@ -74,45 +83,52 @@ class OrganizerDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildPrimaryAction(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [PremiumTheme.neonGreen, Color(0xFFADFF2F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return InkWell(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateTournamentScreen()));
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [PremiumTheme.neonGreen, Color(0xFFADFF2F)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5)),
+          ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.add_rounded, color: Colors.black, size: 24),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Launch Tournament",
-                  style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
-                ),
-                Text(
-                  "Start your next big event",
-                  style: TextStyle(color: Colors.black54, fontSize: 11, fontWeight: FontWeight.w600),
-                ),
-              ],
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.add_rounded, color: Colors.black, size: 24),
             ),
-          ),
-          const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black26, size: 14),
-        ],
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Launch Tournament",
+                    style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
+                  ),
+                  Text(
+                    "Start your next big event",
+                    style: TextStyle(color: Colors.black54, fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black26, size: 14),
+          ],
+        ),
       ),
     );
   }
@@ -127,32 +143,51 @@ class OrganizerDashboardScreen extends StatelessWidget {
   Widget _buildStatsGrid(BuildContext context) {
     return Row(
       children: [
-        _statCard(context, "ACTIVE", "3", "TOURNAMENTS", Icons.emoji_events_rounded, PremiumTheme.electricBlue),
+        _statCard(
+          context, 
+          "ACTIVE", "3", "TOURNAMENTS", 
+          Icons.emoji_events_rounded, 
+          PremiumTheme.electricBlue,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
+        ),
         const SizedBox(width: 12),
-        _statCard(context, "TOTAL", "48", "TEAMS", Icons.group_rounded, Colors.purpleAccent),
+        _statCard(
+          context, 
+          "TOTAL", "48", "TEAMS", 
+          Icons.group_rounded, 
+          Colors.purpleAccent,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TeamManagementScreen())),
+        ),
       ],
     );
   }
 
-  Widget _statCard(BuildContext context, String tag, String value, String label, IconData icon, Color color) {
+  Widget _statCard(BuildContext context, String tag, String value, String label, IconData icon, Color color, {VoidCallback? onTap}) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(icon, color: color, size: 20),
-                Text(tag, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
-            Text(label, style: const TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.bold)),
-          ],
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          if (onTap != null) onTap();
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(icon, color: color, size: 20),
+                  Text(tag, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+              Text(label, style: const TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
       ),
     );
@@ -191,7 +226,11 @@ class OrganizerDashboardScreen extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              // In a real app, pass the tournament/team ID
+              // Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentDetailsPage(tournamentId: ...)));
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: PremiumTheme.neonGreen,
               foregroundColor: Colors.black,
@@ -212,34 +251,43 @@ class OrganizerDashboardScreen extends StatelessWidget {
       decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
       child: Column(
         children: [
-          _deadlineRow("Registration Close", "Winter League", "Today, 23:59", Colors.redAccent),
+          _deadlineRow(context, "Registration Close", "Winter League", "Today, 23:59", Colors.redAccent),
           const Divider(color: Colors.white10, height: 32),
-          _deadlineRow("Final Payment", "Summer Open", "In 2 days", Colors.amberAccent),
+          _deadlineRow(context, "Final Payment", "Summer Open", "In 2 days", Colors.amberAccent),
         ],
       ),
     );
   }
 
-  Widget _deadlineRow(String title, String event, String time, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 32,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+  Widget _deadlineRow(BuildContext context, String title, String event, String time, Color color) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        // Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentListScreen()));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 32,
+              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(event, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                ],
+              ),
+            ),
+            Text(time, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 10)),
+          ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              Text(event, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-            ],
-          ),
-        ),
-        Text(time, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 10)),
-      ],
+      ),
     );
   }
 }

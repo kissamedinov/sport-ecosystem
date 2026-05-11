@@ -6,6 +6,8 @@ import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
 import 'package:mobile/features/tournaments/data/models/tournament.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
+import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
+import 'package:mobile/features/teams/presentation/screens/team_management_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/referee_search_screen.dart';
 
@@ -50,7 +52,10 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
                 children: [
                   _buildSectionLabel("MY TOURNAMENTS"),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen()));
+                    },
                     child: const Text('VIEW ALL', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
                 ],
@@ -111,35 +116,52 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.6,
       children: [
-        _buildStatCard("Active", "$active", Icons.play_circle_filled_rounded, PremiumTheme.neonGreen),
-        _buildStatCard("Finished", "$finished", Icons.check_circle_rounded, PremiumTheme.electricBlue),
-        _buildStatCard("Total Teams", "48", Icons.groups_rounded, Colors.amber),
+        _buildStatCard(
+          "Active", "$active", Icons.play_circle_filled_rounded, PremiumTheme.neonGreen,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
+        ),
+        _buildStatCard(
+          "Finished", "$finished", Icons.check_circle_rounded, PremiumTheme.electricBlue,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
+        ),
+        _buildStatCard(
+          "Total Teams", "48", Icons.groups_rounded, Colors.amber,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TeamManagementScreen())),
+        ),
         _buildStatCard("Total Revenue", "\$1.2k", Icons.payments_rounded, Colors.purpleAccent),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(icon, size: 20, color: color),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
-              Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1)),
-            ],
-          ),
-        ],
+  Widget _buildStatCard(String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: () {
+        if (onTap != null) {
+          HapticFeedback.lightImpact();
+          onTap();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, size: 20, color: color),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
+                Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
