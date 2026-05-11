@@ -15,6 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  DateTime? _selectedDob;
   
   String _selectedRole = 'PLAYER_ADULT';
   final List<Map<String, String>> _roles = [
@@ -38,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'email': _emailController.text,
       'password': _passwordController.text,
       'role': _selectedRole,
-      'date_of_birth': '2000-01-01', // Default; can be updated in profile
+      'date_of_birth': _selectedDob?.toIso8601String().split('T')[0] ?? '2000-01-01',
     });
 
     if (!mounted) return;
@@ -155,6 +156,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: true,
                   validator: (value) => 
                     (value == null || value.length < 6) ? 'Password too short' : null,
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(2010),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDob = picked;
+                      });
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Date of Birth',
+                        prefixIcon: const Icon(Icons.cake_outlined),
+                        hintText: _selectedDob == null 
+                            ? 'Select your birthday' 
+                            : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
+                      ),
+                      controller: TextEditingController(
+                        text: _selectedDob == null 
+                            ? '' 
+                            : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}'
+                      ),
+                      validator: (value) => 
+                        (_selectedDob == null) ? 'Please select your birthday' : null,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 Consumer<AuthProvider>(

@@ -34,7 +34,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         (today.month == birthDate.month && today.day < birthDate.day)) {
       age--;
     }
-    return age;
+    return age < 0 ? 0 : age;
   }
 
   Future<void> _selectBirthday(BuildContext context) async {
@@ -137,7 +137,9 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     final user = widget.user.id == context.watch<AuthProvider>().user?.id
         ? context.watch<AuthProvider>().user!
         : widget.user;
+    final isDefaultDob = user.dateOfBirth?.year == 2000 && user.dateOfBirth?.month == 1 && user.dateOfBirth?.day == 1;
     final age = _calculateAge(user.dateOfBirth);
+    final showSet = user.dateOfBirth == null || isDefaultDob;
 
     return Column(
       children: [
@@ -148,7 +150,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
                 onTap: () => _selectBirthday(context),
                 child: PremiumStatCard(
                   title: "AGE",
-                  value: age > 0 ? "$age yrs" : "SET",
+                  value: showSet ? "SET" : "$age yrs",
                   icon: Icons.cake_rounded,
                   color: Colors.pinkAccent,
                 ),

@@ -29,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await _repository.getCurrentUser();
       if (_user != null) {
-        dev.log('AuthProvider: User found: ${_user!.email}, Onboarding: ${_user!.onboardingCompleted}', name: 'auth');
+        dev.log('AuthProvider: User found: ${_user!.email}, DOB: ${_user!.dateOfBirth}, Onboarding: ${_user!.onboardingCompleted}', name: 'auth');
         await _tokenService.setOnboardingCompleted(_user!.onboardingCompleted);
         _isOnboardingCompletedLocally = _user!.onboardingCompleted;
       }

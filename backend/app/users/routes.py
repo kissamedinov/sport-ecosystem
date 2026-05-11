@@ -231,6 +231,7 @@ def update_my_profile(
     if user_update.avatar_url is not None:
         current_user.avatar_url = user_update.avatar_url
     
+    current_user.onboarding_completed = True
     db.commit()
     db.refresh(current_user)
     
