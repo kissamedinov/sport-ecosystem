@@ -19,6 +19,7 @@ from app.users.models import User, Role
 from app.clubs.models import ChildProfile
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
+from app.teams.models import TeamMembership, MembershipStatus
 
 def create_tournament_series(db: Session, series_in: TournamentSeriesCreate):
     new_series = TournamentSeries(**series_in.model_dump())
@@ -119,8 +120,16 @@ def get_tournaments(db: Session, season: Optional[Season] = None, year: Optional
                 (TournamentTeam.tournament_id == Tournament.id) & 
                 (TournamentTeam.registered_by == current_user_id)
             )
+
+            # Check if user is an active player in any team registered in this tournament
+            is_player = exists().where(
+                (TournamentTeam.tournament_id == Tournament.id) &
+                (TeamMembership.team_id == TournamentTeam.team_id) &
+                (TeamMembership.player_id == current_user_id) &
+                (TeamMembership.status == MembershipStatus.ACTIVE)
+            )
             
-            query = query.filter(or_(is_creator, has_reg))
+            query = query.filter(or_(is_creator, has_reg, is_player))
             
         return query.all()
     except Exception as e:
@@ -210,6 +219,19 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
             entity_type=EntityType.TOURNAMENT,
             entity_id=tournament_id
         )
+
+        # Notify all active players in the team
+        active_player_ids = [m.player_id for m in team.memberships if m.status == MembershipStatus.ACTIVE and m.player_id]
+        if active_player_ids:
+            notification_service.create_notification(
+                db,
+                active_player_ids,
+                notification_type=NotificationType.TOURNAMENT_START,
+                title="Tournament Registered!",
+                message=f"Your team {team.name} has been registered for tournament {team_reg.tournament.name}!",
+                entity_type=EntityType.TOURNAMENT,
+                entity_id=tournament_id
+            )
     
     if status == RegistrationStatus.APPROVED:
         existing_standing = db.query(TournamentStandings).filter(

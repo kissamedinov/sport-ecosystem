@@ -59,13 +59,20 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       user.roles?.contains('TOURNAMENT_ORGANIZER') == true ||
       user.roles?.contains('ADMIN') == true
     );
+    final isChild = user != null && (
+      user.roles?.contains('PLAYER_CHILD') == true ||
+      user.roles?.contains('PLAYER_YOUTH') == true
+    );
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('TOURNAMENTS', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text(
+          isChild ? '🏆 MY CHAMPIONSHIPS' : 'TOURNAMENTS', 
+          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)
+        ),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: PremiumTheme.neonGreen,
@@ -96,6 +103,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       ) : null,
       body: Column(
         children: [
+          if (isChild) _buildChildGreeting(user?.name ?? 'Champion'),
           _buildFilterBar(),
           Expanded(
             child: Consumer<TournamentProvider>(
@@ -292,20 +300,69 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildEmptyState() {
+    final user = context.read<AuthProvider>().user;
+    final isChild = user != null && (
+      user.roles?.contains('PLAYER_CHILD') == true ||
+      user.roles?.contains('PLAYER_YOUTH') == true
+    );
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.emoji_events_outlined, size: 80, color: Colors.white.withValues(alpha: 0.1)),
+          Icon(
+            isChild ? Icons.star_rounded : Icons.emoji_events_outlined, 
+            size: 80, 
+            color: isChild ? PremiumTheme.neonGreen.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.1)
+          ),
           const SizedBox(height: 16),
-          const Text(
-            'NO TOURNAMENTS YET',
-            style: TextStyle(color: Colors.white54, letterSpacing: 2, fontWeight: FontWeight.bold),
+          Text(
+            isChild ? 'NO GAMES SCHEDULED YET' : 'NO TOURNAMENTS YET',
+            style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Be the first to organize an event!',
-            style: TextStyle(color: Colors.white24, fontSize: 12),
+          Text(
+            isChild ? 'Ask your coach about upcoming cups! ⚽' : 'Be the first to organize an event!',
+            style: const TextStyle(color: Colors.white24, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChildGreeting(String name) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            PremiumTheme.neonGreen.withValues(alpha: 0.15),
+            PremiumTheme.electricBlue.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          const Text('⭐', style: TextStyle(fontSize: 24)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'HELLO, $name!',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
+                ),
+                const Text(
+                  'Ready for your next big match?',
+                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                ),
+              ],
+            ),
           ),
         ],
       ),
