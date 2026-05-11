@@ -100,4 +100,27 @@ class Tournament {
 
   factory Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);
   Map<String, dynamic> toJson() => _$TournamentToJson(this);
+
+  String get displayStatus {
+    if (status == 'finished') return 'FINISHED';
+    
+    final now = DateTime.now();
+    final start = DateTime.tryParse(startDate);
+    final end = DateTime.tryParse(endDate);
+    
+    if (start == null || end == null) return status.toUpperCase();
+
+    // Reset times to compare only dates
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final startDateOnly = DateTime(start.year, start.month, start.day);
+    final endDateOnly = DateTime(end.year, end.month, end.day);
+
+    if (nowDate.isAfter(endDateOnly)) {
+      return 'FINISHED';
+    } else if (nowDate.isAfter(startDateOnly) || nowDate.isAtSameMomentAs(startDateOnly)) {
+      return 'ACTIVE';
+    }
+    
+    return status.toUpperCase();
+  }
 }

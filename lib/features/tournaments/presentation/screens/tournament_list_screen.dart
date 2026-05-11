@@ -163,9 +163,6 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildTournamentCard(dynamic tournament) {
-    final bool isUpcoming = tournament.status == 'upcoming' || tournament.status == 'scheduled';
-    final Color statusColor = isUpcoming ? PremiumTheme.neonGreen : Colors.orangeAccent;
-
     return PremiumCard(
       onTap: () {
         Navigator.push(
@@ -207,7 +204,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.location_on, size: 12, color: Colors.white54),
+                        const Icon(Icons.location_on, size: 12, color: Colors.white54),
                         const SizedBox(width: 4),
                         Text(
                           tournament.location,
@@ -221,13 +218,17 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
+                  color: tournament.displayStatus == 'ACTIVE'
+                      ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
+                      : (tournament.displayStatus == 'FINISHED' ? Colors.white10 : Colors.blue.withValues(alpha: 0.1)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  tournament.status.toUpperCase(),
+                  tournament.displayStatus,
                   style: TextStyle(
-                    color: statusColor,
+                    color: tournament.displayStatus == 'ACTIVE'
+                        ? PremiumTheme.neonGreen
+                        : (tournament.displayStatus == 'FINISHED' ? Colors.white54 : Colors.blueAccent),
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1,
@@ -251,10 +252,10 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             color: Colors.white10,
           ),
           const SizedBox(height: 12),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 'VIEW DETAILS',
                 style: TextStyle(
                   color: PremiumTheme.neonGreen,
@@ -263,8 +264,8 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   letterSpacing: 1,
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_ios, size: 10, color: PremiumTheme.neonGreen),
+              SizedBox(width: 4),
+              Icon(Icons.arrow_forward_ios, size: 10, color: PremiumTheme.neonGreen),
             ],
           ),
         ],

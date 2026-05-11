@@ -264,13 +264,17 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: t.status == 'upcoming' ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
+                  color: t.displayStatus == 'ACTIVE' 
+                    ? PremiumTheme.neonGreen.withValues(alpha: 0.1) 
+                    : (t.displayStatus == 'FINISHED' ? Colors.white10 : Colors.blue.withValues(alpha: 0.1)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  t.status.toUpperCase(),
+                  t.displayStatus,
                   style: TextStyle(
-                    color: t.status == 'upcoming' ? PremiumTheme.neonGreen : Colors.white54,
+                    color: t.displayStatus == 'ACTIVE' 
+                      ? PremiumTheme.neonGreen 
+                      : (t.displayStatus == 'FINISHED' ? Colors.white54 : Colors.blueAccent),
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
