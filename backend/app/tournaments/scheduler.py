@@ -46,15 +46,12 @@ def _generate_league_matches(db: Session, tournament_id: UUID, tt_list: List[Tou
             db.add(match)
 
 def _generate_group_stage_matches(db: Session, tournament_id: UUID, tt_list: List[TournamentTeam]):
-    # For now, simplify: 2 groups
     group_a = TournamentGroup(tournament_id=tournament_id, name="Group A")
     group_b = TournamentGroup(tournament_id=tournament_id, name="Group B")
     db.add(group_a)
     db.add(group_b)
     db.flush()
     
-    # Distribution Rule: Teams from same organization spread out
-    # Heuristic: same coach or similar name implies same organization
     tt_list.sort(key=lambda x: _get_org_id(db, x.team_id)) 
     
     for idx, tt in enumerate(tt_list):
@@ -63,12 +60,10 @@ def _generate_group_stage_matches(db: Session, tournament_id: UUID, tt_list: Lis
         db.add(mapping)
         
     db.flush()
-    
-    # Generate round robin for each group
+
     for g in [group_a, group_b]:
         group_tt_ids = [m.tournament_team_id for m in db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id == g.id).all()]
         group_tts = [tt for tt in tt_list if tt.id in group_tt_ids]
-        # Use first team's division as representative for the group matches
         div_id = group_tts[0].division_id if group_tts else None
         _generate_league_matches(db, tournament_id, group_tts, division_id=div_id, group_id=g.id)
 

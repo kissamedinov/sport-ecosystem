@@ -105,7 +105,21 @@ def get_tournament_matches(id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/{id}/generate-schedule")
 def generate_schedule(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
-    return services.generate_league_schedule(db, id)
+    return services.generate_tournament_schedule(db, id)
+
+@router.post("/{id}/finalize-schedule")
+def finalize_schedule(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
+    return services.finalize_tournament_schedule(db, id)
+
+@router.post("/{id}/swap-teams")
+def swap_teams(
+    id: UUID,
+    team_a_id: UUID = Body(...),
+    team_b_id: UUID = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.swap_teams_in_groups(db, id, team_a_id, team_b_id)
 
 @router.patch("/matches/{match_id}/result", response_model=schemas.TournamentMatchResponse)
 def update_match_result(

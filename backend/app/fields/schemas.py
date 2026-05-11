@@ -33,3 +33,10 @@ class FieldSlotResponse(FieldSlotBase):
 
     class Config:
         from_attributes = True
+
+class FieldSlotBatchGenerate(BaseModel):
+    date: datetime
+    start_hour: int = Field(9, ge=0, le=23)
+    end_hour: int = Field(22, ge=0, le=24)
+    slot_duration_minutes: int = Field(60, gt=0)
+    price: float = Field(..., ge=0)

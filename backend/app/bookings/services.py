@@ -57,3 +57,53 @@ def get_field_bookings(db: Session, field_id: UUID):
 def get_user_payments(db: Session, user_id: UUID):
     from app.bookings.models import Payment
     return db.query(Payment).filter(Payment.user_id == user_id).all()
+
+def cancel_field_booking(db: Session, booking_id: UUID, user_id: UUID):
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+        
+    # Check if user is the one who booked OR the field owner
+    field = db.query(Field).filter(Field.id == booking.field_id).first()
+    if booking.user_id != user_id and field.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to cancel this booking")
+        
+    if booking.status == BookingStatus.CANCELLED:
+        return booking
+        
+    # Rule: Check if cancellation is too late (e.g. less than 12 hours before)
+    now = datetime.now()
+    if booking.start_time - now < timedelta(hours=12):
+        # We still allow cancellation, but maybe with a flag or separate status
+        # For now, let's just log it or allow it
+        pass
+        
+    booking.status = BookingStatus.CANCELLED
+    
+    # Free up slots if they were linked (if we use a Slot table)
+    # Looking at create_field_booking, it currently uses direct time overlap,
+    # but if we have FieldSlot records, we should mark them available.
+    slots = db.query(FieldSlot).filter(
+        FieldSlot.field_id == booking.field_id,
+        FieldSlot.start_time >= booking.start_time,
+        FieldSlot.end_time <= booking.end_time
+    ).all()
+    
+    for slot in slots:
+        slot.is_available = True
+        
+    db.commit()
+    
+    # Notify other party
+    notify_user_id = field.owner_id if user_id == booking.user_id else booking.user_id
+    notification_service.create_notification(
+        db,
+        user_ids=[notify_user_id],
+        notification_type=NotificationType.BOOKING_CANCELLED,
+        title="Booking Cancelled",
+        message=f"Booking for {field.name} on {booking.start_time} has been cancelled.",
+        entity_type=EntityType.BOOKING,
+        entity_id=booking.id
+    )
+    
+    return booking

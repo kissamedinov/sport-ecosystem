@@ -15,6 +15,7 @@ except ImportError:
     pass
 
 class MatchStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
     SCHEDULED = "SCHEDULED"
     FINISHED = "FINISHED"
     CANCELED = "CANCELED"

@@ -67,3 +67,11 @@ def confirm_payment(
     current_user: User = Depends(get_current_user) # In reality, webhook or admin
 ):
     return payment_service.confirm_payment(db, payment_id)
+
+@router.delete("/bookings/{booking_id}", response_model=schemas.FieldBookingResponse)
+def cancel_booking(
+    booking_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return services.cancel_field_booking(db, booking_id, current_user.id)

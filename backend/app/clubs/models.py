@@ -62,7 +62,7 @@ class ClubRequest(Base):
     address = Column(String, nullable=False)
     training_schedule = Column(String, nullable=True)
     contact_phone = Column(String, nullable=True)
-    social_links = Column(String, nullable=True) # Could be JSON, but String is fine for now
+    social_links = Column(String, nullable=True) 
     description = Column(String, nullable=True)
     status = Column(Enum(RequestStatus), default=RequestStatus.PENDING, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
