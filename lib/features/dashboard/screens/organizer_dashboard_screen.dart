@@ -2,46 +2,73 @@ import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
 import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
 import 'package:mobile/features/teams/presentation/screens/team_management_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 
-class OrganizerDashboardScreen extends StatelessWidget {
+class OrganizerDashboardScreen extends StatefulWidget {
   const OrganizerDashboardScreen({super.key});
+
+  @override
+  State<OrganizerDashboardScreen> createState() => _OrganizerDashboardScreenState();
+}
+
+class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TournamentProvider>().fetchTournaments();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPrimaryAction(context),
-                  const SizedBox(height: 24),
-                  _buildSectionHeader("OPERATIONAL OVERVIEW"),
-                  const SizedBox(height: 16),
-                  _buildStatsGrid(context),
-                  const SizedBox(height: 24),
-                  _buildSectionHeader("PENDING APPROVALS"),
-                  const SizedBox(height: 12),
-                  _buildApprovalList(context),
-                  const SizedBox(height: 24),
-                  _buildSectionHeader("UPCOMING DEADLINES"),
-                  const SizedBox(height: 12),
-                  _buildDeadlinesTimeline(context),
-                ],
+      body: Consumer<TournamentProvider>(
+        builder: (context, provider, _) {
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(context),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPrimaryAction(context),
+                      const SizedBox(height: 24),
+                      _buildSectionHeader("OPERATIONAL OVERVIEW"),
+                      const SizedBox(height: 16),
+                      _buildStatsGrid(context, provider),
+                      const SizedBox(height: 24),
+                      _buildSectionHeader("PENDING APPROVALS"),
+                      const SizedBox(height: 12),
+                      _buildEmptyPlaceholder(
+                        context, 
+                        "No pending team registrations at the moment.", 
+                        Icons.assignment_ind_outlined
+                      ),
+                      const SizedBox(height: 24),
+                      _buildSectionHeader("UPCOMING DEADLINES"),
+                      const SizedBox(height: 12),
+                      _buildEmptyPlaceholder(
+                        context, 
+                        "Your calendar is clear. No immediate deadlines found.", 
+                        Icons.calendar_today_outlined
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        }
       ),
     );
   }
@@ -140,12 +167,14 @@ class OrganizerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context) {
+  Widget _buildStatsGrid(BuildContext context, TournamentProvider provider) {
+    final active = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').length;
+    
     return Row(
       children: [
         _statCard(
           context, 
-          "ACTIVE", "3", "TOURNAMENTS", 
+          "ACTIVE", "$active", "TOURNAMENTS", 
           Icons.emoji_events_rounded, 
           PremiumTheme.electricBlue,
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
@@ -193,100 +222,21 @@ class OrganizerDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildApprovalList(BuildContext context) {
-    return Column(
-      children: [
-        _approvalItem(context, "FC Barcelona U-17", "Spring Cup 2024", "2h ago"),
-        _approvalItem(context, "Almaty Lions", "Weekend League", "5h ago"),
-      ],
-    );
-  }
-
-  Widget _approvalItem(BuildContext context, String team, String tournament, String time) {
+  Widget _buildEmptyPlaceholder(BuildContext context, String message, IconData icon) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: PremiumTheme.glassDecorationOf(context, radius: 20),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.assignment_ind_rounded, color: Colors.white38, size: 18),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(team, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                Text(tournament, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-              // In a real app, pass the tournament/team ID
-              // Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentDetailsPage(tournamentId: ...)));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: PremiumTheme.neonGreen,
-              foregroundColor: Colors.black,
-              minimumSize: const Size(60, 32),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text("VIEW", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeadlinesTimeline(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
       decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
       child: Column(
         children: [
-          _deadlineRow(context, "Registration Close", "Winter League", "Today, 23:59", Colors.redAccent),
-          const Divider(color: Colors.white10, height: 32),
-          _deadlineRow(context, "Final Payment", "Summer Open", "In 2 days", Colors.amberAccent),
+          Icon(icon, color: Colors.white10, size: 40),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.w500),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _deadlineRow(BuildContext context, String title, String event, String time, Color color) {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentListScreen()));
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 32,
-              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  Text(event, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-                ],
-              ),
-            ),
-            Text(time, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 10)),
-          ],
-        ),
       ),
     );
   }
