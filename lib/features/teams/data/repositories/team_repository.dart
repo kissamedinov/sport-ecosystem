@@ -55,4 +55,8 @@ class TeamRepository {
     final response = await _apiClient.patch('/teams/$teamId', data: data);
     return Team.fromJson(response.data);
   }
+
+  Future<void> deleteTeam(String teamId) async {
+    await _apiClient.delete('/teams/$teamId');
+  }
 }

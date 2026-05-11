@@ -374,3 +374,30 @@ def update_team(db: Session, team_id: UUID, team_in: any, current_user: User):
     db.commit()
     db.refresh(team)
     return team
+
+def delete_team(db: Session, team_id: UUID, current_user: User):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if not team:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
+    
+    # Authorization: Coach of the team OR Academy Owner OR Admin
+    user_roles = {ur.role for ur in current_user.roles}
+    
+    is_coach = team.coach_id == current_user.id
+    is_admin = Role.ADMIN in user_roles
+    is_owner = False
+    
+    if Role.CLUB_OWNER in user_roles or Role.CLUB_MANAGER in user_roles:
+        # Check if they own the academy the team belongs to
+        if team.academy and team.academy.owner_id == current_user.id:
+            is_owner = True
+            
+    if not (is_coach or is_owner or is_admin):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="You are not authorized to delete this team"
+        )
+    
+    db.delete(team)
+    db.commit()
+    return {"message": "Team deleted successfully"}

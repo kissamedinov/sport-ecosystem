@@ -15,6 +15,7 @@ import '../../../notifications/presentation/screens/notification_screen.dart';
 import '../../../media/presentation/screens/media_gallery_screen.dart';
 import 'academy_management_screen.dart';
 import 'team_management_screen.dart';
+import '../../teams/providers/team_provider.dart';
 
 class ClubDashboardScreen extends StatefulWidget {
   final bool isHome;
@@ -1168,6 +1169,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     ],
                   ),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => _showDeleteTeamDialog(context, team),
+                ),
+                const SizedBox(width: 8),
                 const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
               ],
             ),
@@ -1208,6 +1216,56 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             style: const TextStyle(
                 fontSize: 9, color: Colors.white24, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
       ],
+    );
+  }
+
+  void _showDeleteTeamDialog(BuildContext context, dynamic team) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: PremiumTheme.surfaceCard(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete Team?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text('Are you sure you want to delete "${team.name}"? This action cannot be undone.', 
+          style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('CANCEL', style: TextStyle(color: Colors.white38)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final success = await context.read<TeamProvider>().deleteTeam(team.id.toString());
+              if (success) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Team "${team.name}" deleted successfully'),
+                      backgroundColor: PremiumTheme.neonGreen,
+                    ),
+                  );
+                  context.read<ClubProvider>().fetchClubDashboard();
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to delete team. Please try again.'),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('DELETE', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
     );
   }
 

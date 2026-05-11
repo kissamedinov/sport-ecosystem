@@ -110,6 +110,23 @@ class TeamProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> deleteTeam(String teamId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.deleteTeam(teamId);
+      _myTeams.removeWhere((t) => t.id == teamId);
+      _teams.removeWhere((t) => t.id == teamId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

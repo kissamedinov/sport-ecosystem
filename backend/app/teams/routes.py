@@ -91,3 +91,11 @@ def update_team(
     current_user: User = Depends(require_coach)
 ):
     return services.update_team(db=db, team_id=id, team_in=team_in, current_user=current_user)
+
+@router.delete("/{id}")
+def delete_team(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return services.delete_team(db=db, team_id=id, current_user=current_user)
