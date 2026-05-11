@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/club_provider.dart';
 import 'package:mobile/features/teams/data/models/team.dart';
 import 'package:mobile/features/teams/data/models/player_team.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
