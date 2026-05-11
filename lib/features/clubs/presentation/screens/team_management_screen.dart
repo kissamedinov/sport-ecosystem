@@ -5,6 +5,7 @@ import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/features/clubs/data/models/player_info.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'invite_member_screen.dart';
 
 class TeamManagementScreen extends StatefulWidget {
   final Team team;
@@ -190,11 +191,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           PremiumButton(
             text: 'ADD PLAYER',
             icon: Icons.person_add_rounded,
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Integration with Invitation system coming soon.')),
-              );
-            },
+            onPressed: () => _showAddPlayerModal(context),
           ),
           const SizedBox(height: 40),
         ],
@@ -282,12 +279,159 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     );
   }
 
+  void _showAddPlayerModal(BuildContext context) {
+    final clubProvider = context.read<ClubProvider>();
+    final dashboard = clubProvider.dashboard;
+    if (dashboard == null) return;
+
+    // Filter players not in this team
+    final currentTeamPlayerIds = widget.team.players.map((p) => p.playerId).toSet();
+    
+    final availablePlayers = dashboard.players.where((p) => !currentTeamPlayerIds.contains(p.userId)).toList();
+    final availableChildren = dashboard.childProfiles.where((cp) => 
+      cp.linkedUserId == null || !currentTeamPlayerIds.contains(cp.linkedUserId)
+    ).toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: BoxDecoration(
+          color: PremiumTheme.surfaceCard(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 20),
+            const Text('ADD PLAYER', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 2)),
+            const SizedBox(height: 24),
+            
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _buildSectionHeader('CLUB PLAYERS', Icons.people_rounded),
+                  const SizedBox(height: 12),
+                  if (availablePlayers.isEmpty)
+                    _buildEmptyState('No other players in club')
+                  else
+                    ...availablePlayers.map((p) => _buildAddPlayerTile(context, p.name, p.userId, false)),
+                  
+                  const SizedBox(height: 28),
+                  _buildSectionHeader('CHILD PROFILES', Icons.child_care_rounded),
+                  const SizedBox(height: 12),
+                  if (availableChildren.isEmpty)
+                    _buildEmptyState('No unassigned child profiles')
+                  else
+                    ...availableChildren.map((cp) => _buildAddPlayerTile(context, cp.fullName, cp.id, true)),
+                  
+                  const SizedBox(height: 40),
+                  PremiumButton(
+                    text: 'INVITE NEW PERSON',
+                    icon: Icons.mail_rounded,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InviteMemberScreen(
+                            clubId: dashboard.club.id,
+                            initialTeamId: widget.team.id,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddPlayerTile(BuildContext context, String name, String id, bool isChildProfile) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+            radius: 18,
+            child: const Icon(Icons.person_rounded, color: PremiumTheme.electricBlue, size: 18),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_rounded, color: PremiumTheme.neonGreen),
+            onPressed: () => _addPlayerToTeam(context, id, isChildProfile),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addPlayerToTeam(BuildContext context, String id, bool isChildProfile) async {
+    final clubProvider = context.read<ClubProvider>();
+    
+    // For now we use the same addPlayerToTeam but we might need to handle child profiles differently
+    // In this backend version, we mostly use user_id
+    
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adding player to team...')));
+    
+    final success = await clubProvider.addPlayerToTeam(widget.team.id, id, null);
+    
+    if (success && context.mounted) {
+      Navigator.pop(context); // Close modal
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Player added successfully!')));
+      // Refresh dashboard to show new player in roster
+      clubProvider.fetchClubDashboard();
+      Navigator.pop(context); // Go back to refresh screen or we could just update local state
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${clubProvider.error ?? "Unknown error"}')));
+    }
+  }
+
   void _saveTeamChanges(BuildContext context) async {
     if (_selectedCoachId == widget.team.coachId) {
       Navigator.pop(context);
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saving changes...')));
-    Navigator.pop(context);
+    
+    final clubProvider = context.read<ClubProvider>();
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Updating coach...')));
+    
+    final success = await clubProvider.reassignTeamCoach(widget.team.id, _selectedCoachId!);
+    
+    if (success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coach updated successfully!')));
+      clubProvider.fetchClubDashboard();
+      Navigator.pop(context);
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${clubProvider.error ?? "Unknown error"}')));
+    }
   }
 }
