@@ -28,17 +28,21 @@ class MediaRepository {
 
   Future<MediaItem> uploadMedia({
     required File file,
+    required String type,
     String? title,
     String? description,
     String? clubId,
     String? tournamentId,
+    String? userId,
   }) async {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(file.path),
+      'type': type,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (clubId != null) 'club_id': clubId,
       if (tournamentId != null) 'tournament_id': tournamentId,
+      if (userId != null) 'user_id': userId,
     });
 
     // Use ApiClient's post method which handles the Dio call

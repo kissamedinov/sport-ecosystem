@@ -28,12 +28,14 @@ class MatchBase(BaseModel):
     round_number: int
     match_date: Optional[datetime] = None
     group_id: Optional[UUID] = None
+    field_id: Optional[UUID] = None
 
 class MatchResponse(MatchBase):
     id: UUID
     status: MatchStatus
     created_at: datetime
     result: Optional[MatchResultResponse] = None
+    field_name: Optional[str] = None
 
     class Config:
         from_attributes = True

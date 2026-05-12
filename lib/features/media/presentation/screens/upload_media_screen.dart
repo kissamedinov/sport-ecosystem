@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/media/data/repositories/media_repository.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 
 class UploadMediaScreen extends StatefulWidget {
   final String? clubId;
@@ -41,12 +42,18 @@ class _UploadMediaScreenState extends State<UploadMediaScreen> {
 
     setState(() => _isUploading = true);
     try {
+      String uploadType = 'OTHER';
+      if (widget.clubId != null) uploadType = 'CLUB_LOGO';
+      if (widget.tournamentId != null) uploadType = 'TOURNAMENT_LOGO';
+
       await context.read<MediaRepository>().uploadMedia(
         file: _selectedFile!,
+        type: uploadType,
         title: _titleController.text,
         description: _descriptionController.text,
         clubId: widget.clubId,
         tournamentId: widget.tournamentId,
+        userId: context.read<AuthProvider>().user?.id,
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {

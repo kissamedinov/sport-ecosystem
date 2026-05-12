@@ -22,6 +22,7 @@ class TournamentProvider extends ChangeNotifier {
   String? _aiReport;
 
   TournamentProvider(this._repository);
+  TournamentRepository get repository => _repository;
 
   List<Tournament> get tournaments => _tournaments;
   Tournament? get selectedTournament => _selectedTournament;
@@ -123,6 +124,52 @@ class TournamentProvider extends ChangeNotifier {
       _error = e.toString();
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<bool> createDivision(String tournamentId, Map<String, dynamic> divisionData) async {
+    _setLoading(true);
+    try {
+      final dataWithId = {
+        ...divisionData,
+        'tournament_edition_id': tournamentId,
+      };
+      await _repository.createDivision(dataWithId);
+      await fetchTournamentDetails(tournamentId); // Refresh divisions
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> updateDivision(String tournamentId, String divisionId, Map<String, dynamic> divisionData) async {
+    _setLoading(true);
+    try {
+      await _repository.updateDivision(divisionId, divisionData);
+      await fetchTournamentDetails(tournamentId); // Refresh divisions
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> deleteDivision(String tournamentId, String divisionId) async {
+    _setLoading(true);
+    try {
+      await _repository.deleteDivision(divisionId);
+      await fetchTournamentDetails(tournamentId); // Refresh divisions
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
     }
   }
 

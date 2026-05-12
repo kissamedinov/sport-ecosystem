@@ -20,6 +20,8 @@ class TournamentBase(BaseModel):
     history_data: Optional[str] = None # JSON string
     whatsapp: Optional[str] = None
     phone: Optional[str] = None
+    logo_url: Optional[str] = None
+    field_ids: Optional[str] = None # JSON list of UUIDs
     num_fields: int = 1
     match_half_duration: int = 20
     halftime_break_duration: int = 5
@@ -174,6 +176,7 @@ class TournamentSeriesBase(BaseModel):
     name: str
     city: str
     description: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class TournamentSeriesCreate(TournamentSeriesBase):
     organizer_id: UUID
@@ -187,11 +190,21 @@ class TournamentSeriesResponse(TournamentSeriesBase):
 
 class TournamentDivisionBase(BaseModel):
     tournament_edition_id: UUID
+    name: Optional[str] = None
+    format: Optional[str] = None
+    entry_fee: Optional[int] = 0
     birth_year: int
     max_teams: int = 10
 
 class TournamentDivisionCreate(TournamentDivisionBase):
     pass
+
+class TournamentDivisionUpdate(BaseModel):
+    name: Optional[str] = None
+    format: Optional[str] = None
+    entry_fee: Optional[int] = None
+    birth_year: Optional[int] = None
+    max_teams: Optional[int] = None
 
 class TournamentDivisionResponse(TournamentDivisionBase):
     id: UUID

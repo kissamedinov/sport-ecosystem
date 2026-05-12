@@ -39,10 +39,16 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   void _refresh() {
+    final user = context.read<AuthProvider>().user;
+    final isChild = user != null && (
+      user.roles?.contains('PLAYER_CHILD') == true ||
+      user.roles?.contains('PLAYER_YOUTH') == true
+    );
+
     context.read<TournamentProvider>().fetchTournaments(
       city: _selectedCity == 'All Cities' ? null : _selectedCity,
       year: _selectedYear,
-      mine: _tabController.index == 1,
+      mine: isChild ? true : (_tabController.index == 1),
     );
   }
 
@@ -70,10 +76,10 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          isChild ? '🏆 MY CHAMPIONSHIPS' : 'TOURNAMENTS', 
+          isChild ? '⭐ MY CHAMPIONSHIPS' : 'TOURNAMENTS', 
           style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)
         ),
-        bottom: TabBar(
+        bottom: isChild ? null : TabBar(
           controller: _tabController,
           indicatorColor: PremiumTheme.neonGreen,
           labelColor: PremiumTheme.neonGreen,
@@ -103,8 +109,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       ) : null,
       body: Column(
         children: [
-          if (isChild) _buildChildGreeting(user?.name ?? 'Champion'),
-          _buildFilterBar(),
+          if (isChild) ...[
+            _buildChildGreeting(user?.name ?? 'Champion'),
+            const SizedBox(height: 10),
+          ],
+          if (!isChild) _buildFilterBar(),
           Expanded(
             child: Consumer<TournamentProvider>(
               builder: (context, provider, _) {
@@ -114,6 +123,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 if (provider.error != null) {
                   return _buildErrorState(provider.error!);
                 }
+                
+                // For children, we ensure we only show their tournaments if that's what was fetched
+                // The _refresh method handles the 'mine' parameter based on tab index.
+                // Since we removed tabs, we need to ensure _refresh is called with mine: true for children.
+                
                 if (provider.tournaments.isEmpty) {
                   return _buildEmptyState();
                 }
@@ -123,7 +137,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   itemCount: provider.tournaments.length,
                   itemBuilder: (context, index) {
                     final tournament = provider.tournaments[index];
-                    return _buildTournamentCard(tournament);
+                    return _buildTournamentCard(tournament, isChild);
                   },
                 );
               },
@@ -170,7 +184,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
     );
   }
 
-  Widget _buildTournamentCard(dynamic tournament) {
+  Widget _buildTournamentCard(dynamic tournament, bool isChild) {
     return PremiumCard(
       onTap: () {
         Navigator.push(
@@ -190,11 +204,16 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                  color: isChild ? Colors.amber.withValues(alpha: 0.1) : PremiumTheme.neonGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                  border: Border.all(color: isChild ? Colors.amber.withValues(alpha: 0.2) : PremiumTheme.neonGreen.withValues(alpha: 0.2)),
                 ),
-                child: const Icon(Icons.emoji_events, color: PremiumTheme.neonGreen, size: 24),
+                child: tournament.logoUrl != null && tournament.logoUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(tournament.logoUrl!, fit: BoxFit.cover),
+                    )
+                  : Icon(isChild ? Icons.star_rounded : Icons.emoji_events, color: isChild ? Colors.amber : PremiumTheme.neonGreen, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(

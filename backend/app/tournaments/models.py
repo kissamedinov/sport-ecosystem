@@ -69,6 +69,7 @@ class TournamentSeries(Base):
     organizer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     city = Column(String, nullable=False)
     description = Column(String, nullable=True)
+    logo_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     organizer = relationship("User")
@@ -98,6 +99,8 @@ class Tournament(Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     whatsapp = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    logo_url = Column(String, nullable=True)
+    field_ids = Column(String, nullable=True) # JSON list of field UUIDs
     
     # Scheduler Configuration
     num_fields = Column(Integer, default=1)
@@ -129,6 +132,9 @@ class TournamentDivision(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_edition_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=False)
+    name = Column(String, nullable=True) # Optional custom name
+    format = Column(String, nullable=True) # e.g., '8+1', '9x9'
+    entry_fee = Column(Integer, nullable=True, default=0)
     birth_year = Column(Integer, nullable=False)
     max_teams = Column(Integer, nullable=False, default=10)
     

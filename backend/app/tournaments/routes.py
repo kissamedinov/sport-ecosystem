@@ -63,6 +63,23 @@ def create_division(
 def get_divisions(edition_id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_divisions(db=db, edition_id=edition_id)
 
+@router.patch("/divisions/{division_id}", response_model=schemas.TournamentDivisionResponse)
+def update_division(
+    division_id: UUID,
+    division_in: schemas.TournamentDivisionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.update_tournament_division(db=db, division_id=division_id, division_in=division_in)
+
+@router.delete("/divisions/{division_id}")
+def delete_division(
+    division_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.delete_tournament_division(db=db, division_id=division_id)
+
 @router.get("/series/{series_name}", response_model=List[schemas.TournamentResponse])
 def get_tournaments_by_series(series_name: str, db: Session = Depends(get_db)):
     return services.get_tournaments_by_series(db=db, series_name=series_name)

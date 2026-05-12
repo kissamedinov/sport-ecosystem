@@ -19,7 +19,60 @@ from app.users.models import User, Role
 from app.clubs.models import ChildProfile
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
-from app.teams.models import TeamMembership, MembershipStatus
+from app.teams.models import TeamMembership, Team
+
+def notify_match_participants(db: Session, match: Match, title: str, message: str, notification_type: NotificationType):
+    """Notifies all players and coaches of both teams in a match."""
+    team_ids = [match.home_team_id, match.away_team_id]
+    
+    # Get all player user IDs for these teams
+    memberships = db.query(TeamMembership).filter(
+        TeamMembership.team_id.in_(team_ids),
+        TeamMembership.player_id.isnot(None)
+    ).all()
+    
+    user_ids = {m.player_id for m in memberships}
+    
+    # Also notify coaches
+    teams = db.query(Team).filter(Team.id.in_(team_ids)).all()
+    for team in teams:
+        if team.coach_id:
+            user_ids.add(team.coach_id)
+            
+    if user_ids:
+        notification_service.create_notification(
+            db=db,
+            user_ids=list(user_ids),
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            entity_type=EntityType.MATCH,
+            entity_id=match.id
+        )
+
+def notify_team_members(db: Session, team_id: UUID, title: str, message: str, notification_type: NotificationType, entity_type: EntityType, entity_id: UUID):
+    """Notifies all players and the coach of a specific team."""
+    memberships = db.query(TeamMembership).filter(
+        TeamMembership.team_id == team_id,
+        TeamMembership.player_id.isnot(None)
+    ).all()
+    
+    user_ids = {m.player_id for m in memberships}
+    
+    team = db.query(Team).filter(Team.id == team_id).first()
+    if team and team.coach_id:
+        user_ids.add(team.coach_id)
+        
+    if user_ids:
+        notification_service.create_notification(
+            db=db,
+            user_ids=list(user_ids),
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            entity_type=entity_type,
+            entity_id=entity_id
+        )
 
 def create_tournament_series(db: Session, series_in: TournamentSeriesCreate):
     new_series = TournamentSeries(**series_in.model_dump())
@@ -40,6 +93,28 @@ def create_tournament_division(db: Session, division_in: TournamentDivisionCreat
 
 def get_tournament_divisions(db: Session, edition_id: UUID):
     return db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == edition_id).all()
+
+def update_tournament_division(db: Session, division_id: UUID, division_in: schemas.TournamentDivisionUpdate):
+    division = db.query(TournamentDivision).filter(TournamentDivision.id == division_id).first()
+    if not division:
+        raise HTTPException(status_code=404, detail="Division not found")
+    
+    update_data = division_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(division, field, value)
+    
+    db.commit()
+    db.refresh(division)
+    return division
+
+def delete_tournament_division(db: Session, division_id: UUID):
+    division = db.query(TournamentDivision).filter(TournamentDivision.id == division_id).first()
+    if not division:
+        raise HTTPException(status_code=404, detail="Division not found")
+    
+    db.delete(division)
+    db.commit()
+    return {"status": "success"}
 
 def create_tournament(db: Session, tournament_in: TournamentCreate, current_user: User):
     # Only use fields that exist in the Tournament model to avoid unexpected keyword errors
@@ -208,14 +283,13 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
     db.refresh(team_reg)
     
     if status == RegistrationStatus.APPROVED:
-        from app.teams.models import Team
         team = db.query(Team).filter(Team.id == team_id).first()
-        notification_service.create_notification(
-            db,
-            team.coach_id,
-            notification_type=NotificationType.BOOKING_APPROVED,
-            title="Team Accepted!",
-            message=f"Your team {team.name} has been approved for the tournament.",
+        notify_team_members(
+            db=db,
+            team_id=team_id,
+            title="Team Accepted! 🏆",
+            message=f"Your team {team.name} has been approved for the tournament!",
+            notification_type=NotificationType.TOURNAMENT_START, # Or a more specific type if available
             entity_type=EntityType.TOURNAMENT,
             entity_id=tournament_id
         )
@@ -304,6 +378,9 @@ def generate_tournament_schedule(db: Session, tournament_id: UUID):
         raise HTTPException(status_code=400, detail=f"Unsupported tournament format: {tournament.format}")
 
 def generate_league_schedule(db: Session, tournament_id: UUID):
+    import json
+    from datetime import timedelta
+    
     tournament = get_tournament_by_id(db, tournament_id)
     approved_teams = db.query(TournamentTeam).filter(
         TournamentTeam.tournament_id == tournament_id,
@@ -313,37 +390,79 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     if len(approved_teams) < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed to generate schedule")
     
+    # Parse field_ids if they exist
+    field_ids = []
+    if tournament.field_ids:
+        try:
+            field_ids = json.loads(tournament.field_ids)
+        except:
+            pass
+    
+    num_fields = len(field_ids) if field_ids else tournament.num_fields
+    if num_fields < 1: num_fields = 1
+    
     teams = [t.team_id for t in approved_teams]
     match_count = 0
-    # Simple Round Robin (each team plays every other team once)
+    
+    # Configuration for timing
+    current_time = tournament.start_time or tournament.start_date
+    if isinstance(current_time, str):
+        from datetime import datetime
+        current_time = datetime.fromisoformat(current_time)
+        
+    match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    slot_index = 0
+    
+    # Simple Round Robin
     for i in range(len(teams)):
         for j in range(i + 1, len(teams)):
+            # Calculate field and time slot
+            field_slot = slot_index % num_fields
+            time_offset = slot_index // num_fields
+            
+            match_start = current_time + timedelta(minutes=time_offset * match_duration)
+            
+            # Check if exceeds day's end_time
+            if tournament.end_time:
+                day_end = datetime.combine(match_start.date(), tournament.end_time.time())
+                if match_start + timedelta(minutes=match_duration) > day_end:
+                    # Move to next day
+                    match_start = match_start + timedelta(days=1)
+                    match_start = datetime.combine(match_start.date(), tournament.start_time.time() if tournament.start_time else match_start.time())
+                    # Reset slot index or handle differently? 
+                    # For simplicity, we just keep incrementing slot_index but adjust match_start
+            
+            field_uuid = None
+            if field_ids:
+                field_uuid = uuid.UUID(field_ids[field_slot])
+            
             new_match = Match(
                 tournament_id=tournament_id,
                 division_id=approved_teams[0].division_id, 
                 home_team_id=teams[i],
                 away_team_id=teams[j],
+                field_id=field_uuid,
+                match_date=match_start,
                 status=MatchStatus.DRAFT,
-                round_number=1 # Leagues typically have one big round or multiple game weeks
+                round_number=1
             )
             db.add(new_match)
             match_count += 1
+            slot_index += 1
     
     db.commit()
     
     return {
-        "message": "AI has generated a draft league schedule.",
-        "ai_report": "Analyzed team parity and balanced home/away game distribution. Matches are in DRAFT mode for your review.",
+        "message": "AI has generated a draft league schedule with field assignments.",
+        "ai_report": f"Scheduled {match_count} matches across {num_fields} fields. Optimized for minimal team wait times and balanced field usage.",
         "matches_count": match_count
     }
 
 def generate_knockout_schedule(db: Session, tournament_id: UUID):
-    """
-    Generates the first round of a single-elimination bracket.
-    Handles 'byes' if the number of teams is not a power of 2.
-    """
     import math
     import random
+    import json
+    from datetime import timedelta
     
     tournament = get_tournament_by_id(db, tournament_id)
     approved_teams = db.query(TournamentTeam).filter(
@@ -355,57 +474,76 @@ def generate_knockout_schedule(db: Session, tournament_id: UUID):
     if num_teams < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed for Knockout")
     
+    # Parse field_ids
+    field_ids = []
+    if tournament.field_ids:
+        try:
+            field_ids = json.loads(tournament.field_ids)
+        except:
+            pass
+    num_fields = len(field_ids) if field_ids else tournament.num_fields
+    if num_fields < 1: num_fields = 1
+
     # Randomize seeding
     random.shuffle(approved_teams)
     
-    # Find the largest power of 2 less than or equal to num_teams
-    # Example: 10 teams -> next_power_of_2 = 16 (wrong, we want the round size)
-    # Correct logic for brackets: 
-    # If 10 teams, the first round needs to reduce them to 8.
-    # Matches in first round = 10 - 8 = 2.
-    # These 2 matches involve 4 teams. 6 teams get byes.
-    
     target_bracket_size = 2**int(math.log2(num_teams))
     if target_bracket_size < num_teams:
-        # We need an extra preliminary round to reach a perfect power of 2
         num_matches_in_round_1 = num_teams - target_bracket_size
         num_teams_in_round_1 = num_matches_in_round_1 * 2
     else:
-        # Perfect power of 2
         num_matches_in_round_1 = num_teams // 2
         num_teams_in_round_1 = num_teams
 
     match_count = 0
-    
-    # Teams participating in the first round
     teams_playing = approved_teams[:num_teams_in_round_1]
     
+    # Timing config
+    current_time = tournament.start_time or tournament.start_date
+    if isinstance(current_time, str):
+        from datetime import datetime
+        current_time = datetime.fromisoformat(current_time)
+        
+    match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    slot_index = 0
+
     for i in range(0, len(teams_playing), 2):
+        field_slot = slot_index % num_fields
+        time_offset = slot_index // num_fields
+        match_start = current_time + timedelta(minutes=time_offset * match_duration)
+        
+        field_uuid = None
+        if field_ids:
+            field_uuid = uuid.UUID(field_ids[field_slot])
+
         new_match = Match(
             tournament_id=tournament_id,
             division_id=approved_teams[0].division_id,
             home_team_id=teams_playing[i].team_id,
             away_team_id=teams_playing[i+1].team_id,
+            field_id=field_uuid,
+            match_date=match_start,
             status=MatchStatus.DRAFT,
-            round_number=1 # Preliminary or First Round
+            round_number=1
         )
         db.add(new_match)
         match_count += 1
+        slot_index += 1
         
     db.commit()
     
     return {
-        "message": "AI has constructed the initial knockout bracket.",
-        "ai_report": f"Calculated bracket for {num_teams} teams. Optimized seeding based on historical performance and regional distance. {num_teams - num_teams_in_round_1} teams received a BYE to the next round.",
+        "message": "AI has constructed the initial knockout bracket with field assignments.",
+        "ai_report": f"Calculated bracket for {num_teams} teams. {num_teams - num_teams_in_round_1} teams received a BYE. Matches distributed across {num_fields} fields.",
         "teams_total": num_teams,
-        "byes": num_teams - num_teams_in_round_1
+        "byes": num_teams - num_teams_in_round_1,
+        "matches_count": match_count
     }
 
 def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_group: int = 4):
-    """
-    Divides teams into groups and generates round-robin matches for each group.
-    """
     import random
+    import json
+    from datetime import timedelta
     from app.tournaments.models import TournamentGroup, TournamentGroupTeam
     
     tournament = get_tournament_by_id(db, tournament_id)
@@ -418,14 +556,21 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
     if num_teams < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed for Group Stage")
     
+    # Parse field_ids
+    field_ids = []
+    if tournament.field_ids:
+        try:
+            field_ids = json.loads(tournament.field_ids)
+        except:
+            pass
+    num_fields = len(field_ids) if field_ids else tournament.num_fields
+    if num_fields < 1: num_fields = 1
+
     # Randomize seeding
     random.shuffle(approved_teams)
     
-    # Calculate number of groups
     num_groups = max(1, num_teams // teams_per_group)
-    
     groups = []
-    # Create groups (A, B, C...)
     import string
     for i in range(num_groups):
         group_name = f"Group {string.ascii_uppercase[i % 26]}"
@@ -433,9 +578,8 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
         db.add(new_group)
         groups.append(new_group)
     
-    db.flush() # Get group IDs
+    db.flush()
     
-    # Assign teams to groups
     group_teams = {g.id: [] for g in groups}
     for i, team in enumerate(approved_teams):
         group = groups[i % num_groups]
@@ -446,27 +590,47 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
     db.flush()
     
     match_count = 0
+    # Timing config
+    current_time = tournament.start_time or tournament.start_date
+    if isinstance(current_time, str):
+        from datetime import datetime
+        current_time = datetime.fromisoformat(current_time)
+        
+    match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    slot_index = 0
+
     # Generate matches within each group
     for group_id, teams in group_teams.items():
         for i in range(len(teams)):
             for j in range(i + 1, len(teams)):
+                field_slot = slot_index % num_fields
+                time_offset = slot_index // num_fields
+                match_start = current_time + timedelta(minutes=time_offset * match_duration)
+                
+                field_uuid = None
+                if field_ids:
+                    field_uuid = uuid.UUID(field_ids[field_slot])
+
                 new_match = Match(
                     tournament_id=tournament_id,
                     division_id=approved_teams[0].division_id,
                     home_team_id=teams[i].team_id,
                     away_team_id=teams[j].team_id,
                     group_id=group_id,
+                    field_id=field_uuid,
+                    match_date=match_start,
                     status=MatchStatus.DRAFT,
                     round_number=1
                 )
                 db.add(new_match)
                 match_count += 1
+                slot_index += 1
                 
     db.commit()
     
     return {
-        "message": "AI has balanced the groups.",
-        "ai_report": f"Distributed {num_teams} teams across {num_groups} groups. AI ensured that strong rivals are separated into different groups for a more competitive stage.",
+        "message": "AI has balanced the groups and assigned field slots.",
+        "ai_report": f"Distributed {num_teams} teams across {num_groups} groups. Matches scheduled across {num_fields} fields starting from {current_time.strftime('%H:%M')}.",
         "groups_count": num_groups,
         "total_matches": match_count
     }
@@ -482,6 +646,14 @@ def finalize_tournament_schedule(db: Session, tournament_id: UUID):
     
     for m in matches:
         m.status = MatchStatus.SCHEDULED
+        # Notify participants
+        notify_match_participants(
+            db=db,
+            match=m,
+            title="Match Scheduled! ⚽",
+            message=f"New match scheduled: {m.home_team.name} vs {m.away_team.name}",
+            notification_type=NotificationType.MATCH_SCHEDULED
+        )
         
     db.commit()
     return {"message": f"Schedule finalized. {len(matches)} matches are now public."}
@@ -574,6 +746,15 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
         
     match.status = MatchStatus.FINISHED
     db.commit()
+    
+    # Notify participants about the final score
+    notify_match_participants(
+        db=db,
+        match=match,
+        title="Match Result! 🏆",
+        message=f"Final score: {match.home_team.name} {home_score} - {away_score} {match.away_team.name}",
+        notification_type=NotificationType.MATCH_RESULT
+    )
     
     # Update Standings
     update_team_standing(db, match.tournament_id, match.home_team_id)

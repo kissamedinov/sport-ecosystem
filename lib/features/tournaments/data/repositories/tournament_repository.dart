@@ -8,6 +8,7 @@ class TournamentRepository {
   final ApiClient _apiClient;
 
   TournamentRepository(this._apiClient);
+  ApiClient get apiClient => _apiClient;
 
   Future<List<Tournament>> getTournaments({
     String? season, 
@@ -50,6 +51,20 @@ class TournamentRepository {
   Future<List<Map<String, dynamic>>> getDivisions(String editionId) async {
     final response = await _apiClient.get('/tournaments/$editionId/divisions');
     return List<Map<String, dynamic>>.from(response.data);
+  }
+
+  Future<Map<String, dynamic>> createDivision(Map<String, dynamic> divisionData) async {
+    final response = await _apiClient.post('/tournaments/divisions', data: divisionData);
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> updateDivision(String divisionId, Map<String, dynamic> divisionData) async {
+    final response = await _apiClient.patch('/tournaments/divisions/$divisionId', data: divisionData);
+    return response.data;
+  }
+
+  Future<void> deleteDivision(String divisionId) async {
+    await _apiClient.delete('/tournaments/divisions/$divisionId');
   }
 
   Future<TournamentTeamResponse> registerTeamToDivision(String divisionId, String teamId, String registrationData) async {

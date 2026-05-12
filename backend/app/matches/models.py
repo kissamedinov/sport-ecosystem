@@ -58,12 +58,15 @@ class Match(Base):
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=True)
     home_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
     away_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
-    field_id = Column(UUID(as_uuid=True), nullable=True) # Field service not yet fully implemented
+    field_id = Column(UUID(as_uuid=True), ForeignKey("fields.id"), nullable=True)
     group_id = Column(UUID(as_uuid=True), ForeignKey("tournament_groups.id"), nullable=True)
     round_number = Column(Integer, nullable=False, default=1)
     match_date = Column(DateTime(timezone=True), nullable=True)
     status = Column(String, default=MatchStatus.SCHEDULED.value, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    from app.fields.models import Field
+    field = relationship("Field")
 
     tournament = relationship("Tournament")
     division = relationship("TournamentDivision")
@@ -71,6 +74,10 @@ class Match(Base):
     away_team = relationship("Team", foreign_keys=[away_team_id])
     group = relationship("TournamentGroup")
     result = relationship("MatchResult", back_populates="match", uselist=False)
+    
+    @property
+    def field_name(self):
+        return self.field.name if self.field else None
 
 class MatchResult(Base):
     __tablename__ = "match_results"

@@ -15,6 +15,8 @@ class TournamentMatch {
   final String awayTeamId;
   @JsonKey(name: 'field_id')
   final String? fieldId;
+  @JsonKey(name: 'field_name')
+  final String? fieldName;
   @JsonKey(name: 'match_date')
   final DateTime? matchDate;
   final String status;
@@ -32,6 +34,7 @@ class TournamentMatch {
     required this.homeTeamId,
     required this.awayTeamId,
     this.fieldId,
+    this.fieldName,
     this.matchDate,
     required this.status,
     required this.homeScore,

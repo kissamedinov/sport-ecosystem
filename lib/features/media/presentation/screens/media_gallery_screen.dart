@@ -122,7 +122,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                           placeholder: (context, url) => Container(color: Colors.white.withValues(alpha: 0.05)),
                           errorWidget: (context, url, error) => const Icon(Icons.error),
                         ),
-                        if (item.mediaType == 'VIDEO')
+                        if (item.type == 'VIDEO')
                           const Center(
                             child: CircleAvatar(
                               backgroundColor: Colors.black54,

@@ -8,6 +8,7 @@ import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
+import '../../tournaments/presentation/screens/tournament_list_screen.dart';
 // import 'adult_player_dashboard.dart'; // for TemporaryScreen
 
 class ChildPlayerDashboard extends StatefulWidget {
@@ -216,31 +217,31 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                   children: [
                     _buildActivityAction(
                       context: context,
-                      label: 'Stats',
-                      icon: Icons.insert_chart_outlined_rounded,
-                      color: Colors.blueAccent,
-                      title: 'My Statistics',
+                      label: 'Tournaments',
+                      icon: Icons.emoji_events_rounded,
+                      color: Colors.amberAccent,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
                     ),
                     _buildActivityAction(
                       context: context,
-                      label: 'Awards',
-                      icon: Icons.emoji_events_outlined,
-                      color: Colors.amberAccent,
-                      title: 'Best Player Awards',
+                      label: 'Stats',
+                      icon: Icons.insert_chart_outlined_rounded,
+                      color: Colors.blueAccent,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'My Statistics'))),
                     ),
                     _buildActivityAction(
                       context: context,
                       label: 'Coached',
                       icon: Icons.forum_outlined,
                       color: Colors.greenAccent,
-                      title: 'Message from Coach',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Message from Coach'))),
                     ),
                     _buildActivityAction(
                       context: context,
                       label: 'Training',
                       icon: Icons.fitness_center_rounded,
                       color: Colors.purpleAccent,
-                      title: 'Training Schedule',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Training Schedule'))),
                     ),
                   ],
                 ),
@@ -258,11 +259,11 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     required String label,
     required IconData icon,
     required Color color,
-    required String title,
+    required VoidCallback onTap,
   }) {
     return PremiumCard(
       padding: EdgeInsets.zero,
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: title))),
+      onTap: onTap,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

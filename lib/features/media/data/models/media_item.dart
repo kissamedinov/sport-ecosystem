@@ -3,7 +3,7 @@ class MediaItem {
   final String? userId;
   final String? clubId;
   final String? tournamentId;
-  final String mediaType; // 'IMAGE' or 'VIDEO'
+  final String type; // 'AVATAR', 'CLUB_LOGO', 'TOURNAMENT_LOGO', etc.
   final String url;
   final String? thumbnailUrl;
   final String? title;
@@ -15,7 +15,7 @@ class MediaItem {
     this.userId,
     this.clubId,
     this.tournamentId,
-    required this.mediaType,
+    required this.type,
     required this.url,
     this.thumbnailUrl,
     this.title,
@@ -29,7 +29,7 @@ class MediaItem {
       userId: json['user_id'] as String?,
       clubId: json['club_id'] as String?,
       tournamentId: json['tournament_id'] as String?,
-      mediaType: json['media_type'] as String,
+      type: json['type'] as String,
       url: json['url'] as String,
       thumbnailUrl: json['thumbnail_url'] as String?,
       title: json['title'] as String?,
@@ -44,7 +44,7 @@ class MediaItem {
       'user_id': userId,
       'club_id': clubId,
       'tournament_id': tournamentId,
-      'media_type': mediaType,
+      'type': type,
       'url': url,
       'thumbnail_url': thumbnailUrl,
       'title': title,

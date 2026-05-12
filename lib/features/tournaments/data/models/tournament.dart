@@ -16,6 +16,8 @@ class Tournament {
   final String ageCategory;
   @JsonKey(name: 'logo_url')
   final String? logoUrl;
+  @JsonKey(name: 'field_ids')
+  final String? fieldIds;
   @JsonKey(name: 'teams_count')
   final int? teamsCount;
   final String status;
@@ -74,6 +76,7 @@ class Tournament {
     required this.ageCategory,
     required this.status,
     this.logoUrl,
+    this.fieldIds,
     this.teamsCount,
     this.surfaceType,
     this.seriesName,

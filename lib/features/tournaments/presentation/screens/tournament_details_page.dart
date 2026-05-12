@@ -159,7 +159,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
             ),
-            child: const Icon(Icons.emoji_events, size: 40, color: PremiumTheme.neonGreen),
+            child: t.logoUrl != null && t.logoUrl!.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(t.logoUrl!, fit: BoxFit.cover),
+                )
+              : const Icon(Icons.emoji_events, size: 40, color: PremiumTheme.neonGreen),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -320,8 +325,15 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildDivisionCard(Map<String, dynamic> division, TournamentProvider provider) {
-    final birthYear = division['birth_year'];
-    final name = division['name'];
+    final birthYear = division['birth_year'] ?? 'N/A';
+    final name = division['name'] ?? 'Division $birthYear';
+    final format = division['format'] ?? 'Standard';
+    final entryFee = division['entry_fee'] ?? 0;
+    
+    final user = context.read<AuthProvider>().user;
+    final canSeeFee = user?.roles?.any((r) => 
+      ['COACH', 'TEAM_OWNER', 'TOURNAMENT_ORGANIZER', 'ADMIN'].contains(r)) == true;
+
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
     
     TournamentTeamResponse? myRegisteredTeam;
@@ -345,7 +357,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                Text('Requirement: Born $birthYear', style: const TextStyle(fontSize: 12, color: Colors.white38)),
+                Text(
+                  'Format: ${format ?? 'Standard'} • Requirement: Born $birthYear${canSeeFee ? ' • Fee: ${entryFee ?? 0} ₸' : ''}', 
+                  style: const TextStyle(fontSize: 12, color: Colors.white38)
+                ),
               ],
             ),
           ),
@@ -672,6 +687,19 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             ],
           ),
           const SizedBox(height: 16),
+          if (match.fieldName != null) ...[
+            Row(
+              children: [
+                const Icon(Icons.stadium, size: 12, color: Colors.white24),
+                const SizedBox(width: 6),
+                Text(
+                  match.fieldName!.toUpperCase(),
+                  style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           Row(
             children: [
               Expanded(
