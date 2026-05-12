@@ -19,8 +19,13 @@ import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class TournamentDetailsPage extends StatefulWidget {
   final String tournamentId;
+  final bool autoRegister;
 
-  const TournamentDetailsPage({super.key, required this.tournamentId});
+  const TournamentDetailsPage({
+    super.key, 
+    required this.tournamentId, 
+    this.autoRegister = false,
+  });
 
   @override
   State<TournamentDetailsPage> createState() => _TournamentDetailsPageState();
@@ -39,12 +44,31 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   void initState() {
     super.initState();
     _tabController = TabController(length: _isOrganizer ? 5 : 4, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<TournamentProvider>();
-      provider.fetchTournamentDetails(widget.tournamentId);
+      await provider.fetchTournamentDetails(widget.tournamentId);
       provider.fetchTournamentMatches(widget.tournamentId);
       provider.fetchTournamentStandings(widget.tournamentId);
       provider.fetchTournamentTeams(widget.tournamentId);
+
+      if (widget.autoRegister && mounted) {
+        final divisions = provider.divisions;
+        if (divisions.isNotEmpty) {
+          final int? birthYear = int.tryParse(divisions.first['birth_year']?.toString() ?? "");
+          _showRegisterTeamDialog(context, divisions.first, birthYear ?? 0);
+        } else {
+          // Fallback to tournament level registration if no divisions
+          final tournament = provider.selectedTournament;
+          if (tournament != null) {
+             final int? birthYear = int.tryParse(tournament.ageCategory);
+             _showRegisterTeamDialog(context, {
+               'id': tournament.id,
+               'name': 'Standard Category',
+               'birth_year': tournament.ageCategory,
+             }, birthYear ?? 0);
+          }
+        }
+      }
     });
   }
 
@@ -138,6 +162,17 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             _buildSectionTitle('AGE DIVISIONS', Icons.groups),
             const SizedBox(height: 12),
             ...provider.divisions.map((d) => _buildDivisionCard(d, provider)),
+            const SizedBox(height: 24),
+          ] else ...[
+            _buildSectionTitle('REGISTRATION', Icons.app_registration),
+            const SizedBox(height: 12),
+            _buildDivisionCard({
+              'id': tournament.id,
+              'name': 'Standard Category',
+              'birth_year': tournament.ageCategory,
+              'format': tournament.format,
+              'entry_fee': 0,
+            }, provider),
             const SizedBox(height: 24),
           ],
           _buildSectionTitle('CONFIGURATION', Icons.settings),
@@ -342,7 +377,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildDivisionCard(Map<String, dynamic> division, TournamentProvider provider) {
-    final birthYear = division['birth_year'] ?? 'N/A';
+    final rawBirthYear = division['birth_year'] ?? 'N/A';
+    final int birthYear = rawBirthYear is int ? rawBirthYear : int.tryParse(rawBirthYear.toString()) ?? 0;
     final name = division['name'] ?? 'Division $birthYear';
     final format = division['format'] ?? 'Standard';
     final entryFee = division['entry_fee'] ?? 0;

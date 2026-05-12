@@ -73,7 +73,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
               _buildSquadCounter(squadMembers.length),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 200),
                   itemCount: allPlayers.length,
                   itemBuilder: (context, index) {
                     final playerTeam = allPlayers[index];

@@ -12,6 +12,7 @@ import 'package:mobile/features/coaches/presentation/screens/coach_dashboard_scr
 import 'package:mobile/features/coaches/presentation/screens/coach_teams_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_performance_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_attendance_screen.dart';
+import 'package:mobile/features/academies/providers/academy_provider.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -543,71 +544,104 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
   Widget _buildCoachIdCard(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
+    final academy = context.watch<AcademyProvider>().myAcademy;
     final String code = user?.uniqueCode ?? "ID-PENDING";
+    final String clubName = academy?.name ?? "NO CLUB ASSIGNED";
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            PremiumTheme.neonGreen.withValues(alpha: 0.15),
-            PremiumTheme.neonGreen.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.badge_rounded, color: PremiumTheme.neonGreen, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "UNIQUE COACH ID",
-                  style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  code,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
-                ),
-                const SizedBox(height: 2),
-                const Text(
-                  "Use this ID to be invited to a team",
-                  style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                PremiumTheme.neonGreen.withValues(alpha: 0.05),
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
           ),
-          _circleIconButton(
-            icon: Icons.copy_all_rounded,
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: code));
-              HapticFeedback.heavyImpact();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("ID COPIED TO CLIPBOARD"),
-                  backgroundColor: PremiumTheme.neonGreen,
-                  duration: Duration(seconds: 2),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              );
-            },
+                child: const Icon(Icons.badge_rounded, color: PremiumTheme.neonGreen, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "UNIQUE COACH ID",
+                      style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      code,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      "Use this ID to be invited to a team",
+                      style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              _circleIconButton(
+                icon: Icons.copy_all_rounded,
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: code));
+                  HapticFeedback.heavyImpact();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("ID COPIED TO CLIPBOARD"),
+                      backgroundColor: PremiumTheme.neonGreen,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.business_rounded, color: PremiumTheme.electricBlue, size: 16),
+              const SizedBox(width: 12),
+              Text(
+                "CLUB: ",
+                style: TextStyle(color: PremiumTheme.electricBlue.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+              ),
+              Expanded(
+                child: Text(
+                  clubName.toUpperCase(),
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

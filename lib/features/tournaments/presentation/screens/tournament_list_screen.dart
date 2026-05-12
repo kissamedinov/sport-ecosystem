@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
+import '../../../../features/academies/providers/academy_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import 'create_tournament_screen.dart';
 import 'tournament_details_page.dart';
@@ -35,6 +36,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refresh();
+      context.read<AcademyProvider>().fetchMyAcademy();
     });
   }
 
@@ -133,9 +135,12 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  itemCount: provider.tournaments.length,
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                  itemCount: provider.tournaments.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == provider.tournaments.length) {
+                      return const SizedBox(height: 180);
+                    }
                     final tournament = provider.tournaments[index];
                     return _buildTournamentCard(tournament, isChild);
                   },
@@ -350,6 +355,9 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildChildGreeting(String name) {
+    final academy = context.watch<AcademyProvider>().myAcademy;
+    final academyName = academy?.name ?? 'ORLEON';
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -376,6 +384,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   'HELLO, $name!',
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
                 ),
+                Text(
+                  'REPRESENTING: ${academyName.toUpperCase()}',
+                  style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+                const SizedBox(height: 2),
                 const Text(
                   'Ready for your next big match?',
                   style: TextStyle(color: Colors.white70, fontSize: 11),

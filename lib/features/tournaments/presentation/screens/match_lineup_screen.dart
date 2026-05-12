@@ -194,7 +194,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
               _buildSelectionSummary(),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 200),
                   itemCount: provider.squad.length,
                   itemBuilder: (context, index) {
                     final member = provider.squad[index];

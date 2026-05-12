@@ -45,8 +45,11 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
 
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            itemCount: announcements.length,
+            itemCount: announcements.length + 1,
             itemBuilder: (context, index) {
+              if (index == announcements.length) {
+                return const SizedBox(height: 180);
+              }
               final t = announcements[index];
               return _buildAnnouncementCard(context, t);
             },
@@ -169,7 +172,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => TournamentDetailsPage(tournamentId: t.id)),
+                MaterialPageRoute(builder: (context) => TournamentDetailsPage(tournamentId: t.id, autoRegister: true)),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
