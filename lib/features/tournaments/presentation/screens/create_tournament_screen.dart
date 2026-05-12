@@ -62,6 +62,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   final TextEditingController _divisionFormatController = TextEditingController(text: '8+1');
   final TextEditingController _divisionFeeController = TextEditingController(text: '0');
   final TextEditingController _divisionMaxTeamsController = TextEditingController(text: '8');
+  final TextEditingController _instagramController = TextEditingController();
   String _selectedDivisionAge = '2013';
 
   final List<String> _formats = ['LEAGUE', 'KNOCKOUT', 'GROUP_STAGE'];
@@ -100,6 +101,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     _locationController = TextEditingController(text: t?.location ?? '');
     _whatsappController = TextEditingController(text: t?.whatsapp ?? '');
     _phoneController = TextEditingController(text: t?.phone ?? '');
+    _instagramController = TextEditingController(text: t?.instagram ?? '');
     _allowedAgesController = TextEditingController(text: t?.allowedAgeCategories ?? '');
 
     _startDate = t != null ? DateTime.parse(t.startDate) : DateTime.now();
@@ -278,6 +280,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       'end_time': endDT.toIso8601String(),
       'whatsapp': _whatsappController.text,
       'phone': _phoneController.text,
+      'instagram': _instagramController.text,
       'logo_url': finalLogoUrl,
       'field_ids': jsonEncode(_selectedFieldIds),
     };
@@ -294,12 +297,19 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         }
         // Handle divisions for edit: update existing, create new
         for (final div in _divisions) {
+          final divisionData = {
+            'name': div['name'],
+            'format': div['format'],
+            'entry_fee': div['entry_fee'],
+            'birth_year': div['birth_year'],
+            'max_teams': div['max_teams'],
+          };
           if (div['id'] != null) {
             // Update existing division
-            await provider.updateDivision(widget.initialTournament!.id, div['id'], div);
+            await provider.updateDivision(widget.initialTournament!.id, div['id'], divisionData);
           } else {
             // Create new division
-            await provider.createDivision(widget.initialTournament!.id, div);
+            await provider.createDivision(widget.initialTournament!.id, divisionData);
           }
         }
       }
@@ -309,7 +319,14 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         // Create divisions for the new tournament
         final newTournament = provider.tournaments.first;
         for (final div in _divisions) {
-          await provider.createDivision(newTournament.id, div);
+          final divisionData = {
+            'name': div['name'],
+            'format': div['format'],
+            'entry_fee': div['entry_fee'],
+            'birth_year': div['birth_year'],
+            'max_teams': div['max_teams'],
+          };
+          await provider.createDivision(newTournament.id, divisionData);
         }
       }
     }
@@ -404,6 +421,13 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                       controller: _phoneController,
                       label: 'Phone Number',
                       icon: Icons.phone,
+                    ),
+                    const SizedBox(height: 16),
+                    PremiumTextField(
+                      controller: _instagramController,
+                      label: 'Instagram (handle only)',
+                      icon: Icons.camera_alt_outlined,
+                      hintText: 'e.g. kff_team',
                     ),
                   ],
                 ),

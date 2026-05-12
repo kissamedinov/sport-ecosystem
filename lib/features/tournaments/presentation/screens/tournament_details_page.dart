@@ -229,6 +229,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildContactTab(Tournament t) {
+    final hasWhatsapp = t.whatsapp != null && t.whatsapp!.trim().isNotEmpty;
+    final hasPhone = t.phone != null && t.phone!.trim().isNotEmpty;
+    final hasInstagram = t.instagram != null && t.instagram!.trim().isNotEmpty;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -238,7 +242,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           PremiumCard(
             child: Column(
               children: [
-                if (t.whatsapp != null)
+                if (hasWhatsapp)
                   _buildContactItem(
                     Icons.message,
                     'WhatsApp',
@@ -248,15 +252,26 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       _launchURL('https://wa.me/$cleanPhone');
                     },
                   ),
-                if (t.whatsapp != null && t.phone != null) const Divider(color: Colors.white10),
-                if (t.phone != null)
+                if (hasWhatsapp && (hasPhone || hasInstagram)) const Divider(color: Colors.white10),
+                if (hasPhone)
                   _buildContactItem(
                     Icons.phone,
                     'Phone Number',
                     t.phone!,
                     onTap: () => _launchURL('tel:${t.phone}'),
                   ),
-                if (t.whatsapp == null && t.phone == null)
+                if (hasPhone && hasInstagram) const Divider(color: Colors.white10),
+                if (hasInstagram)
+                  _buildContactItem(
+                    Icons.camera_alt_outlined,
+                    'Instagram',
+                    '@${t.instagram!.replaceAll('@', '')}',
+                    onTap: () {
+                      final handle = t.instagram!.replaceAll('@', '');
+                      _launchURL('https://instagram.com/$handle');
+                    },
+                  ),
+                if (!hasWhatsapp && !hasPhone && !hasInstagram)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Center(child: Text('No contact information provided', style: TextStyle(color: Colors.white38))),
@@ -271,7 +286,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               children: [
                 const Icon(Icons.location_on, color: PremiumTheme.neonGreen),
                 const SizedBox(width: 12),
-                Text(t.location, style: const TextStyle(color: Colors.white)),
+                Expanded(
+                  child: Text(t.location, style: const TextStyle(color: Colors.white)),
+                ),
               ],
             ),
           ),

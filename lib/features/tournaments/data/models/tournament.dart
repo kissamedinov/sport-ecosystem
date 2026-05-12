@@ -48,6 +48,7 @@ class Tournament {
 
   final String? whatsapp;
   final String? phone;
+  final String? instagram;
 
   @JsonKey(name: 'year')
   final int? year;
@@ -91,6 +92,7 @@ class Tournament {
     this.createdBy,
     this.whatsapp,
     this.phone,
+    this.instagram,
     this.year,
     this.season,
     this.startTime,

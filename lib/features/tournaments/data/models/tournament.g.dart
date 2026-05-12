@@ -29,6 +29,13 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
   allowedAgeCategories: json['allowed_age_categories'] as String?,
   historyData: json['history_data'] as String?,
   createdBy: json['created_by'] as String?,
+  whatsapp: json['whatsapp'] as String?,
+  phone: json['phone'] as String?,
+  instagram: json['instagram'] as String?,
+  year: (json['year'] as num?)?.toInt(),
+  season: json['season'] as String?,
+  startTime: json['start_time'] as String?,
+  endTime: json['end_time'] as String?,
 );
 
 Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
@@ -54,4 +61,11 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'allowed_age_categories': instance.allowedAgeCategories,
       'history_data': instance.historyData,
       'created_by': instance.createdBy,
+      'whatsapp': instance.whatsapp,
+      'phone': instance.phone,
+      'instagram': instance.instagram,
+      'year': instance.year,
+      'season': instance.season,
+      'start_time': instance.startTime,
+      'end_time': instance.endTime,
     };

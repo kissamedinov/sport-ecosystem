@@ -20,6 +20,7 @@ class TournamentBase(BaseModel):
     history_data: Optional[str] = None # JSON string
     whatsapp: Optional[str] = None
     phone: Optional[str] = None
+    instagram: Optional[str] = None
     logo_url: Optional[str] = None
     field_ids: Optional[str] = None # JSON list of UUIDs
     num_fields: int = 1
@@ -53,6 +54,7 @@ class TournamentUpdate(BaseModel):
     age_category: Optional[str] = None
     whatsapp: Optional[str] = None
     phone: Optional[str] = None
+    instagram: Optional[str] = None
     num_fields: Optional[int] = None
     match_half_duration: Optional[int] = None
     halftime_break_duration: Optional[int] = None
