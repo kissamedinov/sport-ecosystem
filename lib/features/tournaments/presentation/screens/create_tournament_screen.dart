@@ -28,6 +28,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   late TextEditingController _locationController;
   late TextEditingController _whatsappController;
   late TextEditingController _phoneController;
+  late TextEditingController _instagramController;
   late TextEditingController _allowedAgesController;
 
   late DateTime _startDate;
@@ -62,7 +63,6 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   final TextEditingController _divisionFormatController = TextEditingController(text: '8+1');
   final TextEditingController _divisionFeeController = TextEditingController(text: '0');
   final TextEditingController _divisionMaxTeamsController = TextEditingController(text: '8');
-  final TextEditingController _instagramController = TextEditingController();
   String _selectedDivisionAge = '2013';
 
   final List<String> _formats = ['LEAGUE', 'KNOCKOUT', 'GROUP_STAGE'];
@@ -154,6 +154,21 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     }
 
     _fetchFields();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _locationController.dispose();
+    _whatsappController.dispose();
+    _phoneController.dispose();
+    _instagramController.dispose();
+    _allowedAgesController.dispose();
+    _divisionNameController.dispose();
+    _divisionFormatController.dispose();
+    _divisionFeeController.dispose();
+    _divisionMaxTeamsController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadExistingDivisions() async {
