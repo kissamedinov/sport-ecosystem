@@ -140,6 +140,12 @@ class TournamentMatchResponse(BaseModel):
     match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
     group_id: Optional[UUID] = None
+    
+    # These are needed for computed fields to access the ORM objects
+    home_team: Optional[TeamResponse] = None
+    away_team: Optional[TeamResponse] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
     @computed_field
     @property
