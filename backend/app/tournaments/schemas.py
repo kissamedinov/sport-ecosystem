@@ -140,6 +140,16 @@ class TournamentMatchResponse(BaseModel):
     match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
     group_id: Optional[UUID] = None
+
+    @computed_field
+    @property
+    def home_team_name(self) -> str:
+        return self.home_team.name if hasattr(self, 'home_team') and self.home_team else "Home Team"
+
+    @computed_field
+    @property
+    def away_team_name(self) -> str:
+        return self.away_team.name if hasattr(self, 'away_team') and self.away_team else "Away Team"
     
     # We'll use this to fetch scores from the nested result object
     result: Optional[dict] = None 

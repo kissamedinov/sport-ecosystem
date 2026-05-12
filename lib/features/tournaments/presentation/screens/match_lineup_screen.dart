@@ -58,7 +58,17 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     HapticFeedback.mediumImpact();
     setState(() {
       if (_starters.containsKey(childProfileId)) {
-        _starters[childProfileId] = !(_starters[childProfileId]!);
+        final currentlyStarting = _starters[childProfileId]!;
+        if (!currentlyStarting && _startingCount >= 11) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('MAX 11 STARTING PLAYERS ALLOWED'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+          return;
+        }
+        _starters[childProfileId] = !currentlyStarting;
       }
     });
   }
@@ -180,15 +190,17 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
 
           return Column(
             children: [
+              _buildPitchView(provider.squad),
+              _buildSelectionSummary(),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: provider.squad.length,
                   itemBuilder: (context, index) {
                     final member = provider.squad[index];
                     final isSelected = _starters.containsKey(member.childProfileId);
                     final isStarting = isSelected && _starters[member.childProfileId]!;
-                    final name = member.childProfileId.substring(0, 8).toUpperCase();
+                    final name = member.playerName ?? 'Unknown Player';
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -315,6 +327,134 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     );
   }
 
+  Widget _buildPitchView(List<TournamentSquadMember> squad) {
+    final startingPlayers = squad.where((m) => _starters[m.childProfileId] == true).toList();
+    
+    return Container(
+      height: 220,
+      width: double.infinity,
+      margin: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B4332), 
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
+        ],
+      ),
+      child: Stack(
+        children: [
+          CustomPaint(
+            size: const Size(double.infinity, 220),
+            painter: PitchPainter(),
+          ),
+          if (startingPlayers.isEmpty)
+            const Center(
+              child: Text(
+                'TAP PLAYERS TO ADD TO STARTING XI',
+                style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: _buildFormationLayout(startingPlayers),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormationLayout(List<TournamentSquadMember> players) {
+    final gk = players.where((p) => _positions[p.childProfileId] == 'GK').toList();
+    final df = players.where((p) => _positions[p.childProfileId] == 'DF').toList();
+    final mf = players.where((p) => _positions[p.childProfileId] == 'MF').toList();
+    final fw = players.where((p) => _positions[p.childProfileId] == 'FW').toList();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _playerRow(fw),
+        _playerRow(mf),
+        _playerRow(df),
+        _playerRow(gk),
+      ],
+    );
+  }
+
+  Widget _playerRow(List<TournamentSquadMember> players) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: players.map((p) => _pitchPlayerIcon(p)).toList(),
+    );
+  }
+
+  Widget _pitchPlayerIcon(TournamentSquadMember p) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black, width: 2),
+            boxShadow: [
+              BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.4), blurRadius: 8),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              p.jerseyNumber?.toString() ?? '?',
+              style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          (p.playerName ?? 'P').split(' ').first.toUpperCase(),
+          style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectionSummary() {
+    final subCount = _starters.values.where((v) => !v).length;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        children: [
+          _summaryChip('$_startingCount STARTING', PremiumTheme.neonGreen),
+          const SizedBox(width: 12),
+          _summaryChip('$subCount SUBSTITUTES', Colors.orange),
+          const Spacer(),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _starters.clear();
+                _positions.clear();
+              });
+            },
+            child: const Text('RESET', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Text(text, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold)),
+    );
+  }
+
   Widget _buildSubmitSection() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -386,4 +526,23 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       ],
     );
   }
+}
+
+class PitchPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.1)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    canvas.drawRect(Offset.zero & size, paint);
+    canvas.drawLine(Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 30, paint);
+    canvas.drawRect(Rect.fromLTWH(size.width * 0.2, 0, size.width * 0.6, 40), paint);
+    canvas.drawRect(Rect.fromLTWH(size.width * 0.2, size.height - 40, size.width * 0.6, 40), paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

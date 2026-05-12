@@ -6,6 +6,8 @@ part 'tournament_team_response.g.dart';
 @JsonSerializable()
 class TournamentTeamResponse {
   final String id;
+  @JsonKey(name: 'division_id')
+  final String? divisionId;
   @JsonKey(name: 'tournament_id')
   final String tournamentId;
   @JsonKey(name: 'team_id')
@@ -17,6 +19,7 @@ class TournamentTeamResponse {
 
   TournamentTeamResponse({
     required this.id,
+    this.divisionId,
     required this.tournamentId,
     required this.teamId,
     required this.status,

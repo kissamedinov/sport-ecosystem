@@ -24,6 +24,10 @@ class TournamentMatch {
   final int homeScore;
   @JsonKey(name: 'away_score')
   final int awayScore;
+  @JsonKey(name: 'home_team_name')
+  final String? homeTeamName;
+  @JsonKey(name: 'away_team_name')
+  final String? awayTeamName;
   @JsonKey(name: 'group_id')
   final String? groupId;
 
@@ -39,6 +43,8 @@ class TournamentMatch {
     required this.status,
     required this.homeScore,
     required this.awayScore,
+    this.homeTeamName,
+    this.awayTeamName,
     this.groupId,
   });
 

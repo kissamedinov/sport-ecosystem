@@ -356,13 +356,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     TournamentTeamResponse? myRegisteredTeam;
     try {
       myRegisteredTeam = provider.registeredTeams.firstWhere(
-        (rt) => rt.id == division['id'] && myTeamIds.contains(rt.teamId)
+        (rt) => rt.divisionId == division['id'] && myTeamIds.contains(rt.teamId)
       );
-    } catch (_) {
-      try {
-        myRegisteredTeam = provider.registeredTeams.firstWhere((rt) => myTeamIds.contains(rt.teamId));
-      } catch (_) {}
-    }
+    } catch (_) {}
 
     final registeredTeam = myRegisteredTeam;
     return PremiumCard(
@@ -385,7 +381,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             SizedBox(
               height: 36,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: registeredTeam.status == 'APPROVED' ? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -395,21 +391,28 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       ),
                     ),
                   );
-                },
+                } : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
-                  foregroundColor: PremiumTheme.neonGreen,
+                  backgroundColor: registeredTeam.status == 'APPROVED' 
+                    ? PremiumTheme.neonGreen.withValues(alpha: 0.2)
+                    : Colors.white.withValues(alpha: 0.05),
+                  foregroundColor: registeredTeam.status == 'APPROVED' 
+                    ? PremiumTheme.neonGreen
+                    : Colors.white38,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('MANAGE SQUAD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text(
+                  registeredTeam.status == 'APPROVED' ? 'MANAGE SQUAD' : 'PENDING...', 
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)
+                ),
               ),
             )
           else
             SizedBox(
               height: 36,
               child: ElevatedButton(
-                onPressed: () => _showRegisterTeamDialog(context, division['id'], birthYear),
+                onPressed: () => _showRegisterTeamDialog(context, division, birthYear),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: PremiumTheme.neonGreen,
                   foregroundColor: Colors.black,
@@ -720,21 +723,56 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           Row(
             children: [
               Expanded(
-                child: Text('HOME TEAM', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Column(
+                  children: [
+                    Text(
+                      (match.homeTeamName ?? 'HOME TEAM').toUpperCase(), 
+                      textAlign: TextAlign.center, 
+                      style: TextStyle(
+                        color: memberTeam?.teamId == match.homeTeamId ? PremiumTheme.neonGreen : Colors.white, 
+                        fontSize: 12, 
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      )
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('HOME', style: TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: memberTeam != null ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
+                  border: memberTeam != null ? Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)) : null,
                 ),
                 child: Text(
                   '${match.homeScore} - ${match.awayScore}',
-                  style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: memberTeam != null ? PremiumTheme.neonGreen : Colors.white70, 
+                    fontSize: 22, 
+                    fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
               Expanded(
-                child: Text('AWAY TEAM', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Column(
+                  children: [
+                    Text(
+                      (match.awayTeamName ?? 'AWAY TEAM').toUpperCase(), 
+                      textAlign: TextAlign.center, 
+                      style: TextStyle(
+                        color: memberTeam?.teamId == match.awayTeamId ? PremiumTheme.neonGreen : Colors.white, 
+                        fontSize: 12, 
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      )
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('AWAY', style: TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1159,19 +1197,25 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     );
   }
 
-  void _showRegisterTeamDialog(BuildContext context, String divisionId, int requiredBirthYear) {
+  void _showRegisterTeamDialog(BuildContext context, Map<String, dynamic> division, int requiredBirthYear) {
     final teamProvider = context.read<TeamProvider>();
     teamProvider.fetchMyTeams();
+
+    final divisionId = division['id'];
+    final divisionName = division['name'] ?? 'Division';
+    final format = division['format'] ?? 'Standard';
+    final entryFee = division['entry_fee'] ?? 0;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.height * 0.8,
         decoration: BoxDecoration(
           color: PremiumTheme.surfaceCard(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          border: Border.all(color: Colors.white10),
         ),
         padding: const EdgeInsets.all(24),
         child: Consumer<TeamProvider>(
@@ -1190,16 +1234,53 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'APPLY FOR TOURNAMENT',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Select one of your teams to participate in this division (Born $requiredBirthYear).',
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.assignment_turned_in, color: PremiumTheme.neonGreen, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'APPLY FOR DIVISION',
+                            style: TextStyle(fontSize: 12, color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, letterSpacing: 2),
+                          ),
+                          Text(
+                            divisionName.toUpperCase(),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
+                PremiumCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      _buildMiniInfo(Icons.grid_view, 'FORMAT', format),
+                      Container(width: 1, height: 24, color: Colors.white10, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                      _buildMiniInfo(Icons.child_care, 'BIRTH YEAR', requiredBirthYear.toString()),
+                      Container(width: 1, height: 24, color: Colors.white10, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                      _buildMiniInfo(Icons.payments_outlined, 'FEE', '$entryFee ₸'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                const Text(
+                  'SELECT YOUR TEAM',
+                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+                const SizedBox(height: 16),
                 if (tp.isLoading)
                   const Expanded(child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
                 else if (tp.myTeams.isEmpty)
@@ -1222,31 +1303,32 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                   content: Text(success ? 'Registration request sent!' : 'Error submitting registration'),
                                   backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
                                   behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  margin: const EdgeInsets.all(20),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ));
                               }
                             } : null,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.03),
-                                borderRadius: BorderRadius.circular(16),
+                                color: isEligible ? Colors.white.withValues(alpha: 0.02) : Colors.black12,
+                                borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color: isEligible 
-                                    ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
+                                    ? PremiumTheme.neonGreen.withValues(alpha: 0.2)
                                     : Colors.white.withValues(alpha: 0.05),
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 44,
-                                    height: 44,
+                                    width: 48,
+                                    height: 48,
                                     decoration: BoxDecoration(
-                                      color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Icon(
                                       Icons.shield,
@@ -1260,17 +1342,22 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          team.name,
+                                          team.name.toUpperCase(),
                                           style: TextStyle(
                                             color: isEligible ? Colors.white : Colors.white38,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w900,
                                             fontSize: 14,
+                                            letterSpacing: 0.5,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           'Birth Year: ${team.birthYear ?? "N/A"}',
-                                          style: const TextStyle(color: Colors.white38, fontSize: 11),
+                                          style: TextStyle(
+                                            color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.white10, 
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1278,7 +1365,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                   if (isEligible)
                                     const Icon(Icons.arrow_forward_ios, color: PremiumTheme.neonGreen, size: 14)
                                   else
-                                    const Icon(Icons.block, color: Colors.white10, size: 14),
+                                    const Icon(Icons.lock_outline, color: Colors.white10, size: 16),
                                 ],
                               ),
                             ),
@@ -1287,10 +1374,32 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       },
                     ),
                   ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('CANCEL', style: TextStyle(color: Colors.white38, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                  ),
+                ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildMiniInfo(IconData icon, String label, String value) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 16, color: PremiumTheme.neonGreen),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }

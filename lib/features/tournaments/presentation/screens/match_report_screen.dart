@@ -83,19 +83,23 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         bottom: _isOrganizer
             ? TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.orangeAccent,
+                indicatorColor: PremiumTheme.neonGreen,
+                labelColor: PremiumTheme.neonGreen,
+                unselectedLabelColor: Colors.white38,
                 tabs: const [
-                  Tab(icon: Icon(Icons.scoreboard), text: 'SCORE'),
-                  Tab(icon: Icon(Icons.flash_on), text: 'LIVE EVENTS'),
-                  Tab(icon: Icon(Icons.bar_chart), text: 'PLAYER STATS'),
+                  Tab(icon: Icon(Icons.scoreboard, size: 20), text: 'SCORE'),
+                  Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
+                  Tab(icon: Icon(Icons.bar_chart, size: 20), text: 'STATS'),
                 ],
               )
             : TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.orangeAccent,
+                indicatorColor: PremiumTheme.neonGreen,
+                labelColor: PremiumTheme.neonGreen,
+                unselectedLabelColor: Colors.white38,
                 tabs: const [
-                  Tab(icon: Icon(Icons.flash_on), text: 'LIVE EVENTS'),
-                  Tab(icon: Icon(Icons.bar_chart), text: 'PLAYER STATS'),
+                  Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
+                  Tab(icon: Icon(Icons.bar_chart, size: 20), text: 'STATS'),
                 ],
               ),
       ),
@@ -151,22 +155,32 @@ class _MatchReportScreenState extends State<MatchReportScreen>
             ],
           ),
           const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _isSubmittingScore ? null : _submitScore,
-              icon: _isSubmittingScore
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check_circle),
-              label: const Text('SUBMIT FINAL SCORE'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+          GestureDetector(
+            onTap: _isSubmittingScore ? null : _submitScore,
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: PremiumTheme.neonGreen,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5)),
+                ],
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isSubmittingScore)
+                      const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                    else
+                      const Icon(Icons.check_circle_rounded, color: Colors.black, size: 18),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'SUBMIT FINAL SCORE',
+                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -186,7 +200,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: const Icon(Icons.remove_circle_outline),
+          icon: const Icon(Icons.remove_circle_outline, color: PremiumTheme.neonGreen),
           onPressed: () {
             final current = int.tryParse(controller.text) ?? 0;
             if (current > 0) {
@@ -200,12 +214,12 @@ class _MatchReportScreenState extends State<MatchReportScreen>
             controller: controller,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.white),
             decoration: const InputDecoration(border: InputBorder.none),
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.add_circle_outline),
+          icon: const Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen),
           onPressed: () {
             final current = int.tryParse(controller.text) ?? 0;
             controller.text = (current + 1).toString();
@@ -251,17 +265,33 @@ class _MatchReportScreenState extends State<MatchReportScreen>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _submitPlayerStats,
-                  icon: const Icon(Icons.send),
-                  label: const Text('SUBMIT PLAYER STATS'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.all(24),
+              child: GestureDetector(
+                onTap: _submitPlayerStats,
+                child: Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 5)),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_isSubmittingScore)
+                          const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                        else
+                          const Icon(Icons.send_rounded, color: Colors.black, size: 18),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'SUBMIT PLAYER STATS',
+                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -305,10 +335,8 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    member.childProfileId.length > 8
-                        ? 'Player #${member.childProfileId.substring(0, 8).toUpperCase()}'
-                        : member.childProfileId,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    (member.playerName ?? 'PLAYER').toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 0.5),
                   ),
                 ),
                 if (member.position != null)

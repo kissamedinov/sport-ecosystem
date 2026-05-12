@@ -37,7 +37,8 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('TOURNAMENT SQUAD', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: const Text('MANAGE SQUAD', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        centerTitle: true,
       ),
       body: Consumer2<TournamentSquadProvider, TeamProvider>(
         builder: (context, squadProvider, teamProvider, _) {
@@ -67,113 +68,164 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
 
           final squadMembers = squadProvider.squad;
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: allPlayers.length,
-            itemBuilder: (context, index) {
-              final playerTeam = allPlayers[index];
-              final player = playerTeam.player;
-              if (player == null) return const SizedBox.shrink();
+          return Column(
+            children: [
+              _buildSquadCounter(squadMembers.length),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  itemCount: allPlayers.length,
+                  itemBuilder: (context, index) {
+                    final playerTeam = allPlayers[index];
+                    final player = playerTeam.player;
+                    if (player == null) return const SizedBox.shrink();
 
-              final squadMember = squadMembers.where((m) => m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId)).firstOrNull;
-              final isInSquad = squadMember != null;
+                    final squadMember = squadMembers.where((m) => m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId)).firstOrNull;
+                    final isInSquad = squadMember != null;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
-                    border: Border.all(
-                      color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Center(
-                          child: Text(
-                            player.name[0].toUpperCase(),
-                            style: TextStyle(
-                              color: isInSquad ? PremiumTheme.neonGreen : Colors.white38,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
+                          border: Border.all(
+                            color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              player.name.toUpperCase(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                color: isInSquad ? Colors.white : Colors.white54,
-                                fontSize: 14,
-                                letterSpacing: 0.5,
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  player.name[0].toUpperCase(),
+                                  style: TextStyle(
+                                    color: isInSquad ? PremiumTheme.neonGreen : Colors.white38,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            if (isInSquad)
-                              Row(
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      '#${squadMember.jerseyNumber ?? "???"}',
-                                      style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
                                   Text(
-                                    squadMember.position ?? "TBD",
-                                    style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                                    player.name.toUpperCase(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: isInSquad ? Colors.white : Colors.white54,
+                                      fontSize: 14,
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
+                                  const SizedBox(height: 4),
+                                  if (isInSquad)
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            '#${squadMember.jerseyNumber ?? "???"}',
+                                            style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          squadMember.position ?? "TBD",
+                                          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    )
+                                  else
+                                    const Text('NOT IN SQUAD', style: TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                                 ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (isInSquad)
+                              _actionBtn(
+                                icon: Icons.remove_circle_outline,
+                                color: PremiumTheme.danger,
+                                onTap: () {
+                                  HapticFeedback.mediumImpact();
+                                  _removeFromSquad(playerTeam.childProfileId ?? playerTeam.playerId);
+                                },
                               )
                             else
-                              const Text('NOT IN SQUAD', style: TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                              _actionBtn(
+                                icon: Icons.add_circle_outline,
+                                color: PremiumTheme.neonGreen,
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  _showAddDialog(playerTeam.childProfileId ?? playerTeam.playerId, player.name);
+                                },
+                              ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      if (isInSquad)
-                        _actionBtn(
-                          icon: Icons.remove_circle_outline,
-                          color: PremiumTheme.danger,
-                          onTap: () {
-                            HapticFeedback.mediumImpact();
-                            _removeFromSquad(playerTeam.childProfileId ?? playerTeam.playerId);
-                          },
-                        )
-                      else
-                        _actionBtn(
-                          icon: Icons.add_circle_outline,
-                          color: PremiumTheme.neonGreen,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            _showAddDialog(playerTeam.childProfileId ?? playerTeam.playerId, player.name);
-                          },
-                        ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSquadCounter(int count) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: PremiumTheme.glassDecorationOf(context, radius: 20).copyWith(
+        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.groups, color: PremiumTheme.neonGreen, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('SQUAD SIZE', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                const SizedBox(height: 4),
+                Text('$count PLAYERS SELECTED', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$count/25', // Assuming max 25
+              style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }
