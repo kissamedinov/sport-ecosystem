@@ -4,7 +4,7 @@ from datetime import date, datetime
 from uuid import UUID
 from app.tournaments.models import TournamentFormat, AgeCategory, RegistrationStatus, SurfaceType, Season
 from app.matches.models import MatchStatus as TournamentMatchStatus
-from app.teams.schemas import TeamResponse
+# from app.teams.schemas import TeamResponse
 
 class TournamentBase(BaseModel):
     name: str
@@ -141,21 +141,27 @@ class TournamentMatchResponse(BaseModel):
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
     group_id: Optional[UUID] = None
     
-    # These are needed for computed fields to access the ORM objects
-    home_team: Optional[TeamResponse] = None
-    away_team: Optional[TeamResponse] = None
+    # Use Any to avoid potential circular/import issues while still allowing attribute access
+    home_team: Optional[object] = None
+    away_team: Optional[object] = None
 
     model_config = ConfigDict(from_attributes=True)
 
     @computed_field
     @property
     def home_team_name(self) -> str:
-        return self.home_team.name if hasattr(self, 'home_team') and self.home_team else "Home Team"
+        try:
+            return self.home_team.name if self.home_team and hasattr(self.home_team, 'name') else "Home Team"
+        except:
+            return "Home Team"
 
     @computed_field
     @property
     def away_team_name(self) -> str:
-        return self.away_team.name if hasattr(self, 'away_team') and self.away_team else "Away Team"
+        try:
+            return self.away_team.name if self.away_team and hasattr(self.away_team, 'name') else "Away Team"
+        except:
+            return "Away Team"
     
     # We'll use this to fetch scores from the nested result object
     result: Optional[dict] = None 
