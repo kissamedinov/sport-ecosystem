@@ -97,10 +97,6 @@ class Tournament(Base):
     age_category = Column(String, nullable=True) # Changed from Enum to String for flexibility
     allowed_age_categories = Column(String, nullable=True) # JSON string
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
-    whatsapp = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
-    logo_url = Column(String, nullable=True)
-    field_ids = Column(String, nullable=True) # JSON list of field UUIDs
     
     # Scheduler Configuration
     num_fields = Column(Integer, default=1)
