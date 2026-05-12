@@ -11,6 +11,7 @@ from app.tournaments.models import (
     TournamentPlayerStats, TournamentAward, Season
 )
 from app.matches.models import Match, MatchStatus, MatchResult, MatchEvent, EventType, ResultStatus
+from app.tournaments import schemas
 from app.tournaments.schemas import (
     TournamentCreate, TournamentUpdate, TournamentSeriesCreate, TournamentDivisionCreate,
     TournamentAwardCreate, TournamentSquadCreate
