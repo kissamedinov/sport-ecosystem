@@ -140,6 +140,8 @@ class TournamentMatchResponse(BaseModel):
     match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
     group_id: Optional[UUID] = None
+    home_team_name: Optional[str] = None
+    away_team_name: Optional[str] = None
     
     # We'll use this to fetch scores from the nested result object
     result: Optional[dict] = None 
@@ -270,5 +272,6 @@ class TournamentSquadCreate(BaseModel):
 class TournamentSquadMemberResponse(TournamentSquadMemberBase):
     id: UUID
     tournament_team_id: UUID
+    player_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

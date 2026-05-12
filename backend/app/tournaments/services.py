@@ -835,7 +835,34 @@ def get_tournament_standings(db: Session, tournament_id: UUID):
     ).all()
 
 def get_tournament_matches(db: Session, tournament_id: UUID):
-    return db.query(Match).filter(Match.tournament_id == tournament_id).order_by(Match.match_date).all()
+    matches = db.query(Match).filter(Match.tournament_id == tournament_id).order_by(Match.match_date).all()
+    
+    from app.teams.models import Team
+    
+    result_list = []
+    for m in matches:
+        # Get team names
+        home_team = db.query(Team).filter(Team.id == m.home_team_id).first()
+        away_team = db.query(Team).filter(Team.id == m.away_team_id).first()
+        
+        # Convert to dict and add names
+        match_dict = {
+            "id": m.id,
+            "tournament_id": m.tournament_id,
+            "division_id": m.division_id,
+            "home_team_id": m.home_team_id,
+            "away_team_id": m.away_team_id,
+            "field_id": m.field_id,
+            "match_date": m.match_date,
+            "status": m.status,
+            "group_id": m.group_id,
+            "home_team_name": home_team.name if home_team else "Home Team",
+            "away_team_name": away_team.name if away_team else "Away Team",
+            "result": m.result
+        }
+        result_list.append(match_dict)
+        
+    return result_list
 
 def add_player_to_tournament_squad(db: Session, tournament_team_id: UUID, player_id: UUID):
     profile = db.query(ChildProfile).filter(ChildProfile.linked_user_id == player_id).first()
@@ -992,7 +1019,18 @@ def add_to_tournament_squad(db: Session, tt_id: UUID, squad_in: TournamentSquadC
     return {"message": "Squad updated successfully"}
 
 def get_tournament_squad(db: Session, tt_id: UUID):
-    return db.query(TournamentSquad).filter(TournamentSquad.tournament_team_id == tt_id).all()
+    squad = db.query(TournamentSquad).filter(TournamentSquad.tournament_team_id == tt_id).all()
+    return [
+        {
+            "id": member.id,
+            "child_profile_id": member.child_profile_id,
+            "jersey_number": member.jersey_number,
+            "position": member.position,
+            "tournament_team_id": member.tournament_team_id,
+            "player_name": member.child_profile.name if member.child_profile else "Unknown Player",
+        }
+        for member in squad
+    ]
 
 def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()
