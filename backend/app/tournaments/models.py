@@ -99,7 +99,6 @@ class Tournament(Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     whatsapp = Column(String, nullable=True)
     phone = Column(String, nullable=True)
-    instagram = Column(String, nullable=True) # Instagram handle
     logo_url = Column(String, nullable=True)
     field_ids = Column(String, nullable=True) # JSON list of field UUIDs
     
