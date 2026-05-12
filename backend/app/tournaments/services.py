@@ -991,17 +991,7 @@ def add_to_tournament_squad(db: Session, tt_id: UUID, squad_in: TournamentSquadC
     return {"message": "Squad updated successfully"}
 
 def get_tournament_squad(db: Session, tt_id: UUID):
-    squad = db.query(TournamentSquad).filter(TournamentSquad.tournament_team_id == tt_id).all()
-    return [
-        {
-            "child_profile_id": member.child_profile_id,
-            "jersey_number": member.jersey_number,
-            "position": member.position,
-            "tournament_team_id": member.tournament_team_id,
-            "player_name": member.child_profile.name if member.child_profile else "Unknown Player",
-        }
-        for member in squad
-    ]
+    return db.query(TournamentSquad).filter(TournamentSquad.tournament_team_id == tt_id).all()
 
 def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()
