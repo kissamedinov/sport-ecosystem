@@ -20,7 +20,7 @@ from app.users.models import User, Role
 from app.clubs.models import ChildProfile
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
-from app.teams.models import TeamMembership, Team
+from app.teams.models import TeamMembership, Team, MembershipStatus
 
 def notify_match_participants(db: Session, match: Match, title: str, message: str, notification_type: NotificationType):
     """Notifies all players and coaches of both teams in a match."""
