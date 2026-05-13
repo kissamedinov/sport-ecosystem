@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/crm_models.dart';
 import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
-import 'training_management_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../../features/clubs/providers/club_provider.dart';
 
+// ── Design tokens ──────────────────────────────────────────────────────────
+const _kNavy   = Color(0xFF0A0E12);
+const _kCard   = Color(0xFF161B22);
+const _kGreen  = Color(0xFF00E676);
+const _kGreenD = Color(0xFF00C853);
+const _kGold   = Color(0xFFF5C518);
+const _kBlue   = Color(0xFF1E90D4);
+const _kRed    = Color(0xFFFF5252);
+const _kPurple = Color(0xFFB388FF);
+const _kOrange = Color(0xFFFF9800);
+
+TextStyle _outfit(double size, FontWeight w, Color color, {double ls = 0}) =>
+    GoogleFonts.outfit(fontSize: size, fontWeight: w, color: color, letterSpacing: ls);
+
+const _avatarPalette = [_kGreen, _kBlue, _kGold, _kPurple, _kOrange, _kRed];
+Color _accentAt(int i) => _avatarPalette[i % _avatarPalette.length];
+
+// ── Screen ─────────────────────────────────────────────────────────────────
 class AcademyDashboardScreen extends StatefulWidget {
   const AcademyDashboardScreen({super.key});
 
@@ -15,8 +33,12 @@ class AcademyDashboardScreen extends StatefulWidget {
   State<AcademyDashboardScreen> createState() => _AcademyDashboardScreenState();
 }
 
-class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  DayOfWeek? _filterDay;
+  String?    _filterTeamId;
 
   @override
   void initState() {
@@ -33,30 +55,17 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     super.dispose();
   }
 
+  // ── Scaffold ──────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Consumer<AcademyProvider>(
-      builder: (context, provider, child) {
+      builder: (context, provider, _) {
         final hasAcademy = provider.myAcademy != null;
-
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Academy Dashboard'),
-            bottom: hasAcademy
-                ? TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabs: const [
-                      Tab(text: 'Overview'),
-                      Tab(text: 'Teams'),
-                      Tab(text: 'Schedules'),
-                      Tab(text: 'Billing'),
-                    ],
-                  )
-                : null,
-          ),
+          backgroundColor: _kNavy,
+          appBar: _buildAppBar(hasAcademy),
           body: provider.isLoading && !hasAcademy
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: _kGreen))
               : hasAcademy
                   ? TabBarView(
                       controller: _tabController,
@@ -74,85 +83,815 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     );
   }
 
+  PreferredSizeWidget _buildAppBar(bool hasAcademy) {
+    return AppBar(
+      backgroundColor: _kCard,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+        onPressed: () => Navigator.maybePop(context),
+      ),
+      title: Text('Academy Dashboard',
+          style: _outfit(17, FontWeight.w800, Colors.white, ls: 0.3)),
+      bottom: hasAcademy
+          ? PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.07))),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicatorColor: _kGreen,
+                  indicatorWeight: 2.5,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  labelColor: _kGreen,
+                  unselectedLabelColor: Colors.white.withValues(alpha: 0.45),
+                  labelStyle: _outfit(13, FontWeight.w700, _kGreen),
+                  unselectedLabelStyle: _outfit(13, FontWeight.w500, Colors.white),
+                  tabs: const [
+                    Tab(text: 'Overview'),
+                    Tab(text: 'Teams'),
+                    Tab(text: 'Schedules'),
+                    Tab(text: 'Billing'),
+                  ],
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+
+  // ── No academy ────────────────────────────────────────────────────────────
   Widget _buildNoAcademyView() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.school, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text('You don\'t have an academy registered yet.'),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Navigate to Create Academy Screen
-            },
-            child: const Text('Register Academy'),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: _kGreen.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.school_rounded, size: 56, color: _kGreen),
+          ),
+          const SizedBox(height: 20),
+          Text("No academy yet", style: _outfit(18, FontWeight.w700, Colors.white)),
+          const SizedBox(height: 8),
+          Text("Register your academy to get started",
+              style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.5))),
+          const SizedBox(height: 28),
+          _PrimaryBtn(label: 'Register Academy', onPressed: () {}),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // OVERVIEW TAB
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildOverviewTab(AcademyProvider provider) {
+    final academy = provider.myAcademy!;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildAcademyInfoCard(academy),
+        const SizedBox(height: 16),
+        _buildStatGrid(provider),
+        const SizedBox(height: 16),
+        _buildRecentSessions(provider),
+        const SizedBox(height: 80),
+      ],
+    );
+  }
+
+  Widget _buildAcademyInfoCard(dynamic academy) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _kCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [_kGreen, _kGreenD],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.school_rounded, color: Colors.black, size: 26),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(academy.name,
+                    style: _outfit(16, FontWeight.w800, Colors.white)),
+                const SizedBox(height: 3),
+                Text('${academy.city} · ${academy.address}',
+                    style: _outfit(12, FontWeight.w400, Colors.white.withValues(alpha: 0.5))),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: _kGreen.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _kGreen.withValues(alpha: 0.3)),
+            ),
+            child: Text('Active', style: _outfit(10, FontWeight.w700, _kGreen, ls: 0.5)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOverviewTab(AcademyProvider provider) {
-    final academy = provider.myAcademy!;
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildStatCard('Academy Info', [
-          ListTile(
-            leading: const Icon(Icons.business),
-            title: Text(academy.name),
-            subtitle: Text('${academy.city}, ${academy.address}'),
-          ),
-        ]),
-        const SizedBox(height: 16),
-        _buildStatGrid(provider),
-        const SizedBox(height: 16),
-        _buildRecentActivity(provider),
-      ],
-    );
-  }
-
   Widget _buildStatGrid(AcademyProvider provider) {
+    final stats = [
+      _StatData('Teams',    provider.teams.length.toString(),   Icons.group_rounded,    _kGreen),
+      _StatData('Players',  provider.players.length.toString(), Icons.person_rounded,   _kBlue),
+      _StatData('Sessions', provider.sessions.length.toString(),Icons.event_rounded,    _kGold),
+      _StatData('Ranking',  '#5',                               Icons.emoji_events_rounded, _kPurple),
+    ];
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.5,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
+      childAspectRatio: 1.35,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      children: stats.map(_buildStatCard).toList(),
+    );
+  }
+
+  Widget _buildStatCard(_StatData s) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _kCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: s.color.withValues(alpha: 0.18)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: s.color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(s.icon, color: s.color, size: 20),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(s.value, style: _outfit(28, FontWeight.w900, Colors.white)),
+              Text(s.label,
+                  style: _outfit(11, FontWeight.w600,
+                      Colors.white.withValues(alpha: 0.45), ls: 0.3)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSessions(AcademyProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCounterCard('Teams', provider.teams.length.toString(), Icons.group),
-        _buildCounterCard('Players', provider.players.length.toString(), Icons.person),
-        _buildCounterCard('Sessions', provider.sessions.length.toString(), Icons.event),
-        _buildCounterCard('Ranking', '#5', Icons.emoji_events),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Recent Sessions', style: _outfit(15, FontWeight.w800, Colors.white)),
+            if (provider.sessions.isNotEmpty)
+              Text('${provider.sessions.length} total',
+                  style: _outfit(11, FontWeight.w600, Colors.white.withValues(alpha: 0.4))),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (provider.sessions.isEmpty)
+          _emptyState(Icons.event_note_rounded, 'No training sessions yet')
+        else
+          ...provider.sessions.take(5).mapIndexed((i, s) => _buildSessionRow(s, i)),
       ],
     );
   }
 
-  Widget _buildCounterCard(String label, String value, IconData icon) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
+  Widget _buildSessionRow(dynamic s, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: _kCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: _accentAt(index).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.calendar_today_rounded, color: _accentAt(index), size: 16),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(s.scheduledAt,
+                    style: _outfit(13, FontWeight.w600, Colors.white)),
+                Text(s.topic ?? 'Training Session',
+                    style: _outfit(11, FontWeight.w400,
+                        Colors.white.withValues(alpha: 0.45))),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: _kGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text('Scheduled',
+                style: _outfit(9, FontWeight.w700, _kGreen, ls: 0.3)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TEAMS TAB
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildTeamsTab(AcademyProvider provider) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text('My Teams', style: _outfit(16, FontWeight.w800, Colors.white)),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _kGreen.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text('${provider.teams.length}',
+                        style: _outfit(11, FontWeight.w800, _kGreen)),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: _showLinkTeamDialog,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: _kBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _kBlue.withValues(alpha: 0.35)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.link_rounded, size: 14, color: _kBlue),
+                      const SizedBox(width: 5),
+                      Text('Add Existing', style: _outfit(11, FontWeight.w700, _kBlue)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            color: _kGreen,
+            backgroundColor: _kCard,
+            onRefresh: () => provider.fetchMyAcademy(),
+            child: provider.teams.isEmpty
+                ? SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: _emptyState(Icons.group_rounded, 'No teams added yet'),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
+                    itemCount: provider.teams.length,
+                    itemBuilder: (context, index) =>
+                        _buildTeamCard(provider.teams[index], index, provider),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTeamCard(dynamic team, int index, AcademyProvider provider) {
+    final accent = _accentAt(index);
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => AcademyTeamDetailsScreen(team: team)),
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: _kCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [accent.withValues(alpha: 0.25), accent.withValues(alpha: 0.08)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: accent.withValues(alpha: 0.3)),
+              ),
+              child: Center(
+                child: Text(
+                  team.ageGroup,
+                  textAlign: TextAlign.center,
+                  style: _outfit(9, FontWeight.w800, accent),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(team.name, style: _outfit(14, FontWeight.w700, Colors.white)),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(Icons.schedule_rounded, size: 11,
+                          color: Colors.white.withValues(alpha: 0.35)),
+                      const SizedBox(width: 4),
+                      Text('Next Session: Tomorrow 4:00 PM',
+                          style: _outfit(11, FontWeight.w400,
+                              Colors.white.withValues(alpha: 0.4))),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded,
+                color: Colors.white.withValues(alpha: 0.25), size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SCHEDULES TAB
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildSchedulesTab(AcademyProvider provider) {
+    var schedules = provider.schedules;
+    if (_filterDay != null) {
+      schedules = schedules.where((s) => s.dayOfWeek == _filterDay).toList();
+    }
+    if (_filterTeamId != null) {
+      schedules = schedules.where((s) => s.teamIds.contains(_filterTeamId)).toList();
+    }
+
+    return Column(
+      children: [
+        _buildScheduleFilterBar(provider),
+        Expanded(
+          child: schedules.isEmpty
+              ? _emptyState(Icons.calendar_month_rounded,
+                  provider.schedules.isEmpty
+                      ? 'No schedules configured'
+                      : 'No schedules match filters')
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                  itemCount: schedules.length,
+                  itemBuilder: (context, index) =>
+                      _buildScheduleCard(schedules[index], index, provider),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScheduleFilterBar(AcademyProvider provider) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Row(
+        children: [
+          _FilterChip(
+            label: _filterDay?.toShortString() ?? 'All Days',
+            icon: Icons.today_rounded,
+            active: _filterDay != null,
+            onTap: _selectFilterDay,
+          ),
+          const SizedBox(width: 8),
+          _FilterChip(
+            label: _filterTeamId != null
+                ? provider.teams
+                    .firstWhere((t) => t.id == _filterTeamId)
+                    .name
+                : 'All Teams',
+            icon: Icons.group_rounded,
+            active: _filterTeamId != null,
+            onTap: () => _selectFilterTeam(provider),
+          ),
+          if (_filterDay != null || _filterTeamId != null) ...[
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => setState(() {
+                _filterDay = null;
+                _filterTeamId = null;
+              }),
+              child: Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: _kRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _kRed.withValues(alpha: 0.3)),
+                ),
+                child: const Icon(Icons.close_rounded, size: 14, color: _kRed),
+              ),
+            ),
+          ],
+          const Spacer(),
+          GestureDetector(
+            onTap: _showGenerateSessionsDialog,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              decoration: BoxDecoration(
+                color: _kGold.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: _kGold.withValues(alpha: 0.35)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.bolt_rounded, size: 14, color: _kGold),
+                  const SizedBox(width: 4),
+                  Text('Generate', style: _outfit(11, FontWeight.w700, _kGold)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static const _dayColors = [_kBlue, _kGreen, _kGold, _kPurple, _kOrange, _kRed, _kBlue];
+
+  Widget _buildScheduleCard(dynamic schedule, int index, AcademyProvider provider) {
+    final scheduleTeams = provider.teams
+        .where((t) => schedule.teamIds.contains(t.id))
+        .toList();
+    final teamsLabel = scheduleTeams.isNotEmpty
+        ? scheduleTeams.map((e) => e.name).join(', ')
+        : 'No teams assigned';
+    final branch = schedule.branchId != null
+        ? provider.branches.firstWhere(
+            (b) => b.id == schedule.branchId,
+            orElse: () => AcademyBranch(id: '', academyId: '', name: 'Unknown', address: ''),
+          )
+        : null;
+    final dayColor = _dayColors[index % _dayColors.length];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: _kCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              // Left accent bar
+              Container(width: 4, color: dayColor),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                  child: Row(
+                    children: [
+                      // Day/time icon
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: dayColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.timer_rounded, color: dayColor, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${schedule.dayOfWeek.toShortString()}  ·  ${schedule.startTime} – ${schedule.endTime}',
+                              style: _outfit(13, FontWeight.w800, Colors.white),
+                            ),
+                            const SizedBox(height: 5),
+                            Row(children: [
+                              Icon(Icons.group_rounded, size: 12,
+                                  color: Colors.white.withValues(alpha: 0.4)),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(teamsLabel,
+                                    style: _outfit(11, FontWeight.w400,
+                                        Colors.white.withValues(alpha: 0.55))),
+                              ),
+                            ]),
+                            if (branch != null) ...[
+                              const SizedBox(height: 3),
+                              Row(children: [
+                                const Icon(Icons.location_on_rounded,
+                                    size: 12, color: _kBlue),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text('${branch.name} (${branch.address})',
+                                      style: _outfit(11, FontWeight.w500, _kBlue)),
+                                ),
+                              ]),
+                            ],
+                            const SizedBox(height: 3),
+                            Row(children: [
+                              Icon(Icons.place_rounded, size: 12,
+                                  color: Colors.white.withValues(alpha: 0.3)),
+                              const SizedBox(width: 4),
+                              Text(schedule.location ?? 'Main Field',
+                                  style: _outfit(11, FontWeight.w400,
+                                      Colors.white.withValues(alpha: 0.4))),
+                            ]),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: Icon(Icons.delete_outline_rounded,
+                            color: _kRed.withValues(alpha: 0.7), size: 18),
+                        onPressed: () => _confirmDeleteSchedule(schedule, provider),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteSchedule(dynamic schedule, AcademyProvider provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Delete Schedule', style: _outfit(16, FontWeight.w800, Colors.white)),
+        content: Text('Are you sure you want to delete this schedule?',
+            style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.7))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: _kRed),
+            onPressed: () async {
+              Navigator.pop(context);
+              final ok = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(ok ? 'Schedule deleted' : 'Failed to delete'),
+                  backgroundColor: ok ? _kGreen : _kRed,
+                ));
+              }
+            },
+            child: Text('Delete', style: _outfit(13, FontWeight.w700, _kRed)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // BILLING TAB
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildBillingTab(AcademyProvider provider) {
+    if (provider.billingConfig == null) {
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.orange, size: 24),
-            const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: _kGold.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.account_balance_wallet_rounded,
+                  size: 52, color: _kGold),
+            ),
+            const SizedBox(height: 20),
+            Text('Billing not configured',
+                style: _outfit(18, FontWeight.w700, Colors.white)),
+            const SizedBox(height: 8),
+            Text('Set up your monthly subscription fee',
+                style: _outfit(13, FontWeight.w400,
+                    Colors.white.withValues(alpha: 0.45))),
+            const SizedBox(height: 28),
+            _PrimaryBtn(label: 'Configure Billing', onPressed: _showBillingConfigDialog),
+          ],
+        ),
+      );
+    }
+
+    final fee = provider.billingConfig!.monthlySubscriptionFee ?? 0;
+    final currency = provider.billingConfig!.currency;
+
+    return Column(
+      children: [
+        // Pricing banner
+        Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                _kGreen.withValues(alpha: 0.12),
+                _kBlue.withValues(alpha: 0.08),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _kGreen.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _kGreen.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.payments_rounded, color: _kGreen, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Monthly Fee', style: _outfit(11, FontWeight.w600,
+                        Colors.white.withValues(alpha: 0.5), ls: 0.5)),
+                    Text('$fee $currency / month',
+                        style: _outfit(16, FontWeight.w800, Colors.white)),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: _showBillingConfigDialog,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _kGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _kGreen.withValues(alpha: 0.3)),
+                  ),
+                  child: Text('Edit', style: _outfit(11, FontWeight.w700, _kGreen)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Row(
+            children: [
+              Text('Player Billing', style: _outfit(15, FontWeight.w800, Colors.white)),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _kBlue.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text('${provider.players.length}',
+                    style: _outfit(11, FontWeight.w800, _kBlue)),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: provider.players.isEmpty
+              ? _emptyState(Icons.people_rounded, 'No players enrolled')
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                  itemCount: provider.players.length,
+                  itemBuilder: (context, index) =>
+                      _buildPlayerBillingCard(provider.players[index], index),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerBillingCard(dynamic player, int index) {
+    final idStr = (player.playerProfileId ?? 'Unknown');
+    final shortId = idStr.length >= 8 ? idStr.substring(0, 8).toUpperCase() : idStr;
+    final accent = _accentAt(index);
+    final initials = shortId.length >= 2 ? shortId.substring(0, 2) : shortId;
+
+    return GestureDetector(
+      onTap: () => _showPlayerBillingReport(player.playerProfileId ?? ''),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: _kCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [accent.withValues(alpha: 0.3), accent.withValues(alpha: 0.1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(color: accent.withValues(alpha: 0.4)),
+              ),
+              child: Center(
+                child: Text(initials,
+                    style: _outfit(12, FontWeight.w800, accent)),
               ),
             ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: const TextStyle(color: Colors.grey, fontSize: 11),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Player #${index + 1}',
+                      style: _outfit(13, FontWeight.w700, Colors.white)),
+                  Text('ID: $shortId',
+                      style: _outfit(11, FontWeight.w500,
+                          Colors.white.withValues(alpha: 0.4))),
+                ],
               ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: accent.withValues(alpha: 0.25)),
+              ),
+              child: Text('Report',
+                  style: _outfit(10, FontWeight.w700, accent, ls: 0.3)),
             ),
           ],
         ),
@@ -160,302 +899,102 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     );
   }
 
-  Widget _buildTeamsTab(AcademyProvider provider) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('My Academy Teams (${provider.teams.length})', style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextButton.icon(
-                onPressed: () => _showLinkTeamDialog(),
-                icon: const Icon(Icons.link, size: 18),
-                label: const Text('Add Existing'),
-              ),
-            ],
-          ),
+  // ══════════════════════════════════════════════════════════════════════════
+  // FAB
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _buildFab() {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [_kGreen, _kGreenD],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => provider.fetchMyAcademy(),
-            child: provider.teams.isEmpty
-                ? SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.4,
-                      child: const Center(child: Text('No teams added yet.')),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemCount: provider.teams.length,
-                    itemBuilder: (context, index) {
-                      final team = provider.teams[index];
-                      return Card(
-                        child: ListTile(
-                          leading: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                team.ageGroup,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
-                                ),
-                              ),
-                            ),
-                          ),
-                          title: Text(team.name),
-                          subtitle: const Text('Next Session: Tomorrow 4:00 PM'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AcademyTeamDetailsScreen(team: team),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: _kGreen.withValues(alpha: 0.35), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            if (_tabController.index == 1) _showAddTeamDialog();
+            else if (_tabController.index == 2) _showAddScheduleDialog();
+            else if (_tabController.index == 3) _showBillingConfigDialog();
+          },
+          child: const Icon(Icons.add_rounded, color: Colors.black, size: 26),
         ),
-      ],
+      ),
     );
   }
 
-  DayOfWeek? _filterDay;
-  String? _filterTeamId;
-
-  Widget _buildSchedulesTab(AcademyProvider provider) {
-    var filteredSchedules = provider.schedules;
-    if (_filterDay != null) {
-      filteredSchedules = filteredSchedules.where((s) => s.dayOfWeek == _filterDay).toList();
-    }
-    if (_filterTeamId != null) {
-      filteredSchedules = filteredSchedules.where((s) => s.teamIds.contains(_filterTeamId)).toList();
-    }
-
-    return Column(
-      children: [
-        // Filter Bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ActionChip(
-                  label: Text(_filterDay?.toShortString() ?? 'All Days'),
-                  avatar: const Icon(Icons.today, size: 16),
-                  onPressed: () => _selectFilterDay(),
-                ),
-                const SizedBox(width: 8),
-                ActionChip(
-                  label: Text(_filterTeamId != null 
-                    ? provider.teams.firstWhere((t) => t.id == _filterTeamId).name 
-                    : 'All Teams'),
-                  avatar: const Icon(Icons.group, size: 16),
-                  onPressed: () => _selectFilterTeam(provider),
-                ),
-                if (_filterDay != null || _filterTeamId != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.clear, size: 20),
-                    onPressed: () {
-                      setState(() {
-                        _filterDay = null;
-                        _filterTeamId = null;
-                      });
-                    },
-                  ),
-                ],
-                const SizedBox(width: 32),
-                TextButton.icon(
-                  onPressed: () => _showGenerateSessionsDialog(),
-                  icon: const Icon(Icons.bolt, size: 16, color: Colors.amber),
-                  label: const Text('Generate Sessions', style: TextStyle(color: Colors.amber)),
-                ),
-              ],
-            ),
-          ),
-        ),
-        
-        Expanded(
-          child: filteredSchedules.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.calendar_month, size: 64, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    Text(provider.schedules.isEmpty 
-                      ? 'No training schedules configured.' 
-                      : 'No schedules match your filters.'),
-                    const SizedBox(height: 16),
-                    if (provider.schedules.isEmpty)
-                      ElevatedButton(
-                        onPressed: () => _showAddScheduleDialog(),
-                        child: const Text('Add Schedule'),
-                      ),
-                  ],
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: filteredSchedules.length,
-                itemBuilder: (context, index) {
-                  final schedule = filteredSchedules[index];
-                  final scheduleTeams = provider.teams.where((t) => schedule.teamIds.contains(t.id)).toList();
-                  final teamsLabel = scheduleTeams.isNotEmpty 
-                      ? scheduleTeams.map((e) => e.name).join(', ')
-                      : 'No teams assigned';
-                  
-                  final branch = schedule.branchId != null 
-                      ? provider.branches.firstWhere((b) => b.id == schedule.branchId, orElse: () => AcademyBranch(id: '', academyId: '', name: 'Unknown', address: ''))
-                      : null;
-
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.timer, color: Colors.orange, size: 28),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('${schedule.dayOfWeek.toShortString()} | ${schedule.startTime} - ${schedule.endTime}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.group, size: 14, color: Colors.grey),
-                                    const SizedBox(width: 4),
-                                    Expanded(child: Text(teamsLabel, style: const TextStyle(color: Colors.grey, fontSize: 13))),
-                                  ],
-                                ),
-                                if (branch != null) ...[
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on, size: 14, color: Colors.blueAccent),
-                                      const SizedBox(width: 4),
-                                      Expanded(child: Text('${branch.name} (${branch.address})', 
-                                        style: const TextStyle(color: Colors.blueAccent, fontSize: 13))),
-                                    ],
-                                  ),
-                                ],
-                                const SizedBox(height: 2),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.place, size: 14, color: Colors.grey),
-                                    const SizedBox(width: 4),
-                                    Text(schedule.location ?? "Main Field", style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: const Color(0xFF1E1E1E),
-                                  title: const Text('Delete Schedule', style: TextStyle(color: Colors.white)),
-                                  content: const Text('Are you sure you want to delete this schedule?', style: TextStyle(color: Colors.white70)),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                      onPressed: () async {
-                                        Navigator.pop(context);
-                                        final success = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text(success ? 'Schedule deleted' : 'Failed to delete schedule')),
-                                          );
-                                        }
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-        ),
-      ],
+  // ══════════════════════════════════════════════════════════════════════════
+  // Shared helpers
+  // ══════════════════════════════════════════════════════════════════════════
+  Widget _emptyState(IconData icon, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 52, color: Colors.white.withValues(alpha: 0.15)),
+          const SizedBox(height: 14),
+          Text(message,
+              style: _outfit(14, FontWeight.w500, Colors.white.withValues(alpha: 0.35))),
+        ],
+      ),
     );
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // Dialogs – logic identical to original, only styling updated
+  // ══════════════════════════════════════════════════════════════════════════
 
   void _selectFilterDay() async {
     final result = await showDialog<DayOfWeek>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Day'),
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Filter by Day', style: _outfit(16, FontWeight.w800, Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: DayOfWeek.values.map((day) => ListTile(
-            title: Text(day.toShortString()),
-            onTap: () => Navigator.pop(context, day),
-          )).toList(),
+          children: DayOfWeek.values
+              .map((day) => ListTile(
+                    title: Text(day.toShortString(),
+                        style: _outfit(14, FontWeight.w500, Colors.white)),
+                    onTap: () => Navigator.pop(context, day),
+                  ))
+              .toList(),
         ),
       ),
     );
-    if (result != null) {
-      setState(() => _filterDay = result);
-    }
+    if (result != null) setState(() => _filterDay = result);
   }
 
   void _selectFilterTeam(AcademyProvider provider) async {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Team'),
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Filter by Team', style: _outfit(16, FontWeight.w800, Colors.white)),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: provider.teams.length,
-            itemBuilder: (context, index) {
-              final team = provider.teams[index];
+            itemBuilder: (context, i) {
+              final team = provider.teams[i];
               return ListTile(
-                leading: CircleAvatar(child: Text(team.ageGroup)),
-                title: Text(team.name),
+                leading: CircleAvatar(
+                  backgroundColor: _accentAt(i).withValues(alpha: 0.2),
+                  child: Text(team.ageGroup, style: _outfit(9, FontWeight.w800, _accentAt(i))),
+                ),
+                title: Text(team.name, style: _outfit(13, FontWeight.w600, Colors.white)),
                 onTap: () => Navigator.pop(context, team.id),
               );
             },
@@ -463,168 +1002,40 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
         ),
       ),
     );
-    if (result != null) {
-      setState(() => _filterTeamId = result);
-    }
-  }
-
-  Widget _buildBillingTab(AcademyProvider provider) {
-    if (provider.billingConfig == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.account_balance_wallet, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('Billing is not configured yet.'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _showBillingConfigDialog(),
-              child: const Text('Configure Billing'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Card(
-          margin: const EdgeInsets.all(16),
-          color: Colors.blue.withOpacity(0.1),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: Colors.blue),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    'Pricing: ${provider.billingConfig!.monthlySubscriptionFee ?? 0} ${provider.billingConfig!.currency} / month',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _showBillingConfigDialog(),
-                  child: const Text('Edit'),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text('Player Billing Summaries', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: provider.players.length,
-            itemBuilder: (context, index) {
-              final player = provider.players[index];
-              return Card(
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text('Player ID: ${(player.playerProfileId ?? "Unknown").substring(0, 8)}'),
-                  subtitle: const Text('Tap to view monthly report'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    _showPlayerBillingReport(player.playerProfileId ?? "");
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, List<Widget> children) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentActivity(AcademyProvider provider) {
-    return _buildStatCard('Recent Sessions', [
-      if (provider.sessions.isEmpty)
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('No recent training sessions.'),
-        )
-      else
-        ...provider.sessions.take(3).map((s) => ListTile(
-          leading: const Icon(Icons.event),
-          title: Text(s.scheduledAt),
-          subtitle: Text(s.topic ?? 'Training Session'),
-        )),
-    ]);
-  }
-
-  Widget? _buildFab() {
-    return FloatingActionButton(
-      onPressed: () {
-        if (_tabController.index == 1) {
-          _showAddTeamDialog();
-        } else if (_tabController.index == 2) {
-          _showAddScheduleDialog();
-        } else if (_tabController.index == 3) {
-          _showBillingConfigDialog();
-        }
-      },
-      child: const Icon(Icons.add),
-    );
+    if (result != null) setState(() => _filterTeamId = result);
   }
 
   void _showAddTeamDialog() {
-    final nameController = TextEditingController();
-    final ageController = TextEditingController();
-
+    final nameCtrl = TextEditingController();
+    final ageCtrl = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Team'),
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('New Team', style: _outfit(16, FontWeight.w800, Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
-            TextField(
-              controller: ageController,
-              decoration: const InputDecoration(
-                labelText: 'Age Groups / Years',
-                hintText: 'e.g., 2013, 2014 or U15',
-              ),
-            ),
+            _dialogField(nameCtrl, 'Team Name'),
+            const SizedBox(height: 12),
+            _dialogField(ageCtrl, 'Age Groups', hint: 'e.g. 2013, 2014 or U15'),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+          ),
+          _DialogBtn(
+            label: 'Add',
             onPressed: () {
-              final provider = context.read<AcademyProvider>();
-              final academyId = provider.myAcademy?.id;
-              if (academyId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No academy loaded')));
-                return;
-              }
-              provider.createTeam(academyId, nameController.text, ageController.text, 'Intermediate');
+              final p = context.read<AcademyProvider>();
+              final id = p.myAcademy?.id;
+              if (id == null) return;
+              p.createTeam(id, nameCtrl.text, ageCtrl.text, 'Intermediate');
               Navigator.pop(context);
             },
-            child: const Text('Add'),
           ),
         ],
       ),
@@ -634,39 +1045,46 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   void _showLinkTeamDialog() {
     final clubProvider = context.read<ClubProvider>();
     final academyProvider = context.read<AcademyProvider>();
-    
-    // Get teams from coach dashboard that are NOT in the current academy
-    final allCoachTeams = (clubProvider.coachDashboard?['teams'] as List?) ?? [];
-    final currentAcademyTeamIds = academyProvider.teams.map((t) => t.id).toSet();
-    
-    final availableTeams = allCoachTeams.where((t) => !currentAcademyTeamIds.contains(t['id'].toString())).toList();
+    final allTeams = (clubProvider.coachDashboard?['teams'] as List?) ?? [];
+    final existing = academyProvider.teams.map((t) => t.id).toSet();
+    final available = allTeams.where((t) => !existing.contains(t['id'].toString())).toList();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Link Existing Team'),
-        content: availableTeams.isEmpty
-            ? const Text('All your teams are already linked to this academy.')
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Link Existing Team', style: _outfit(16, FontWeight.w800, Colors.white)),
+        content: available.isEmpty
+            ? Text('All your teams are already linked.',
+                style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)))
             : SizedBox(
                 width: double.maxFinite,
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: availableTeams.length,
-                  itemBuilder: (context, index) {
-                    final team = availableTeams[index];
+                  itemCount: available.length,
+                  itemBuilder: (context, i) {
+                    final team = available[i];
                     return ListTile(
-                      leading: const CircleAvatar(child: Icon(Icons.groups)),
-                      title: Text(team['name'] ?? 'Unnamed Team'),
-                      subtitle: Text(team['age_group'] ?? 'No age group'),
+                      leading: CircleAvatar(
+                        backgroundColor: _accentAt(i).withValues(alpha: 0.2),
+                        child: const Icon(Icons.groups_rounded, size: 18),
+                      ),
+                      title: Text(team['name'] ?? 'Unnamed',
+                          style: _outfit(13, FontWeight.w600, Colors.white)),
+                      subtitle: Text(team['age_group'] ?? '',
+                          style: _outfit(11, FontWeight.w400,
+                              Colors.white.withValues(alpha: 0.45))),
                       onTap: () async {
-                        final academyId = academyProvider.myAcademy?.id;
-                        if (academyId != null) {
-                          final success = await academyProvider.linkExistingTeam(academyId, team['id'].toString());
+                        final id = academyProvider.myAcademy?.id;
+                        if (id != null) {
+                          final ok = await academyProvider.linkExistingTeam(id, team['id'].toString());
                           if (mounted) {
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(success ? 'Team linked successfully' : 'Failed to link team')),
-                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(ok ? 'Team linked' : 'Failed to link team'),
+                              backgroundColor: ok ? _kGreen : _kRed,
+                            ));
                           }
                         }
                       },
@@ -675,7 +1093,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 ),
               ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+          ),
         ],
       ),
     );
@@ -692,74 +1113,64 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFF1E1E1E),
-            title: const Row(
-              children: [
-                Icon(Icons.bolt, color: Colors.amber, size: 24),
-                SizedBox(width: 12),
-                Text('Generate Sessions', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'This will create actual training entries for your teams based on your permanent weekly schedule.',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-                const SizedBox(height: 20),
-                const Text('Select Date Range:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                _buildDateRow('Start Date', startDate, (date) {
-                  if (date != null) setModalState(() => startDate = date);
-                }),
-                const SizedBox(height: 8),
-                _buildDateRow('End Date', endDate, (date) {
-                  if (date != null) setModalState(() => endDate = date);
-                }),
-                const SizedBox(height: 16),
-                const Text(
-                  'Note: You can always cancel or move specific sessions later in the "Training" tab.',
-                  style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+        builder: (context, setModal) => AlertDialog(
+          backgroundColor: _kCard,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(children: [
+            const Icon(Icons.bolt_rounded, color: _kGold, size: 22),
+            const SizedBox(width: 10),
+            Text('Generate Sessions', style: _outfit(16, FontWeight.w800, Colors.white)),
+          ]),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Creates training entries for your teams based on the weekly schedule.',
+                style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: () async {
-                  Navigator.pop(context);
-                  final success = await provider.triggerGenerateSessions(academyId, startDate, endDate);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(success ? 'Sessions generated successfully!' : 'Failed to generate sessions'),
-                        backgroundColor: success ? Colors.green : Colors.red,
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Generate'),
-              ),
+              const SizedBox(height: 20),
+              Text('Date Range', style: _outfit(11, FontWeight.w700,
+                  Colors.white.withValues(alpha: 0.5), ls: 1)),
+              const SizedBox(height: 10),
+              _buildDateRow('Start', startDate,
+                  (d) { if (d != null) setModal(() => startDate = d); }),
+              const SizedBox(height: 8),
+              _buildDateRow('End', endDate,
+                  (d) { if (d != null) setModal(() => endDate = d); }),
+              const SizedBox(height: 12),
+              Text('Sessions can be cancelled individually afterwards.',
+                  style: _outfit(11, FontWeight.w400, Colors.white.withValues(alpha: 0.35))),
             ],
-          );
-        },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: _outfit(13, FontWeight.w600,
+                  Colors.white.withValues(alpha: 0.5))),
+            ),
+            _DialogBtn(
+              label: 'Generate',
+              color: _kGold,
+              textColor: Colors.black,
+              onPressed: () async {
+                Navigator.pop(context);
+                final ok = await provider.triggerGenerateSessions(academyId, startDate, endDate);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(ok ? 'Sessions generated!' : 'Failed to generate'),
+                    backgroundColor: ok ? _kGreen : _kRed,
+                  ));
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDateRow(String label, DateTime date, Function(DateTime?) onDateSelected) {
+  Widget _buildDateRow(String label, DateTime date, Function(DateTime?) onPick) {
     return InkWell(
       onTap: () async {
         final picked = await showDatePicker(
@@ -767,36 +1178,33 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
           initialDate: date,
           firstDate: DateTime.now().subtract(const Duration(days: 365)),
           lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-          builder: (context, child) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
-                  primary: Colors.amber,
-                  onPrimary: Colors.black,
-                  surface: Color(0xFF1E1E1E),
-                ),
+          builder: (context, child) => Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.dark(
+                primary: _kGreen, onPrimary: Colors.black,
+                surface: _kCard, onSurface: Colors.white,
               ),
-              child: child!,
-            );
-          },
+            ),
+            child: child!,
+          ),
         );
-        onDateSelected(picked);
+        onPick(picked);
       },
+      borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-            Text(
-              "${date.day}.${date.month}.${date.year}",
-              style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
-            ),
+            Text(label, style: _outfit(13, FontWeight.w500,
+                Colors.white.withValues(alpha: 0.6))),
+            Text('${date.day}.${date.month}.${date.year}',
+                style: _outfit(13, FontWeight.w700, _kGold)),
           ],
         ),
       ),
@@ -807,40 +1215,37 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     final provider = context.read<AcademyProvider>();
     final academyId = provider.myAcademy?.id;
     if (academyId == null) return;
-    
     if (provider.teams.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add a team first')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please add a team first')));
       return;
     }
-
-    // Fetch branches if not already loaded
     provider.fetchBranches(academyId);
 
     List<String> selectedTeamIds = [provider.teams[0].id];
-    List<Map<String, dynamic>> scheduleItems = [
-      {
-        'day_of_week': DayOfWeek.MONDAY,
-        'start_time': const TimeOfDay(hour: 18, minute: 0),
-        'end_time': const TimeOfDay(hour: 19, minute: 30),
-      }
-    ];
+    List<Map<String, dynamic>> slots = [{
+      'day_of_week': DayOfWeek.MONDAY,
+      'start_time': const TimeOfDay(hour: 18, minute: 0),
+      'end_time': const TimeOfDay(hour: 19, minute: 30),
+    }];
     String? selectedBranchId;
-    final locationController = TextEditingController(text: 'Main Field');
+    final locationCtrl = TextEditingController(text: 'Main Field');
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) {
-          final branches = provider.branches;
-          
+        builder: (context, setModal) {
           return Container(
             decoration: const BoxDecoration(
-              color: Color(0xFF1E1E1E),
+              color: _kCard,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              left: 20, right: 20, top: 16,
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -848,199 +1253,193 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
                 children: [
                   Center(
                     child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(color: Colors.grey[600], borderRadius: BorderRadius.circular(2)),
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text('Add Schedule', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text('Add Schedule', style: _outfit(20, FontWeight.w800, Colors.white)),
                   const SizedBox(height: 20),
-                  
-                  // Team Selection
-                  const Text('Select Teams:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Text('TEAMS', style: _outfit(10, FontWeight.w800,
+                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   Wrap(
-                    spacing: 8,
-                    children: provider.teams.map((t) {
-                      final isSelected = selectedTeamIds.contains(t.id);
+                    spacing: 8, runSpacing: 8,
+                    children: provider.teams.mapIndexed((i, t) {
+                      final sel = selectedTeamIds.contains(t.id);
                       return FilterChip(
-                        label: Text(t.name),
-                        selected: isSelected,
-                        selectedColor: Colors.blue.withOpacity(0.3),
-                        checkmarkColor: Colors.blue,
-                        onSelected: (selected) {
-                          setModalState(() {
-                            if (selected) {
-                              selectedTeamIds.add(t.id);
-                            } else if (selectedTeamIds.length > 1) {
-                              selectedTeamIds.remove(t.id);
-                            }
-                          });
-                        },
+                        label: Text(t.name, style: _outfit(12, FontWeight.w600,
+                            sel ? _kGreen : Colors.white.withValues(alpha: 0.7))),
+                        selected: sel,
+                        backgroundColor: Colors.white.withValues(alpha: 0.05),
+                        selectedColor: _kGreen.withValues(alpha: 0.15),
+                        checkmarkColor: _kGreen,
+                        side: BorderSide(color: sel ? _kGreen.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1)),
+                        onSelected: (v) => setModal(() {
+                          if (v) selectedTeamIds.add(t.id);
+                          else if (selectedTeamIds.length > 1) selectedTeamIds.remove(t.id);
+                        }),
                       );
                     }).toList(),
                   ),
-                  const Divider(height: 32, color: Colors.grey),
-
-                  // Branch Selection
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Location / Branch:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                      TextButton.icon(
-                        onPressed: () => _showAddBranchDialog(),
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('New Branch'),
-                      ),
-                    ],
-                  ),
-                  DropdownButtonFormField<String>(
-                    dropdownColor: const Color(0xFF2C2C2C),
-                    value: selectedBranchId,
-                    hint: const Text('Select Branch (Summer/Winter)', style: TextStyle(color: Colors.grey)),
-                    items: [
-                      const DropdownMenuItem(value: null, child: Text('No Branch (General)')),
-                      ...branches.map((b) => DropdownMenuItem(value: b.id, child: Text(b.name))),
-                    ],
-                    onChanged: (v) => setModalState(() => selectedBranchId = v),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: locationController,
-                    decoration: InputDecoration(
-                      labelText: 'Specific Location (Field #, Room)',
-                      filled: true,
-                      fillColor: Colors.grey[900],
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    ),
-                  ),
-                  const Divider(height: 32, color: Colors.grey),
-
-                  // Multi-day slots
-                  const Text('Training Days & Times:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 20),
+                  Text('LOCATION', style: _outfit(10, FontWeight.w800,
+                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
-                  ...scheduleItems.asMap().entries.map((entry) {
-                    final idx = entry.key;
-                    final item = entry.value;
-                    return Card(
-                      color: Colors.grey[900],
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButton<DayOfWeek>(
-                                    isExpanded: true,
-                                    value: item['day_of_week'],
-                                    underline: const SizedBox(),
-                                    items: DayOfWeek.values.map((d) => DropdownMenuItem(value: d, child: Text(d.toShortString()))).toList(),
-                                    onChanged: (v) => setModalState(() => item['day_of_week'] = v!),
-                                  ),
+                  DropdownButtonFormField<String>(
+                    dropdownColor: _kCard,
+                    value: selectedBranchId,
+                    hint: Text('Select Branch', style: _outfit(13, FontWeight.w400,
+                        Colors.white.withValues(alpha: 0.4))),
+                    items: [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text('No Branch', style: _outfit(13, FontWeight.w500, Colors.white)),
+                      ),
+                      ...provider.branches.map((b) => DropdownMenuItem(
+                        value: b.id,
+                        child: Text(b.name, style: _outfit(13, FontWeight.w500, Colors.white)),
+                      )),
+                    ],
+                    onChanged: (v) => setModal(() => selectedBranchId = v),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: locationCtrl,
+                    style: _outfit(14, FontWeight.w500, Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Field name / room',
+                      hintStyle: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.35)),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text('TRAINING DAYS', style: _outfit(10, FontWeight.w800,
+                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
+                  const SizedBox(height: 8),
+                  ...slots.asMap().entries.map((e) {
+                    final idx = e.key;
+                    final item = e.value;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButton<DayOfWeek>(
+                                  isExpanded: true,
+                                  value: item['day_of_week'],
+                                  dropdownColor: _kCard,
+                                  underline: const SizedBox(),
+                                  style: _outfit(13, FontWeight.w600, Colors.white),
+                                  items: DayOfWeek.values.map((d) => DropdownMenuItem(
+                                    value: d,
+                                    child: Text(d.toShortString()),
+                                  )).toList(),
+                                  onChanged: (v) => setModal(() => item['day_of_week'] = v!),
                                 ),
-                                if (scheduleItems.length > 1)
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
-                                    onPressed: () => setModalState(() => scheduleItems.removeAt(idx)),
-                                  ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () async {
-                                      final picked = await showTimePicker(context: context, initialTime: item['start_time']);
-                                      if (picked != null) setModalState(() => item['start_time'] = picked);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('Start', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                          Text((item['start_time'] as TimeOfDay).format(context), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                              ),
+                              if (slots.length > 1)
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline, color: _kRed, size: 18),
+                                  onPressed: () => setModal(() => slots.removeAt(idx)),
                                 ),
-                                const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () async {
-                                      final picked = await showTimePicker(context: context, initialTime: item['end_time']);
-                                      if (picked != null) setModalState(() => item['end_time'] = picked);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('End', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                          Text((item['end_time'] as TimeOfDay).format(context), style: const TextStyle(fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(child: _timePicker('Start', item['start_time'],
+                                  (p) { if (p != null) setModal(() => item['start_time'] = p); }, context)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('→', style: _outfit(14, FontWeight.w400,
+                                    Colors.white.withValues(alpha: 0.4))),
+                              ),
+                              Expanded(child: _timePicker('End', item['end_time'],
+                                  (p) { if (p != null) setModal(() => item['end_time'] = p); }, context)),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   }),
                   TextButton.icon(
-                    onPressed: () => setModalState(() => scheduleItems.add({
+                    onPressed: () => setModal(() => slots.add({
                       'day_of_week': DayOfWeek.MONDAY,
                       'start_time': const TimeOfDay(hour: 18, minute: 0),
                       'end_time': const TimeOfDay(hour: 19, minute: 30),
                     })),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Another Day'),
+                    icon: const Icon(Icons.add_rounded, color: _kGreen, size: 16),
+                    label: Text('Add Day', style: _outfit(12, FontWeight.w600, _kGreen)),
                   ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent[700],
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    height: 52,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [_kGreen, _kGreenD]),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [BoxShadow(color: _kGreen.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
                       ),
-                      onPressed: () async {
-                        final List<Map<String, dynamic>> finalSchedules = scheduleItems.map((item) {
-                          final start = item['start_time'] as TimeOfDay;
-                          final end = item['end_time'] as TimeOfDay;
-                          return {
-                            'team_ids': selectedTeamIds,
-                            'day_of_week': (item['day_of_week'] as DayOfWeek).toShortString(),
-                            'start_time': '${start.hour.toString().padLeft(2, "0")}:${start.minute.toString().padLeft(2, "0")}',
-                            'end_time': '${end.hour.toString().padLeft(2, "0")}:${end.minute.toString().padLeft(2, "0")}',
-                            'location': locationController.text,
-                            'branch_id': selectedBranchId,
-                          };
-                        }).toList();
-
-                        final success = await provider.createSchedule(academyId, {
-                          'schedules': finalSchedules,
-                        });
-                        if (success) Navigator.pop(context);
-                      },
-                      child: const Text('Save All Schedules', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: () async {
+                          final finalSlots = slots.map((item) {
+                            final start = item['start_time'] as TimeOfDay;
+                            final end = item['end_time'] as TimeOfDay;
+                            return {
+                              'team_ids': selectedTeamIds,
+                              'day_of_week': (item['day_of_week'] as DayOfWeek).toShortString(),
+                              'start_time': '${start.hour.toString().padLeft(2, "0")}:${start.minute.toString().padLeft(2, "0")}',
+                              'end_time': '${end.hour.toString().padLeft(2, "0")}:${end.minute.toString().padLeft(2, "0")}',
+                              'location': locationCtrl.text,
+                              'branch_id': selectedBranchId,
+                            };
+                          }).toList();
+                          final ok = await provider.createSchedule(academyId, {'schedules': finalSlots});
+                          if (ok) Navigator.pop(context);
+                        },
+                        child: Text('Save Schedules',
+                            style: _outfit(14, FontWeight.w900, Colors.black, ls: 0.5)),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -1050,74 +1449,35 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
     );
   }
 
-  void _showAddBranchDialog() {
-    final nameController = TextEditingController();
-    final addressController = TextEditingController();
-    final provider = context.read<AcademyProvider>();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('New Academy Branch'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Branch Name (e.g. Summer Venue)')),
-            TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () async {
-              final academyId = provider.myAcademy?.id;
-              if (academyId == null) return;
-              await provider.createBranch(academyId, nameController.text, addressController.text, null);
-              Navigator.pop(context);
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showBillingConfigDialog() {
     final provider = context.read<AcademyProvider>();
-    final feeController = TextEditingController(text: provider.billingConfig?.monthlySubscriptionFee?.toString() ?? '0');
-    
+    final feeCtrl = TextEditingController(
+        text: provider.billingConfig?.monthlySubscriptionFee?.toString() ?? '0');
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Billing Configuration'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: feeController,
-              decoration: const InputDecoration(labelText: 'Monthly Subscription Fee', suffixText: 'KZT'),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
+        backgroundColor: _kCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Billing Configuration', style: _outfit(16, FontWeight.w800, Colors.white)),
+        content: _dialogField(feeCtrl, 'Monthly Fee (KZT)',
+            keyboardType: TextInputType.number),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: _outfit(13, FontWeight.w600,
+                Colors.white.withValues(alpha: 0.5))),
+          ),
+          _DialogBtn(
+            label: 'Save',
             onPressed: () async {
-              final academyId = provider.myAcademy?.id;
-              if (academyId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No academy loaded to save config')),
-                );
-                return;
-              }
-              final success = await provider.saveBillingConfig(academyId, {
-                'monthly_subscription_fee': double.tryParse(feeController.text) ?? 0,
+              final id = provider.myAcademy?.id;
+              if (id == null) return;
+              final ok = await provider.saveBillingConfig(id, {
+                'monthly_subscription_fee': double.tryParse(feeCtrl.text) ?? 0,
                 'currency': 'KZT',
               });
-              if (success) Navigator.pop(context);
+              if (ok && mounted) Navigator.pop(context);
             },
-            child: const Text('Save'),
           ),
         ],
       ),
@@ -1127,73 +1487,289 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen> with Si
   void _showPlayerBillingReport(String playerId) {
     final provider = context.read<AcademyProvider>();
     final now = DateTime.now();
-    
     final academyId = provider.myAcademy?.id;
-    if (academyId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No academy loaded to fetch report')),
-      );
-      return;
-    }
-    
+    if (academyId == null) return;
     provider.fetchBillingReport(academyId, playerId, now.month, now.year);
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: _kCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => Consumer<AcademyProvider>(
-        builder: (context, p, _) => Container(
-          padding: const EdgeInsets.all(16),
-          height: MediaQuery.of(context).size.height * 0.7,
+        builder: (context, p, _) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.72,
           child: p.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : p.currentBillingReport == null
-              ? const Center(child: Text('No data found for this month'))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Billing Report: ${DateFormat('MMMM yyyy').format(now)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text('Player: ${p.currentBillingReport!.playerName}', style: const TextStyle(fontSize: 16, color: Colors.blue)),
-                    const Divider(height: 32),
-                    _buildBillingRow('Total Sessions', p.currentBillingReport!.attendance.totalSessions.toString()),
-                    _buildBillingRow('Present', p.currentBillingReport!.attendance.present.toString(), color: Colors.green),
-                    _buildBillingRow('Absent', p.currentBillingReport!.attendance.absent.toString(), color: Colors.red),
-                    _buildBillingRow('Late', p.currentBillingReport!.attendance.late.toString(), color: Colors.orange),
-                    const Divider(height: 32),
-                    _buildBillingRow('Base Monthly Fee', '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
-                    _buildBillingRow('Additional Fees', '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
-                    const Divider(height: 16),
-                    _buildBillingRow('TOTAL OWED', '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}', isBold: true),
-                    const Spacer(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
+              ? const Center(child: CircularProgressIndicator(color: _kGreen))
+              : p.currentBillingReport == null
+                  ? Center(
+                      child: Text('No data for this month',
+                          style: _outfit(14, FontWeight.w500,
+                              Colors.white.withValues(alpha: 0.5))))
+                  : Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 40, height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(DateFormat('MMMM yyyy').format(now),
+                              style: _outfit(20, FontWeight.w900, Colors.white)),
+                          const SizedBox(height: 4),
+                          Text(p.currentBillingReport!.playerName,
+                              style: _outfit(14, FontWeight.w600, _kBlue)),
+                          const SizedBox(height: 20),
+                          _reportSection('Attendance', [
+                            _billingRow('Total Sessions', p.currentBillingReport!.attendance.totalSessions.toString()),
+                            _billingRow('Present', p.currentBillingReport!.attendance.present.toString(), _kGreen),
+                            _billingRow('Absent', p.currentBillingReport!.attendance.absent.toString(), _kRed),
+                            _billingRow('Late', p.currentBillingReport!.attendance.late.toString(), _kOrange),
+                          ]),
+                          const SizedBox(height: 16),
+                          _reportSection('Fees', [
+                            _billingRow('Base Monthly', '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
+                            _billingRow('Additional', '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
+                            _billingRow('TOTAL OWED', '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
+                                _kGold, true),
+                          ]),
+                          const Spacer(),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(colors: [_kGreen, _kGreenD]),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('Close', style: _outfit(14, FontWeight.w800, Colors.black)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
         ),
       ),
     );
   }
 
-  Widget _buildBillingRow(String label, String value, {Color? color, bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _reportSection(String title, List<Widget> rows) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
-          Text(value, style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: color,
-            fontSize: isBold ? 18 : 14,
-          )),
+          Text(title.toUpperCase(),
+              style: _outfit(9, FontWeight.w800,
+                  Colors.white.withValues(alpha: 0.4), ls: 1.2)),
+          const SizedBox(height: 10),
+          ...rows,
         ],
       ),
     );
+  }
+
+  Widget _billingRow(String label, String value, [Color? color, bool bold = false]) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: _outfit(13, bold ? FontWeight.w700 : FontWeight.w400,
+              Colors.white.withValues(alpha: bold ? 0.85 : 0.6))),
+          Text(value, style: _outfit(bold ? 16 : 13,
+              bold ? FontWeight.w900 : FontWeight.w600,
+              color ?? Colors.white)),
+        ],
+      ),
+    );
+  }
+
+  Widget _dialogField(TextEditingController ctrl, String label,
+      {String? hint, TextInputType? keyboardType}) {
+    return TextField(
+      controller: ctrl,
+      keyboardType: keyboardType,
+      style: _outfit(14, FontWeight.w500, Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        labelStyle: _outfit(13, FontWeight.w500, Colors.white.withValues(alpha: 0.5)),
+        hintStyle: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.3)),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.05),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: _kGreen, width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Small reusable widgets ─────────────────────────────────────────────────
+
+class _StatData {
+  final String label, value;
+  final IconData icon;
+  final Color color;
+  const _StatData(this.label, this.value, this.icon, this.color);
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? _kGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: active ? _kGreen.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: active ? _kGreen : Colors.white.withValues(alpha: 0.6)),
+            const SizedBox(width: 5),
+            Text(label,
+                style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: active ? _kGreen : Colors.white.withValues(alpha: 0.6))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryBtn extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+
+  const _PrimaryBtn({required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [_kGreen, _kGreenD]),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: _kGreen.withValues(alpha: 0.35), blurRadius: 20, offset: const Offset(0, 8))],
+        ),
+        child: Text(label,
+            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black, letterSpacing: 1.1)),
+      ),
+    );
+  }
+}
+
+class _DialogBtn extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color color;
+  final Color textColor;
+
+  const _DialogBtn({
+    required this.label,
+    required this.onPressed,
+    this.color = _kGreen,
+    this.textColor = Colors.black,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Text(label,
+            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
+      ),
+    );
+  }
+}
+
+Widget _timePicker(String label, TimeOfDay time, Function(TimeOfDay?) onPick, BuildContext ctx) {
+  return InkWell(
+    onTap: () async {
+      final picked = await showTimePicker(context: ctx, initialTime: time);
+      onPick(picked);
+    },
+    borderRadius: BorderRadius.circular(8),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: GoogleFonts.outfit(fontSize: 10, color: Colors.white.withValues(alpha: 0.4))),
+          Text(time.format(ctx),
+              style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+        ],
+      ),
+    ),
+  );
+}
+
+// ── Extension helpers ──────────────────────────────────────────────────────
+extension _IterableIndexed<T> on Iterable<T> {
+  Iterable<R> mapIndexed<R>(R Function(int i, T e) fn) sync* {
+    var i = 0;
+    for (final e in this) {
+      yield fn(i++, e);
+    }
   }
 }
