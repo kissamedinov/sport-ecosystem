@@ -189,11 +189,11 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               child: const Icon(Icons.add_rounded, color: PremiumTheme.neonGreen, size: 20),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "LINK NEW CHILD",
                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                   ),

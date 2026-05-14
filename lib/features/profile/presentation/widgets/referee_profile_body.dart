@@ -94,7 +94,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             "Mark yourself as unavailable for specific dates to stop receiving tournament invites.",
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
           ),

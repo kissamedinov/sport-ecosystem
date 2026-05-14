@@ -585,7 +585,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   "Use this ID to be invited to a team",
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
                 ),

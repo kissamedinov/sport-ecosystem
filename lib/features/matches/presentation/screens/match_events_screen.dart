@@ -67,7 +67,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
