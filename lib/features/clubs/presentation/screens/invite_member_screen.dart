@@ -30,11 +30,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final clubProvider = context.watch<ClubProvider>();
     final dashboard = clubProvider.dashboard;
     final authProvider = context.read<AuthProvider>();
     final userRoleStr = authProvider.user?.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
-    
+
     ClubRole userRole;
     if (userRoleStr == 'CLUB_OWNER' || userRoleStr == 'ADMIN') {
       userRole = ClubRole.owner;
@@ -67,16 +68,16 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: cs.onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.chevron_left_rounded, color: Colors.white70),
+            child: Icon(Icons.chevron_left_rounded, color: cs.onSurfaceVariant),
           ),
         ),
-        title: const Text(
+        title: Text(
           'INVITE',
           style: TextStyle(
-            color: Colors.white,
+            color: cs.onSurface,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -107,12 +108,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Add a person',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: cs.onSurface,
               letterSpacing: -0.5,
             ),
           ),
@@ -121,13 +122,13 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             'They\'ll get a notification to join $clubName.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: cs.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 28),
 
           // Role Selection
-          _buildSectionLabel('SELECT ROLE', accentColor: PremiumTheme.electricBlue),
+          _buildSectionLabel(context, 'SELECT ROLE', accentColor: PremiumTheme.electricBlue),
           const SizedBox(height: 14),
 
           Wrap(
@@ -138,6 +139,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 SizedBox(
                   width: (MediaQuery.of(context).size.width - 52) / 2,
                   child: _buildRoleCard(
+                    context: context,
                     role: ClubRole.coach,
                     icon: Icons.sports_rounded,
                     title: 'Coach',
@@ -149,6 +151,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 SizedBox(
                   width: (MediaQuery.of(context).size.width - 52) / 2,
                   child: _buildRoleCard(
+                    context: context,
                     role: ClubRole.player,
                     icon: Icons.location_on_rounded,
                     title: 'Player',
@@ -160,6 +163,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 SizedBox(
                   width: (MediaQuery.of(context).size.width - 52) / 2,
                   child: _buildRoleCard(
+                    context: context,
                     role: ClubRole.manager,
                     icon: Icons.people_alt_rounded,
                     title: 'Manager',
@@ -173,25 +177,25 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
           // Team Selection (integrated)
           if (_selectedRole == ClubRole.player || _selectedRole == ClubRole.coach) ...[
-            _buildSectionLabel('ASSIGN TO TEAM', accentColor: PremiumTheme.electricBlue),
+            _buildSectionLabel(context, 'ASSIGN TO TEAM', accentColor: PremiumTheme.electricBlue),
             const SizedBox(height: 14),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: cs.onSurface.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: cs.onSurface.withValues(alpha: 0.08)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonFormField<String>(
                 value: _selectedTeamId,
                 dropdownColor: PremiumTheme.surfaceCard(context),
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
+                style: TextStyle(color: cs.onSurface, fontSize: 14),
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurface.withValues(alpha: 0.4)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                 ),
                 items: [
-                  const DropdownMenuItem<String>(value: null, child: Text('No Team', style: TextStyle(color: Colors.white54))),
+                  DropdownMenuItem<String>(value: null, child: Text('No Team', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55)))),
                   ...teams.map((t) => DropdownMenuItem(value: t.id.toString(), child: Text(t.name))),
                 ],
                 onChanged: (val) => setState(() => _selectedTeamId = val),
@@ -201,15 +205,15 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           ],
 
           // Contact Section
-          _buildSectionLabel('CONTACT', accentColor: PremiumTheme.neonGreen),
+          _buildSectionLabel(context, 'CONTACT', accentColor: PremiumTheme.neonGreen),
           const SizedBox(height: 14),
 
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: cs.onSurface.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              border: Border.all(color: cs.onSurface.withValues(alpha: 0.08)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,17 +223,17 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: cs.onSurface.withValues(alpha: 0.3),
                     letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _contactController,
-                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                  style: TextStyle(color: cs.onSurface, fontSize: 15),
                   decoration: InputDecoration(
                     hintText: 'Enter email or phone...',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25)),
+                    hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.25)),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -256,7 +260,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                       children: [
                         const TextSpan(text: 'Or share the club invite code '),
                         TextSpan(
@@ -299,12 +303,14 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   }
 
   Widget _buildRoleCard({
+    required BuildContext context,
     required ClubRole role,
     required IconData icon,
     required String title,
     required String subtitle,
     required Color color,
   }) {
+    final cs = Theme.of(context).colorScheme;
     final isSelected = _selectedRole == role;
 
     return GestureDetector(
@@ -314,12 +320,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.1)
-              : Colors.white.withValues(alpha: 0.04),
+              : cs.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? color.withValues(alpha: 0.4)
-                : Colors.white.withValues(alpha: 0.08),
+                : cs.onSurface.withValues(alpha: 0.08),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -332,12 +338,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? color.withValues(alpha: 0.15)
-                    : Colors.white.withValues(alpha: 0.06),
+                    : cs.onSurface.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? color : Colors.white.withValues(alpha: 0.4),
+                color: isSelected ? color : cs.onSurface.withValues(alpha: 0.4),
                 size: 20,
               ),
             ),
@@ -347,7 +353,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.7),
+                color: isSelected ? cs.onSurface : cs.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 3),
@@ -356,8 +362,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               style: TextStyle(
                 fontSize: 11,
                 color: isSelected
-                    ? Colors.white.withValues(alpha: 0.5)
-                    : Colors.white.withValues(alpha: 0.3),
+                    ? cs.onSurface.withValues(alpha: 0.5)
+                    : cs.onSurface.withValues(alpha: 0.3),
               ),
             ),
           ],
@@ -366,7 +372,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     );
   }
 
-  Widget _buildSectionLabel(String title, {Color accentColor = PremiumTheme.neonGreen}) {
+  Widget _buildSectionLabel(BuildContext context, String title, {Color accentColor = PremiumTheme.neonGreen}) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -377,10 +384,10 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
         ),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: cs.onSurface.withValues(alpha: 0.55),
             letterSpacing: 2,
           ),
         ),

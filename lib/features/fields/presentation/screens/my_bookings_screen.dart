@@ -40,9 +40,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.event_busy_outlined, size: 64, color: Colors.white10),
+                  Icon(Icons.event_busy_outlined, size: 64, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 16),
-                  const Text('No active bookings', style: TextStyle(color: Colors.white38)),
+                  Text('No active bookings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
                 ],
               ),
             );
@@ -96,7 +96,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(color: Colors.white10),
+                    Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                     const SizedBox(height: 16),
                     _buildInfoRow(Icons.calendar_today, 'Date', booking.startTime.split('T').first),
                     _buildInfoRow(Icons.access_time, 'Time', '${booking.startTime.split('T').last.substring(0, 5)} - ${booking.endTime.split('T').last.substring(0, 5)}'),
@@ -131,11 +131,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: Colors.white38),
+          Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
           const SizedBox(width: 8),
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
           const Spacer(),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+          Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12)),
         ],
       ),
     );
@@ -147,8 +147,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceBase(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('CANCEL BOOKING?', style: TextStyle(color: Colors.white)),
-        content: const Text('This action will release the time slot for others.', style: TextStyle(color: Colors.white70)),
+        title: Text('CANCEL BOOKING?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text('This action will release the time slot for others.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('KEEP IT')),
           ElevatedButton(

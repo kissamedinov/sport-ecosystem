@@ -139,7 +139,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
           children: [
             const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
             const SizedBox(height: 16),
-            Text(_error, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
+            Text(_error, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
@@ -165,9 +165,9 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
         Center(
           child: Column(
             children: [
-              const Icon(Icons.search_off_rounded, color: Colors.white10, size: 64),
+              Icon(Icons.search_off_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 64),
               const SizedBox(height: 16),
-              Text("No referees found for \"$_activeFilter\"", style: const TextStyle(color: Colors.white24, fontSize: 13)),
+              Text("No referees found for \"$_activeFilter\"", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13)),
             ],
           ),
         ),
@@ -184,9 +184,9 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _searchController.text.isNotEmpty ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white10),
+                border: Border.all(color: _searchController.text.isNotEmpty ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -195,8 +195,8 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
                     hintText: "Search by name...",
-                    hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: Colors.white24, size: 20),
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13),
+                    prefixIcon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), size: 20),
                     suffixIcon: _searchController.text.isNotEmpty 
                       ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: () => _searchController.clear())
                       : null,
@@ -253,10 +253,10 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: FilterChip(
-        label: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.white70)),
+        label: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurfaceVariant)),
         selected: isSelected,
         onSelected: (_) => _updateFilter(label),
-        backgroundColor: Colors.white.withValues(alpha: 0.05),
+        backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
         selectedColor: PremiumTheme.neonGreen,
         checkmarkColor: Colors.black,
         showCheckmark: isSelected,
@@ -299,7 +299,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Divider(color: Colors.white10, height: 1),
+                Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), height: 1),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -323,7 +323,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.05)]),
+        gradient: LinearGradient(colors: [Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04)]),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Center(
@@ -351,7 +351,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       ],
@@ -377,10 +377,10 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 14, color: Colors.white70),
+        child: Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -402,7 +402,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)))),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -442,9 +442,9 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
@@ -453,13 +453,13 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
               const SizedBox(height: 2),
               Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
           const Spacer(),
-          const Icon(Icons.chevron_right_rounded, color: Colors.white24),
+          Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
         ],
       ),
     );

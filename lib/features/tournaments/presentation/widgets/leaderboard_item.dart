@@ -22,7 +22,7 @@ class LeaderboardItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          _buildRankBadge(medalColor),
+          _buildRankBadge(context, medalColor),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -33,14 +33,14 @@ class LeaderboardItem extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: isTop3 ? FontWeight.bold : FontWeight.w500,
                     fontSize: 14,
-                    color: isTop3 ? Colors.white : Colors.white70,
+                    color: isTop3 ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     letterSpacing: 0.5,
                   ),
                 ),
                 if (scorer.teamName != null)
                   Text(
                     scorer.teamName!,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
                   ),
               ],
             ),
@@ -72,7 +72,7 @@ class LeaderboardItem extends StatelessWidget {
     );
   }
 
-  Widget _buildRankBadge(Color medalColor) {
+  Widget _buildRankBadge(BuildContext context, Color medalColor) {
     if (rank <= 3) {
       return Container(
         width: 36,
@@ -101,13 +101,13 @@ class LeaderboardItem extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           "$rank",
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white38, fontSize: 13),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
         ),
       ),
     );

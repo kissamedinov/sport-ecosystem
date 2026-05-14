@@ -587,7 +587,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                 const SizedBox(height: 2),
                 const Text(
                   "Use this ID to be invited to a team",
-                  style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -620,11 +620,11 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
           ),
-          child: Icon(icon, color: Colors.white70, size: 18),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
         ),
       ),
     );

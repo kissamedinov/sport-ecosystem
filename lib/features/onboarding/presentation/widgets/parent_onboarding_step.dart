@@ -34,10 +34,10 @@ class _ParentOnboardingStepState extends State<ParentOnboardingStep> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Link your child profile to track their stats.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
               const SizedBox(height: 32),
               TextFormField(

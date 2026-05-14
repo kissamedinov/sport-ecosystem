@@ -6,7 +6,6 @@ import '../../data/models/tournament_squad_member.dart';
 import '../../../lineups/providers/lineup_provider.dart';
 import '../../../lineups/models/lineup.dart';
 import '../../../../core/theme/premium_theme.dart';
-import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class MatchLineupScreen extends StatefulWidget {
   final String matchId;
@@ -128,7 +127,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   @override
   Widget build(BuildContext context) {
     final lineupProvider = context.watch<LineupProvider>();
-    
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -140,15 +140,15 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
             margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+              color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.025),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white10),
+              border: Border.all(color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.06)),
             ),
             child: Center(
               child: Text(
                 '$_startingCount / 11 STARTING',
                 style: TextStyle(
-                  color: _startingCount == 11 ? PremiumTheme.neonGreen : Colors.white54,
+                  color: _startingCount == 11 ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.55),
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
@@ -165,7 +165,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           }
 
           if (provider.error != null) {
-            return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)));
+            return Center(child: Text('Error: ${provider.error}', style: TextStyle(color: cs.onSurfaceVariant)));
           }
 
           if (provider.squad.isEmpty) {
@@ -175,12 +175,12 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.group_off_rounded, size: 64, color: Colors.white.withValues(alpha: 0.1)),
+                    Icon(Icons.group_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.05)),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'NO SQUAD MEMBERS FOUND\nPlease add players to the tournament squad first.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white38, height: 1.5),
+                      style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), height: 1.5),
                     ),
                   ],
                 ),
@@ -191,7 +191,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           return Column(
             children: [
               _buildPitchView(provider.squad),
-              _buildSelectionSummary(),
+              _buildSelectionSummary(cs),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -211,11 +211,11 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                           padding: const EdgeInsets.all(12),
                           decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
                             border: Border.all(
-                              color: isStarting 
+                              color: isStarting
                                 ? PremiumTheme.neonGreen.withValues(alpha: 0.3)
-                                : isSelected 
+                                : isSelected
                                   ? Colors.orange.withValues(alpha: 0.3)
-                                  : Colors.white.withValues(alpha: 0.05),
+                                  : cs.onSurface.withValues(alpha: 0.025),
                             ),
                           ),
                           child: Row(
@@ -224,14 +224,14 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : Colors.white10,
+                                  color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : cs.onSurface.withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
                                   child: Text(
                                     member.jerseyNumber?.toString() ?? '?',
                                     style: TextStyle(
-                                      color: (isStarting || isSelected) ? Colors.black : Colors.white70,
+                                      color: (isStarting || isSelected) ? Colors.black : cs.onSurfaceVariant,
                                       fontWeight: FontWeight.w900,
                                       fontSize: 18,
                                     ),
@@ -246,7 +246,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                     Text(
                                       name,
                                       style: TextStyle(
-                                        color: isSelected ? Colors.white : Colors.white54,
+                                        color: isSelected ? cs.onSurface : cs.onSurface.withValues(alpha: 0.55),
                                         fontWeight: FontWeight.w800,
                                         fontSize: 15,
                                       ),
@@ -255,7 +255,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                     Text(
                                       isStarting ? 'STARTING XI' : isSelected ? 'SUBSTITUTE' : 'NOT SELECTED',
                                       style: TextStyle(
-                                        color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : Colors.white24,
+                                        color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : cs.onSurface.withValues(alpha: 0.2),
                                         fontSize: 10,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: 1,
@@ -270,7 +270,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: isStarting ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                                      color: isStarting ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.025),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -284,14 +284,14 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.05),
+                                    color: cs.onSurface.withValues(alpha: 0.025),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: DropdownButton<String>(
                                     value: _positions[member.childProfileId],
                                     underline: const SizedBox(),
-                                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white24, size: 16),
-                                    style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                    icon: Icon(Icons.arrow_drop_down, color: cs.onSurface.withValues(alpha: 0.2), size: 16),
+                                    style: TextStyle(fontSize: 11, color: cs.onSurface, fontWeight: FontWeight.bold),
                                     dropdownColor: PremiumTheme.surfaceCard(context),
                                     items: _positionOptions.map((pos) => DropdownMenuItem(
                                       value: pos,
@@ -308,7 +308,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                               const SizedBox(width: 12),
                               Icon(
                                 isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
-                                color: isSelected ? PremiumTheme.neonGreen : Colors.white12,
+                                color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.08),
                                 size: 24,
                               ),
                             ],
@@ -419,7 +419,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     );
   }
 
-  Widget _buildSelectionSummary() {
+  Widget _buildSelectionSummary(ColorScheme cs) {
     final subCount = _starters.values.where((v) => !v).length;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -436,7 +436,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                 _positions.clear();
               });
             },
-            child: const Text('RESET', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+            child: Text('RESET', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -456,6 +456,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   }
 
   Widget _buildSubmitSection() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -470,9 +471,9 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
              Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _legendItem(PremiumTheme.neonGreen, 'STARTING'),
-                _legendItem(Colors.orange, 'SUBSTITUTE'),
-                _legendItem(Colors.white24, 'OFF'),
+                _legendItem(PremiumTheme.neonGreen, 'STARTING', cs),
+                _legendItem(Colors.orange, 'SUBSTITUTE', cs),
+                _legendItem(cs.onSurface.withValues(alpha: 0.2), 'OFF', cs),
               ],
             ),
             const SizedBox(height: 20),
@@ -510,7 +511,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     );
   }
 
-  Widget _legendItem(Color color, String label) {
+  Widget _legendItem(Color color, String label, ColorScheme cs) {
     return Row(
       children: [
         Container(
@@ -521,7 +522,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+          style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
         ),
       ],
     );

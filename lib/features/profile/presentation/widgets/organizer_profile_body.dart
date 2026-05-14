@@ -93,10 +93,10 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
         const SizedBox(width: 10),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
             letterSpacing: 2,
           ),
         ),
@@ -157,7 +157,7 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
-                Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1)),
+                Text(label.toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), letterSpacing: 1)),
               ],
             ),
           ],
@@ -257,24 +257,24 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
                   children: [
                     Text(t.name.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5)),
                     const SizedBox(height: 4),
-                    Text('${t.startDate} • ${t.location}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                    Text('${t.startDate} • ${t.location}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: t.displayStatus == 'ACTIVE' 
-                    ? PremiumTheme.neonGreen.withValues(alpha: 0.1) 
-                    : (t.displayStatus == 'FINISHED' ? Colors.white10 : Colors.blue.withValues(alpha: 0.1)),
+                  color: t.displayStatus == 'ACTIVE'
+                    ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
+                    : (t.displayStatus == 'FINISHED' ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08) : Colors.blue.withValues(alpha: 0.1)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   t.displayStatus,
                   style: TextStyle(
                     color: t.displayStatus == 'ACTIVE' 
-                      ? PremiumTheme.neonGreen 
-                      : (t.displayStatus == 'FINISHED' ? Colors.white54 : Colors.blueAccent),
+                      ? PremiumTheme.neonGreen
+                      : (t.displayStatus == 'FINISHED' ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55) : Colors.blueAccent),
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
@@ -292,15 +292,15 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
       width: double.infinity,
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.02),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
-          Icon(icon, color: Colors.white12, size: 48),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 48),
           const SizedBox(height: 16),
-          Text(message, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13)),
         ],
       ),
     );

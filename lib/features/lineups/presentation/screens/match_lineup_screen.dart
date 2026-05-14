@@ -143,8 +143,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       bottomSheet: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5))],
+          color: Theme.of(context).colorScheme.surface,
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, -5))],
         ),
         child: SizedBox(
           width: double.infinity,

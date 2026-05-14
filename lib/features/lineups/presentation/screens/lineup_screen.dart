@@ -109,7 +109,7 @@ class _LineupScreenState extends State<LineupScreen> {
                     style: TextStyle(
                       color: submitEnabled
                           ? PremiumTheme.neonGreen
-                          : Colors.white70,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                     ),
@@ -118,7 +118,7 @@ class _LineupScreenState extends State<LineupScreen> {
                   Text(
                     'selected',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -162,7 +162,7 @@ class _LineupScreenState extends State<LineupScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.chevron_left, color: Colors.white, size: 26),
+            icon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface, size: 26),
           ),
           Expanded(
             child: Column(
@@ -170,8 +170,8 @@ class _LineupScreenState extends State<LineupScreen> {
               children: [
                 Text(
                   '$team  vs  $opp',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
@@ -179,8 +179,8 @@ class _LineupScreenState extends State<LineupScreen> {
                 const SizedBox(height: 2),
                 Text(
                   when,
-                  style: const TextStyle(
-                    color: Colors.white54,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -222,12 +222,12 @@ class _LineupScreenState extends State<LineupScreen> {
               decoration: BoxDecoration(
                 color: active
                     ? PremiumTheme.neonGreen
-                    : Colors.white.withValues(alpha: 0.06),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: active
                       ? PremiumTheme.neonGreen
-                      : Colors.white.withValues(alpha: 0.1),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                 ),
               ),
               child: InkWell(
@@ -236,7 +236,7 @@ class _LineupScreenState extends State<LineupScreen> {
                   child: Text(
                     f,
                     style: TextStyle(
-                      color: active ? Colors.black : Colors.white,
+                      color: active ? Colors.black : Theme.of(context).colorScheme.onSurface,
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.8,
@@ -279,15 +279,15 @@ class _LineupScreenState extends State<LineupScreen> {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white12),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   '${p.number}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                   ),
@@ -300,8 +300,8 @@ class _LineupScreenState extends State<LineupScreen> {
                   children: [
                     Text(
                       p.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
@@ -309,8 +309,8 @@ class _LineupScreenState extends State<LineupScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '${p.position} · Rating ${p.rating.toStringAsFixed(1)}',
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -327,9 +327,9 @@ class _LineupScreenState extends State<LineupScreen> {
                   shape: BoxShape.circle,
                   color: sel
                       ? PremiumTheme.neonGreen
-                      : Colors.white.withValues(alpha: 0.08),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                   border: Border.all(
-                    color: sel ? PremiumTheme.neonGreen : Colors.white24,
+                    color: sel ? PremiumTheme.neonGreen : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                     width: 2,
                   ),
                 ),
@@ -349,7 +349,7 @@ class _LineupScreenState extends State<LineupScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: BoxDecoration(
         color: PremiumTheme.surfaceCard(context),
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06))),
       ),
       child: SafeArea(
         top: false,
@@ -372,8 +372,8 @@ class _LineupScreenState extends State<LineupScreen> {
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: PremiumTheme.neonGreen,
-              disabledBackgroundColor: Colors.white.withValues(alpha: 0.06),
-              disabledForegroundColor: Colors.white38,
+              disabledBackgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+              disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
               foregroundColor: Colors.black,
               elevation: 0,
               shape: RoundedRectangleBorder(

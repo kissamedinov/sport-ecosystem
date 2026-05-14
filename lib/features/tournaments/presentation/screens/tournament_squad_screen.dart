@@ -32,6 +32,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -58,9 +59,9 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_off_rounded, size: 64, color: Colors.white.withValues(alpha: 0.1)),
+                  Icon(Icons.person_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.1)),
                   const SizedBox(height: 16),
-                  const Text('NO PLAYERS FOUND IN THIS TEAM', style: TextStyle(color: Colors.white38, fontSize: 12, letterSpacing: 1)),
+                  Text('NO PLAYERS FOUND IN THIS TEAM', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, letterSpacing: 1)),
                 ],
               ),
             );
@@ -89,7 +90,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                         padding: const EdgeInsets.all(12),
                         decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
                           border: Border.all(
-                            color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05),
+                            color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.05),
                           ),
                         ),
                         child: Row(
@@ -98,14 +99,14 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
+                                color: isInSquad ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Center(
                                 child: Text(
                                   player.name[0].toUpperCase(),
                                   style: TextStyle(
-                                    color: isInSquad ? PremiumTheme.neonGreen : Colors.white38,
+                                    color: isInSquad ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                   ),
@@ -121,7 +122,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                                     player.name.toUpperCase(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
-                                      color: isInSquad ? Colors.white : Colors.white54,
+                                      color: isInSquad ? cs.onSurface : cs.onSurface.withValues(alpha: 0.55),
                                       fontSize: 14,
                                       letterSpacing: 0.5,
                                     ),
@@ -144,12 +145,12 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                                         const SizedBox(width: 8),
                                         Text(
                                           squadMember.position ?? "TBD",
-                                          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                                          style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold),
                                         ),
                                       ],
                                     )
                                   else
-                                    const Text('NOT IN SQUAD', style: TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                                    Text('NOT IN SQUAD', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                                 ],
                               ),
                             ),
@@ -187,6 +188,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
   }
 
   Widget _buildSquadCounter(int count) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -208,16 +210,16 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('SQUAD SIZE', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text('SQUAD SIZE', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                 const SizedBox(height: 4),
-                Text('$count PLAYERS SELECTED', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900)),
+                Text('$count PLAYERS SELECTED', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w900)),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: cs.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -252,7 +254,9 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return Container(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
           left: 24,
@@ -269,7 +273,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
           children: [
             Text(
               'ADD TO SQUAD: ${playerName.toUpperCase()}',
-              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1),
+              style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1),
             ),
             const SizedBox(height: 24),
             PremiumTextField(
@@ -296,7 +300,8 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
             const SizedBox(height: 32),
           ],
         ),
-      ),
+      );
+      },
     );
   }
 

@@ -21,16 +21,17 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white70),
-        title: const Text(
+        iconTheme: IconThemeData(color: cs.onSurfaceVariant),
+        title: Text(
           'INVITATIONS',
           style: TextStyle(
-            color: Colors.white,
+            color: cs.onSurface,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -51,12 +52,12 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.mail_outline_rounded, size: 48, color: Colors.white.withValues(alpha: 0.08)),
+                  Icon(Icons.mail_outline_rounded, size: 48, color: cs.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 16),
                   Text(
                     'NO INVITATIONS',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: cs.onSurface.withValues(alpha: 0.15),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,
@@ -70,7 +71,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             itemCount: provider.myInvitations.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final invite = provider.myInvitations[index];
               return _InvitationCard(invitation: invite);
@@ -88,6 +89,7 @@ class _InvitationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final provider = context.read<ClubProvider>();
     final isPending = invitation.status == InvitationStatus.pending;
 
@@ -96,12 +98,12 @@ class _InvitationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isPending
             ? PremiumTheme.electricBlue.withValues(alpha: 0.04)
-            : Colors.white.withValues(alpha: 0.03),
+            : cs.onSurface.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isPending
               ? PremiumTheme.electricBlue.withValues(alpha: 0.2)
-              : Colors.white.withValues(alpha: 0.06),
+              : cs.onSurface.withValues(alpha: 0.06),
         ),
       ),
       child: Column(
@@ -122,14 +124,14 @@ class _InvitationCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Club Invitation',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: cs.onSurface),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Club ID: ${invitation.clubId.substring(0, 8)}...',
-                      style: const TextStyle(fontSize: 11, color: Colors.white38),
+                      style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha: 0.4)),
                     ),
                   ],
                 ),
@@ -141,12 +143,12 @@ class _InvitationCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: cs.onSurface.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               'Role: ${invitation.role.name.toUpperCase()}',
-              style: const TextStyle(fontSize: 12, color: Colors.white54, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.55), fontWeight: FontWeight.w600),
             ),
           ),
           if (isPending) ...[

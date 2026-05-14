@@ -24,6 +24,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -40,7 +41,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
           final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
 
           if (announcements.isEmpty) {
-            return const Center(child: Text('No new announcements', style: TextStyle(color: Colors.white38)));
+            return Center(child: Text('No new announcements', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
           }
 
           return ListView.builder(
@@ -57,6 +58,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
   }
 
   Widget _buildAnnouncementCard(BuildContext context, Tournament t) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +81,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
                   children: [
                     Text(t.name.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.5)),
                     const SizedBox(height: 4),
-                    Text('${t.startDate} | ${t.location}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                    Text('${t.startDate} | ${t.location}', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 12)),
                   ],
                 ),
               ),
@@ -112,7 +114,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
                 },
                 icon: const Icon(Icons.info_outline, size: 16),
                 label: const Text('DETAILS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                style: TextButton.styleFrom(foregroundColor: Colors.white54),
+                style: TextButton.styleFrom(foregroundColor: cs.onSurface.withValues(alpha: 0.55)),
               ),
               ElevatedButton(
                 onPressed: () => _showApplyDialog(context, t),
@@ -134,36 +136,38 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
   void _showApplyDialog(BuildContext context, Tournament t) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('APPLY FOR TOURNAMENT', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text('APPLY FOR TOURNAMENT', style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('To register your team, please contact the organizer or use the direct registration button below.', 
-              style: TextStyle(color: Colors.white70, fontSize: 13)),
+            Text('To register your team, please contact the organizer or use the direct registration button below.',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             const SizedBox(height: 20),
             if (t.whatsapp != null || t.phone != null) ...[
-              const Text('ORGANIZER CONTACTS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              Text('ORGANIZER CONTACTS', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               const SizedBox(height: 12),
               if (t.whatsapp != null)
                 ListTile(
                   leading: const Icon(Icons.message, color: PremiumTheme.neonGreen),
-                  title: Text(t.whatsapp!, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                  subtitle: const Text('WhatsApp', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                  title: Text(t.whatsapp!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
+                  subtitle: Text('WhatsApp', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
               if (t.phone != null)
                 ListTile(
                   leading: const Icon(Icons.phone, color: PremiumTheme.neonGreen),
-                  title: Text(t.phone!, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                  subtitle: const Text('Phone', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                  title: Text(t.phone!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
+                  subtitle: Text('Phone', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
             ],
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CLOSE', style: TextStyle(color: Colors.white38))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('CLOSE', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -176,7 +180,8 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
             child: const Text('GO TO REGISTRATION'),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 }

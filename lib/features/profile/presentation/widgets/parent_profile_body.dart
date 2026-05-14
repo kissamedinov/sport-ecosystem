@@ -85,16 +85,16 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)))),
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 24),
             const Text(
               "LINK TO CHILD ACCOUNT",
               style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               "Enter your child's registered email to send a link request.",
-              style: TextStyle(color: Colors.white38, fontSize: 13),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
             ),
             const SizedBox(height: 24),
             PremiumTextField(
@@ -199,12 +199,12 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   ),
                   Text(
                     "Connect via registered email",
-                    style: TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.white24),
+            Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
           ],
         ),
       ),
@@ -237,7 +237,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               const Spacer(),
               Text(
                 match.scheduledAt.substring(0, 10),
-                style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -248,19 +248,19 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               Expanded(child: Text("HOME", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(8)),
                 child: const Text("VS", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 12)),
               ),
               Expanded(child: Text("AWAY", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: Colors.white10),
+          Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
           const SizedBox(height: 8),
           Center(
             child: Text(
               "Venue: Central Field • 18:30",
-              style: TextStyle(color: Colors.white38, fontSize: 11),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
             ),
           ),
         ],
@@ -346,7 +346,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.person_rounded, color: PremiumTheme.neonGreen, size: 20),
@@ -357,9 +357,9 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               ),
               subtitle: Text(
                 child.position?.toUpperCase() ?? "PLAYER",
-                style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold),
               ),
-              trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white10, size: 14),
+              trailing: Icon(Icons.arrow_forward_ios_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 14),
             ),
           ),
         );
@@ -374,9 +374,9 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
         child: Center(
           child: Column(
             children: [
-              const Icon(Icons.event_busy_rounded, color: Colors.white10, size: 32),
+              Icon(Icons.event_busy_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 32),
               const SizedBox(height: 12),
-              const Text("NO UPCOMING SCHEDULE", style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+              Text("NO UPCOMING SCHEDULE", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
             ],
           ),
         ),
@@ -393,7 +393,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.calendar_today_rounded, color: Colors.white24, size: 16),
+              Icon(Icons.calendar_today_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), size: 16),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

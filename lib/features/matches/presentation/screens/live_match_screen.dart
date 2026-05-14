@@ -159,13 +159,13 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: const Text('SUBMIT FINAL RESULT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+        title: Text('SUBMIT FINAL RESULT', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
         content: Text(
           'Final score: $_homeScore - $_awayScore\n\nThis cannot be undone.',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('SUBMIT', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900)),
@@ -198,9 +198,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('LIVE MATCH', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 2)),
+        title: const Text('LIVE MATCH', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 2)),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white70),
         actions: [
           TextButton(
             onPressed: _submitResult,
@@ -215,7 +214,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
           _buildEventButtons(),
           const SizedBox(height: 16),
           _buildScoreAdjust(),
-          const Divider(color: Colors.white12, height: 32),
+          Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), height: 32),
           Expanded(child: _buildEventFeed()),
         ],
       ),
@@ -235,7 +234,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
               Expanded(
                 child: Text(
                   widget.homeTeamName.toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 13),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                 ),
@@ -244,19 +243,19 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Text('$_homeScore', style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('—', style: TextStyle(color: Colors.white38, fontSize: 32)),
+                    Text('$_homeScore', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('—', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 32)),
                     ),
-                    Text('$_awayScore', style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900)),
+                    Text('$_awayScore', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 40, fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
               Expanded(
                 child: Text(
                   widget.awayTeamName.toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 13),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                 ),
@@ -384,8 +383,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(onPressed: onRemove, icon: const Icon(Icons.remove_rounded, color: Colors.white54, size: 18), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
-          Text(team.length > 8 ? '${team.substring(0, 8)}…' : team, style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w700)),
+          IconButton(onPressed: onRemove, icon: Icon(Icons.remove_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55), size: 18), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
+          Text(team.length > 8 ? '${team.substring(0, 8)}…' : team, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w700)),
           IconButton(onPressed: onAdd, icon: const Icon(Icons.add_rounded, color: PremiumTheme.neonGreen, size: 18), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
         ],
       ),
@@ -395,7 +394,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   Widget _buildEventFeed() {
     if (_events.isEmpty) {
       return Center(
-        child: Text('No events yet', style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 12, letterSpacing: 1)),
+        child: Text('No events yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 12, letterSpacing: 1)),
       );
     }
     return ListView.builder(
@@ -424,7 +423,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                   player != null
                     ? '#${player.jerseyNumber ?? '?'} — ${type.replaceAll('_', ' ')}'
                     : type.replaceAll('_', ' '),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700, fontSize: 12),
                 ),
               ),
               Text("$minute'", style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13)),
@@ -443,7 +442,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       'RED_CARD' => (Icons.square_rounded, Colors.redAccent),
       'ASSIST' => (Icons.transfer_within_a_station_rounded, PremiumTheme.electricBlue),
       'SAVE' => (Icons.front_hand_rounded, Colors.purpleAccent),
-      _ => (Icons.circle, Colors.white38),
+      _ => (Icons.circle, Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
     };
   }
 }
@@ -482,21 +481,21 @@ class _PlayerPickerSheet extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 "${eventType.replaceAll('_', ' ')}  •  ${minute}'",
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          const Text('Select player', style: TextStyle(color: Colors.white38, fontSize: 12)),
+          Text('Select player', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
           const SizedBox(height: 16),
           if (starters.isNotEmpty) ...[
-            Text('STARTERS', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            Text('STARTERS', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 8),
             ..._buildPlayerTiles(context, starters, color),
           ],
           if (subs.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text('SUBSTITUTES', style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            Text('SUBSTITUTES', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 8),
             ..._buildPlayerTiles(context, subs, color),
           ],
@@ -518,7 +517,7 @@ class _PlayerPickerSheet extends StatelessWidget {
         ),
         title: Text(
           position.isNotEmpty ? position : 'Player #$jersey',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700),
         ),
         onTap: () => onSelect(p),
       );

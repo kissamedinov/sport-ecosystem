@@ -10,7 +10,7 @@ class AcademyManagementScreen extends StatelessWidget {
   final ClubDashboard dashboard;
 
   const AcademyManagementScreen({
-    super.key, 
+    super.key,
     required this.academy,
     required this.dashboard,
   });
@@ -18,6 +18,7 @@ class AcademyManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final academyTeams = dashboard.teams.where((t) => t.academyName == academy.name).toList();
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
@@ -29,15 +30,15 @@ class AcademyManagementScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _buildAcademyDetails(),
+          _buildAcademyDetails(context),
           const SizedBox(height: 32),
-          const Text('TEAMS IN THIS BRANCH', 
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2)),
+          Text('TEAMS IN THIS BRANCH',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 2)),
           const SizedBox(height: 16),
           if (academyTeams.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 40),
-              child: Text('No teams registered in this academy yet.', style: TextStyle(color: Colors.white24)),
+            Center(child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Text('No teams registered in this academy yet.', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2))),
             ))
           else
             ...academyTeams.map((team) => _buildTeamCard(context, team)),
@@ -46,7 +47,8 @@ class AcademyManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAcademyDetails() {
+  Widget _buildAcademyDetails(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,20 +69,20 @@ class AcademyManagementScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(academy.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text('${academy.city}, ${academy.address}', style: const TextStyle(color: Colors.white54)),
+                    Text('${academy.city}, ${academy.address}', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55))),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const Divider(color: Colors.white10),
+          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSimpleStat('TEAMS', academyTeamsCount.toString()),
-              _buildSimpleStat('PLAYERS', academy.playersCount?.toString() ?? '0'),
+              _buildSimpleStat(context, 'TEAMS', academyTeamsCount.toString()),
+              _buildSimpleStat(context, 'PLAYERS', academy.playersCount?.toString() ?? '0'),
             ],
           ),
         ],
@@ -90,23 +92,24 @@ class AcademyManagementScreen extends StatelessWidget {
 
   int get academyTeamsCount => academy.teamsCount ?? 0;
 
-  Widget _buildSimpleStat(String label, String value) {
+  Widget _buildSimpleStat(BuildContext context, String label, String value) {
     return Column(
       children: [
         Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: PremiumTheme.neonGreen)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.white38, letterSpacing: 1)),
+        Text(label, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), letterSpacing: 1)),
       ],
     );
   }
 
   Widget _buildTeamCard(BuildContext context, dynamic team) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => TeamManagementScreen(
-              team: team, 
+              team: team,
               availableCoaches: dashboard.coaches,
             ),
           ),
@@ -121,11 +124,11 @@ class AcademyManagementScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(team.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text(team.ageCategory ?? 'N/A', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                Text(team.ageCategory ?? 'N/A', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12)),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.white10),
+          Icon(Icons.chevron_right, color: cs.onSurface.withValues(alpha: 0.08)),
         ],
       ),
     );

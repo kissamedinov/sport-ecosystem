@@ -98,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: LinearProgressIndicator(
                     value: (_currentStep + 1) / 3,
-                    backgroundColor: Colors.white10,
+                    backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                     valueColor: const AlwaysStoppedAnimation(Color(0xFF00E676)),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -108,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Step ${_currentStep + 1} of 3', style: const TextStyle(color: Colors.white54)),
+                      Text('Step ${_currentStep + 1} of 3', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
                       if (_currentStep > 0)
                         TextButton(
                           onPressed: () {

@@ -19,10 +19,10 @@ class CompletionStep extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Your profile is ready. Welcome to the future of football management.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18, color: Colors.white70),
+            style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
           const Spacer(),
           ElevatedButton(

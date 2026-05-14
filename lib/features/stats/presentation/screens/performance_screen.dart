@@ -55,13 +55,13 @@ class PerformanceScreen extends StatelessWidget {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.chevron_left, color: Colors.white, size: 26),
+            icon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface, size: 26),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
               'PERFORMANCE',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.6,
@@ -151,7 +151,7 @@ class _WinRateCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: (pct / 100).clamp(0, 1),
                 minHeight: 8,
-                backgroundColor: Colors.white.withValues(alpha: 0.08),
+                backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                 valueColor: const AlwaysStoppedAnimation(PremiumTheme.neonGreen),
               ),
             ),
@@ -192,8 +192,8 @@ class _WinRateCard extends StatelessWidget {
             ),
             Text(
               letter,
-              style: const TextStyle(
-                color: Colors.white54,
+              style: TextStyle(
+                color: color.withValues(alpha: 0.7),
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.0,
@@ -291,8 +291,8 @@ class _TopPerformers extends StatelessWidget {
                       children: [
                         Text(
                           (p['name'] ?? 'Player').toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                           ),
@@ -300,8 +300,8 @@ class _TopPerformers extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           (p['stat'] ?? '').toString(),
-                          style: const TextStyle(
-                            color: Colors.white54,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -347,7 +347,7 @@ class _Medal extends StatelessWidget {
       case 3:
         return PremiumTheme.bronze;
       default:
-        return Colors.white24;
+        return Colors.grey;
     }
   }
 
@@ -368,8 +368,8 @@ class _Medal extends StatelessWidget {
           ? Icon(_icon, color: _color, size: 20)
           : Text(
               '$rank',
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
               ),

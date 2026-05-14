@@ -67,7 +67,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5),
     );
   }
 
@@ -112,9 +112,9 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
           child: Icon(icon, color: color, size: 20),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38, fontSize: 12)),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
+        subtitle: Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
+        trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
         onTap: onTap,
       ),
     );
@@ -132,36 +132,33 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
         backgroundColor: PremiumTheme.surfaceBase(context),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24), 
-          side: const BorderSide(color: Colors.white10),
+          side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
-        title: const Text('GENERATE SLOTS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text('GENERATE SLOTS', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Setup your field availability for a full day.', style: TextStyle(color: Colors.white38, fontSize: 12)),
+            Text('Setup your field availability for a full day.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
             const SizedBox(height: 20),
             TextField(
               controller: startHourController,
-              decoration: const InputDecoration(labelText: 'Start Hour (0-23)', labelStyle: TextStyle(color: Colors.white38)),
+              decoration: InputDecoration(labelText: 'Start Hour (0-23)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
             ),
             TextField(
               controller: endHourController,
-              decoration: const InputDecoration(labelText: 'End Hour (1-24)', labelStyle: TextStyle(color: Colors.white38)),
+              decoration: InputDecoration(labelText: 'End Hour (1-24)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
             ),
             TextField(
               controller: priceController,
-              decoration: const InputDecoration(labelText: 'Price per slot (₸)', labelStyle: TextStyle(color: Colors.white38)),
+              decoration: InputDecoration(labelText: 'Price per slot (₸)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () async {
               final provider = context.read<BookingProvider>();

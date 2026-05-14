@@ -96,7 +96,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
           const SizedBox(height: 16),
           const Text(
             "Mark yourself as unavailable for specific dates to stop receiving tournament invites.",
-            style: TextStyle(color: Colors.white38, fontSize: 11),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
           ),
           const SizedBox(height: 20),
           _buildBlockedDatesList(),
@@ -104,7 +104,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
           PremiumButton(
             text: "BLOCK NEW DATE",
             height: 40,
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             onPressed: () => _pickAndBlockDate(),
           ),
         ],
@@ -137,16 +137,16 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
       children: dates.map((date) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white10),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(date, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
-            const Icon(Icons.close_rounded, size: 14, color: Colors.white30),
+            Icon(Icons.close_rounded, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25)),
           ],
         ),
       )).toList(),

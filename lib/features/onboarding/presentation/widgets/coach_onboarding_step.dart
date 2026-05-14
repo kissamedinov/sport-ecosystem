@@ -22,7 +22,7 @@ class CoachOnboardingStep extends StatelessWidget {
           const Text(
             'To start managing teams, you need to be invited by a Club Owner or request access to an existing organization.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.white70),
+            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 48),
           ElevatedButton(
@@ -42,7 +42,7 @@ class CoachOnboardingStep extends StatelessWidget {
           const SizedBox(height: 16),
           TextButton(
             onPressed: onNext,
-            child: const Text('I will wait for an invitation', style: TextStyle(color: Colors.white54)),
+            child: Text('I will wait for an invitation', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
           ),
         ],
       ),
