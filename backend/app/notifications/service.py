@@ -1,6 +1,6 @@
 import uuid
 import os
-from typing import List, Optional
+from typing import List, Optional, Union
 from sqlalchemy.orm import Session
 from app.notifications.models import Notification, NotificationType, EntityType, NotificationTarget
 
@@ -16,7 +16,7 @@ def log_debug(msg):
 
 def create_notification(
     db: Session,
-    user_ids: List[uuid.UUID] | uuid.UUID,
+    user_ids: Union[List[uuid.UUID], uuid.UUID],
     notification_type: NotificationType,
     title: str,
     message: str,

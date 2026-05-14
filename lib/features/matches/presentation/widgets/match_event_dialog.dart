@@ -45,8 +45,9 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
           children: [
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              initialValue: _selectedType,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              value: _selectedType,
+              style: const TextStyle(color: Colors.white),
+              (fix: resolve build, python 3.9 compat, dependency conflicts, and macOS sandbox issues)
               decoration: PremiumTheme.inputDecorationOf(context, 'Event Type'),
               items: const [
                 DropdownMenuItem(value: 'GOAL', child: Text('⚽ GOAL')),
@@ -59,8 +60,9 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              initialValue: _selectedTeamId,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              value: _selectedTeamId,
+              style: const TextStyle(color: Colors.white),
+              (fix: resolve build, python 3.9 compat, dependency conflicts, and macOS sandbox issues)
               decoration: PremiumTheme.inputDecorationOf(context, 'Team'),
               items: [
                 DropdownMenuItem(value: widget.homeTeamId, child: Text(widget.homeTeamName)),
