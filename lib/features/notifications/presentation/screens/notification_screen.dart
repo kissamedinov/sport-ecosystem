@@ -25,6 +25,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -33,13 +34,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
         leading: context.findAncestorWidgetOfExactType<Scaffold>() != null
             ? null
             : IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 18),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
                 onPressed: () => Navigator.pop(context),
               ),
         title: const Text(
           'NOTIFICATIONS',
           style: TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -48,7 +48,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune_rounded, color: Colors.white54, size: 20),
+            icon: const Icon(Icons.tune_rounded, size: 20),
             onPressed: () {},
           ),
         ],
@@ -68,7 +68,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 children: [
                   Text(
                     'Error: ${provider.error}',
-                    style: const TextStyle(color: Colors.white54),
+                    style: TextStyle(color: cs.onSurfaceVariant),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -101,12 +101,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Inbox',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                        color: cs.onSurface,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -126,7 +126,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ],
                 ),
               ),
-              Container(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+              Container(height: 1, color: cs.onSurface.withValues(alpha: 0.08)),
               Expanded(
                 child: filtered.isEmpty
                     ? Center(
@@ -136,13 +136,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             Icon(
                               Icons.notifications_none_rounded,
                               size: 48,
-                              color: Colors.white.withValues(alpha: 0.1),
+                              color: cs.onSurface.withValues(alpha: 0.15),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'NO NOTIFICATIONS',
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: cs.onSurface.withValues(alpha: 0.3),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 2,
@@ -154,10 +154,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, _) => Container(
+                        separatorBuilder: (ctx, _) => Container(
                           height: 1,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
-                          color: Colors.white.withValues(alpha: 0.05),
+                          color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.06),
                         ),
                         itemBuilder: (context, index) {
                           return _NotificationCard(notification: filtered[index]);
@@ -173,16 +173,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildFilterChip(String value, String label) {
     final isActive = _filter == value;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => setState(() => _filter = value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isActive ? PremiumTheme.neonGreen : Colors.white.withValues(alpha: 0.06),
+          color: isActive ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isActive ? PremiumTheme.neonGreen : Colors.white.withValues(alpha: 0.1),
+            color: isActive ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.12),
           ),
         ),
         child: Text(
@@ -190,7 +191,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: isActive ? Colors.black : Colors.white60,
+            color: isActive ? Colors.black : cs.onSurfaceVariant,
             letterSpacing: 0.5,
           ),
         ),
@@ -206,6 +207,7 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isInvite = notification.type == 'TEAM_INVITE' || notification.type == 'PARENT_LINK_REQUEST';
     final isApprovalRequest = notification.title == 'Invitation Approval Required';
     final isUnread = !notification.isRead;
@@ -247,7 +249,7 @@ class _NotificationCard extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 14,
-                                color: isUnread ? Colors.white : Colors.white70,
+                                color: isUnread ? cs.onSurface : cs.onSurface.withValues(alpha: 0.65),
                               ),
                             ),
                           ),
@@ -266,14 +268,14 @@ class _NotificationCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         notification.message,
-                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         timeago.format(DateTime.parse(notification.createdAt)),
-                        style: const TextStyle(fontSize: 11, color: Colors.white30),
+                        style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha: 0.4)),
                       ),
                     ],
                   ),
@@ -330,7 +332,7 @@ class _NotificationCard extends StatelessWidget {
       'JOIN_REQUEST_RECEIVED' => (Icons.person_add_rounded, Colors.blueAccent),
       'JOIN_REQUEST_ACCEPTED' => (Icons.check_circle_rounded, PremiumTheme.neonGreen),
       'JOIN_REQUEST_REJECTED' => (Icons.cancel_rounded, Colors.red),
-      _ => (Icons.notifications_rounded, Colors.white38),
+      _ => (Icons.notifications_rounded, Colors.grey),
     };
   }
 

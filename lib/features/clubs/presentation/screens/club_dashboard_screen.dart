@@ -64,7 +64,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)),
+                  Text('Error: ${provider.error}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.fetchClubDashboard(),
@@ -86,12 +86,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.business_center, size: 80, color: Colors.white10),
+                    Icon(Icons.business_center, size: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'You don\'t have a club registered yet.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.white70, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 32),
                     _buildEmptyClubCard(context),
@@ -100,9 +100,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                       TextButton.icon(
                         onPressed: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const AdminHubScreen())),
-                        icon: const Icon(Icons.admin_panel_settings, color: Colors.white54),
-                        label: const Text('Admin: Moderation Panel',
-                            style: TextStyle(color: Colors.white54)),
+                        icon: const Icon(Icons.admin_panel_settings),
+                        label: const Text('Admin: Moderation Panel'),
                       ),
                     ],
                   ],
@@ -311,12 +310,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'OVERVIEW',
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white38,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     letterSpacing: 2),
               ),
               GestureDetector(
@@ -583,12 +582,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'MONTHLY GROWTH · 30D',
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                color: Colors.white38,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 letterSpacing: 2),
           ),
           const SizedBox(height: 14),
@@ -747,9 +746,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 1),
               ),
               child: Row(
                 children: [
@@ -768,22 +767,22 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Approvals waiting',
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
-                              color: Colors.white),
+                              color: Theme.of(context).colorScheme.onSurface),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           previewIds,
-                          style: const TextStyle(fontSize: 12, color: Colors.white38),
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: Colors.white24, size: 20),
+                  Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), size: 20),
                 ],
               ),
             ),
@@ -835,6 +834,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           _buildSectionLabel('UPCOMING FIXTURES', accentColor: Colors.amber),
           const SizedBox(height: 12),
           ...shown.map((f) {
+            final cs = Theme.of(context).colorScheme;
             final dayLabel = days[f.date.weekday - 1];
             final timeStr =
                 '${f.date.hour.toString().padLeft(2, '0')}:${f.date.minute.toString().padLeft(2, '0')}';
@@ -844,10 +844,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.04),
+                  color: cs.onSurface.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.07), width: 1),
+                      color: cs.onSurface.withValues(alpha: 0.1), width: 1),
                 ),
                 child: Row(
                   children: [
@@ -867,10 +867,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                           ),
                           Text(
                             '${f.date.day}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                              color: cs.onSurface,
                               height: 1.1,
                             ),
                           ),
@@ -884,37 +884,31 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                         children: [
                           RichText(
                             text: TextSpan(
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w700, color: cs.onSurface),
                               children: [
+                                TextSpan(text: f.homeTeamName),
                                 TextSpan(
-                                  text: f.homeTeamName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                const TextSpan(
                                   text: ' vs ',
                                   style: TextStyle(
-                                      color: Colors.white38,
+                                      color: cs.onSurfaceVariant,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                TextSpan(
-                                  text: f.opponentName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
+                                TextSpan(text: f.opponentName),
                               ],
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '$timeStr  ·  ${f.academyName}',
-                            style: const TextStyle(
-                                fontSize: 11, color: Colors.white38),
+                            style: TextStyle(
+                                fontSize: 11, color: cs.onSurfaceVariant),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: Colors.white12, size: 18),
+                    Icon(Icons.chevron_right_rounded,
+                        color: cs.onSurface.withValues(alpha: 0.2), size: 18),
                   ],
                 ),
               ),
@@ -943,12 +937,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             actions: [
               if (context.read<AuthProvider>().user?.roles?.contains('ADMIN') ?? false)
                 IconButton(
-                  icon: const Icon(Icons.admin_panel_settings, color: Colors.white70),
+                  icon: const Icon(Icons.admin_panel_settings),
                   onPressed: () => Navigator.push(
                       context, MaterialPageRoute(builder: (_) => const AdminHubScreen())),
                 ),
               IconButton(
-                icon: const Icon(Icons.person_add_alt_1, color: Colors.white70),
+                icon: const Icon(Icons.person_add_alt_1),
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -964,8 +958,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 20,
-                    letterSpacing: -0.3,
-                    color: Colors.white),
+                    letterSpacing: -0.3),
               ),
               background: Stack(
                 fit: StackFit.expand,
@@ -1018,13 +1011,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 ],
               ),
             ),
-            bottom: const TabBar(
+            bottom: TabBar(
               isScrollable: true,
               indicatorColor: PremiumTheme.neonGreen,
               indicatorWeight: 3,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white38,
-              labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+              labelColor: Theme.of(context).colorScheme.onSurface,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
               tabs: [
                 Tab(text: 'ACADEMIES'),
                 Tab(text: 'TEAMS'),
@@ -1142,9 +1135,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1158,13 +1151,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(team.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 15, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 3),
                       Text(
                         '${team.academyName ?? ''} · ${team.ageCategory ?? ''}',
                         style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.35), fontSize: 11),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45), fontSize: 11),
                       ),
                     ],
                   ),
@@ -1176,14 +1169,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   onPressed: () => _showDeleteTeamDialog(context, team),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
+                Icon(Icons.arrow_forward_ios_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), size: 14),
               ],
             ),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.03),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -1193,7 +1186,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   _buildStatDivider(),
                   _buildTeamStat('W', '${team.wins}', PremiumTheme.neonGreen),
                   _buildStatDivider(),
-                  _buildTeamStat('D', '${team.draws}', Colors.white54),
+                  _buildTeamStat('D', '${team.draws}', Theme.of(context).colorScheme.onSurfaceVariant),
                   _buildStatDivider(),
                   _buildTeamStat('L', '${team.losses}', Colors.redAccent),
                 ],
@@ -1213,8 +1206,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 fontSize: 16, color: color, fontWeight: FontWeight.w900)),
         const SizedBox(height: 2),
         Text(label,
-            style: const TextStyle(
-                fontSize: 9, color: Colors.white24, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+            style: TextStyle(
+                fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
       ],
     );
   }
@@ -1225,13 +1218,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Team?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-        content: Text('Are you sure you want to delete "${team.name}"? This action cannot be undone.', 
-          style: const TextStyle(color: Colors.white70)),
+        title: const Text('Delete Team?', style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text('Are you sure you want to delete "${team.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL', style: TextStyle(color: Colors.white38)),
+            child: const Text('CANCEL'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1270,7 +1262,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   Widget _buildStatDivider() {
-    return Container(width: 1, height: 20, color: Colors.white.withValues(alpha: 0.06));
+    return Container(width: 1, height: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1));
   }
 
   Widget _buildPlayersList(dynamic dashboard) {
@@ -1322,9 +1314,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.03),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 1),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 1),
             ),
             child: Row(
               children: [
@@ -1343,7 +1335,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(child.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 5),
                       Row(
                         children: [
@@ -1435,9 +1427,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.04),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
+                        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 1),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1467,15 +1459,15 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(coach.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 15,
-                                            color: Colors.white)),
+                                            color: Theme.of(context).colorScheme.onSurface)),
                                     const SizedBox(height: 3),
                                     Text(
                                       'ID: ${coach.userId.substring(0, 8)}',
                                       style: TextStyle(
-                                          color: Colors.white.withValues(alpha: 0.25),
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
                                           fontSize: 10,
                                           fontFamily: 'monospace'),
                                     ),
@@ -1508,20 +1500,20 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.03),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
                                 children: [
                                   Icon(Icons.shield_outlined,
-                                      size: 14, color: Colors.white.withValues(alpha: 0.3)),
+                                      size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       coachTeams.map((t) => t.name).join(', '),
                                       style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.white.withValues(alpha: 0.5),
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                           fontWeight: FontWeight.w500),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1587,9 +1579,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), width: 1),
       ),
       child: Row(
         children: [
@@ -1615,7 +1607,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               children: [
                 Text(
                   invite.invitedName ?? 'User ${invite.invitedUserId.substring(0, 8)}',
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 4),
                 _buildBadge(role, roleColor),
@@ -1710,15 +1702,16 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     IconData? subtitleIcon,
     String? subtitleBadge,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: cs.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 1),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.1), width: 1),
         ),
         child: Row(
           children: [
@@ -1729,17 +1722,17 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14, color: cs.onSurface)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         if (subtitleIcon != null)
-                          Icon(subtitleIcon, size: 12, color: Colors.white38),
+                          Icon(subtitleIcon, size: 12, color: cs.onSurfaceVariant),
                         if (subtitleIcon != null) const SizedBox(width: 4),
                         Text(subtitle,
-                            style: const TextStyle(fontSize: 12, color: Colors.white38)),
+                            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                       ],
                     ),
                   ],
@@ -1747,7 +1740,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               ),
             ),
             if (onTap != null)
-              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white12, size: 14),
+              Icon(Icons.arrow_forward_ios_rounded, color: cs.onSurface.withValues(alpha: 0.2), size: 14),
           ],
         ),
       ),
@@ -1755,12 +1748,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   Widget _buildMiniStatBox(String label, String value, Color color) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: cs.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -1768,8 +1762,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
           const SizedBox(height: 2),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white24, letterSpacing: 1)),
+              style: TextStyle(
+                  fontSize: 9, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant, letterSpacing: 1)),
         ],
       ),
     );
@@ -1778,8 +1772,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
-          fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2),
+      style: TextStyle(
+          fontSize: 11, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2),
     );
   }
 
@@ -1790,8 +1784,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             margin: const EdgeInsets.only(right: 8)),
         Text(
           title,
-          style: const TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white54, letterSpacing: 2),
+          style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2),
         ),
       ],
     );
@@ -1813,25 +1807,27 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   Widget _buildInlineEmpty(String text) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Center(
         child: Text(text,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12)),
+            style: TextStyle(color: cs.onSurface.withValues(alpha: 0.25), fontSize: 12)),
       ),
     );
   }
 
   Widget _buildEmptyState(IconData icon, String label) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 44, color: Colors.white.withValues(alpha: 0.06)),
+          Icon(icon, size: 44, color: cs.onSurface.withValues(alpha: 0.12)),
           const SizedBox(height: 14),
           Text(label,
               style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: cs.onSurface.withValues(alpha: 0.2),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2)),
@@ -1841,22 +1837,23 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   Widget _buildEmptyClubCard(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => _showRequestClubDialog(context),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: cs.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.send_rounded, color: PremiumTheme.neonGreen),
             const SizedBox(width: 12),
-            const Text('Request to Create a Club',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            Text('Request to Create a Club',
+                style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
           ],
         ),
       ),
@@ -1876,14 +1873,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: const Text('Request Club Creation', style: TextStyle(color: Colors.white)),
+        title: const Text('Request Club Creation'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Club Name')),
-              TextField(controller: cityController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'City')),
-              TextField(controller: addressController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Address')),
+              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Club Name')),
+              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
+              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
             ],
           ),
         ),
@@ -1916,13 +1913,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: const Text('Add New Academy', style: TextStyle(color: Colors.white)),
+        title: const Text('Add New Academy'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: cityController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'City')),
-            TextField(controller: addressController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Address')),
+            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
+            TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
+            TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
           ],
         ),
         actions: [
@@ -1956,21 +1953,20 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(context),
-          title: const Text('Create New Team', style: TextStyle(color: Colors.white)),
+          title: const Text('Create New Team'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
                   dropdownColor: PremiumTheme.surfaceCard(context),
-                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(labelText: 'Academy'),
                   items: academies.map((a) => DropdownMenuItem(value: a.id.toString(), child: Text(a.name))).toList(),
                   onChanged: (val) => setDialogState(() => selectedAcademyId = val),
                 ),
-                TextField(controller: nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Team Name')),
-                TextField(controller: birthYearController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Birth Year'), keyboardType: TextInputType.number),
-                TextField(controller: coachIdController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Coach User ID')),
+                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
+                TextField(controller: birthYearController, decoration: const InputDecoration(labelText: 'Birth Year'), keyboardType: TextInputType.number),
+                TextField(controller: coachIdController, decoration: const InputDecoration(labelText: 'Coach User ID')),
               ],
             ),
           ),
