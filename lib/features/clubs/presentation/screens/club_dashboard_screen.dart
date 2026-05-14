@@ -416,12 +416,26 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     required Color bg,
     required Color border,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: bg,
+        color: isDark ? bg : cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border, width: 1),
+        border: Border.all(
+          color: isDark ? border : iconColor.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: iconColor.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,33 +443,47 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: iconColor, size: 20),
-              Text(
-                status,
-                style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: statusColor,
-                    letterSpacing: 0.5),
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: isDark ? 0.15 : 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 16),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: statusColor,
+                      letterSpacing: 0.5),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             value,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
-              color: iconColor,
+              color: isDark ? iconColor : cs.onSurface,
               letterSpacing: -1,
             ),
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Colors.white38,
+              color: cs.onSurfaceVariant,
               letterSpacing: 1,
             ),
           ),
@@ -629,14 +657,18 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     required Color border,
     List<double>? sparklineData,
   }) {
-    // Generate sample sparkline data if not provided
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     final data = sparklineData ?? [2, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 9];
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: bg,
+        color: isDark ? bg : cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border, width: 1),
+        border: Border.all(color: isDark ? border : color.withValues(alpha: 0.25), width: 1),
+        boxShadow: isDark
+            ? null
+            : [BoxShadow(color: color.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,10 +706,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Colors.white38,
+              color: cs.onSurfaceVariant,
               letterSpacing: 0.5,
             ),
           ),
