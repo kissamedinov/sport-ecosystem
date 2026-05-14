@@ -219,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     duration: const Duration(milliseconds: 220),
                     layoutBuilder: (current, previous) => Stack(
                       alignment: Alignment.topCenter,
-                      children: [...previous, ?current],
+                      children: [...previous, if (current != null) current],
                     ),
                     child: _step == 1 ? _buildStep1() : _buildStep2(role),
                   ),
