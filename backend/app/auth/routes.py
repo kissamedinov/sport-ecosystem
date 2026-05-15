@@ -69,6 +69,14 @@ def google_auth(data: GoogleLogin, db: Session = Depends(get_db)):
             # Get existing user's role
             user_role_entry = db.query(UserRole).filter(UserRole.user_id == user.id).first()
             role_value = user_role_entry.role.value if user_role_entry else Role.PLAYER_ADULT.value
+            
+            # Ensure PlayerProfile exists (for users who were created before this feature)
+            if role_value in [Role.PLAYER_YOUTH.value, Role.PLAYER_ADULT.value, Role.PLAYER_CHILD.value]:
+                existing_profile = db.query(PlayerProfile).filter(PlayerProfile.user_id == user.id).first()
+                if not existing_profile:
+                    new_profile = PlayerProfile(user_id=user.id)
+                    db.add(new_profile)
+                    db.commit()
 
         # 3. Create our own JWT token
         access_token = create_access_token(data={"user_id": str(user.id), "role": role_value})
