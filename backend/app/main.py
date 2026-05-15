@@ -56,6 +56,9 @@ def migrate_db():
             conn.execute(text("ALTER TABLE teams ALTER COLUMN coach_id DROP NOT NULL;"))
             
             print("Columns added and constraints fixed")
+        except Exception as e:
+            print(f"Error during migration: {e}")
+            
     return {"message": "Migration and Alters successful"}
 
 @app.post("/debug/inspect/{table_name}")
