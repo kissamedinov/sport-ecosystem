@@ -8,6 +8,7 @@ import 'api_client.dart';
 
 class StatsApiService {
   final ApiClient _apiClient = ApiClient();
+  ApiClient get apiClient => _apiClient;
 
   Future<List<MatchEvent>> getMatchEvents(String matchId) async {
     final response = await _apiClient.get('/matches/$matchId/events');
