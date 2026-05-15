@@ -253,20 +253,22 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         Row(
           children: [
             Expanded(
-              child: PremiumStatCard(
-                title: "RATING",
+              flex: 3,
+              child: _buildMainStatCard(
+                label: "PERFORMANCE RATING",
                 value: career.rating.toStringAsFixed(1),
-                icon: Icons.star_rounded,
-                color: Colors.amber,
+                icon: Icons.auto_graph_rounded,
+                gradient: const [Color(0xFFFFD700), Color(0xFFFFA500)],
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: PremiumStatCard(
-                title: "MATCHES",
+              flex: 2,
+              child: _buildMainStatCard(
+                label: "MATCHES",
                 value: "${career.matchesPlayed}",
                 icon: Icons.stadium_rounded,
-                color: PremiumTheme.electricBlue,
+                gradient: [PremiumTheme.electricBlue, const Color(0xFF007BFF)],
               ),
             ),
           ],
@@ -275,26 +277,26 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         Row(
           children: [
             Expanded(
-              child: PremiumStatCard(
-                title: "GOALS",
+              child: _buildSecondaryStatCard(
+                label: "GOALS",
                 value: "${career.goals}",
                 icon: Icons.sports_soccer_rounded,
                 color: PremiumTheme.neonGreen,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
-              child: PremiumStatCard(
-                title: "ASSISTS",
+              child: _buildSecondaryStatCard(
+                label: "ASSISTS",
                 value: "${career.assists}",
-                icon: Icons.transfer_within_a_station_rounded,
+                icon: Icons.analytics_rounded,
                 color: Colors.orangeAccent,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
-              child: PremiumStatCard(
-                title: "AWARDS",
+              child: _buildSecondaryStatCard(
+                label: "AWARDS",
                 value: "${career.bestPlayerAwards}",
                 icon: Icons.emoji_events_rounded,
                 color: Colors.purpleAccent,
@@ -306,30 +308,88 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     );
   }
 
+  Widget _buildMainStatCard({required String label, required String value, required IconData icon, required List<Color> gradient}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: gradient.first.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white.withValues(alpha: 0.7), letterSpacing: 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecondaryStatCard({required String label, required String value, required IconData icon, required Color color}) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: onSurface.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: onSurface.withValues(alpha: 0.08)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: onSurface),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatsGrid(PlayerStats stats) {
     return Row(
       children: [
         Expanded(
-          child: PremiumStatCard(
-            title: "GOALS",
+          child: _buildSecondaryStatCard(
+            label: "GOALS",
             value: "${stats.goals}",
             icon: Icons.sports_soccer_rounded,
             color: PremiumTheme.neonGreen,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: PremiumStatCard(
-            title: "ASSISTS",
+          child: _buildSecondaryStatCard(
+            label: "ASSISTS",
             value: "${stats.assists}",
-            icon: Icons.transfer_within_a_station_rounded,
+            icon: Icons.analytics_rounded,
             color: PremiumTheme.electricBlue,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: PremiumStatCard(
-            title: "SAVES",
+          child: _buildSecondaryStatCard(
+            label: "SAVES",
             value: "${stats.saves}",
             icon: Icons.front_hand_rounded,
             color: Colors.orangeAccent,
@@ -341,48 +401,80 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
 
   Widget _buildMatchCard(MatchHistoryItem match) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final isWin = true; // Placeholder for logic
     return Container(
-      width: 160,
+      width: 180,
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: onSurface.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: onSurface.withValues(alpha: 0.07)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: (isWin ? PremiumTheme.neonGreen : Colors.redAccent).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  isWin ? "W" : "L",
+                  style: TextStyle(
+                    color: isWin ? PremiumTheme.neonGreen : Colors.redAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   match.opponent,
-                  style: TextStyle(color: onSurface, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(color: onSurface, fontWeight: FontWeight.w800, fontSize: 13),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (match.isBestPlayer)
-                const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
             ],
           ),
+          const Spacer(),
           Text(
-            match.tournamentName,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
+            match.tournamentName.toUpperCase(),
+            style: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          const SizedBox(height: 8),
           Row(
             children: [
-              _buildMiniTag("${match.goals}G", PremiumTheme.neonGreen),
-              const SizedBox(width: 6),
-              _buildMiniTag("${match.assists}A", PremiumTheme.electricBlue),
+              _buildMiniStat(match.goals.toString(), "G"),
+              const SizedBox(width: 12),
+              _buildMiniStat(match.assists.toString(), "A"),
+              const Spacer(),
+              if (match.isBestPlayer)
+                const Icon(Icons.stars_rounded, color: Colors.amber, size: 18),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMiniStat(String value, String label) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(value, style: TextStyle(color: onSurface, fontWeight: FontWeight.w900, fontSize: 14)),
+        const SizedBox(width: 2),
+        Text(label, style: TextStyle(color: onSurface.withValues(alpha: 0.3), fontWeight: FontWeight.bold, fontSize: 9)),
+      ],
     );
   }
 

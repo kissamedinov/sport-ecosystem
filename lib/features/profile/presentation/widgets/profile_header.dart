@@ -39,6 +39,23 @@ class ProfileHeader extends StatelessWidget {
     return r.replaceAll('_', ' ');
   }
 
+  int? _calculateAge(DateTime? birthDate) {
+    if (birthDate == null) return null;
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  bool _isBirthday(DateTime? birthDate) {
+    if (birthDate == null) return false;
+    final today = DateTime.now();
+    return today.month == birthDate.month && today.day == birthDate.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     final safeTop = MediaQuery.of(context).padding.top;
@@ -51,6 +68,9 @@ class ProfileHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final onSurfaceMuted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final age = _calculateAge(user.dateOfBirth);
+    final isBirthdayToday = _isBirthday(user.dateOfBirth);
+    
     final gradientColors = isDark
         ? const [Color(0xFF0D2E14), Color(0xFF0A0E12)]
         : const [Color(0xFFE8F5E9), Color(0xFFF5F5F5)];
@@ -156,6 +176,18 @@ class ProfileHeader extends StatelessWidget {
                         color: onSurfaceMuted,
                       ),
                     ),
+                    if (age != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '$age YEARS OLD',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: PremiumTheme.accent(context),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
@@ -165,6 +197,9 @@ class ProfileHeader extends StatelessWidget {
                         if (isVerified)
                           _tag('VERIFIED', PremiumTheme.electricBlue,
                               icon: Icons.verified_rounded),
+                        if (isBirthdayToday)
+                          _tag('ITS MY BIRTHDAY!', Colors.pinkAccent,
+                              icon: Icons.cake_rounded),
                         if (onEdit != null)
                           GestureDetector(
                             onTap: onEdit,
