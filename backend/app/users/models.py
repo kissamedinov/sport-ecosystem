@@ -75,6 +75,10 @@ class User(Base):
     academy = relationship("Academy", back_populates="managed_users", foreign_keys=[academy_id])
     player_profile = relationship("PlayerProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
+    @property
+    def player_profile_id(self):
+        return self.player_profile.id if self.player_profile else None
+
 class PlayerProfile(Base):
     __tablename__ = "player_profiles"
 

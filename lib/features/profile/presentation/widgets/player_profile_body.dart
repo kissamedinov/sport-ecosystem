@@ -8,6 +8,7 @@ import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/player_stats/presentation/widgets/career_history_chart.dart';
 import 'package:mobile/features/player_stats/data/models/match_history_item.dart';
 import 'package:mobile/features/player_stats/data/models/player_career_stats.dart';
+import 'package:mobile/features/auth/data/repositories/auth_repository.dart';
 
 class PlayerProfileBody extends StatefulWidget {
   final String playerProfileId;
@@ -23,6 +24,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
   late Future<PlayerStats> _statsFuture;
   late Future<PlayerCareerStats> _careerFuture;
   late Future<List<MatchHistoryItem>> _historyFuture;
+  late Future<Map<String, dynamic>> _profileFuture;
 
   @override
   void initState() {
@@ -30,6 +32,10 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     _statsFuture = _statsApi.getPlayerStats(widget.playerProfileId);
     _careerFuture = _statsApi.getCareerStats(widget.playerProfileId);
     _historyFuture = _statsApi.getMatchHistory(widget.playerProfileId);
+    
+    // Fetch detailed profile (height, weight, position, foot)
+    final authRepo = AuthRepository(_statsApi.apiClient);
+    _profileFuture = authRepo.getUserProfile(widget.playerProfileId);
   }
 
   @override
@@ -60,6 +66,25 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   const SizedBox(height: 12),
                   if (career != null) _buildCareerGrid(career) else _buildStatsGrid(stats),
                   const SizedBox(height: 28),
+
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: _profileFuture,
+                    builder: (context, profileSnapshot) {
+                      if (profileSnapshot.hasData) {
+                        final p = profileSnapshot.data!;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionLabel("PHYSICAL ATTRIBUTES"),
+                            const SizedBox(height: 12),
+                            _buildPhysicalGrid(p),
+                            const SizedBox(height: 28),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
 
                   FutureBuilder<List<MatchHistoryItem>>(
                     future: _historyFuture,
@@ -449,6 +474,71 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildPhysicalGrid(Map<String, dynamic> p) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildPhysicalCard(
+            label: "POSITION",
+            value: p['preferred_position'] ?? "N/A",
+            icon: Icons.gps_fixed_rounded,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildPhysicalCard(
+            label: "FOOT",
+            value: p['dominant_foot'] ?? "N/A",
+            icon: Icons.directions_run_rounded,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildPhysicalCard(
+            label: "HEIGHT",
+            value: p['height'] ?? "N/A",
+            icon: Icons.height_rounded,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildPhysicalCard(
+            label: "WEIGHT",
+            value: p['weight'] ?? "N/A",
+            icon: Icons.monitor_weight_outlined,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhysicalCard({required String label, required String value, required IconData icon}) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: onSurface.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: onSurface.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 14, color: PremiumTheme.neonGreen.withValues(alpha: 0.7)),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: onSurface),
+          ),
+        ],
       ),
     );
   }

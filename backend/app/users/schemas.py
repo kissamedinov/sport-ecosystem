@@ -31,6 +31,7 @@ class UserResponse(UserBase):
     avatar_url: Optional[str] = None
     unique_code: Optional[str] = None
     onboarding_completed: bool = False
+    player_profile_id: Optional[UUID] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Integer, func, JSON
+from sqlalchemy import Column, String, Date, DateTime, ForeignKey, Integer, func, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -8,8 +8,14 @@ class DailyQuiz(Base):
     __tablename__ = "daily_quizzes"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    date = Column(Date, unique=True, nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    audience = Column(String, default="KIDS", nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # We should have one quiz per date per audience
+    __table_args__ = (
+        UniqueConstraint('date', 'audience', name='_date_audience_uc'),
+    )
 
     questions = relationship("QuizQuestion", back_populates="quiz", cascade="all, delete-orphan")
 

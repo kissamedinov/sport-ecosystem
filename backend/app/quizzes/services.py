@@ -24,11 +24,21 @@ except ImportError:
 class QuizService:
     @staticmethod
     def get_daily_quiz(db: Session, target_date: date, user: User):
-        # 1. Check if quiz already exists for this date
-        quiz = db.query(DailyQuiz).filter(DailyQuiz.date == target_date).first()
+        # Determine audience based on roles
+        audience = "KIDS"
+        user_roles = [r.role.value for r in user.roles]
+        if "PLAYER_ADULT" in user_roles or "COACH" in user_roles or "CLUB_OWNER" in user_roles:
+            audience = "ADULTS"
+
+        # 1. Check if quiz already exists for this date and audience
+        quiz = db.query(DailyQuiz).filter(
+            DailyQuiz.date == target_date,
+            DailyQuiz.audience == audience
+        ).first()
+        
         if not quiz:
             # 2. If not, generate new one
-            quiz = QuizService.generate_daily_quiz(db, target_date)
+            quiz = QuizService.generate_daily_quiz(db, target_date, audience)
 
         # 3. Attach user-specific data
         attempt = db.query(QuizAttempt).filter(
@@ -41,7 +51,7 @@ class QuizService:
         return quiz
 
     @staticmethod
-    def generate_daily_quiz(db: Session, target_date: date):
+    def generate_daily_quiz(db: Session, target_date: date, audience: str = "KIDS"):
         logger.info(f"--- QUIZ GENERATION START for {target_date} ---")
         
         questions_data = []
@@ -55,15 +65,15 @@ class QuizService:
             questions_data = QuizService._get_fallback_questions()
         else:
             try:
-                logger.info("Calling Gemini API...")
-                questions_data = QuizService._generate_with_gemini(api_key)
-                logger.info("Gemini API call successful!")
+                logger.info(f"Calling Gemini API for {audience}...")
+                questions_data = QuizService._generate_with_gemini(api_key, audience)
+                logger.info(f"Gemini API call successful for {audience}!")
             except Exception as e:
                 logger.error(f"!!! Gemini generation failed: {e} !!!")
-                questions_data = QuizService._get_fallback_questions()
+                questions_data = QuizService._get_fallback_questions(audience)
 
         # Create Quiz Record
-        new_quiz = DailyQuiz(date=target_date)
+        new_quiz = DailyQuiz(date=target_date, audience=audience)
         db.add(new_quiz)
         db.flush() # Get ID
 
@@ -82,20 +92,34 @@ class QuizService:
         return new_quiz
 
     @staticmethod
-    def _generate_with_gemini(api_key: str) -> List[dict]:
+    def _generate_with_gemini(api_key: str, audience: str = "KIDS") -> List[dict]:
         genai.configure(api_key=api_key)
-        # Используем модель, которая точно есть в списке (аналог 1.5 Flash)
         model = genai.GenerativeModel('gemini-flash-latest')
         
-        prompt = """
-        Generate 10 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
-        Mix the difficulty: 3 Easy, 4 Medium, and 3 Hard (expert level) questions.
-        Topics should include: 
-        - Famous players and their records
-        - Football rules and referee signals
-        - Basic tactics (e.g., "What is a 4-3-3 formation?")
-        - Major tournament history (Champions League, World Cup)
+        if audience == "ADULTS":
+            prompt = """
+            Generate 10 football (soccer) quiz questions for adults and hardcore fans!
+            These must be DIFFICULT. Focus on:
+            - Obscure player facts and records (e.g. "Who is the top scorer of the 1974 World Cup?")
+            - Detailed statistics (transfer fees, clean sheets, career goals)
+            - Tactical nuances and historic formations (e.g. "Who invented the 'Catenaccio' system?")
+            - Recent major league stats (Premier League, La Liga, Seria A, Kazakhstan Premier League)
+            - Club history and rivalries.
+            
+            Mix the difficulty: 2 Medium, 5 Hard, 3 Extreme (expert level) questions.
+            """
+        else:
+            prompt = """
+            Generate 10 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
+            Mix the difficulty: 3 Easy, 4 Medium, and 3 Hard (expert level) questions.
+            Topics should include: 
+            - Famous players and their records
+            - Football rules and referee signals
+            - Basic tactics (e.g., "What is a 4-3-3 formation?")
+            - Major tournament history (Champions League, World Cup)
+            """
         
+        prompt += """
         Format: JSON list of objects.
         Each object must have:
         - "question": string
@@ -118,7 +142,35 @@ class QuizService:
         return json.loads(text)
 
     @staticmethod
-    def _get_fallback_questions() -> List[dict]:
+    def _get_fallback_questions(audience: str = "KIDS") -> List[dict]:
+        if audience == "ADULTS":
+            return [
+                {
+                    "question": "Кто из этих игроков забил больше всех голов на одном чемпионате мира?",
+                    "options": ["Пеле", "Жюст Фонтен", "Герд Мюллер", "Мирослав Клозе"],
+                    "correct_index": 1,
+                    "explanation": "Жюст Фонтен забил рекордные 13 голов на ЧМ-1958."
+                },
+                {
+                    "question": "Какой клуб выиграл Лигу чемпионов 3 раза подряд (2016, 2017, 2018)?",
+                    "options": ["Бавария", "Барселона", "Реал Мадрид", "Ливерпуль"],
+                    "correct_index": 2,
+                    "explanation": "Реал Мадрид под руководством Зидана установил этот исторический рекорд."
+                },
+                {
+                    "question": "В какой системе тактики впервые появился термин 'Либеро'?",
+                    "options": ["Тотальный футбол", "Катеначчо", "Тики-така", "Дубль-вэ"],
+                    "correct_index": 1,
+                    "explanation": "Катеначчо популяризировало роль свободного защитника — либеро."
+                },
+                {
+                    "question": "Кто является лучшим бомбардиром в истории сборной Казахстана?",
+                    "options": ["Самат Смаков", "Бахтиёр Зайнутдинов", "Руслан Балтиев", "Абат Аймбетов"],
+                    "correct_index": 1,
+                    "explanation": "Бахтиёр Зайнутдинов побил рекорд Руслана Балтиева в 2023 году."
+                }
+            ]
+        
         return [
             {
                 "question": "Сколько игроков в одной футбольной команде на поле?",

@@ -47,7 +47,8 @@ def get_my_children(
                 "date_of_birth": child.date_of_birth,
                 "phone": child.phone,
                 "onboarding_completed": child.onboarding_completed,
-                "unique_code": child.unique_code
+                "unique_code": child.unique_code,
+                "player_profile_id": child.player_profile_id
             }
 
             response.append(child_data)
@@ -201,7 +202,8 @@ def get_parents(
                 "date_of_birth": parent.date_of_birth,
                 "phone": parent.phone,
                 "onboarding_completed": parent.onboarding_completed,
-                "unique_code": parent.unique_code
+                "unique_code": parent.unique_code,
+                "player_profile_id": parent.player_profile_id
             }
 
             parents_response.append(parent_data)
@@ -250,7 +252,8 @@ def update_my_profile(
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
         "onboarding_completed": current_user.onboarding_completed,
-        "unique_code": current_user.unique_code
+        "unique_code": current_user.unique_code,
+        "player_profile_id": current_user.player_profile_id
     }
 
 
@@ -311,7 +314,8 @@ def update_user_profile(
         "bio": target_user.bio,
         "avatar_url": target_user.avatar_url,
         "onboarding_completed": target_user.onboarding_completed,
-        "unique_code": target_user.unique_code
+        "unique_code": target_user.unique_code,
+        "player_profile_id": target_user.player_profile_id
     }
 
 

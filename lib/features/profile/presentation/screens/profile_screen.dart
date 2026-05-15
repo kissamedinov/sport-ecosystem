@@ -165,7 +165,7 @@ class ProfileScreen extends StatelessWidget {
       return ChildPlayerProfileBody(user: user);
     } else if (user.playerProfileId != null &&
                (roles.contains('PLAYER_ADULT') || roles.contains('PLAYER_YOUTH'))) {
-      return PlayerProfileBody(playerProfileId: user.playerProfileId!);
+      return PlayerProfileBody(playerProfileId: user.id);
     } else {
       return const Padding(
         padding: EdgeInsets.all(32.0),
