@@ -29,20 +29,25 @@ class QuizService:
 
     @staticmethod
     def generate_daily_quiz(db: Session, target_date: date):
-        logger.info(f"Generating daily quiz for {target_date}")
+        logger.info(f"--- QUIZ GENERATION START for {target_date} ---")
         
         questions_data = []
         api_key = os.getenv("GOOGLE_API_KEY")
 
-        if HAS_GEMINI and api_key:
-            try:
-                questions_data = QuizService._generate_with_gemini(api_key)
-            except Exception as e:
-                logger.error(f"Gemini generation failed: {e}")
-                questions_data = QuizService._get_fallback_questions()
-        else:
-            logger.warning("Gemini not configured, using fallback questions")
+        if not api_key:
+            logger.error("!!! GOOGLE_API_KEY NOT FOUND IN ENVIRONMENT !!!")
             questions_data = QuizService._get_fallback_questions()
+        elif not HAS_GEMINI:
+            logger.error("!!! google-generativeai PACKAGE NOT INSTALLED !!!")
+            questions_data = QuizService._get_fallback_questions()
+        else:
+            try:
+                logger.info("Calling Gemini API...")
+                questions_data = QuizService._generate_with_gemini(api_key)
+                logger.info("Gemini API call successful!")
+            except Exception as e:
+                logger.error(f"!!! Gemini generation failed: {e} !!!")
+                questions_data = QuizService._get_fallback_questions()
 
         # Create Quiz Record
         new_quiz = DailyQuiz(date=target_date)
