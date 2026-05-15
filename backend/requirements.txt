@@ -10,3 +10,4 @@ python-dotenv
 Pillow
 python-multipart
 google-generativeai
+google-auth

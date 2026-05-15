@@ -1,13 +1,86 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import os
+
 from app.database import get_db
 from app.users.models import User, UserRole, Role, PlayerProfile
-from app.users.schemas import UserCreate, UserResponse, UserLogin, Token
+from app.users.schemas import UserCreate, UserResponse, UserLogin, Token, GoogleLogin
 from app.auth.security import hash_password, verify_password
 from app.auth.jwt import create_access_token
 from app.common.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+@router.post("/google", response_model=Token)
+def google_auth(data: GoogleLogin, db: Session = Depends(get_db)):
+    """
+    Verify Google ID Token and login/register the user.
+    """
+    token = data.id_token
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    
+    if not client_id:
+        raise HTTPException(
+            status_code=500, 
+            detail="GOOGLE_CLIENT_ID is not configured on the server"
+        )
+
+    try:
+        # Verify the ID token
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), client_id)
+
+        # ID token is valid. Get the user's Google ID and email.
+        email = idinfo['email']
+        name = idinfo.get('name', email.split('@')[0])
+        
+        # 1. Check if user exists
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user:
+            # 2. Register new user if they don't exist
+            # Generate a random password since they use Google
+            import secrets
+            random_password = secrets.token_urlsafe(16)
+            
+            user = User(
+                name=name,
+                email=email,
+                password_hash=hash_password(random_password),
+                onboarding_completed=False
+            )
+            db.add(user)
+            db.flush()
+            
+            # Default role: PLAYER_ADULT
+            user_role = UserRole(user_id=user.id, role=Role.PLAYER_ADULT)
+            db.add(user_role)
+            
+            # Create player profile
+            player_profile = PlayerProfile(user_id=user.id)
+            db.add(player_profile)
+            
+            db.commit()
+            db.refresh(user)
+            
+            role_value = Role.PLAYER_ADULT.value
+        else:
+            # Get existing user's role
+            user_role_entry = db.query(UserRole).filter(UserRole.user_id == user.id).first()
+            role_value = user_role_entry.role.value if user_role_entry else Role.PLAYER_ADULT.value
+
+        # 3. Create our own JWT token
+        access_token = create_access_token(data={"user_id": str(user.id), "role": role_value})
+        
+        return {"access_token": access_token, "token_type": "bearer"}
+
+    except ValueError:
+        # Invalid token
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+    except Exception as e:
+        print(f"Error in google_auth: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during Google auth")
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):

@@ -65,3 +65,6 @@ class ChildCreateByParent(BaseModel):
 
 class LinkChildByEmailRequest(BaseModel):
     email: EmailStr
+
+class GoogleLogin(BaseModel):
+    id_token: str

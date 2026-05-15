@@ -98,4 +98,16 @@ class AuthRepository {
     );
     return response.data['url'];
   }
+
+  Future<User> loginWithGoogle(String idToken) async {
+    final response = await _apiClient.post('/auth/google', data: {
+      'id_token': idToken,
+    });
+
+    final token = response.data['access_token'];
+    await _tokenService.saveToken(token);
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    return await getCurrentUser();
+  }
 }

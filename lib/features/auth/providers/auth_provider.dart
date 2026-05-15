@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/services/token_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/models/user.dart';
 import 'dart:developer' as dev;
@@ -59,6 +60,42 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       dev.log('AuthProvider: Login failed: $e', name: 'auth');
       _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> signInWithGoogle() async {
+    _setLoading(true);
+    _error = null;
+    dev.log('AuthProvider: Starting Google Sign-In', name: 'auth');
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        dev.log('AuthProvider: Google Sign-In cancelled by user', name: 'auth');
+        return false;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception("Could not get ID Token from Google");
+      }
+
+      _user = await _repository.loginWithGoogle(idToken);
+      if (_user != null) {
+        dev.log('AuthProvider: Google login successful: ${_user!.email}', name: 'auth');
+        await _tokenService.setOnboardingCompleted(_user!.onboardingCompleted);
+        _isOnboardingCompletedLocally = _user!.onboardingCompleted;
+      }
+      return true;
+    } catch (e) {
+      dev.log('AuthProvider: Google Sign-In failed: $e', name: 'auth');
+      _error = "Google Sign-In failed: ${e.toString()}";
       return false;
     } finally {
       _setLoading(false);

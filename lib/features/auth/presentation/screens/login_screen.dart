@@ -212,7 +212,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: _SocialButton(
                             icon: Icons.g_mobiledata,
                             label: 'Google',
-                            onTap: () {},
+                            onTap: () async {
+                              final success = await auth.signInWithGoogle();
+                              if (!mounted) return;
+                              if (success) {
+                                Navigator.pushReplacementNamed(context, '/home');
+                              } else if (auth.error != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(auth.error!),
+                                    backgroundColor: _kRed,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ),
                         const SizedBox(width: 12),

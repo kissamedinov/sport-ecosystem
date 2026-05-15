@@ -29,7 +29,7 @@ def submit_quiz_attempt(
     today = get_astana_date()
     quiz = QuizService.get_daily_quiz(db, today, current_user)
     
-    # Anti-cheat: Check if already attempted today
+    # Anti-cheat: Check if already attempted today 
     if quiz.user_attempt:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
