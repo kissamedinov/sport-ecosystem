@@ -51,7 +51,11 @@ def migrate_db():
             conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS name VARCHAR;"))
             conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS format VARCHAR;"))
             conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS entry_fee INTEGER DEFAULT 0;"))
-            print("Columns added to tournament_divisions")
+            
+            # Fix teams table coach_id
+            conn.execute(text("ALTER TABLE teams ALTER COLUMN coach_id DROP NOT NULL;"))
+            
+            print("Columns added and constraints fixed")
         except Exception as e:
             print(f"Error adding columns: {e}")
             

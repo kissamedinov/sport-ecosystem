@@ -104,14 +104,16 @@ def main():
         return
 
     # 2. Create Tournament
-    t_id = create_tournament(org_token, "Aman Premium League")
+    t_id = create_tournament(org_token, "GOLDEN LEAGUE")
     if not t_id: return
     print(f"Created Tournament: {t_id}")
 
     # Double check tournament exists
     headers = {"Authorization": f"Bearer {org_token}"}
     t_check = requests.get(f"{BASE_URL}/tournaments/{t_id}", headers=headers)
-    print(f"Tournament check status: {t_check.status_code}")
+    if t_check.status_code != 200:
+        print(f"Tournament check failed: {t_check.status_code}")
+        return
 
     # 3. Create Division (as Organizer)
     headers = {"Authorization": f"Bearer {org_token}"}
@@ -132,22 +134,26 @@ def main():
     team_names = ["Red Dragons", "Blue Lions", "Golden Eagles", "White Wolves", "Green Tigers", "Silver Hawks"]
     random.shuffle(team_names)
     team_ids = []
+    for i in range(4):
+        name = f"{team_names[i]} {random.randint(100, 999)}"
+        # 4. Create Coach
+        coach_email = f"coach_{i}_{random.randint(1000,9999)}@test.com"
+        coach_token = register(f"Coach {i}", coach_email, "password", "COACH")
+        if not coach_token: continue
 
-    for i, name in enumerate(team_names[:4]): # Use 4 teams for league
-        # 4. Register Coach
-        coach_email = f"coach_{i}@test.com"
-        coach_token = login(coach_email, "password")
-        if not coach_token:
-            coach_token = register(f"Coach {name}", coach_email, "password", "COACH")
-        
-        # 5. Create Team
-        team_id = create_team(coach_token, name)
+        # 5. Create Team (as Coach)
+        headers = {"Authorization": f"Bearer {coach_token}"}
+        resp = requests.post(f"{BASE_URL}/teams", json={"name": name, "academy_name": "Test Academy"}, headers=headers)
+        if resp.status_code != 201:
+            print(f"Failed to create team {name}: {resp.status_code} - {resp.text}")
+            continue
+        team_id = resp.json()["id"]
         team_ids.append(team_id)
         print(f"Created Team {name}: {team_id}")
 
         # 6. Create Players and add to team
         for p_idx in range(3):
-            p_email = f"player_{i}_{p_idx}@test.com"
+            p_email = f"player_{i}_{p_idx}_{random.randint(1000,9999)}@test.com"
             p_token = login(p_email, "password")
             if not p_token:
                 p_token = register(f"Player {name} {p_idx}", p_email, "password", "PLAYER_YOUTH")
@@ -160,8 +166,15 @@ def main():
             requests.post(f"{BASE_URL}/teams/{team_id}/players/{p_id}", headers={"Authorization": f"Bearer {coach_token}"})
 
         # 7. Register team to tournament division
-        requests.post(f"{BASE_URL}/tournaments/divisions/{div_id}/register-team?team_id={team_id}", json="{}", headers={"Authorization": f"Bearer {coach_token}"})
-        print(f"Registered {name} to tournament")
+        reg_resp = requests.post(
+            f"{BASE_URL}/tournaments/divisions/{div_id}/register-team?team_id={team_id}", 
+            data="{}", # Pass as raw string for Body(...)
+            headers={"Authorization": f"Bearer {coach_token}", "Content-Type": "application/json"}
+        )
+        if reg_resp.status_code != 200:
+            print(f"Failed to register team {name}: {reg_resp.status_code} - {reg_resp.text}")
+        else:
+            print(f"Registered {name} to tournament")
 
     # 8. Approve all teams (as Organizer)
     for team_id in team_ids:
@@ -174,17 +187,25 @@ def main():
     requests.post(f"{BASE_URL}/tournaments/{t_id}/finalize-schedule", headers=headers)
     print("Finalized Schedule")
 
-    # 10. Record some results to simulate "middle of season"
-    matches_resp = requests.get(f"{BASE_URL}/tournaments/{t_id}/matches")
-    matches = matches_resp.json()
-    
-    # Let's finish first 2 matches
-    for m in matches[:2]:
-        m_id = m["id"]
-        h_score = random.randint(0, 4)
-        a_score = random.randint(0, 4)
-        requests.patch(f"{BASE_URL}/tournaments/matches/{m_id}/result?home_score={h_score}&away_score={a_score}", headers=headers)
-        print(f"Recorded match {m_id} result: {h_score}-{a_score}")
+    # 9. Get matches for division
+    matches_resp = requests.get(f"{BASE_URL}/tournaments/divisions/{div_id}/matches", headers=headers)
+    if matches_resp.status_code == 200:
+        try:
+            matches = matches_resp.json()
+            # 10. Update results for first 2 matches
+            for i, match in enumerate(matches[:2]):
+                m_id = match['id']
+                res_data = {
+                    "home_score": 2 + i,
+                    "away_score": 1,
+                    "status": "COMPLETED"
+                }
+                requests.post(f"{BASE_URL}/matches/{m_id}/result", json=res_data, headers=headers)
+            print("Successfully updated match results!")
+        except Exception as e:
+            print(f"Error parsing matches: {e}")
+    else:
+        print(f"Failed to fetch matches: {matches_resp.status_code}")
 
     print("DONE! Tournament populated successfully.")
 

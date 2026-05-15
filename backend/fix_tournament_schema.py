@@ -20,6 +20,13 @@ def fix_schema():
         except Exception as e:
             print(f"Error dropping {table}: {e}")
     
+    print("Fixing teams table constraints...")
+    try:
+        cur.execute("ALTER TABLE teams ALTER COLUMN coach_id DROP NOT NULL")
+        cur.execute("ALTER TABLE teams ALTER COLUMN name SET NOT NULL")
+    except Exception as e:
+        print(f"Error fixing teams table: {e}")
+    
     conn.commit()
     print("Tables dropped. Now recreating from models...")
     
