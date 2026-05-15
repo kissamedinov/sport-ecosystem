@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from datetime import date
+from datetime import date   
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.quizzes.models import DailyQuiz, QuizQuestion, QuizAttempt
@@ -71,8 +71,8 @@ class QuizService:
     @staticmethod
     def _generate_with_gemini(api_key: str) -> List[dict]:
         genai.configure(api_key=api_key)
-        # Используем максимально совместимую модель gemini-1.0-pro
-        model = genai.GenerativeModel('gemini-1.0-pro')
+        # Используем модель, которая точно есть в списке (аналог 1.5 Flash)
+        model = genai.GenerativeModel('gemini-flash-latest')
         
         prompt = """
         Generate 7 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
