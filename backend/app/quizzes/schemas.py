@@ -13,6 +13,17 @@ class QuizQuestionSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class QuizAttemptSchema(BaseModel):
+    id: UUID
+    user_id: UUID
+    quiz_id: UUID
+    score: int
+    total_questions: int
+    completed_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class DailyQuizSchema(BaseModel):
     id: UUID
     date: date
@@ -26,14 +37,3 @@ class DailyQuizSchema(BaseModel):
 class QuizAttemptCreate(BaseModel):
     score: int
     total_questions: int = 10
-
-class QuizAttemptSchema(BaseModel):
-    id: UUID
-    user_id: UUID
-    quiz_id: UUID
-    score: int
-    total_questions: int
-    completed_at: datetime
-
-    class Config:
-        from_attributes = True
