@@ -71,6 +71,7 @@ class QuizService:
     @staticmethod
     def _generate_with_gemini(api_key: str) -> List[dict]:
         genai.configure(api_key=api_key)
+        # Используем стабильную модель gemini-1.5-flash-latest
         model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
         prompt = """
