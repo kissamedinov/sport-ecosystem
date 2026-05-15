@@ -19,7 +19,7 @@ class CoachOnboardingStep extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'To start managing teams, you need to be invited by a Club Owner or request access to an existing organization.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),

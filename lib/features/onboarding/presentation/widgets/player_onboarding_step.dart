@@ -28,7 +28,7 @@ class _PlayerOnboardingStepState extends State<PlayerOnboardingStep> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'What is your preferred position on the pitch?',
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),

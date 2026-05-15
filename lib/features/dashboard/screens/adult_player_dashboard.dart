@@ -92,13 +92,12 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                   subtitle: 'ADULT PLAYER',
                   trailing: CircleAvatar(
                     radius: 20,
-                    backgroundColor: PremiumTheme.neonGreen.withOpacity(0.1),
+                    backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                     child: const Icon(Icons.person, color: PremiumTheme.neonGreen),
                   ),
                 ),
                 
-                Text('YOUR NEXT CHALLENGE',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
+                const PremiumSectionLabel('YOUR NEXT CHALLENGE'),
                 const SizedBox(height: 12),
                 PremiumCard(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Match Details'))),
@@ -161,8 +160,7 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                 ),
 
                 const SizedBox(height: 24),
-                Text('EXPLORE',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 2)),
+                const PremiumSectionLabel('EXPLORE'),
                 const SizedBox(height: 12),
                 
                 GridView.count(

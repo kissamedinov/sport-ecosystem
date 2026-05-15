@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -16,6 +17,7 @@ import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.
 import 'package:mobile/features/clubs/presentation/screens/create_child_profile_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -37,6 +39,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       return _buildClubNav(context);
     }
 
+    if (role == 'PLAYER_CHILD') {
+      return _buildChildNav(context);
+    }
+
     if (role == 'COACH') {
       return const RoleRouter();
     }
@@ -49,17 +55,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         index: safeIndex,
         children: tabs.map((t) => t.screen).toList(),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: safeIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        items: tabs.map((t) {
-          return BottomNavigationBarItem(
-            icon: Icon(t.icon),
-            activeIcon: Icon(t.activeIcon),
-            label: t.label,
-          );
-        }).toList(),
+      bottomNavigationBar: BottomAppBar(
+        color: PremiumTheme.surfaceCard(context),
+        elevation: 0,
+        padding: EdgeInsets.zero,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(tabs.length, (i) =>
+              _buildNavItem(i, tabs[i].icon, tabs[i].activeIcon, tabs[i].label.toUpperCase()),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -108,11 +116,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildClubNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
-              _buildClubNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE'),
+              _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
+              _buildNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE'),
               const SizedBox(width: 56),
-              _buildClubNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
-              _buildClubNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
+              _buildNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
+              _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
             ],
           ),
         ),
@@ -120,7 +128,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  Widget _buildClubNavItem(int index, IconData icon, IconData activeIcon, String label) {
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
@@ -142,6 +150,106 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 fontSize: 9,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                 color: isSelected ? PremiumTheme.accent(context) : Theme.of(context).colorScheme.onSurfaceVariant,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChildNav(BuildContext context) {
+    final safeIndex = _selectedIndex.clamp(0, 3);
+
+    final childScreens = [
+      const RoleRouter(),
+      const FootballHubScreen(),
+      const NotificationScreen(),
+      const ProfileScreen(),
+    ];
+
+    return Scaffold(
+      body: IndexedStack(
+        index: safeIndex,
+        children: childScreens,
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00E676).withValues(alpha: 0.4),
+              blurRadius: 16,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DailyQuizScreen()),
+          ),
+          backgroundColor: const Color(0xFF00E676),
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: const Icon(Icons.bolt_rounded, color: Colors.black, size: 28, weight: 700),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: BottomAppBar(
+            color: const Color(0xFF0A0A0A).withValues(alpha: 0.75),
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 6,
+            elevation: 0,
+            padding: EdgeInsets.zero,
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
+                  _buildChildNavItem(1, Icons.hub_outlined, Icons.hub_rounded, 'HUB'),
+                  const SizedBox(width: 56),
+                  _buildChildNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
+                  _buildChildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    final isSelected = _selectedIndex == index;
+    final activeColor = const Color(0xFF00E676);
+    final inactiveColor = Colors.white38;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = index),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? activeColor : inactiveColor,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                color: isSelected ? activeColor : inactiveColor,
                 letterSpacing: 0.5,
               ),
             ),

@@ -23,7 +23,7 @@ class BookingScreen extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.stadium, color: Color(0xFF00E676)),

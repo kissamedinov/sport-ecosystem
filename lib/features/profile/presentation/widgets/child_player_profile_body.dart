@@ -139,6 +139,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
 
   Widget _buildCareerStats(BuildContext context) {
     final stats = context.watch<PlayerStatsProvider>().getCareerStats(widget.user.id);
+    final teams = context.watch<TeamProvider>().myTeams;
     final user = widget.user.id == context.watch<AuthProvider>().user?.id
         ? context.watch<AuthProvider>().user!
         : widget.user;
@@ -146,121 +147,185 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     final age = _calculateAge(user.dateOfBirth);
     final showSet = user.dateOfBirth == null || isDefaultDob;
 
-    return Column(
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.35,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _selectBirthday(context),
-                child: PremiumStatCard(
-                  title: "AGE",
-                  value: showSet ? "SET" : "$age yrs",
-                  icon: Icons.cake_rounded,
-                  color: Colors.pinkAccent,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: PremiumStatCard(
-                title: "MATCHES",
-                value: "${stats.matchesPlayed}",
-                icon: Icons.sports_soccer_rounded,
-                color: PremiumTheme.electricBlue,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: PremiumStatCard(
-                title: "GOALS",
-                value: "${stats.totalGoals}",
-                icon: Icons.sports_rounded,
-                color: PremiumTheme.neonGreen,
-              ),
-            ),
-          ],
+        GestureDetector(
+          onTap: () => _selectBirthday(context),
+          child: _buildStatCard(
+            icon: Icons.cake_rounded,
+            value: showSet ? 'SET' : '$age',
+            label: 'AGE',
+            badge: showSet ? 'TAP' : 'YEARS',
+            accent: const Color(0xFFCE93D8),
+            cardBg: const Color(0xFF1A001A),
+            borderColor: const Color(0xFF6A0080),
+          ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: PremiumStatCard(
-                title: "ASSISTS",
-                value: "${stats.totalAssists}",
-                icon: Icons.handshake_rounded,
-                color: Colors.orangeAccent,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: PremiumStatCard(
-                title: "MVP",
-                value: "${stats.totalMvpAwards}",
-                icon: Icons.emoji_events_rounded,
-                color: Colors.amber,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: PremiumStatCard(
-                title: "CARDS",
-                value: "${stats.totalYellowCards + stats.totalRedCards}",
-                icon: Icons.style_rounded,
-                color: Colors.yellowAccent,
-              ),
-            ),
-          ],
+        _buildStatCard(
+          icon: Icons.shield_rounded,
+          value: '${teams.length}',
+          label: 'TEAMS',
+          badge: 'SQUAD',
+          accent: const Color(0xFF42A5F5),
+          cardBg: const Color(0xFF0D1B2A),
+          borderColor: const Color(0xFF1E3A5F),
+        ),
+        _buildStatCard(
+          icon: Icons.sports_soccer_rounded,
+          value: '${stats.totalGoals}',
+          label: 'GOALS',
+          badge: 'SCORED',
+          accent: const Color(0xFF00E676),
+          cardBg: const Color(0xFF0A1F0A),
+          borderColor: const Color(0xFF1B5E20),
+        ),
+        _buildStatCard(
+          icon: Icons.stadium_rounded,
+          value: '${stats.matchesPlayed}',
+          label: 'MATCHES',
+          badge: 'PLAYED',
+          accent: const Color(0xFFFFA726),
+          cardBg: const Color(0xFF1A1200),
+          borderColor: const Color(0xFFE65100),
+        ),
+        _buildStatCard(
+          icon: Icons.handshake_rounded,
+          value: '${stats.totalAssists}',
+          label: 'ASSISTS',
+          badge: 'PASSED',
+          accent: const Color(0xFF00E676),
+          cardBg: const Color(0xFF0A1F0A),
+          borderColor: const Color(0xFF1B5E20),
+        ),
+        _buildStatCard(
+          icon: Icons.emoji_events_rounded,
+          value: '${stats.totalMvpAwards}',
+          label: 'AWARDS',
+          badge: 'MVP',
+          accent: const Color(0xFFFFA726),
+          cardBg: const Color(0xFF1A1200),
+          borderColor: const Color(0xFFE65100),
         ),
       ],
     );
   }
 
-  Widget _buildDailyChallenge(BuildContext context) {
-    return PremiumCard(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const DailyQuizScreen()),
-        );
-      },
-      padding: const EdgeInsets.all(20),
-      child: Row(
+  Widget _buildStatCard({
+    required IconData icon,
+    required String value,
+    required String label,
+    required String badge,
+    required Color accent,
+    required Color cardBg,
+    required Color borderColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.bolt_rounded, color: PremiumTheme.neonGreen, size: 28),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "FOOTBALL KICK-OFF",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
-                  ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  "Win 7 points today to keep your streak!",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white54,
-                  ),
+                child: Icon(icon, color: accent, size: 20),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
+                child: Text(
+                  badge,
+                  style: TextStyle(color: accent, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
           ),
-          const Icon(Icons.arrow_forward_ios_rounded, color: PremiumTheme.neonGreen, size: 16),
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(color: accent, fontSize: 36, fontWeight: FontWeight.bold, height: 1.0),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12, letterSpacing: 1.2, fontWeight: FontWeight.w600),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDailyChallenge(BuildContext context) {
+    const accent = Color(0xFF00E676);
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const DailyQuizScreen()),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0A1F0A),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF1B5E20), width: 1.5),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.bolt_rounded, color: accent, size: 28),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "FOOTBALL KICK-OFF",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "Win 7 points today to keep your streak!",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: accent, size: 16),
+          ],
+        ),
       ),
     );
   }

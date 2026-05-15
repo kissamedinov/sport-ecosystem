@@ -14,14 +14,14 @@ class CareerHistoryChart extends StatelessWidget {
       return Container(
         height: 180,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             "No career history yet",
-            style: TextStyle(color: Colors.white38),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
       );
@@ -62,12 +62,12 @@ class CareerHistoryChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "GOALS DYNAMICS", 
+              Text(
+                "GOALS DYNAMICS",
                 style: TextStyle(
-                  color: Colors.white, 
-                  fontWeight: FontWeight.w900, 
-                  fontSize: 12, 
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -93,7 +93,7 @@ class CareerHistoryChart extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                     strokeWidth: 1,
                   ),
                 ),
@@ -106,8 +106,8 @@ class CareerHistoryChart extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         if (value % 1 != 0) return const SizedBox();
                         return Text(
-                          value.toInt().toString(), 
-                          style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)
+                          value.toInt().toString(),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -158,7 +158,7 @@ class CareerHistoryChart extends StatelessWidget {
                       return touchedSpots.map((LineBarSpot touchedSpot) {
                         return LineTooltipItem(
                           '${touchedSpot.y.toInt()} Goals',
-                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                         );
                       }).toList();
                     },

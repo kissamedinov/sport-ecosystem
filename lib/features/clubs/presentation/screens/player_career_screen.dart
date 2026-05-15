@@ -42,10 +42,10 @@ class _PlayerCareerScreenState extends State<PlayerCareerScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 50,
-                        backgroundColor: Colors.white10,
-                        child: Icon(Icons.person, size: 50),
+                        backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                        child: const Icon(Icons.person, size: 50),
                       ),
                       const SizedBox(height: 16),
                       Text(
