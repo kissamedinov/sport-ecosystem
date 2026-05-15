@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/teams/data/models/team.dart';
 import 'package:mobile/features/matches/data/models/match.dart';
 import 'package:mobile/features/matches/presentation/screens/match_events_screen.dart';
@@ -162,75 +163,23 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard("Teams", "$teamCount", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "MANAGED"),
+          child: PremiumStatCard(
+            title: "MANAGED",
+            value: "$teamCount",
+            icon: Icons.shield_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard("Matches", "$matchCount", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "RECENT"),
+          child: PremiumStatCard(
+            title: "RECENT",
+            value: "$matchCount",
+            icon: Icons.sports_soccer_rounded,
+            color: PremiumTheme.neonGreen,
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color, {String? subtitle}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 14, color: color),
-              ),
-              if (subtitle != null)
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 8,
-                    color: color.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: color,
-              letterSpacing: -1,
-            ),
-          ),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

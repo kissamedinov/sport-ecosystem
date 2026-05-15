@@ -38,10 +38,10 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       future: _statsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: PremiumTheme.neonGreen)));
+          return _buildLoadingState();
         }
         if (snapshot.hasError) {
-          return Center(child: Text("Error loading stats: ${snapshot.error}", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)));
+          return _buildErrorState(snapshot.error.toString());
         }
         final stats = snapshot.data!;
 
@@ -49,128 +49,268 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           future: _careerFuture,
           builder: (context, careerSnapshot) {
             final career = careerSnapshot.data;
-            
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("CAREER OVERVIEW"),
-                if (career != null) _buildCareerGrid(career) else _buildStatsGrid(stats),
-                const SizedBox(height: 24),
-                
-                // Career History Dynamic Chart
-                FutureBuilder<List<MatchHistoryItem>>(
-                  future: _historyFuture,
-                  builder: (context, historySnapshot) {
-                    if (historySnapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)),
-                      );
-                    }
-                    if (historySnapshot.hasError || !historySnapshot.hasData) {
-                      return const SizedBox();
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CareerHistoryChart(history: historySnapshot.data!),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                
-                // Recent Matches List
-                FutureBuilder<List<MatchHistoryItem>>(
-                  future: _historyFuture,
-                  builder: (context, historySnapshot) {
-                    if (historySnapshot.hasData && historySnapshot.data!.isNotEmpty) {
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildSectionLabel("CAREER OVERVIEW"),
+                  const SizedBox(height: 12),
+                  if (career != null) _buildCareerGrid(career) else _buildStatsGrid(stats),
+                  const SizedBox(height: 28),
+
+                  FutureBuilder<List<MatchHistoryItem>>(
+                    future: _historyFuture,
+                    builder: (context, historySnapshot) {
+                      if (historySnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+                          ),
+                        );
+                      }
+                      if (!historySnapshot.hasData || historySnapshot.data!.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      final history = historySnapshot.data!;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle("RECENT MATCHES"),
+                          _buildSectionLabel("GOALS DYNAMICS"),
+                          const SizedBox(height: 12),
+                          CareerHistoryChart(history: history),
+                          const SizedBox(height: 28),
+                          _buildSectionLabel("RECENT MATCHES"),
+                          const SizedBox(height: 12),
                           SizedBox(
                             height: 100,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: historySnapshot.data!.length > 5 ? 5 : historySnapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                final match = historySnapshot.data![index];
-                                return _buildMatchCard(match);
-                              },
+                              itemCount: history.length > 5 ? 5 : history.length,
+                              itemBuilder: (context, index) => _buildMatchCard(history[index]),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 28),
                         ],
                       );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-
-                if (stats.awards.isNotEmpty) ...[
-                  _buildSectionTitle("LATEST AWARDS"),
-                  _buildAwardsList(stats.awards),
-                  const SizedBox(height: 24),
-                ],
-                _buildSectionTitle("QUICK ACTIONS"),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      PremiumCard(
-                        padding: EdgeInsets.zero,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
-                            child: const Icon(Icons.analytics, color: PremiumTheme.electricBlue),
-                          ),
-                          title: Text("View Detailed Career", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                          trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      PremiumCard(
-                        padding: EdgeInsets.zero,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
-                            child: const Icon(Icons.group_add_rounded, color: Colors.orangeAccent),
-                          ),
-                          title: Text("Parent Requests", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                          trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ],
+                    },
                   ),
-                ),
-              ],
+
+                  if (stats.awards.isNotEmpty) ...[
+                    _buildSectionLabel("LATEST AWARDS"),
+                    const SizedBox(height: 12),
+                    _buildAwardsList(stats.awards),
+                    const SizedBox(height: 28),
+                  ],
+
+                  _buildSectionLabel("QUICK ACTIONS"),
+                  const SizedBox(height: 12),
+                  _buildActionCard(
+                    icon: Icons.analytics_rounded,
+                    label: "View Detailed Career",
+                    color: PremiumTheme.electricBlue,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: widget.playerProfileId)),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildActionCard(
+                    icon: Icons.group_add_rounded,
+                    label: "Parent Requests",
+                    color: Colors.orangeAccent,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ParentRequestsScreen()),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             );
-          }
+          },
         );
       },
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-          letterSpacing: 2,
+  Widget _buildLoadingState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(60),
+        child: Column(
+          children: [
+            const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
+            const SizedBox(height: 20),
+            Text(
+              "SYNCING DATA...",
+              style: TextStyle(
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: PremiumCard(
+          child: Column(
+            children: [
+              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
+              const SizedBox(height: 16),
+              Text(
+                "SYSTEM ERROR",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              TextButton.icon(
+                onPressed: () => setState(() {
+                  _statsFuture = _statsApi.getPlayerStats(widget.playerProfileId);
+                  _careerFuture = _statsApi.getCareerStats(widget.playerProfileId);
+                  _historyFuture = _statsApi.getMatchHistory(widget.playerProfileId);
+                }),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text("RETRY CONNECTION"),
+                style: TextButton.styleFrom(foregroundColor: PremiumTheme.neonGreen),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String text) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            letterSpacing: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCareerGrid(PlayerCareerStats career) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: PremiumStatCard(
+                title: "RATING",
+                value: career.rating.toStringAsFixed(1),
+                icon: Icons.star_rounded,
+                color: Colors.amber,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PremiumStatCard(
+                title: "MATCHES",
+                value: "${career.matchesPlayed}",
+                icon: Icons.stadium_rounded,
+                color: PremiumTheme.electricBlue,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: PremiumStatCard(
+                title: "GOALS",
+                value: "${career.goals}",
+                icon: Icons.sports_soccer_rounded,
+                color: PremiumTheme.neonGreen,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PremiumStatCard(
+                title: "ASSISTS",
+                value: "${career.assists}",
+                icon: Icons.transfer_within_a_station_rounded,
+                color: Colors.orangeAccent,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PremiumStatCard(
+                title: "AWARDS",
+                value: "${career.bestPlayerAwards}",
+                icon: Icons.emoji_events_rounded,
+                color: Colors.purpleAccent,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsGrid(PlayerStats stats) {
+    return Row(
+      children: [
+        Expanded(
+          child: PremiumStatCard(
+            title: "GOALS",
+            value: "${stats.goals}",
+            icon: Icons.sports_soccer_rounded,
+            color: PremiumTheme.neonGreen,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: "ASSISTS",
+            value: "${stats.assists}",
+            icon: Icons.transfer_within_a_station_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: "SAVES",
+            value: "${stats.saves}",
+            icon: Icons.front_hand_rounded,
+            color: Colors.orangeAccent,
+          ),
+        ),
+      ],
     );
   }
 
@@ -203,14 +343,12 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                 const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
             ],
           ),
-          const SizedBox(height: 4),
           Text(
             match.tournamentName,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const Spacer(),
           Row(
             children: [
               _buildMiniTag("${match.goals}G", PremiumTheme.neonGreen),
@@ -237,100 +375,46 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     );
   }
 
-  Widget _buildCareerGrid(PlayerCareerStats career) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: PremiumStatCard(
-                  title: "Rating",
-                  value: career.rating.toStringAsFixed(1),
-                  icon: Icons.star_rounded,
-                  color: Colors.amber,
-                ),
+  Widget _buildActionCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: onSurface.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: onSurface.withValues(alpha: 0.07)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: PremiumStatCard(
-                  title: "Matches",
-                  value: "${career.matchesPlayed}",
-                  icon: Icons.stadium_rounded,
-                  color: PremiumTheme.electricBlue,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: PremiumStatCard(
-                  title: "Goals",
-                  value: "${career.goals}",
-                  icon: Icons.sports_soccer,
-                  color: PremiumTheme.neonGreen,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: PremiumStatCard(
-                  title: "Assists",
-                  value: "${career.assists}",
-                  icon: Icons.assistant,
-                  color: Colors.orangeAccent,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: PremiumStatCard(
-                  title: "Awards",
-                  value: "${career.bestPlayerAwards}",
-                  icon: Icons.emoji_events_rounded,
-                  color: Colors.purpleAccent,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsGrid(PlayerStats stats) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: PremiumStatCard(
-              title: "Goals",
-              value: "${stats.goals}",
-              icon: Icons.sports_soccer,
-              color: PremiumTheme.neonGreen,
+              child: Icon(icon, size: 18, color: color),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PremiumStatCard(
-              title: "Assists",
-              value: "${stats.assists}",
-              icon: Icons.assistant,
-              color: PremiumTheme.electricBlue,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PremiumStatCard(
-              title: "Saves",
-              value: "${stats.saves}",
-              icon: Icons.security,
-              color: Colors.orangeAccent,
-            ),
-          ),
-        ],
+            Icon(Icons.chevron_right_rounded, size: 18, color: onSurface.withValues(alpha: 0.3)),
+          ],
+        ),
       ),
     );
   }
@@ -339,7 +423,6 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     return SizedBox(
       height: 110,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         itemCount: awards.length > 5 ? 5 : awards.length,
         itemBuilder: (context, index) {
@@ -349,14 +432,18 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.emoji_events, color: Colors.amber, size: 24),
+                const Icon(Icons.emoji_events_rounded, color: Colors.amber, size: 24),
                 const SizedBox(height: 8),
                 Text(
                   awards[index],
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),

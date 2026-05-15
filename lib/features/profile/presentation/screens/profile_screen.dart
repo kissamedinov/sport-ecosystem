@@ -12,6 +12,7 @@ import 'package:mobile/features/profile/presentation/widgets/manager_profile_bod
 import 'package:mobile/features/profile/presentation/widgets/child_player_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/organizer_profile_body.dart';
+import 'package:mobile/features/profile/presentation/widgets/field_owner_profile_body.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
@@ -156,6 +157,8 @@ class ProfileScreen extends StatelessWidget {
       return CoachProfileBody(coachId: user.id);
     } else if (roles.contains('TOURNAMENT_ORGANIZER')) {
       return const OrganizerProfileBody();
+    } else if (roles.contains('FIELD_OWNER')) {
+      return const FieldOwnerProfileBody();
     } else if (roles.contains('PARENT')) {
       return const ParentProfileBody();
     } else if (roles.contains('PLAYER_CHILD')) {
