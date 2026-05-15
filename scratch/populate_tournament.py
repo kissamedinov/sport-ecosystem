@@ -39,7 +39,7 @@ def create_tournament(token, name):
         "start_date": (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
         "end_date": (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d"),
         "registration_open": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
-        "registration_close": (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d"),
+        "registration_close": (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d"),
         "format": "LEAGUE",
         "age_category": "2015",
         "match_half_duration": 20,
@@ -104,7 +104,7 @@ def main():
         return
 
     # 2. Create Tournament
-    t_id = create_tournament(org_token, "DIAMOND LEAGUE")
+    t_id = create_tournament(org_token, "EMERALD LEAGUE")
     if not t_id: return
     print(f"Created Tournament: {t_id}")
 
