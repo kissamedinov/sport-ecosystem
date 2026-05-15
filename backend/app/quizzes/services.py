@@ -71,7 +71,7 @@ class QuizService:
     @staticmethod
     def _generate_with_gemini(api_key: str) -> List[dict]:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         prompt = """
         Generate 7 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
