@@ -100,11 +100,12 @@ class QuizService:
             prompt = """
             Generate 10 football (soccer) quiz questions for adults and hardcore fans!
             These must be DIFFICULT. Focus on:
-            - Obscure player facts and records (e.g. "Who is the top scorer of the 1974 World Cup?")
-            - Detailed statistics (transfer fees, clean sheets, career goals)
-            - Tactical nuances and historic formations (e.g. "Who invented the 'Catenaccio' system?")
-            - Recent major league stats (Premier League, La Liga, Seria A, Kazakhstan Premier League)
-            - Club history and rivalries.
+            - Balance between Historic facts (World Cups 1950-2000) and Modern era (2010-2026).
+            - Obscure player facts and records.
+            - Detailed statistics (transfer fees, clean sheets, career goals, xG stats).
+            - Tactical nuances and historic vs modern formations.
+            - Recent major league stats (Premier League, La Liga, Seria A, Kazakhstan Premier League 2023-2025).
+            - Club history and modern rivalries.
             
             Mix the difficulty: 2 Medium, 5 Hard, 3 Extreme (expert level) questions.
             """
