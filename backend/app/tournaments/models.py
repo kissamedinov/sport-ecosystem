@@ -180,13 +180,13 @@ class TournamentSquad(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_team_id = Column(UUID(as_uuid=True), ForeignKey("tournament_teams.id"), nullable=False)
-    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
+    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
     jersey_number = Column(Integer, nullable=True)
     position = Column(String, nullable=True)
     added_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tournament_team = relationship("TournamentTeam", back_populates="squad")
-    child_profile = relationship("app.clubs.models.ChildProfile")
+    player_profile = relationship("app.users.models.PlayerProfile")
 
 class TournamentGroup(Base):
     __tablename__ = "tournament_groups"
@@ -254,7 +254,7 @@ class TournamentPlayerStats(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=False)
-    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
+    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
     
     goals = Column(Integer, default=0)
     assists = Column(Integer, default=0)
@@ -264,17 +264,17 @@ class TournamentPlayerStats(Base):
     red_cards = Column(Integer, default=0)
 
     division = relationship("TournamentDivision", back_populates="player_stats")
-    child_profile = relationship("app.clubs.models.ChildProfile")
+    player_profile = relationship("app.users.models.PlayerProfile")
 
 class TournamentAward(Base):
     __tablename__ = "tournament_awards"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=False)
-    child_profile_id = Column(UUID(as_uuid=True), ForeignKey("child_profiles.id"), nullable=False)
+    player_profile_id = Column(UUID(as_uuid=True), ForeignKey("player_profiles.id"), nullable=False)
     title = Column(String, nullable=False) # e.g., 'Best Player', 'Top Scorer'
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     division = relationship("TournamentDivision", back_populates="awards")
-    child_profile = relationship("app.clubs.models.ChildProfile")
+    player_profile = relationship("app.users.models.PlayerProfile")
