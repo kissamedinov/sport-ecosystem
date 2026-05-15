@@ -213,6 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             icon: Icons.g_mobiledata,
                             label: 'Google',
                             onTap: () async {
+                              final auth = context.read<AuthProvider>();
                               final success = await auth.signInWithGoogle();
                               if (!mounted) return;
                               if (success) {
