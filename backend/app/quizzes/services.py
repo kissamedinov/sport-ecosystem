@@ -69,13 +69,21 @@ class QuizService:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = """
-        Generate 7 football (soccer) quiz questions for kids (age 8-12).
+        Generate 7 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
+        Mix the difficulty: 2 Easy, 3 Medium, and 2 Hard (expert level) questions.
+        Topics should include: 
+        - Famous players and their records
+        - Football rules and referee signals
+        - Basic tactics (e.g., "What is a 4-3-3 formation?")
+        - Major tournament history (Champions League, World Cup)
+        
         Format: JSON list of objects.
         Each object must have:
         - "question": string
         - "options": list of 4 strings
         - "correct_index": integer (0-3)
-        - "explanation": string (short, fun fact)
+        - "explanation": string (fun fact or educational tip)
+        
         Language: Russian.
         Return ONLY the JSON array.
         """
