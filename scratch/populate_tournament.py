@@ -104,7 +104,7 @@ def main():
         return
 
     # 2. Create Tournament
-    t_id = create_tournament(org_token, "GOLDEN LEAGUE")
+    t_id = create_tournament(org_token, "DIAMOND LEAGUE")
     if not t_id: return
     print(f"Created Tournament: {t_id}")
 
@@ -168,8 +168,8 @@ def main():
         # 7. Register team to tournament division
         reg_resp = requests.post(
             f"{BASE_URL}/tournaments/divisions/{div_id}/register-team?team_id={team_id}", 
-            data="{}", # Pass as raw string for Body(...)
-            headers={"Authorization": f"Bearer {coach_token}", "Content-Type": "application/json"}
+            json="{}", # Pass as JSON-encoded string
+            headers={"Authorization": f"Bearer {coach_token}"}
         )
         if reg_resp.status_code != 200:
             print(f"Failed to register team {name}: {reg_resp.status_code} - {reg_resp.text}")
