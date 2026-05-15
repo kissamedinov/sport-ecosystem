@@ -225,7 +225,8 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     
     tournament = division.edition
     
-    from app.teams.models import Team, Academy
+    from app.teams.models import Team
+    from app.academies.models import Academy
     team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
