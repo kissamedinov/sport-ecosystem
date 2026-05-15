@@ -28,7 +28,7 @@ class RoleSelectionScreen extends StatelessWidget {
           Text(
             'You are registered as a ${primaryRole.replaceAll('_', ' ').toUpperCase()}. Is this correct?',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, color: Colors.white70),
+            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 40),
           _buildRoleCard(context, primaryRole),
@@ -48,7 +48,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 const SnackBar(content: Text('Please contact support to change your role.')),
               );
             },
-            child: const Text('Change Role', style: TextStyle(color: Colors.white54)),
+            child: Text('Change Role', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
           ),
         ],
       ),
@@ -79,7 +79,7 @@ class RoleSelectionScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.3)),
       ),
@@ -95,7 +95,7 @@ class RoleSelectionScreen extends StatelessWidget {
           Text(
             description,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white70),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
         ],
       ),

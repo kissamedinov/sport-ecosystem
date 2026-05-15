@@ -163,7 +163,7 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white24, letterSpacing: 2),
+      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), letterSpacing: 2),
     );
   }
 
@@ -214,7 +214,7 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
               ),
               const SizedBox(height: 16),
               Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
-              Text(label, style: const TextStyle(color: Colors.white24, fontSize: 9, fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 9, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -229,12 +229,12 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
       decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
       child: Column(
         children: [
-          Icon(icon, color: Colors.white10, size: 40),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 40),
           const SizedBox(height: 12),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
       ),

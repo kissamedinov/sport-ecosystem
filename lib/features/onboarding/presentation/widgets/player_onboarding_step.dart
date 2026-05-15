@@ -31,7 +31,7 @@ class _PlayerOnboardingStepState extends State<PlayerOnboardingStep> {
           const Text(
             'What is your preferred position on the pitch?',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 48),
           Wrap(
@@ -46,9 +46,9 @@ class _PlayerOnboardingStepState extends State<PlayerOnboardingStep> {
                   width: 140,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF00E676).withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                    color: isSelected ? const Color(0xFF00E676).withValues(alpha: 0.1) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF00E676) : Colors.white24,
+                      color: isSelected ? const Color(0xFF00E676) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -58,7 +58,7 @@ class _PlayerOnboardingStepState extends State<PlayerOnboardingStep> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? const Color(0xFF00E676) : Colors.white70,
+                        color: isSelected ? const Color(0xFF00E676) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ),

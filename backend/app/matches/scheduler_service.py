@@ -1,5 +1,5 @@
 import random
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
 from app.matches.models import Match, MatchStatus
@@ -21,7 +21,7 @@ def generate_round_robin_schedule(db: Session, tournament_id: UUID, team_ids: Li
     Generates a round-robin schedule for a list of teams.
     Circle Method algorithm.
     """
-    working_ids: List[UUID | None] = [t for t in team_ids]
+    working_ids: List[Optional[UUID]] = [t for t in team_ids]
     if len(working_ids) % 2 != 0:
         working_ids.append(None) # Bye
 

@@ -24,7 +24,6 @@ class ChildPlayerProfile extends StatelessWidget {
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
             fontSize: 14,
-            color: Colors.white,
           ),
         ),
         centerTitle: true,
@@ -32,7 +31,7 @@ class ChildPlayerProfile extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white60, size: 20),
+            icon: const Icon(Icons.settings_outlined, size: 20),
             onPressed: () {
               Navigator.push(
                 context,

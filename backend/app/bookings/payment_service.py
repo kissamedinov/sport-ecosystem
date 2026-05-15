@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
+from typing import Optional
 from uuid import UUID
 from app.bookings.models import Booking, Payment, PaymentStatus, BookingStatus, PaymentMethod
 from app.tournaments.models import TournamentRegistration, RegistrationStatus
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
 
-def create_payment(db: Session, user_id: UUID, amount: float, payment_method: PaymentMethod, booking_id: UUID | None = None, tournament_id: UUID | None = None):
+def create_payment(db: Session, user_id: UUID, amount: float, payment_method: PaymentMethod, booking_id: Optional[UUID] = None, tournament_id: Optional[UUID] = None):
     new_payment = Payment(
         booking_id=booking_id,
         tournament_id=tournament_id,

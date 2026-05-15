@@ -24,7 +24,6 @@ class ClubOwnerProfile extends StatelessWidget {
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
             fontSize: 16,
-            color: Colors.white,
           ),
         ),
         centerTitle: true,

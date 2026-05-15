@@ -64,7 +64,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
                 }
                 final leaderboard = snapshot.data ?? [];
                 if (leaderboard.isEmpty) {
-                  return const Center(child: Text("No scorers recorded yet.", style: TextStyle(color: Colors.white38)));
+                  return Center(child: Text("No scorers recorded yet.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))));
                 }
 
                 return ListView.builder(

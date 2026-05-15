@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
-import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_dashboard_screen.dart';
-import 'package:mobile/features/coaches/presentation/screens/coach_teams_screen.dart';
-import 'package:mobile/features/coaches/presentation/screens/coach_performance_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_attendance_screen.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 
@@ -548,6 +544,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     final String code = user?.uniqueCode ?? "ID-PENDING";
     final String clubName = academy?.name ?? "NO CLUB ASSIGNED";
 
+<<<<<<< HEAD
     return Column(
       children: [
         Container(
@@ -558,6 +555,52 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               colors: [
                 PremiumTheme.neonGreen.withValues(alpha: 0.15),
                 PremiumTheme.neonGreen.withValues(alpha: 0.05),
+=======
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            PremiumTheme.neonGreen.withValues(alpha: 0.15),
+            PremiumTheme.neonGreen.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.badge_rounded, color: PremiumTheme.neonGreen, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "UNIQUE COACH ID",
+                  style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  code,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "Use this ID to be invited to a team",
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+>>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -654,11 +697,11 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
           ),
-          child: Icon(icon, color: Colors.white70, size: 18),
+          child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
         ),
       ),
     );

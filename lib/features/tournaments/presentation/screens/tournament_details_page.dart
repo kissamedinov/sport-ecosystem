@@ -80,6 +80,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -108,7 +109,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           controller: _tabController,
           indicatorColor: PremiumTheme.neonGreen,
           labelColor: PremiumTheme.neonGreen,
-          unselectedLabelColor: Colors.white38,
+          unselectedLabelColor: cs.onSurfaceVariant,
           isScrollable: _isOrganizer,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
           tabs: [
@@ -127,12 +128,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           }
 
           if (provider.error != null && provider.selectedTournament == null) {
-            return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.white70)));
+            return Center(child: Text('Error: ${provider.error}', style: TextStyle(color: cs.onSurfaceVariant)));
           }
 
           final tournament = provider.selectedTournament;
           if (tournament == null) {
-            return const Center(child: Text('Tournament not found', style: TextStyle(color: Colors.white38)));
+            return Center(child: Text('Tournament not found', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
           }
 
           return TabBarView(
@@ -183,6 +184,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildPremiumHeader(Tournament t) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       child: Row(
         children: [
@@ -213,18 +215,18 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 14, color: Colors.white54),
+                    Icon(Icons.location_on, size: 14, color: cs.onSurface.withValues(alpha: 0.55)),
                     const SizedBox(width: 4),
-                    Text(t.location, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                    Text(t.location, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 13)),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 14, color: Colors.white54),
+                    Icon(Icons.calendar_today, size: 14, color: cs.onSurface.withValues(alpha: 0.55)),
                     const SizedBox(width: 4),
                     Text('${t.startDate} - ${t.endDate}',
-                        style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                        style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 12)),
                   ],
                 ),
               ],
@@ -244,7 +246,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   child: const Text('DEADLINE', style: TextStyle(color: PremiumTheme.danger, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 4),
-                Text(t.registrationClose!.split('T').first, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                Text(t.registrationClose!.split('T').first, style: TextStyle(color: cs.onSurface, fontSize: 11, fontWeight: FontWeight.bold)),
               ],
             ),
         ],
@@ -264,6 +266,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildContactTab(Tournament t) {
+    final cs = Theme.of(context).colorScheme;
     final hasWhatsapp = t.whatsapp != null && t.whatsapp!.trim().isNotEmpty;
     final hasPhone = t.phone != null && t.phone!.trim().isNotEmpty;
     final hasInstagram = t.instagram != null && t.instagram!.trim().isNotEmpty;
@@ -287,7 +290,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       _launchURL('https://wa.me/$cleanPhone');
                     },
                   ),
-                if (hasWhatsapp && (hasPhone || hasInstagram)) const Divider(color: Colors.white10),
+                if (hasWhatsapp && (hasPhone || hasInstagram)) Divider(color: cs.onSurface.withValues(alpha: 0.08)),
                 if (hasPhone)
                   _buildContactItem(
                     Icons.phone,
@@ -295,7 +298,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     t.phone!,
                     onTap: () => _launchURL('tel:${t.phone}'),
                   ),
-                if (hasPhone && hasInstagram) const Divider(color: Colors.white10),
+                if (hasPhone && hasInstagram) Divider(color: cs.onSurface.withValues(alpha: 0.08)),
                 if (hasInstagram)
                   _buildContactItem(
                     Icons.camera_alt_outlined,
@@ -307,9 +310,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     },
                   ),
                 if (!hasWhatsapp && !hasPhone && !hasInstagram)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text('No contact information provided', style: TextStyle(color: Colors.white38))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: Text('No contact information provided', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
                   ),
               ],
             ),
@@ -322,7 +325,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 const Icon(Icons.location_on, color: PremiumTheme.neonGreen),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(t.location, style: const TextStyle(color: Colors.white)),
+                  child: Text(t.location, style: TextStyle(color: cs.onSurface)),
                 ),
               ],
             ),
@@ -333,6 +336,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildContactItem(IconData icon, String label, String value, {required VoidCallback onTap}) {
+    final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -351,12 +355,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-                Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                Text(value, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
               ],
             ),
             const Spacer(),
-            const Icon(Icons.chevron_right, color: Colors.white24),
+            Icon(Icons.chevron_right, color: cs.onSurface.withValues(alpha: 0.2)),
           ],
         ),
       ),
@@ -364,13 +368,14 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildSectionTitle(String title, IconData icon) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Row(
         children: [
           Icon(icon, size: 14, color: PremiumTheme.neonGreen),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          Text(title, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
         ],
       ),
     );
@@ -397,6 +402,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     } catch (_) {}
 
     final registeredTeam = myRegisteredTeam;
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -405,10 +411,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
                 Text(
-                  'Format: ${format ?? 'Standard'} • Requirement: Born $birthYear${canSeeFee ? ' • Fee: ${entryFee ?? 0} ₸' : ''}', 
-                  style: const TextStyle(fontSize: 12, color: Colors.white38)
+                  'Format: ${format ?? 'Standard'} • Requirement: Born $birthYear${canSeeFee ? ' • Fee: ${entryFee ?? 0} ₸' : ''}',
+                  style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.4))
                 ),
               ],
             ),
@@ -429,17 +435,17 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   );
                 } : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: registeredTeam.status == 'APPROVED' 
+                  backgroundColor: registeredTeam.status == 'APPROVED'
                     ? PremiumTheme.neonGreen.withValues(alpha: 0.2)
-                    : Colors.white.withValues(alpha: 0.05),
-                  foregroundColor: registeredTeam.status == 'APPROVED' 
+                    : cs.onSurface.withValues(alpha: 0.05),
+                  foregroundColor: registeredTeam.status == 'APPROVED'
                     ? PremiumTheme.neonGreen
-                    : Colors.white38,
+                    : cs.onSurface.withValues(alpha: 0.4),
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
-                  registeredTeam.status == 'APPROVED' ? 'MANAGE SQUAD' : 'PENDING...', 
+                  registeredTeam.status == 'APPROVED' ? 'MANAGE SQUAD' : 'PENDING...',
                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)
                 ),
               ),
@@ -463,15 +469,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildInfoGrid(Tournament t) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       child: Column(
         children: [
           _buildInfoRow(Icons.format_list_bulleted, 'Format', t.format),
-          const Divider(color: Colors.white10),
+          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
           _buildInfoRow(Icons.terrain, 'Surface', t.surfaceType ?? 'Natural Grass'),
-          const Divider(color: Colors.white10),
+          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
           _buildInfoRow(Icons.timer, 'Match Time', '${t.matchHalfDuration}m halves'),
-          const Divider(color: Colors.white10),
+          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
           _buildInfoRow(Icons.coffee, 'Break', '${t.breakBetweenMatches}m rest'),
         ],
       ),
@@ -479,15 +486,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Icon(icon, size: 16, color: PremiumTheme.neonGreen),
           const SizedBox(width: 12),
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 13)),
           const Spacer(),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(value, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
@@ -500,13 +508,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
     return Column(
       children: [
-        if (isOrganizer && (matches.isEmpty || hasDraft)) 
+        if (isOrganizer && (matches.isEmpty || hasDraft))
           _buildOrganizerSchedulingPanel(matches, provider),
-        
+
         if (matches.isEmpty)
-          const Expanded(
+          Expanded(
             child: Center(
-              child: Text('No matches scheduled yet', style: TextStyle(color: Colors.white38)),
+              child: Text('No matches scheduled yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
             ),
           )
         else
@@ -532,6 +540,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildOrganizerSchedulingPanel(List<TournamentMatch> matches, TournamentProvider provider) {
+    final cs = Theme.of(context).colorScheme;
     final bool hasMatches = matches.isNotEmpty;
     final bool isDraft = matches.any((m) => m.status == 'DRAFT');
 
@@ -558,16 +567,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               if (isDraft)
                 TextButton(
                   onPressed: () => _showAIDetails(provider.aiReport ?? 'AI analyzed team balance and field availability.'),
-                  child: const Text('VIEW REPORT', style: TextStyle(color: Colors.white70, fontSize: 10, decoration: TextDecoration.underline)),
+                  child: Text('VIEW REPORT', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, decoration: TextDecoration.underline)),
                 ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            !hasMatches 
-                ? 'Ready to generate the tournament schedule using AI optimization?' 
+            !hasMatches
+                ? 'Ready to generate the tournament schedule using AI optimization?'
                 : 'The schedule is currently in DRAFT mode. Review it and finalize to make it public.',
-            style: const TextStyle(color: Colors.white70, fontSize: 11),
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
           ),
           const SizedBox(height: 16),
           Row(
@@ -592,8 +601,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     icon: const Icon(Icons.refresh, size: 16),
                     label: const Text('RE-GENERATE'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: Colors.white24),
+                      foregroundColor: cs.onSurfaceVariant,
+                      side: BorderSide(color: cs.onSurface.withValues(alpha: 0.2)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
@@ -634,79 +643,86 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       context: context,
       backgroundColor: PremiumTheme.surfaceBase(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2))),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen),
-                const SizedBox(width: 12),
-                Text('SWAP ${teamToSwap.teamName?.toUpperCase()} WITH...', style: const TextStyle(fontWeight: FontWeight.bold)),
-              ],
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: cs.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(2))),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen),
+                  const SizedBox(width: 12),
+                  Text('SWAP ${teamToSwap.teamName?.toUpperCase()} WITH...', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: otherTeams.length,
-              itemBuilder: (context, index) {
-                final team = otherTeams[index];
-                return ListTile(
-                  leading: const Icon(Icons.group, color: Colors.white38),
-                  title: Text(team.teamName ?? 'Team', style: const TextStyle(color: Colors.white, fontSize: 14)),
-                  subtitle: Text('Current: Group ${team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    final success = await provider.swapTeams(widget.tournamentId, teamToSwap.teamId, team.teamId);
-                    if (success && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Teams swapped and matches updated!')),
-                      );
-                    }
-                  },
-                );
-              },
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: otherTeams.length,
+                itemBuilder: (context, index) {
+                  final team = otherTeams[index];
+                  return ListTile(
+                    leading: Icon(Icons.group, color: cs.onSurface.withValues(alpha: 0.4)),
+                    title: Text(team.teamName ?? 'Team', style: TextStyle(color: cs.onSurface, fontSize: 14)),
+                    subtitle: Text('Current: Group ${team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final success = await provider.swapTeams(widget.tournamentId, teamToSwap.teamId, team.teamId);
+                      if (success && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Teams swapped and matches updated!')),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
+            const SizedBox(height: 20),
+          ],
+        );
+      },
     );
   }
 
   void _showAIDetails(String report) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.surfaceBase(context),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), 
-          side: BorderSide(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
-        ),
-        title: Row(
-          children: const [
-            Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
-            SizedBox(width: 12),
-            Text('AI Logic Report', style: TextStyle(color: Colors.white, fontSize: 16)),
-          ],
-        ),
-        content: Text(report, style: const TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CLOSE', style: TextStyle(color: PremiumTheme.neonGreen)),
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceBase(context),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
           ),
-        ],
-      ),
+          title: Row(
+            children: [
+              const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
+              const SizedBox(width: 12),
+              Text('AI Logic Report', style: TextStyle(color: cs.onSurface, fontSize: 16)),
+            ],
+          ),
+          content: Text(report, style: TextStyle(color: cs.onSurfaceVariant)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CLOSE', style: TextStyle(color: PremiumTheme.neonGreen)),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildMatchItem(TournamentMatch match, TournamentTeamResponse? memberTeam) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       child: Column(
         children: [
@@ -715,7 +731,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             children: [
               Text(
                 match.matchDate != null ? match.matchDate.toString().substring(0, 16) : 'TBD',
-                style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+                style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.bold),
               ),
               if (match.status == 'finished')
                 const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold))
@@ -746,11 +762,11 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           if (match.fieldName != null) ...[
             Row(
               children: [
-                const Icon(Icons.stadium, size: 12, color: Colors.white24),
+                Icon(Icons.stadium, size: 12, color: cs.onSurface.withValues(alpha: 0.2)),
                 const SizedBox(width: 6),
                 Text(
                   match.fieldName!.toUpperCase(),
-                  style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                 ),
               ],
             ),
@@ -762,32 +778,32 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 child: Column(
                   children: [
                     Text(
-                      (match.homeTeamName ?? 'HOME TEAM').toUpperCase(), 
-                      textAlign: TextAlign.center, 
+                      (match.homeTeamName ?? 'HOME TEAM').toUpperCase(),
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: memberTeam?.teamId == match.homeTeamId ? PremiumTheme.neonGreen : Colors.white, 
-                        fontSize: 12, 
+                        color: memberTeam?.teamId == match.homeTeamId ? PremiumTheme.neonGreen : cs.onSurface,
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
                       )
                     ),
                     const SizedBox(height: 4),
-                    const Text('HOME', style: TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+                    Text('HOME', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: memberTeam != null ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                  color: memberTeam != null ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: memberTeam != null ? Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)) : null,
                 ),
                 child: Text(
                   '${match.homeScore} - ${match.awayScore}',
                   style: TextStyle(
-                    color: memberTeam != null ? PremiumTheme.neonGreen : Colors.white70, 
-                    fontSize: 22, 
+                    color: memberTeam != null ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold
                   ),
                 ),
@@ -796,17 +812,17 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 child: Column(
                   children: [
                     Text(
-                      (match.awayTeamName ?? 'AWAY TEAM').toUpperCase(), 
-                      textAlign: TextAlign.center, 
+                      (match.awayTeamName ?? 'AWAY TEAM').toUpperCase(),
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: memberTeam?.teamId == match.awayTeamId ? PremiumTheme.neonGreen : Colors.white, 
-                        fontSize: 12, 
+                        color: memberTeam?.teamId == match.awayTeamId ? PremiumTheme.neonGreen : cs.onSurface,
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
                       )
                     ),
                     const SizedBox(height: 4),
-                    const Text('AWAY', style: TextStyle(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold)),
+                    Text('AWAY', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -814,7 +830,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           ),
           if (memberTeam != null || _isOrganizer) ...[
             const SizedBox(height: 16),
-            const Divider(color: Colors.white10),
+            Divider(color: cs.onSurface.withValues(alpha: 0.08)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -835,10 +851,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white10),
+                        side: BorderSide(color: cs.onSurface.withValues(alpha: 0.08)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('LINEUP', style: TextStyle(color: Colors.white, fontSize: 11)),
+                      child: Text('LINEUP', style: TextStyle(color: cs.onSurface, fontSize: 11)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -859,10 +875,10 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white10),
+                        side: BorderSide(color: cs.onSurface.withValues(alpha: 0.08)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('STATS', style: TextStyle(color: Colors.white, fontSize: 11)),
+                      child: Text('STATS', style: TextStyle(color: cs.onSurface, fontSize: 11)),
                     ),
                   ),
                 ],
@@ -930,15 +946,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     final provider = context.read<TournamentProvider>();
     final tournament = provider.selectedTournament;
     final isGroupStage = tournament?.format == 'GROUP_STAGE';
+    final cs = Theme.of(context).colorScheme;
 
     if (standings.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.leaderboard_outlined, size: 64, color: Colors.white.withValues(alpha: 0.1)),
+            Icon(Icons.leaderboard_outlined, size: 64, color: cs.onSurface.withValues(alpha: 0.1)),
             const SizedBox(height: 16),
-            const Text('No standings data available', style: TextStyle(color: Colors.white38)),
+            Text('No standings data available', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -964,7 +981,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 child: Column(
                   children: [
                     _buildStandingsHeader(),
-                    const Divider(color: Colors.white10, height: 1),
+                    Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
                     ...entry.value.asMap().entries.map((item) {
                       return _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT'));
                     }),
@@ -1002,7 +1019,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Column(
               children: [
                 _buildStandingsHeader(),
-                const Divider(color: Colors.white10, height: 1),
+                Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
                 ...standings.asMap().entries.map((entry) {
                   final index = entry.key;
                   final s = entry.value;
@@ -1018,25 +1035,28 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildStandingsHeader() {
+    final cs = Theme.of(context).colorScheme;
+    final headerStyle = TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
-        children: const [
-          SizedBox(width: 24, child: Text('#', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-          SizedBox(width: 12),
-          Expanded(child: Text('TEAM', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-          SizedBox(width: 30, child: Text('MP', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-          SizedBox(width: 30, child: Text('GD', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
-          SizedBox(width: 40, child: Text('PTS', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold))),
+        children: [
+          SizedBox(width: 24, child: Text('#', style: headerStyle)),
+          const SizedBox(width: 12),
+          Expanded(child: Text('TEAM', style: headerStyle)),
+          SizedBox(width: 30, child: Text('MP', textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 30, child: Text('GD', textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 40, child: Text('PTS', textAlign: TextAlign.center, style: headerStyle)),
         ],
       ),
     );
   }
 
   Widget _buildStandingsRow(int rank, TournamentStanding s, {bool canSwap = false}) {
+    final cs = Theme.of(context).colorScheme;
     final isTop3 = rank <= 3;
     final teamName = s.teamName ?? 'Team';
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -1049,7 +1069,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Text(
               rank.toString(),
               style: TextStyle(
-                color: isTop3 ? PremiumTheme.neonGreen : Colors.white38,
+                color: isTop3 ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
                 fontWeight: isTop3 ? FontWeight.w900 : FontWeight.normal,
                 fontSize: 13,
               ),
@@ -1060,13 +1080,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: cs.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
               child: Text(
                 teamName[0].toUpperCase(),
-                style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 12),
               ),
             ),
           ),
@@ -1074,7 +1094,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           Expanded(
             child: Text(
               teamName.toUpperCase(),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5),
+              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1091,7 +1111,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Text(
               s.played.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
             ),
           ),
           SizedBox(
@@ -1099,7 +1119,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Text(
               (s.goalsFor - s.goalsAgainst).toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white38, fontSize: 11),
+              style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11),
             ),
           ),
           SizedBox(
@@ -1108,7 +1128,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               s.points.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isTop3 ? PremiumTheme.neonGreen : Colors.white,
+                color: isTop3 ? PremiumTheme.neonGreen : cs.onSurface,
                 fontWeight: FontWeight.w900,
                 fontSize: 15,
               ),
@@ -1143,7 +1163,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 children: [
                   Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                  Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ],
               ),
             ),
@@ -1156,15 +1176,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildRequestsTab(List<TournamentTeamResponse> registrations, TournamentProvider provider) {
     final pending = registrations.where((r) => r.status == 'PENDING').toList();
+    final cs = Theme.of(context).colorScheme;
 
     if (pending.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 48, color: Colors.white10),
-            SizedBox(height: 16),
-            Text('No pending requests', style: TextStyle(color: Colors.white38)),
+            Icon(Icons.check_circle_outline, size: 48, color: cs.onSurface.withValues(alpha: 0.08)),
+            const SizedBox(height: 16),
+            Text('No pending requests', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -1193,9 +1214,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(reg.team.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text(reg.team.name, style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
                     const SizedBox(height: 4),
-                    Text(reg.team.academyName ?? 'Club Team', style: const TextStyle(fontSize: 11, color: Colors.white38)),
+                    Text(reg.team.academyName ?? 'Club Team', style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha: 0.4))),
                   ],
                 ),
               ),
@@ -1251,11 +1272,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         decoration: BoxDecoration(
           color: PremiumTheme.surfaceCard(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          border: Border.all(color: Colors.white10),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
         padding: const EdgeInsets.all(24),
         child: Consumer<TeamProvider>(
           builder: (context, tp, _) {
+            final cs = Theme.of(context).colorScheme;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1264,7 +1286,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white10,
+                      color: cs.onSurface.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1291,7 +1313,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                           ),
                           Text(
                             divisionName.toUpperCase(),
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface),
                           ),
                         ],
                       ),
@@ -1304,23 +1326,23 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   child: Row(
                     children: [
                       _buildMiniInfo(Icons.grid_view, 'FORMAT', format),
-                      Container(width: 1, height: 24, color: Colors.white10, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                      Container(width: 1, height: 24, color: cs.onSurface.withValues(alpha: 0.08), margin: const EdgeInsets.symmetric(horizontal: 16)),
                       _buildMiniInfo(Icons.child_care, 'BIRTH YEAR', requiredBirthYear.toString()),
-                      Container(width: 1, height: 24, color: Colors.white10, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                      Container(width: 1, height: 24, color: cs.onSurface.withValues(alpha: 0.08), margin: const EdgeInsets.symmetric(horizontal: 16)),
                       _buildMiniInfo(Icons.payments_outlined, 'FEE', '$entryFee ₸'),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text(
+                Text(
                   'SELECT YOUR TEAM',
-                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 16),
                 if (tp.isLoading)
                   const Expanded(child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
                 else if (tp.myTeams.isEmpty)
-                  const Expanded(child: Center(child: Text('No teams found in your profile.', style: TextStyle(color: Colors.white38))))
+                  Expanded(child: Center(child: Text('No teams found in your profile.', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))))
                 else
                   Expanded(
                     child: ListView.builder(
@@ -1349,12 +1371,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: isEligible ? Colors.white.withValues(alpha: 0.02) : Colors.black12,
+                                color: isEligible ? cs.onSurface.withValues(alpha: 0.02) : Colors.black12,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: isEligible 
+                                  color: isEligible
                                     ? PremiumTheme.neonGreen.withValues(alpha: 0.2)
-                                    : Colors.white.withValues(alpha: 0.05),
+                                    : cs.onSurface.withValues(alpha: 0.05),
                                 ),
                               ),
                               child: Row(
@@ -1363,12 +1385,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                     width: 48,
                                     height: 48,
                                     decoration: BoxDecoration(
-                                      color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                                      color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.05),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Icon(
                                       Icons.shield,
-                                      color: isEligible ? PremiumTheme.neonGreen : Colors.white24,
+                                      color: isEligible ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.2),
                                       size: 24,
                                     ),
                                   ),
@@ -1380,7 +1402,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                         Text(
                                           team.name.toUpperCase(),
                                           style: TextStyle(
-                                            color: isEligible ? Colors.white : Colors.white38,
+                                            color: isEligible ? cs.onSurface : cs.onSurface.withValues(alpha: 0.4),
                                             fontWeight: FontWeight.w900,
                                             fontSize: 14,
                                             letterSpacing: 0.5,
@@ -1390,7 +1412,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                         Text(
                                           'Birth Year: ${team.birthYear ?? "N/A"}',
                                           style: TextStyle(
-                                            color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.white10, 
+                                            color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : cs.onSurface.withValues(alpha: 0.08),
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -1401,7 +1423,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                   if (isEligible)
                                     const Icon(Icons.arrow_forward_ios, color: PremiumTheme.neonGreen, size: 14)
                                   else
-                                    const Icon(Icons.lock_outline, color: Colors.white10, size: 16),
+                                    Icon(Icons.lock_outline, color: cs.onSurface.withValues(alpha: 0.08), size: 16),
                                 ],
                               ),
                             ),
@@ -1415,7 +1437,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('CANCEL', style: TextStyle(color: Colors.white38, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    child: Text('CANCEL', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontWeight: FontWeight.bold, letterSpacing: 1)),
                   ),
                 ),
               ],
@@ -1427,14 +1449,15 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildMiniInfo(IconData icon, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: Column(
         children: [
           Icon(icon, size: 16, color: PremiumTheme.neonGreen),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(value, style: TextStyle(color: cs.onSurface, fontSize: 11, fontWeight: FontWeight.bold)),
         ],
       ),
     );

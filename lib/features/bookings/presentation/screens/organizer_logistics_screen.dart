@@ -129,7 +129,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
               Icon(icon, size: 18, color: color),
               const SizedBox(height: 12),
               Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
-              Text(label.toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: Colors.white24, letterSpacing: 1)),
+              Text(label.toUpperCase(), style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), letterSpacing: 1)),
             ],
           ),
         ),
@@ -144,7 +144,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
         ),
         child: TabBar(
@@ -158,7 +158,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
           ),
           indicatorSize: TabBarIndicatorSize.tab,
           labelColor: Colors.black,
-          unselectedLabelColor: Colors.white38,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
           labelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
           dividerColor: Colors.transparent,
           tabs: const [
@@ -205,7 +205,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(info, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                Text(info, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
               ],
             ),
           ),
@@ -219,12 +219,12 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Colors.white54, letterSpacing: 0.5),
+        style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55), letterSpacing: 0.5),
       ),
     );
   }
@@ -234,10 +234,10 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory_2_rounded, color: Colors.white.withValues(alpha: 0.05), size: 80),
+          Icon(Icons.inventory_2_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06), size: 80),
           const SizedBox(height: 20),
-          const Text("GEAR MANAGEMENT", style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white12, letterSpacing: 2)),
-          const Text("Coming in next update", style: TextStyle(color: Colors.white10, fontSize: 12)),
+          Text("GEAR MANAGEMENT", style: TextStyle(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), letterSpacing: 2)),
+          Text("Coming in next update", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06), fontSize: 12)),
         ],
       ),
     );

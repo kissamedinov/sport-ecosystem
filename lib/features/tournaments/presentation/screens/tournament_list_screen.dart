@@ -62,6 +62,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final user = context.watch<AuthProvider>().user;
     final canCreate = user != null && (
       user.roles?.contains('TOURNAMENT_ORGANIZER') == true ||
@@ -78,14 +79,14 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          isChild ? '⭐ MY CHAMPIONSHIPS' : 'TOURNAMENTS', 
+          isChild ? '⭐ MY CHAMPIONSHIPS' : 'TOURNAMENTS',
           style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)
         ),
         bottom: isChild ? null : TabBar(
           controller: _tabController,
           indicatorColor: PremiumTheme.neonGreen,
           labelColor: PremiumTheme.neonGreen,
-          unselectedLabelColor: Colors.white38,
+          unselectedLabelColor: cs.onSurfaceVariant,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
           tabs: const [
             Tab(text: 'EXPLORE'),
@@ -94,7 +95,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white54),
+            icon: const Icon(Icons.refresh),
             onPressed: _refresh,
           ),
         ],
@@ -112,7 +113,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       body: Column(
         children: [
           if (isChild) ...[
-            _buildChildGreeting(user?.name ?? 'Champion'),
+            _buildChildGreeting(user.name ?? 'Champion'),
             const SizedBox(height: 10),
           ],
           if (!isChild) _buildFilterBar(),
@@ -125,11 +126,6 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 if (provider.error != null) {
                   return _buildErrorState(provider.error!);
                 }
-                
-                // For children, we ensure we only show their tournaments if that's what was fetched
-                // The _refresh method handles the 'mine' parameter based on tab index.
-                // Since we removed tabs, we need to ensure _refresh is called with mine: true for children.
-                
                 if (provider.tournaments.isEmpty) {
                   return _buildEmptyState();
                 }
@@ -154,6 +150,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildFilterBar() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -176,12 +173,15 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
               backgroundColor: PremiumTheme.surfaceCard(context),
               selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
               labelStyle: TextStyle(
-                color: isSelected ? PremiumTheme.neonGreen : Colors.white54,
+                color: isSelected ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               checkmarkColor: PremiumTheme.neonGreen,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent),
+              ),
             ),
           );
         },
@@ -190,6 +190,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildTournamentCard(dynamic tournament, bool isChild) {
+    final cs = Theme.of(context).colorScheme;
     return PremiumCard(
       onTap: () {
         Navigator.push(
@@ -236,11 +237,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 12, color: Colors.white54),
+                        Icon(Icons.location_on, size: 12, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           tournament.location,
-                          style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                         ),
                       ],
                     ),
@@ -252,7 +253,9 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 decoration: BoxDecoration(
                   color: tournament.displayStatus == 'ACTIVE'
                       ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
-                      : (tournament.displayStatus == 'FINISHED' ? Colors.white10 : Colors.blue.withValues(alpha: 0.1)),
+                      : (tournament.displayStatus == 'FINISHED'
+                          ? cs.onSurface.withValues(alpha: 0.08)
+                          : Colors.blue.withValues(alpha: 0.1)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -260,7 +263,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   style: TextStyle(
                     color: tournament.displayStatus == 'ACTIVE'
                         ? PremiumTheme.neonGreen
-                        : (tournament.displayStatus == 'FINISHED' ? Colors.white54 : Colors.blueAccent),
+                        : (tournament.displayStatus == 'FINISHED' ? cs.onSurfaceVariant : Colors.blueAccent),
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1,
@@ -279,10 +282,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color: Colors.white10,
-          ),
+          Divider(height: 1, color: cs.onSurface.withValues(alpha: 0.08)),
           const SizedBox(height: 12),
           const Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -306,16 +306,17 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildInfoItem(IconData icon, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 10, color: Colors.white38),
+            Icon(icon, size: 10, color: cs.onSurfaceVariant),
             const SizedBox(width: 4),
             Text(
               value,
-              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
+              style: TextStyle(color: cs.onSurface, fontSize: 11, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -324,6 +325,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildEmptyState() {
+    final cs = Theme.of(context).colorScheme;
     final user = context.read<AuthProvider>().user;
     final isChild = user != null && (
       user.roles?.contains('PLAYER_CHILD') == true ||
@@ -335,19 +337,19 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isChild ? Icons.star_rounded : Icons.emoji_events_outlined, 
-            size: 80, 
-            color: isChild ? PremiumTheme.neonGreen.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.1)
+            isChild ? Icons.star_rounded : Icons.emoji_events_outlined,
+            size: 80,
+            color: isChild ? PremiumTheme.neonGreen.withValues(alpha: 0.2) : cs.onSurface.withValues(alpha: 0.12),
           ),
           const SizedBox(height: 16),
           Text(
             isChild ? 'NO GAMES SCHEDULED YET' : 'NO TOURNAMENTS YET',
-            style: const TextStyle(color: Colors.white54, letterSpacing: 2, fontWeight: FontWeight.bold),
+            style: TextStyle(color: cs.onSurfaceVariant, letterSpacing: 2, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             isChild ? 'Ask your coach about upcoming cups! ⚽' : 'Be the first to organize an event!',
-            style: const TextStyle(color: Colors.white24, fontSize: 12),
+            style: TextStyle(color: cs.onSurface.withValues(alpha: 0.45), fontSize: 12),
           ),
         ],
       ),
@@ -355,9 +357,13 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildChildGreeting(String name) {
+<<<<<<< HEAD
     final academy = context.watch<AcademyProvider>().myAcademy;
     final academyName = academy?.name ?? 'ORLEON';
 
+=======
+    final cs = Theme.of(context).colorScheme;
+>>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -382,16 +388,19 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
               children: [
                 Text(
                   'HELLO, $name!',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
+                  style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
                 ),
                 Text(
+<<<<<<< HEAD
                   'REPRESENTING: ${academyName.toUpperCase()}',
                   style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 2),
                 const Text(
+=======
+>>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
                   'Ready for your next big match?',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.65), fontSize: 11),
                 ),
               ],
             ),
@@ -402,6 +411,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildErrorState(String error) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -413,7 +423,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             Text(
               error,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             PremiumButton(

@@ -85,7 +85,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 controller: _tabController,
                 indicatorColor: PremiumTheme.neonGreen,
                 labelColor: PremiumTheme.neonGreen,
-                unselectedLabelColor: Colors.white38,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                 tabs: const [
                   Tab(icon: Icon(Icons.scoreboard, size: 20), text: 'SCORE'),
                   Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
@@ -96,7 +96,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 controller: _tabController,
                 indicatorColor: PremiumTheme.neonGreen,
                 labelColor: PremiumTheme.neonGreen,
-                unselectedLabelColor: Colors.white38,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                 tabs: const [
                   Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
                   Tab(icon: Icon(Icons.bar_chart, size: 20), text: 'STATS'),
@@ -214,7 +214,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
             controller: controller,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.white),
+            style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface),
             decoration: const InputDecoration(border: InputBorder.none),
           ),
         ),
@@ -336,7 +336,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 Expanded(
                   child: Text(
                     (member.playerName ?? 'PLAYER').toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 13, letterSpacing: 0.5),
+                    style: TextStyle(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface, fontSize: 13, letterSpacing: 0.5),
                   ),
                 ),
                 if (member.position != null)

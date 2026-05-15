@@ -197,45 +197,48 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
   }
 
   Widget _buildTeamInfo(String teamId, String label) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
         Container(
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: cs.onSurface.withValues(alpha: 0.05),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: cs.onSurface.withValues(alpha: 0.08)),
           ),
-          child: const Center(child: Icon(Icons.shield_rounded, color: Colors.white24, size: 30)),
+          child: Center(child: Icon(Icons.shield_rounded, color: cs.onSurface.withValues(alpha: 0.2), size: 30)),
         ),
         const SizedBox(height: 12),
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
         const SizedBox(height: 4),
-        Text(teamId.substring(0, 8).toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
+        Text(teamId.substring(0, 8).toUpperCase(), style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 12)),
       ],
     );
   }
 
   Widget _buildSectionLabel(String text) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(width: 3, height: 16, decoration: BoxDecoration(color: PremiumTheme.neonGreen, borderRadius: BorderRadius.circular(4))),
         const SizedBox(width: 10),
-        Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white54, letterSpacing: 2)),
+        Text(text, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: cs.onSurface.withValues(alpha: 0.55), letterSpacing: 2)),
       ],
     );
   }
 
   Widget _buildPickerTile(String label, String value, IconData icon, VoidCallback onTap) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
+          color: cs.onSurface.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white10),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.08)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,11 +247,11 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
               children: [
                 Icon(icon, size: 14, color: PremiumTheme.neonGreen),
                 const SizedBox(width: 8),
-                Text(label, style: const TextStyle(color: Colors.white38, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
               ],
             ),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(value, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
           ],
         ),
       ),

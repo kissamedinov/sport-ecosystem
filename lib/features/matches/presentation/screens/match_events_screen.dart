@@ -32,11 +32,9 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white70),
         title: const Text(
           'MATCH REPORT',
           style: TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -69,10 +67,10 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
-            color: Colors.white54,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
             letterSpacing: 2,
           ),
         ),
@@ -142,11 +140,11 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.sports_soccer_rounded, color: Colors.white.withValues(alpha: 0.1), size: 36),
+                  Icon(Icons.sports_soccer_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 36),
                   const SizedBox(height: 12),
                   Text(
                     'NO EVENTS RECORDED',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
                   ),
                 ],
               ),
@@ -179,7 +177,7 @@ class _EventTile extends StatelessWidget {
       EventType.YELLOW_CARD  => (Icons.square_rounded, Colors.amber, 'YELLOW CARD'),
       EventType.RED_CARD     => (Icons.square_rounded, Colors.redAccent, 'RED CARD'),
       EventType.SAVE         => (Icons.front_hand_rounded, Colors.purpleAccent, 'SAVE'),
-      _                      => (Icons.circle_outlined, Colors.white38, event.eventType.name),
+      _                      => (Icons.circle_outlined, Colors.grey, event.eventType.name),
     };
   }
 
@@ -215,7 +213,7 @@ class _EventTile extends StatelessWidget {
                     child: Container(
                       width: 1,
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                     ),
                   ),
               ],
@@ -248,7 +246,7 @@ class _EventTile extends StatelessWidget {
                           Text(
                             shortId,
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.3),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'monospace',
@@ -316,7 +314,7 @@ class _AwardCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             shortId,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 9, fontFamily: 'monospace'),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 9, fontFamily: 'monospace'),
             overflow: TextOverflow.ellipsis,
           ),
         ],

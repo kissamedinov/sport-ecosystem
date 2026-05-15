@@ -38,14 +38,14 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
     return AlertDialog(
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      title: const Text('RECORD EVENT', style: TextStyle(color: Colors.white, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
+      title: Text('RECORD EVENT', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              initialValue: _selectedType,
+              value: _selectedType,
               style: const TextStyle(color: Colors.white),
               decoration: PremiumTheme.inputDecorationOf(context, 'Event Type'),
               items: const [
@@ -59,7 +59,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              initialValue: _selectedTeamId,
+              value: _selectedTeamId,
               style: const TextStyle(color: Colors.white),
               decoration: PremiumTheme.inputDecorationOf(context, 'Team'),
               items: [
@@ -76,7 +76,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
                   child: TextField(
                     controller: _minuteController,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: PremiumTheme.inputDecorationOf(context, 'Minute'),
                   ),
                 ),
@@ -85,7 +85,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
                   flex: 3,
                   child: TextField(
                     controller: _playerController,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: PremiumTheme.inputDecorationOf(context, 'Player Name/ID'),
                   ),
                 ),
@@ -95,7 +95,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white38))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context, {

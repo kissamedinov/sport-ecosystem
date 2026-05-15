@@ -40,11 +40,9 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white70),
         title: Text(
           widget.team.name.toUpperCase(),
           style: const TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 14,
             letterSpacing: 2,
@@ -71,17 +69,17 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 colors: [PremiumTheme.electricBlue, PremiumTheme.surfaceBase(context)],
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: PremiumTheme.electricBlue.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.shield_rounded, color: Colors.white, size: 28),
+                  child: const Icon(Icons.shield_rounded, color: PremiumTheme.electricBlue, size: 28),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -90,12 +88,12 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     children: [
                       Text(
                         widget.team.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${widget.team.academyName ?? 'No Academy'} • ${widget.team.ageCategory ?? 'N/A'}',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12),
                       ),
                     ],
                   ),
@@ -132,17 +130,17 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             child: DropdownButtonFormField<String>(
               value: _selectedCoachId,
               dropdownColor: PremiumTheme.surfaceCard(context),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white38),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.person_search_rounded, color: PremiumTheme.neonGreen, size: 20),
                 labelText: 'Select Coach',
-                labelStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12),
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.03),
+                fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -152,7 +150,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               items: widget.availableCoaches.map((c) {
                 return DropdownMenuItem(
                   value: c.userId,
-                  child: Text(c.name, style: const TextStyle(color: Colors.white)),
+                  child: Text(c.name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 );
               }).toList(),
               onChanged: (val) => setState(() => _selectedCoachId = val),
@@ -170,12 +168,12 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               alignment: Alignment.center,
               child: Column(
                 children: [
-                  Icon(Icons.person_off_rounded, size: 40, color: Colors.white.withValues(alpha: 0.08)),
+                  Icon(Icons.person_off_rounded, size: 40, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 12),
                   Text(
                     'NO PLAYERS YET',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,
@@ -209,7 +207,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         children: [
           Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white38, letterSpacing: 1)),
+          Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), letterSpacing: 1)),
         ],
       ),
     );
@@ -222,7 +220,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white38, letterSpacing: 2),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), letterSpacing: 2),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -261,11 +259,11 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                Text(name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 2),
                 Text(
                   'Player',
-                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.35)),
+                  style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35)),
                 ),
               ],
             ),
@@ -303,14 +301,14 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
         decoration: BoxDecoration(
           color: PremiumTheme.surfaceCard(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
         child: Column(
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 20),
-            const Text('ADD PLAYER', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 2)),
+            Text('ADD PLAYER', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 2)),
             const SizedBox(height: 24),
             
             Expanded(
@@ -365,7 +363,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -385,7 +383,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            child: Text(name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600)),
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_rounded, color: PremiumTheme.neonGreen),

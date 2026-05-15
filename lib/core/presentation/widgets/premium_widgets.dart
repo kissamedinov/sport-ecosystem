@@ -254,25 +254,28 @@ class PremiumTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final ac = PremiumTheme.accent(context);
+    final borderColor = cs.onSurface.withValues(alpha: 0.12);
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
       validator: validator,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: TextStyle(color: cs.onSurface, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
-        labelStyle: const TextStyle(color: Colors.white38, fontSize: 12),
-        prefixIcon: icon != null ? Icon(icon, color: PremiumTheme.neonGreen, size: 20) : null,
+        hintStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 12),
+        labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+        prefixIcon: icon != null ? Icon(icon, color: ac, size: 20) : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white10),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: PremiumTheme.neonGreen, width: 1.5),
+          borderSide: BorderSide(color: ac, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -283,7 +286,7 @@ class PremiumTextField extends StatelessWidget {
           borderSide: const BorderSide(color: PremiumTheme.danger, width: 1.5),
         ),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: cs.onSurface.withValues(alpha: 0.04),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );

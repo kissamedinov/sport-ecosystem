@@ -58,13 +58,13 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: false,
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-        title: const Text(
+        title: Text(
           'ATTENDANCE',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         background: Container(
@@ -85,6 +85,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
   }
 
   Widget _buildTeamSelector() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -107,17 +108,17 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? PremiumTheme.neonGreen : Colors.white.withOpacity(0.05),
+                  color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? PremiumTheme.neonGreen : Colors.white.withOpacity(0.1),
+                    color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.08),
                   ),
                 ),
                 child: Center(
                   child: Text(
                     team['name']?.toString().toUpperCase() ?? 'TEAM',
                     style: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white70,
+                      color: isSelected ? Colors.black : cs.onSurfaceVariant,
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
@@ -133,17 +134,18 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
   }
 
   Widget _buildEmptyState() {
+    final cs = Theme.of(context).colorScheme;
     return SliverFillRemaining(
       hasScrollBody: false,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.group_off_rounded, size: 64, color: Colors.white.withOpacity(0.2)),
+            Icon(Icons.group_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'NO PLAYERS IN THIS TEAM',
-              style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+              style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
             ),
           ],
         ),
@@ -161,6 +163,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
             final name = player['name']?.toString() ?? 'Player';
             final id = player['id']?.toString() ?? index.toString();
             final isPresent = _attendance[id] ?? false;
+            final cs = Theme.of(context).colorScheme;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -174,7 +177,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                   padding: const EdgeInsets.all(12),
                   decoration: PremiumTheme.glassDecorationOf(context, radius: 16).copyWith(
                     border: Border.all(
-                      color: isPresent ? PremiumTheme.neonGreen.withOpacity(0.4) : Colors.white.withOpacity(0.05),
+                      color: isPresent ? PremiumTheme.neonGreen.withValues(alpha: 0.4) : cs.onSurface.withValues(alpha: 0.05),
                     ),
                   ),
                   child: Row(
@@ -183,14 +186,14 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isPresent ? PremiumTheme.neonGreen : Colors.white.withOpacity(0.1),
+                          color: isPresent ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
                           child: Text(
                             name.isNotEmpty ? name[0].toUpperCase() : 'P',
                             style: TextStyle(
-                              color: isPresent ? Colors.black : Colors.white70,
+                              color: isPresent ? Colors.black : cs.onSurfaceVariant,
                               fontWeight: FontWeight.w900,
                               fontSize: 18,
                             ),
@@ -204,8 +207,8 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                           children: [
                             Text(
                               name,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onSurface,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 15,
                               ),
@@ -214,7 +217,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                             Text(
                               isPresent ? 'PRESENT' : 'ABSENT',
                               style: TextStyle(
-                                color: isPresent ? PremiumTheme.neonGreen : Colors.white38,
+                                color: isPresent ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 1,
@@ -225,7 +228,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                       ),
                       Icon(
                         isPresent ? Icons.check_circle_rounded : Icons.circle_outlined,
-                        color: isPresent ? PremiumTheme.neonGreen : Colors.white12,
+                        color: isPresent ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.08),
                         size: 28,
                       ),
                     ],
@@ -263,7 +266,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: PremiumTheme.neonGreen.withOpacity(0.3),
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
