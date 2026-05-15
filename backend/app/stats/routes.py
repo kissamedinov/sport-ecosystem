@@ -58,5 +58,15 @@ def get_career_stats(
         
     stats = service.get_player_career_stats(db, player_id)
     if not stats:
-        raise HTTPException(status_code=404, detail="Stats not found")
+        # Return default zeros instead of 404 to prevent UI crashes for new players
+        return {
+            "player_id": player_id,
+            "matches_played": 0,
+            "goals": 0,
+            "assists": 0,
+            "yellow_cards": 0,
+            "red_cards": 0,
+            "best_player_awards": 0,
+            "rating": 0.0
+        }
     return stats
