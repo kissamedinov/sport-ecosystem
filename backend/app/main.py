@@ -41,8 +41,21 @@ app = FastAPI(title="Sports Ecosystem API")
 
 @app.post("/debug/migrate")
 def migrate_db():
-    Base.metadata.create_all(bind=engine)
-    return {"message": "Migration successful"}
+    from sqlalchemy import text
+    with engine.begin() as conn:
+        # Create all tables that don't exist
+        Base.metadata.create_all(bind=conn)
+        
+        # Explicitly add missing columns to tournament_divisions
+        try:
+            conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS name VARCHAR;"))
+            conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS format VARCHAR;"))
+            conn.execute(text("ALTER TABLE tournament_divisions ADD COLUMN IF NOT EXISTS entry_fee INTEGER DEFAULT 0;"))
+            print("Columns added to tournament_divisions")
+        except Exception as e:
+            print(f"Error adding columns: {e}")
+            
+    return {"message": "Migration and Alters successful"}
 
 app.add_middleware(
     CORSMiddleware,
