@@ -71,7 +71,10 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     dev.log('AuthProvider: Starting Google Sign-In', name: 'auth');
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      // TODO: Replace with your actual Web Client ID from Google Console
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: '', 
+      );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       
       if (googleUser == null) {
