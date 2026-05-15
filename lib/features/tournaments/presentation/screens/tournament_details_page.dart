@@ -975,19 +975,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('GROUP ${entry.key?.toString().split("-").last.toUpperCase() ?? "A"}', Icons.grid_view),
-              Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
-                child: Column(
-                  children: [
-                    _buildStandingsHeader(),
-                    Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
-                    ...entry.value.asMap().entries.map((item) {
-                      return _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT'));
-                    }),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 12),
+              _buildStandingsHeader(),
+              const SizedBox(height: 8),
+              ...entry.value.asMap().entries.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT')),
+                );
+              }),
+              const SizedBox(height: 16),
             ],
           );
         }).toList(),
@@ -997,6 +994,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildActionCard(
             'GOLDEN BOOT RACE',
@@ -1012,22 +1010,19 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               );
             },
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 32),
           _buildSectionTitle('LEADERBOARD', Icons.table_chart),
-          Container(
-            decoration: PremiumTheme.glassDecorationOf(context, radius: 24),
-            child: Column(
-              children: [
-                _buildStandingsHeader(),
-                Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
-                ...standings.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final s = entry.value;
-                  return _buildStandingsRow(index + 1, s);
-                }),
-              ],
-            ),
-          ),
+          const SizedBox(height: 8),
+          _buildStandingsHeader(),
+          const SizedBox(height: 12),
+          ...standings.asMap().entries.map((entry) {
+            final index = entry.key;
+            final s = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildStandingsRow(index + 1, s),
+            );
+          }),
           const SizedBox(height: 40),
         ],
       ),
@@ -1036,17 +1031,22 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildStandingsHeader() {
     final cs = Theme.of(context).colorScheme;
-    final headerStyle = TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold);
+    final headerStyle = TextStyle(
+      color: cs.onSurface.withValues(alpha: 0.3),
+      fontSize: 10,
+      fontWeight: FontWeight.w900,
+      letterSpacing: 1.5,
+    );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: Row(
         children: [
-          SizedBox(width: 24, child: Text('#', style: headerStyle)),
+          SizedBox(width: 32, child: Text('POS', style: headerStyle)),
           const SizedBox(width: 12),
           Expanded(child: Text('TEAM', style: headerStyle)),
-          SizedBox(width: 30, child: Text('MP', textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 30, child: Text('GD', textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 40, child: Text('PTS', textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 35, child: Text('MP', textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 35, child: Text('GD', textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 45, child: Text('PTS', textAlign: TextAlign.center, style: headerStyle)),
         ],
       ),
     );
@@ -1057,80 +1057,124 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     final isTop3 = rank <= 3;
     final teamName = s.teamName ?? 'Team';
 
+    Color rankColor = cs.onSurface.withValues(alpha: 0.4);
+    Color glowColor = Colors.transparent;
+    if (rank == 1) {
+      rankColor = Colors.amber;
+      glowColor = Colors.amber.withValues(alpha: 0.2);
+    } else if (rank == 2) {
+      rankColor = const Color(0xFFC0C0C0);
+      glowColor = Colors.white.withValues(alpha: 0.1);
+    } else if (rank == 3) {
+      rankColor = const Color(0xFFCD7F32);
+      glowColor = Colors.orange.withValues(alpha: 0.1);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isTop3 ? PremiumTheme.neonGreen.withValues(alpha: 0.03) : null,
+        color: cs.onSurface.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isTop3 ? rankColor.withValues(alpha: 0.2) : cs.onSurface.withValues(alpha: 0.05),
+          width: isTop3 ? 1.5 : 1,
+        ),
+        boxShadow: isTop3 ? [
+          BoxShadow(color: glowColor, blurRadius: 10, offset: const Offset(0, 4)),
+        ] : null,
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 24,
-            child: Text(
-              rank.toString(),
-              style: TextStyle(
-                color: isTop3 ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
-                fontWeight: isTop3 ? FontWeight.w900 : FontWeight.normal,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
           Container(
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: cs.onSurface.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
+              color: isTop3 ? rankColor.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+              border: isTop3 ? Border.all(color: rankColor.withValues(alpha: 0.3), width: 1) : null,
             ),
             child: Center(
               child: Text(
-                teamName[0].toUpperCase(),
-                style: TextStyle(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 12),
+                rank.toString(),
+                style: TextStyle(
+                  color: isTop3 ? rankColor : cs.onSurface.withValues(alpha: 0.4),
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              teamName.toUpperCase(),
-              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  teamName.toUpperCase(),
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${s.wins}W ${s.draws}D ${s.losses}L',
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.3),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           if (canSwap)
             IconButton(
-              icon: const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen, size: 18),
-              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen, size: 20),
+              padding: const EdgeInsets.only(right: 8),
               constraints: const BoxConstraints(),
               onPressed: () => _showSwapDialog(s),
             ),
           SizedBox(
-            width: 30,
+            width: 35,
             child: Text(
               s.played.toString(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ),
           SizedBox(
-            width: 30,
+            width: 35,
             child: Text(
-              (s.goalsFor - s.goalsAgainst).toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11),
-            ),
-          ),
-          SizedBox(
-            width: 40,
-            child: Text(
-              s.points.toString(),
+              (s.goalDifference > 0 ? '+' : '') + s.goalDifference.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isTop3 ? PremiumTheme.neonGreen : cs.onSurface,
-                fontWeight: FontWeight.w900,
-                fontSize: 15,
+                color: s.goalDifference > 0 ? PremiumTheme.neonGreen : (s.goalDifference < 0 ? PremiumTheme.danger : cs.onSurface.withValues(alpha: 0.4)),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 45,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              decoration: BoxDecoration(
+                color: isTop3 ? rankColor.withValues(alpha: 0.1) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                s.points.toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isTop3 ? rankColor : cs.onSurface,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

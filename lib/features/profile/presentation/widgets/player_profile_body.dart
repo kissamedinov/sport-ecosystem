@@ -258,7 +258,8 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                 label: "PERFORMANCE RATING",
                 value: career.rating.toStringAsFixed(1),
                 icon: Icons.auto_graph_rounded,
-                gradient: const [Color(0xFFFFD700), Color(0xFFFFA500)],
+                gradient: [const Color(0xFF2C2200), const Color(0xFF1A1500)],
+                accentColor: const Color(0xFFFFD700),
               ),
             ),
             const SizedBox(width: 12),
@@ -268,7 +269,8 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                 label: "MATCHES",
                 value: "${career.matchesPlayed}",
                 icon: Icons.stadium_rounded,
-                gradient: [PremiumTheme.electricBlue, const Color(0xFF007BFF)],
+                gradient: [const Color(0xFF001A33), const Color(0xFF000D1A)],
+                accentColor: PremiumTheme.electricBlue,
               ),
             ),
           ],
@@ -308,32 +310,39 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     );
   }
 
-  Widget _buildMainStatCard({required String label, required String value, required IconData icon, required List<Color> gradient}) {
+  Widget _buildMainStatCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required List<Color> gradient,
+    required Color accentColor,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accentColor.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: gradient.first.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: accentColor.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
+          Icon(icon, color: accentColor.withValues(alpha: 0.6), size: 18),
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: accentColor, letterSpacing: -1),
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white.withValues(alpha: 0.7), letterSpacing: 1),
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white24, letterSpacing: 1),
           ),
         ],
       ),

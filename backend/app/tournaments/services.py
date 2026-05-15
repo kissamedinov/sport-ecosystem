@@ -158,8 +158,8 @@ def update_tournament(db: Session, tournament_id: UUID, tournament_in: Tournamen
 def notify_eligible_users_of_tournament(db: Session, tournament: Tournament):
     from app.users.models import UserRole
     users_to_notify = db.query(User).filter(
-        User.roles.any(UserRole.role == Role.PLAYER_YOUTH) | 
-        User.roles.any(UserRole.role == Role.PARENT)
+        User.roles.any(UserRole.role == Role.COACH) | 
+        User.roles.any(UserRole.role == Role.CLUB_MANAGER)
     ).all()
     
     user_ids = [u.id for u in users_to_notify]

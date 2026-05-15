@@ -122,7 +122,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.6,
+      childAspectRatio: 1.4, // Increased height
       children: [
         _buildStatCard("Teams", "${dashboard.teams.length}", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "ACTIVE"),
         _buildStatCard("Players", "${dashboard.playersCount}", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "REGISTERED"),
@@ -137,12 +137,19 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.12), color.withOpacity(0.04)],
+          colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.02)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,18 +161,42 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, size: 14, color: color),
+                child: Icon(icon, size: 14, color: color.withValues(alpha: 0.8)),
               ),
               if (subtitle != null)
-                Text(subtitle, style: TextStyle(fontSize: 8, color: color.withOpacity(0.7), fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: color.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: color, letterSpacing: -1)),
-          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 1.5)),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: color,
+              letterSpacing: -1,
+            ),
+          ),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              color: Colors.white24,
+              letterSpacing: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -190,34 +221,61 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
 
   Widget _buildGrowthCard(String label, String value, Color color, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.1), color.withOpacity(0.03)],
+          colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.02)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: color),
+              Icon(icon, size: 16, color: color.withValues(alpha: 0.6)),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
-                child: Text("30D", style: TextStyle(fontSize: 8, color: color, fontWeight: FontWeight.w800)),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  "30D",
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: color, letterSpacing: -1)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: color,
+              letterSpacing: -1,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 1)),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              color: Colors.white24,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
+            ),
+          ),
         ],
       ),
     );

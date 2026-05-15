@@ -39,6 +39,11 @@ from app.quizzes import models as quiz_models
 
 app = FastAPI(title="Sports Ecosystem API")
 
+@app.post("/debug/migrate")
+def migrate_db():
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Migration successful"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # For development; refine for production

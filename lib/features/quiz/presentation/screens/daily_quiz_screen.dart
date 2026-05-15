@@ -152,6 +152,26 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.bolt_rounded, color: Colors.orange, size: 14),
+                SizedBox(width: 8),
+                Text(
+                  "GET 5+ CORRECT TO KEEP YOUR STREAK",
+                  style: TextStyle(color: Colors.orange, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
           Row(
             children: List.generate(total, (index) {
               bool isPassed = index < _currentPage;
@@ -403,7 +423,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 const Text(
-                  "Keep it up to earn more XP!",
+                  "Get 5+ correct answers to maintain streak!",
                   style: TextStyle(color: Colors.white54, fontSize: 11),
                 ),
               ],

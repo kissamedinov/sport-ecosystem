@@ -20,7 +20,13 @@ import 'package:mobile/features/teams/providers/team_provider.dart';
 class ClubDashboardScreen extends StatefulWidget {
   final bool isHome;
   final String? clubId;
-  const ClubDashboardScreen({super.key, this.isHome = false, this.clubId});
+  final int initialTabIndex;
+  const ClubDashboardScreen({
+    super.key, 
+    this.isHome = false, 
+    this.clubId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<ClubDashboardScreen> createState() => _ClubDashboardScreenState();
@@ -774,7 +780,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const InvitationsScreen())),
+                context, 
+                MaterialPageRoute(
+                  builder: (_) => const ClubDashboardScreen(
+                    isHome: false, 
+                    initialTabIndex: 5,
+                  ),
+                ),
+            ),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -958,6 +971,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   Widget _buildManageHub(BuildContext context, dynamic dashboard) {
     return DefaultTabController(
       length: 6,
+      initialIndex: widget.initialTabIndex,
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
