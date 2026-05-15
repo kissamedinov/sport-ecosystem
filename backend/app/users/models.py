@@ -65,6 +65,10 @@ class User(Base):
     unique_code = Column(String, unique=True, index=True, nullable=True, default=generate_unique_code)
     onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Quiz stats
+    quiz_streak = Column(Integer, default=0)
+    last_quiz_date = Column(Date, nullable=True)
 
     # Relationships
     roles = relationship("UserRole", backref="user", cascade="all, delete-orphan")

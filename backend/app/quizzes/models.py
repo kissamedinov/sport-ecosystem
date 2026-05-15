@@ -32,7 +32,7 @@ class QuizAttempt(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     quiz_id = Column(UUID(as_uuid=True), ForeignKey("daily_quizzes.id"), nullable=False)
     score = Column(Integer, nullable=False)
-    total_questions = Column(Integer, default=7)
+    total_questions = Column(Integer, default=10)
     completed_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("app.users.models.User")

@@ -5,7 +5,7 @@ from typing import List
 from app.database import get_db
 from app.auth.routes import get_current_user
 from app.quizzes.schemas import DailyQuizSchema, QuizAttemptSchema, QuizAttemptCreate
-from app.quizzes.services import QuizService
+from app.quizzes.services import QuizService, get_astana_date
 
 router = APIRouter(prefix="/quizzes", tags=["Quizzes"])
 
@@ -15,8 +15,8 @@ def get_daily_quiz(
     current_user = Depends(get_current_user)
 ):
     """Get the football quiz for today. Generates it if it doesn't exist."""
-    today = date.today()
-    quiz = QuizService.get_daily_quiz(db, today)
+    today = get_astana_date()
+    quiz = QuizService.get_daily_quiz(db, today, current_user)
     return quiz
 
 @router.post("/daily/submit", response_model=QuizAttemptSchema)
@@ -26,15 +26,19 @@ def submit_quiz_attempt(
     current_user = Depends(get_current_user)
 ):
     """Submit the result of today's quiz."""
-    today = date.today()
-    quiz = QuizService.get_daily_quiz(db, today)
+    today = get_astana_date()
+    quiz = QuizService.get_daily_quiz(db, today, current_user)
     
-    # Check if already attempted today (optional, but good for anti-cheat)
-    # For now, let's just save it.
+    # Anti-cheat: Check if already attempted today
+    if quiz.user_attempt:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You have already participated in today's quiz."
+        )
     
     attempt = QuizService.submit_attempt(
         db, 
-        user_id=current_user.id, 
+        user=current_user, 
         quiz_id=quiz.id, 
         score=attempt_data.score
     )

@@ -1,11 +1,16 @@
 import os
 import json
 import logging
-from datetime import date   
+from datetime import date, datetime, timedelta, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.quizzes.models import DailyQuiz, QuizQuestion, QuizAttempt
 from app.quizzes.schemas import QuizAttemptCreate
+from app.users.models import User
+
+def get_astana_date():
+    # Astana is UTC+5
+    return (datetime.now(timezone(timedelta(hours=5)))).date()
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +23,22 @@ except ImportError:
 
 class QuizService:
     @staticmethod
-    def get_daily_quiz(db: Session, target_date: date):
+    def get_daily_quiz(db: Session, target_date: date, user: User):
         # 1. Check if quiz already exists for this date
         quiz = db.query(DailyQuiz).filter(DailyQuiz.date == target_date).first()
-        if quiz:
-            return quiz
+        if not quiz:
+            # 2. If not, generate new one
+            quiz = QuizService.generate_daily_quiz(db, target_date)
 
-        # 2. If not, generate new one
-        return QuizService.generate_daily_quiz(db, target_date)
+        # 3. Attach user-specific data
+        attempt = db.query(QuizAttempt).filter(
+            QuizAttempt.quiz_id == quiz.id,
+            QuizAttempt.user_id == user.id
+        ).first()
+        
+        quiz.user_attempt = attempt
+        quiz.user_streak = user.quiz_streak
+        return quiz
 
     @staticmethod
     def generate_daily_quiz(db: Session, target_date: date):
@@ -75,8 +88,8 @@ class QuizService:
         model = genai.GenerativeModel('gemini-flash-latest')
         
         prompt = """
-        Generate 7 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
-        Mix the difficulty: 2 Easy, 3 Medium, and 2 Hard (expert level) questions.
+        Generate 10 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
+        Mix the difficulty: 3 Easy, 4 Medium, and 3 Hard (expert level) questions.
         Topics should include: 
         - Famous players and their records
         - Football rules and referee signals
@@ -152,14 +165,30 @@ class QuizService:
         ]
 
     @staticmethod
-    def submit_attempt(db: Session, user_id: str, quiz_id: str, score: int):
+    def submit_attempt(db: Session, user: User, quiz_id: str, score: int):
+        # 1. Save attempt
         attempt = QuizAttempt(
-            user_id=user_id,
+            user_id=user.id,
             quiz_id=quiz_id,
             score=score,
-            total_questions=7
+            total_questions=10
         )
         db.add(attempt)
+        
+        # 2. Update Streak
+        today = get_astana_date()
+        yesterday = today - timedelta(days=1)
+        
+        if score >= 5:
+            if user.last_quiz_date == yesterday:
+                user.quiz_streak += 1
+            else:
+                user.quiz_streak = 1
+        else:
+            user.quiz_streak = 0
+            
+        user.last_quiz_date = today
+        
         db.commit()
         db.refresh(attempt)
         return attempt

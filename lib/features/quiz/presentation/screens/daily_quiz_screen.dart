@@ -44,7 +44,8 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 1500), () {
-      if (_currentPage < 6) {
+      final questions = context.read<QuizProvider>().currentQuiz?.questions ?? [];
+      if (_currentPage < questions.length - 1) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOut,
@@ -91,9 +92,19 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 return const Center(child: Text("No quiz available"));
               }
 
-              if (_isFinished) return _buildResultScreen();
-
               final questions = provider.currentQuiz!.questions;
+              
+              // Если пользователь уже проходил квиз сегодня
+              if (provider.currentQuiz!.userAttempt != null && !_isFinished) {
+                return _buildAlreadyPassedScreen(
+                  provider.currentQuiz!.userAttempt!['score'],
+                  questions.length,
+                  provider.currentQuiz!.userStreak,
+                );
+              }
+
+              if (_isFinished) return _buildResultScreen(provider.currentQuiz!.userStreak);
+
               return Column(
                 children: [
                   _buildHeader(questions.length),
@@ -165,8 +176,9 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
   }
 
   Widget _buildQuestionPage(QuizQuestion question) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -272,7 +284,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
     );
   }
 
-  Widget _buildResultScreen() {
+  Widget _buildResultScreen(int streak) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -294,40 +306,11 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              "You scored $_score out of 7 points today",
+              "You scored $_score out of 10 points today",
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 48),
-            OrleonCard(
-              padding: const EdgeInsets.all(24),
-              gradient: LinearGradient(
-                colors: [
-                  PremiumTheme.neonGreen.withValues(alpha: 0.2),
-                  PremiumTheme.neonGreen.withValues(alpha: 0.05),
-                ],
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.bolt, color: PremiumTheme.neonGreen, size: 32),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "DAILY STREAK: 1 DAY",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        Text(
-                          "Come back tomorrow for +50 XP",
-                          style: TextStyle(color: Colors.white54, fontSize: 11),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildStreakCard(streak + (_score >= 5 ? 1 : 0)), // Приблизительный расчет для экрана успеха
             const SizedBox(height: 48),
             SizedBox(
               width: double.infinity,
@@ -344,6 +327,89 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAlreadyPassedScreen(int score, int total, int streak) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_outline, color: PremiumTheme.neonGreen, size: 64),
+            const SizedBox(height: 24),
+            const Text(
+              "ALREADY PASSED!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Your score: $score / $total",
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Come back tomorrow for a new challenge!",
+              style: TextStyle(color: Colors.white54, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+            _buildStreakCard(streak),
+            const SizedBox(height: 48),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text("CLOSE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreakCard(int streak) {
+    return OrleonCard(
+      padding: const EdgeInsets.all(24),
+      gradient: LinearGradient(
+        colors: [
+          PremiumTheme.neonGreen.withValues(alpha: 0.2),
+          PremiumTheme.neonGreen.withValues(alpha: 0.05),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.bolt, color: PremiumTheme.neonGreen, size: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "DAILY STREAK: $streak ${streak == 1 ? 'DAY' : 'DAYS'}",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const Text(
+                  "Keep it up to earn more XP!",
+                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

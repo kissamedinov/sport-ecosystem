@@ -17,13 +17,15 @@ class DailyQuizSchema(BaseModel):
     id: UUID
     date: date
     questions: List[QuizQuestionSchema]
+    user_attempt: Optional[QuizAttemptSchema] = None
+    user_streak: int = 0
 
     class Config:
         from_attributes = True
 
 class QuizAttemptCreate(BaseModel):
     score: int
-    total_questions: int = 7
+    total_questions: int = 10
 
 class QuizAttemptSchema(BaseModel):
     id: UUID

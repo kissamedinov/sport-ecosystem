@@ -28,11 +28,15 @@ class DailyQuiz {
   final String id;
   final DateTime date;
   final List<QuizQuestion> questions;
+  final Map<String, dynamic>? userAttempt;
+  final int userStreak;
 
   DailyQuiz({
     required this.id,
     required this.date,
     required this.questions,
+    this.userAttempt,
+    this.userStreak = 0,
   });
 
   factory DailyQuiz.fromJson(Map<String, dynamic> json) {
@@ -42,6 +46,8 @@ class DailyQuiz {
       questions: (json['questions'] as List)
           .map((q) => QuizQuestion.fromJson(q))
           .toList(),
+      userAttempt: json['user_attempt'],
+      userStreak: json['user_streak'] ?? 0,
     );
   }
 }
