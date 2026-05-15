@@ -118,7 +118,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
             final player = provider.players[index];
             return ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text('Player ID: ${player.playerProfileId?.substring(0, 8) ?? "N/A"}'),
+              title: Text('Player ID: ${player.playerProfileId.substring(0, 8) ?? "N/A"}'),
               subtitle: Text('Status: ${player.status}'),
             );
           },

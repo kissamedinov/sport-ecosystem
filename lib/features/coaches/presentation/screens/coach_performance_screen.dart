@@ -310,8 +310,9 @@ class CoachPerformanceScreen extends StatelessWidget {
     final rating = (player['rating'] as num?)?.toStringAsFixed(1) ?? '—';
 
     Color rankColor;
-    if (rank == 1) rankColor = Colors.amber;
-    else if (rank == 2) rankColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    if (rank == 1) {
+      rankColor = Colors.amber;
+    } else if (rank == 2) rankColor = Theme.of(context).colorScheme.onSurfaceVariant;
     else if (rank == 3) rankColor = Colors.orangeAccent;
     else rankColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
 

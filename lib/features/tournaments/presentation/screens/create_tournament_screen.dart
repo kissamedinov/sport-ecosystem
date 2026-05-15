@@ -208,8 +208,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
             onPrimary: Colors.black,
             surface: PremiumTheme.surfaceCard(context),
             onSurface: Colors.white,
-          ),
-          dialogBackgroundColor: PremiumTheme.surfaceBase(context),
+          ), dialogTheme: DialogThemeData(backgroundColor: PremiumTheme.surfaceBase(context)),
         ),
         child: child!,
       ),
@@ -697,7 +696,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
   Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged, ColorScheme cs) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       dropdownColor: PremiumTheme.surfaceCard(context),
       style: TextStyle(color: cs.onSurface, fontSize: 14),
       decoration: PremiumTheme.inputDecorationOf(context, label),
@@ -790,7 +789,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
               if (!v) _selectedFieldIds.clear();
             });
           },
-          activeColor: PremiumTheme.neonGreen,
+          activeThumbColor: PremiumTheme.neonGreen,
         ),
       ],
     );

@@ -22,8 +22,8 @@ class AcademyProvider extends ChangeNotifier {
   String? _error;
   
   // Activities for Parents/Children
-  Map<String, List<TrainingSession>> _childSessions = {};
-  Map<String, List<TrainingSchedule>> _childSchedules = {};
+  final Map<String, List<TrainingSession>> _childSessions = {};
+  final Map<String, List<TrainingSchedule>> _childSchedules = {};
 
   AcademyProvider(this._repository);
 

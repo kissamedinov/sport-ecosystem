@@ -72,7 +72,7 @@ class PlayerCard extends StatelessWidget {
                 Switch(
                   value: player.isStarting,
                   onChanged: onStartingChanged,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeThumbColor: Theme.of(context).primaryColor,
                 ),
               ],
             ),

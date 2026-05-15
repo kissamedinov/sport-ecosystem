@@ -97,7 +97,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             Text(
               "SYNCING DATA...", 
               style: TextStyle(
-                color: PremiumTheme.neonGreen.withOpacity(0.5), 
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.5), 
                 fontSize: 10, 
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2
@@ -544,7 +544,6 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     final String code = user?.uniqueCode ?? "ID-PENDING";
     final String clubName = academy?.name ?? "NO CLUB ASSIGNED";
 
-<<<<<<< HEAD
     return Column(
       children: [
         Container(
@@ -555,52 +554,6 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               colors: [
                 PremiumTheme.neonGreen.withValues(alpha: 0.15),
                 PremiumTheme.neonGreen.withValues(alpha: 0.05),
-=======
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            PremiumTheme.neonGreen.withValues(alpha: 0.15),
-            PremiumTheme.neonGreen.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.badge_rounded, color: PremiumTheme.neonGreen, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "UNIQUE COACH ID",
-                  style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  code,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  "Use this ID to be invited to a team",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
-                ),
->>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -633,9 +586,9 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       "Use this ID to be invited to a team",
-                      style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

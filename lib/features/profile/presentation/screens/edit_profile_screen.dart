@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});

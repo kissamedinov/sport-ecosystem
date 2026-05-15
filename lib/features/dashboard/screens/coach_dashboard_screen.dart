@@ -75,8 +75,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
         onFabTap: () {
           Navigator.of(context).push(
             PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const LineupScreen(),
-              transitionsBuilder: (_, a, __, c) =>
+              pageBuilder: (_, _, _) => const LineupScreen(),
+              transitionsBuilder: (_, a, _, c) =>
                   FadeTransition(opacity: a, child: c),
               transitionDuration: const Duration(milliseconds: 220),
             ),

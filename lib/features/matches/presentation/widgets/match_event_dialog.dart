@@ -45,7 +45,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
           children: [
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              value: _selectedType,
+              initialValue: _selectedType,
               style: const TextStyle(color: Colors.white),
               decoration: PremiumTheme.inputDecorationOf(context, 'Event Type'),
               items: const [
@@ -59,7 +59,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               dropdownColor: PremiumTheme.surfaceCard(context),
-              value: _selectedTeamId,
+              initialValue: _selectedTeamId,
               style: const TextStyle(color: Colors.white),
               decoration: PremiumTheme.inputDecorationOf(context, 'Team'),
               items: [

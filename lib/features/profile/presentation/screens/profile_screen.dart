@@ -12,7 +12,6 @@ import 'package:mobile/features/profile/presentation/widgets/manager_profile_bod
 import 'package:mobile/features/profile/presentation/widgets/child_player_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/referee_profile_body.dart';
 import 'package:mobile/features/profile/presentation/widgets/organizer_profile_body.dart';
-import 'package:mobile/features/notifications/providers/notification_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:mobile/features/settings/presentation/screens/settings_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';

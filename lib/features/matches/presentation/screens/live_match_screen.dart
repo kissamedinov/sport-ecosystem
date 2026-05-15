@@ -480,7 +480,7 @@ class _PlayerPickerSheet extends StatelessWidget {
               Icon(icon, color: color, size: 18),
               const SizedBox(width: 8),
               Text(
-                "${eventType.replaceAll('_', ' ')}  •  ${minute}'",
+                "${eventType.replaceAll('_', ' ')}  •  $minute'",
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
               ),
             ],

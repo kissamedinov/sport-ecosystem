@@ -128,7 +128,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             padding: const EdgeInsets.all(16),
             decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: DropdownButtonFormField<String>(
-              value: _selectedCoachId,
+              initialValue: _selectedCoachId,
               dropdownColor: PremiumTheme.surfaceCard(context),
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
               icon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),

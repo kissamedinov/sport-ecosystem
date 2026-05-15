@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
 import 'package:mobile/features/tournaments/presentation/screens/create_tournament_screen.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_list_screen.dart';
 import 'package:mobile/features/teams/presentation/screens/team_management_screen.dart';
-import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
 
 class OrganizerDashboardScreen extends StatefulWidget {

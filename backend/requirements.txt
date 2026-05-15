@@ -9,3 +9,4 @@ pydantic[email]
 python-dotenv
 Pillow
 python-multipart
+google-generativeai

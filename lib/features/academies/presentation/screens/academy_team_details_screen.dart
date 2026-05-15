@@ -198,7 +198,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
                     child: const Text('Attendance'),
                   ),
                 ),
-              )).toList(),
+              )),
           ],
         );
       },

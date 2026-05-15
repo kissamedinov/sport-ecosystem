@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
 import 'package:mobile/features/tournaments/data/models/tournament.dart';
 import 'package:mobile/features/tournaments/presentation/screens/tournament_details_page.dart';

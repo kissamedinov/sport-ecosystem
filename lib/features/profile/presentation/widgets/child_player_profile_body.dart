@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
+import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/features/player_stats/providers/player_stats_provider.dart';
 import 'package:mobile/features/teams/providers/team_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -93,6 +94,10 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
           _buildSectionLabel("CAREER STATS"),
           const SizedBox(height: 12),
           _buildCareerStats(context),
+          const SizedBox(height: 28),
+          _buildSectionLabel("DAILY CHALLENGE"),
+          const SizedBox(height: 12),
+          _buildDailyChallenge(context),
           const SizedBox(height: 28),
           _buildSectionLabel("MY TEAM"),
           const SizedBox(height: 12),
@@ -208,6 +213,55 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDailyChallenge(BuildContext context) {
+    return PremiumCard(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const DailyQuizScreen()),
+        );
+      },
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.bolt_rounded, color: PremiumTheme.neonGreen, size: 28),
+          ),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "FOOTBALL KICK-OFF",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Win 7 points today to keep your streak!",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios_rounded, color: PremiumTheme.neonGreen, size: 16),
+        ],
+      ),
     );
   }
 

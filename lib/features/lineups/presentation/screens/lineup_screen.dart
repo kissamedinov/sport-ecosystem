@@ -211,7 +211,7 @@ class _LineupScreenState extends State<LineupScreen> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: _formations.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (_, i) {
             final f = _formations[i];
             final active = f == _formation;
@@ -255,7 +255,7 @@ class _LineupScreenState extends State<LineupScreen> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
       itemCount: _roster.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (_, i) {
         final p = _roster[i];
         final sel = _selected.contains(p.id);

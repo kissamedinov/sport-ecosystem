@@ -104,7 +104,7 @@ class _OrleonPulseDotState extends State<OrleonPulseDot>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _ctrl,
-      builder: (_, __) {
+      builder: (_, _) {
         final t = _ctrl.value;
         final ringSize = widget.size + (widget.size * 1.6 * t);
         final ringOpacity = (1.0 - t).clamp(0.0, 1.0) * 0.65;

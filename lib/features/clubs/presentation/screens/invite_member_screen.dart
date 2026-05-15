@@ -187,7 +187,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonFormField<String>(
-                value: _selectedTeamId,
+                initialValue: _selectedTeamId,
                 dropdownColor: PremiumTheme.surfaceCard(context),
                 style: TextStyle(color: cs.onSurface, fontSize: 14),
                 icon: Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurface.withValues(alpha: 0.4)),

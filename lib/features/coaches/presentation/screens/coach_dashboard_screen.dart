@@ -338,7 +338,6 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   Widget _actionBtn({
     required IconData icon,
-    IconData? fallbackIcon,
     required String label,
     required Color color,
     required VoidCallback onTap,

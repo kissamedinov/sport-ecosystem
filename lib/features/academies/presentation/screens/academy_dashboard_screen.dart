@@ -922,8 +922,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            if (_tabController.index == 1) _showAddTeamDialog();
-            else if (_tabController.index == 2) _showAddScheduleDialog();
+            if (_tabController.index == 1) {
+              _showAddTeamDialog();
+            } else if (_tabController.index == 2) _showAddScheduleDialog();
             else if (_tabController.index == 3) _showBillingConfigDialog();
           },
           child: const Icon(Icons.add_rounded, color: Colors.black, size: 26),
@@ -1279,8 +1280,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                         checkmarkColor: _kGreen,
                         side: BorderSide(color: sel ? _kGreen.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1)),
                         onSelected: (v) => setModal(() {
-                          if (v) selectedTeamIds.add(t.id);
-                          else if (selectedTeamIds.length > 1) selectedTeamIds.remove(t.id);
+                          if (v) {
+                            selectedTeamIds.add(t.id);
+                          } else if (selectedTeamIds.length > 1) selectedTeamIds.remove(t.id);
                         }),
                       );
                     }).toList(),
@@ -1291,7 +1293,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     dropdownColor: _kCard,
-                    value: selectedBranchId,
+                    initialValue: selectedBranchId,
                     hint: Text('Select Branch', style: _outfit(13, FontWeight.w400,
                         Colors.white.withValues(alpha: 0.4))),
                     items: [

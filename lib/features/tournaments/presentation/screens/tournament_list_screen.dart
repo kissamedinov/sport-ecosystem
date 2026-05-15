@@ -357,13 +357,10 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildChildGreeting(String name) {
-<<<<<<< HEAD
+    final cs = Theme.of(context).colorScheme;
     final academy = context.watch<AcademyProvider>().myAcademy;
     final academyName = academy?.name ?? 'ORLEON';
 
-=======
-    final cs = Theme.of(context).colorScheme;
->>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
@@ -391,16 +388,13 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
                 ),
                 Text(
-<<<<<<< HEAD
                   'REPRESENTING: ${academyName.toUpperCase()}',
                   style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 2),
                 const Text(
-=======
->>>>>>> e39f312cbba8a2a087613977f9bb10b5e8980e24
                   'Ready for your next big match?',
-                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.65), fontSize: 11),
+                  style: TextStyle(color: Colors.white60, fontSize: 11),
                 ),
               ],
             ),

@@ -110,7 +110,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: awards.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (context, index) => _AwardCard(award: awards[index]),
               ),
             ),

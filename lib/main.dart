@@ -38,6 +38,8 @@ import 'features/admin/data/repositories/admin_repository.dart';
 import 'features/admin/providers/admin_provider.dart';
 import 'features/bookings/data/repositories/booking_repository.dart';
 import 'features/bookings/providers/booking_provider.dart' as general_booking;
+import 'features/quiz/data/repositories/quiz_repository.dart';
+import 'features/quiz/providers/quiz_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +61,7 @@ Future<void> main() async {
   final mediaRepository = MediaRepository(apiClient);
   final adminRepository = AdminRepository(apiClient);
   final bookingRepository = BookingRepository(apiClient);
+  final quizRepository = QuizRepository(apiClient);
 
   runApp(
     MultiProvider(
@@ -85,6 +88,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
         ChangeNotifierProvider(create: (_) => AcademyProvider(academyRepository)),
         ChangeNotifierProvider(create: (_) => general_booking.BookingProvider(bookingRepository)),
+        ChangeNotifierProvider(create: (_) => QuizProvider(quizRepository)),
       ],
       child: const SportsApp(),
     ),

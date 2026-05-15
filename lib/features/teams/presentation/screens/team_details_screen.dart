@@ -6,7 +6,6 @@ import '../../providers/team_provider.dart';
 import '../../data/models/team.dart';
 import '../../data/models/player_team.dart';
 import '../../../auth/providers/auth_provider.dart';
-import '../../../auth/data/models/user.dart';
 import '../../../../features/matches/data/models/match.dart';
 import '../widgets/team_form_indicator.dart';
 
