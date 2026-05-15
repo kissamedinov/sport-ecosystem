@@ -56,10 +56,14 @@ def migrate_db():
             conn.execute(text("ALTER TABLE teams ALTER COLUMN coach_id DROP NOT NULL;"))
             
             print("Columns added and constraints fixed")
-        except Exception as e:
-            print(f"Error adding columns: {e}")
-            
     return {"message": "Migration and Alters successful"}
+
+@app.post("/debug/inspect/{table_name}")
+def inspect_table_remote(table_name: str):
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        result = conn.execute(text(f"SELECT column_name, is_nullable FROM information_schema.columns WHERE table_name = '{table_name}'"))
+        return [{"column": row[0], "nullable": row[1]} for row in result]
 
 app.add_middleware(
     CORSMiddleware,
