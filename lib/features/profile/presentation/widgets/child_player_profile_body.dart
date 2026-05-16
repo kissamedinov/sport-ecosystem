@@ -7,6 +7,7 @@ import 'package:mobile/features/player_stats/providers/player_stats_provider.dar
 import 'package:mobile/features/teams/providers/team_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 
 class ChildPlayerProfileBody extends StatefulWidget {
   final User user;
@@ -155,64 +156,44 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.65,
+      childAspectRatio: 1.5,
       children: [
-        GestureDetector(
+        _buildStatCard(
+          icon: Icons.cake_rounded,
+          value: showSet ? 'SET' : '$age',
+          label: showSet ? 'AGE • TAP' : 'AGE',
+          accent: const Color(0xFFCE93D8),
           onTap: () => _selectBirthday(context),
-          child: _buildStatCard(
-            icon: Icons.cake_rounded,
-            value: showSet ? 'SET' : '$age',
-            label: 'AGE',
-            badge: showSet ? 'TAP' : 'YEARS',
-            accent: const Color(0xFFCE93D8),
-            cardBg: const Color(0xFF1A001A),
-            borderColor: const Color(0xFF6A0080),
-          ),
         ),
         _buildStatCard(
           icon: Icons.shield_rounded,
           value: '${teams.length}',
           label: 'TEAMS',
-          badge: 'SQUAD',
-          accent: const Color(0xFF42A5F5),
-          cardBg: const Color(0xFF0D1B2A),
-          borderColor: const Color(0xFF1E3A5F),
+          accent: PremiumTheme.electricBlue,
         ),
         _buildStatCard(
           icon: Icons.sports_soccer_rounded,
           value: '${stats.totalGoals}',
           label: 'GOALS',
-          badge: 'SCORED',
-          accent: const Color(0xFF00E676),
-          cardBg: const Color(0xFF0A1F0A),
-          borderColor: const Color(0xFF1B5E20),
+          accent: PremiumTheme.neonGreen,
         ),
         _buildStatCard(
           icon: Icons.stadium_rounded,
           value: '${stats.matchesPlayed}',
           label: 'MATCHES',
-          badge: 'PLAYED',
-          accent: const Color(0xFFFFA726),
-          cardBg: const Color(0xFF1A1200),
-          borderColor: const Color(0xFFE65100),
+          accent: Colors.amber,
         ),
         _buildStatCard(
           icon: Icons.handshake_rounded,
           value: '${stats.totalAssists}',
           label: 'ASSISTS',
-          badge: 'PASSED',
-          accent: const Color(0xFF00E676),
-          cardBg: const Color(0xFF0A1F0A),
-          borderColor: const Color(0xFF1B5E20),
+          accent: PremiumTheme.neonGreen,
         ),
         _buildStatCard(
           icon: Icons.emoji_events_rounded,
           value: '${stats.totalMvpAwards}',
-          label: 'AWARDS',
-          badge: 'MVP',
-          accent: const Color(0xFFFFA726),
-          cardBg: const Color(0xFF1A1200),
-          borderColor: const Color(0xFFE65100),
+          label: 'MVP AWARDS',
+          accent: Colors.amber,
         ),
       ],
     );
@@ -222,54 +203,52 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     required IconData icon,
     required String value,
     required String label,
-    required String badge,
     required Color accent,
-    required Color cardBg,
-    required Color borderColor,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 1.5),
+    return OrleonCard(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      radius: 16,
+      onTap: onTap,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          accent.withValues(alpha: 0.18),
+          accent.withValues(alpha: 0.05),
+        ],
       ),
-      padding: const EdgeInsets.all(12),
+      borderColor: accent.withValues(alpha: 0.25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: accent, size: 16),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(color: accent, fontSize: 9, letterSpacing: 0.8, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 16, color: accent),
           ),
           const Spacer(),
           Text(
             value,
-            style: TextStyle(color: accent, fontSize: 26, fontWeight: FontWeight.bold, height: 1.0),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+            ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(
-            label,
-            style: const TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w600),
+            label.toUpperCase(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import '../../clubs/providers/club_provider.dart';
 import '../../teams/providers/team_provider.dart';
 import '../../matches/providers/match_provider.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
+import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
@@ -184,10 +185,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                         icon: Icons.shield_rounded,
                         value: teamCount > 0 ? teamProvider.myTeams.first.name.split(' ').first.toUpperCase() : 'NONE',
                         label: 'TEAM',
-                        badge: 'SQUAD',
-                        accent: const Color(0xFF42A5F5),
-                        cardBg: const Color(0xFF0D1B2A),
-                        borderColor: const Color(0xFF1E3A5F),
+                        accent: PremiumTheme.electricBlue,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -196,10 +194,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                         icon: Icons.bolt_rounded,
                         value: 'LVL 5',
                         label: 'LEVEL',
-                        badge: 'XP',
-                        accent: const Color(0xFF00E676),
-                        cardBg: const Color(0xFF0A1F0A),
-                        borderColor: const Color(0xFF1B5E20),
+                        accent: PremiumTheme.neonGreen,
                       ),
                     ),
                   ],
@@ -213,57 +208,37 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                   childAspectRatio: 1.35,
                   children: [
-                    GestureDetector(
+                    _buildActionCard(
+                      icon: Icons.emoji_events_rounded,
+                      title: 'TOURNAMENTS',
+                      subtitle: 'Compete & Win',
+                      accent: Colors.amber,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
-                      child: _buildStatCard(
-                        icon: Icons.emoji_events_rounded,
-                        value: 'GO',
-                        label: 'TOURNAMENTS',
-                        badge: 'COMPETE',
-                        accent: const Color(0xFFFFA726),
-                        cardBg: const Color(0xFF1A1200),
-                        borderColor: const Color(0xFFE65100),
-                      ),
                     ),
-                    GestureDetector(
+                    _buildActionCard(
+                      icon: Icons.insert_chart_outlined_rounded,
+                      title: 'MY STATS',
+                      subtitle: 'Track Progress',
+                      accent: PremiumTheme.electricBlue,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'My Statistics'))),
-                      child: _buildStatCard(
-                        icon: Icons.insert_chart_outlined_rounded,
-                        value: 'SEE',
-                        label: 'STATS',
-                        badge: 'TRACK',
-                        accent: const Color(0xFF42A5F5),
-                        cardBg: const Color(0xFF0D1B2A),
-                        borderColor: const Color(0xFF1E3A5F),
-                      ),
                     ),
-                    GestureDetector(
+                    _buildActionCard(
+                      icon: Icons.forum_outlined,
+                      title: 'COACH MSG',
+                      subtitle: 'Read Feedback',
+                      accent: PremiumTheme.neonGreen,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Message from Coach'))),
-                      child: _buildStatCard(
-                        icon: Icons.forum_outlined,
-                        value: 'CHAT',
-                        label: 'COACHED',
-                        badge: 'COACH',
-                        accent: const Color(0xFF00E676),
-                        cardBg: const Color(0xFF0A1F0A),
-                        borderColor: const Color(0xFF1B5E20),
-                      ),
                     ),
-                    GestureDetector(
+                    _buildActionCard(
+                      icon: Icons.fitness_center_rounded,
+                      title: 'TRAINING',
+                      subtitle: 'Daily Schedule',
+                      accent: const Color(0xFFCE93D8),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Training Schedule'))),
-                      child: _buildStatCard(
-                        icon: Icons.fitness_center_rounded,
-                        value: 'TRAIN',
-                        label: 'TRAINING',
-                        badge: 'GRIND',
-                        accent: const Color(0xFFCE93D8),
-                        cardBg: const Color(0xFF1A001A),
-                        borderColor: const Color(0xFF6A0080),
-                      ),
                     ),
                   ],
                 ),
@@ -280,54 +255,99 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     required IconData icon,
     required String value,
     required String label,
-    required String badge,
     required Color accent,
-    required Color cardBg,
-    required Color borderColor,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 1.5),
+    return OrleonCard(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      radius: 16,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [accent.withValues(alpha: 0.18), accent.withValues(alpha: 0.05)],
       ),
-      padding: const EdgeInsets.all(16),
+      borderColor: accent.withValues(alpha: 0.25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: accent, size: 20),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(color: accent, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 16, color: accent),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             value,
-            style: TextStyle(color: accent, fontSize: 24, fontWeight: FontWeight.bold, height: 1.0),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
-            label,
-            style: const TextStyle(color: Colors.white70, fontSize: 11, letterSpacing: 1.2, fontWeight: FontWeight.w600),
+            label.toUpperCase(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color accent,
+    required VoidCallback onTap,
+  }) {
+    return OrleonCard(
+      padding: const EdgeInsets.all(16),
+      radius: 18,
+      onTap: onTap,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [accent.withValues(alpha: 0.10), accent.withValues(alpha: 0.03)],
+      ),
+      borderColor: accent.withValues(alpha: 0.2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: accent, size: 20),
+          ),
+          const Spacer(),
+          Text(
+            title,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 10,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -305,24 +305,84 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
   Widget _buildStatsRow(int childCount, int matchCount) {
     return Row(
       children: [
-        Expanded(
-          child: PremiumStatCard(
-            title: "CHILDREN",
-            value: "$childCount",
-            icon: Icons.child_care_rounded,
-            color: PremiumTheme.neonGreen,
-          ),
-        ),
+        Expanded(child: _buildStatCard(
+          icon: Icons.child_care_rounded,
+          value: '$childCount',
+          label: 'KIDS',
+          badge: 'LINKED',
+          accent: const Color(0xFFE0AE5A),
+          cardBg: const Color(0xFF1E1508),
+          borderColor: const Color(0xFF7A4818),
+        )),
         const SizedBox(width: 12),
-        Expanded(
-          child: PremiumStatCard(
-            title: "GAMES",
-            value: "$matchCount",
-            icon: Icons.sports_soccer_rounded,
-            color: PremiumTheme.electricBlue,
-          ),
-        ),
+        Expanded(child: _buildStatCard(
+          icon: Icons.sports_soccer_rounded,
+          value: '$matchCount',
+          label: 'GAMES',
+          badge: 'WEEKLY',
+          accent: const Color(0xFF80AADC),
+          cardBg: const Color(0xFF111E2A),
+          borderColor: const Color(0xFF224A72),
+        )),
       ],
+    );
+  }
+
+  Widget _buildStatCard({
+    required IconData icon,
+    required String value,
+    required String label,
+    required String badge,
+    required Color accent,
+    required Color cardBg,
+    required Color borderColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Icon(icon, color: accent, size: 13),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  badge,
+                  style: TextStyle(color: accent, fontSize: 8, letterSpacing: 0.6, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(color: accent, fontSize: 20, fontWeight: FontWeight.bold, height: 1.0),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(color: accent.withValues(alpha: 0.5), fontSize: 9, letterSpacing: 0.8, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 

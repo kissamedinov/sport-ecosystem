@@ -190,135 +190,150 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildTournamentCard(dynamic tournament, bool isChild) {
-    final cs = Theme.of(context).colorScheme;
-    return PremiumCard(
-      onTap: () {
-        Navigator.push(
+    final statusColor = tournament.displayStatus == 'ACTIVE'
+        ? const Color(0xFF00E676)
+        : (tournament.displayStatus == 'FINISHED'
+            ? Colors.white38
+            : const Color(0xFF42A5F5));
+
+    final cardBg = tournament.displayStatus == 'ACTIVE'
+        ? const Color(0xFF0A1F0A)
+        : (tournament.displayStatus == 'FINISHED'
+            ? const Color(0xFF111418)
+            : const Color(0xFF0D1B2A));
+
+    final borderColor = tournament.displayStatus == 'ACTIVE'
+        ? const Color(0xFF1B5E20)
+        : (tournament.displayStatus == 'FINISHED'
+            ? const Color(0xFF2A2F36)
+            : const Color(0xFF1E3A5F));
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => TournamentDetailsPage(tournamentId: tournament.id),
+          MaterialPageRoute(builder: (context) => TournamentDetailsPage(tournamentId: tournament.id)),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor, width: 1.5),
           ),
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: isChild ? Colors.amber.withValues(alpha: 0.1) : PremiumTheme.neonGreen.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isChild ? Colors.amber.withValues(alpha: 0.2) : PremiumTheme.neonGreen.withValues(alpha: 0.2)),
-                ),
-                child: tournament.logoUrl != null && tournament.logoUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(tournament.logoUrl!, fit: BoxFit.cover),
-                    )
-                  : Icon(isChild ? Icons.star_rounded : Icons.emoji_events, color: isChild ? Colors.amber : PremiumTheme.neonGreen, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      tournament.name.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.25)),
+                      ),
+                      child: tournament.logoUrl != null && tournament.logoUrl!.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.network(tournament.logoUrl!, fit: BoxFit.cover),
+                            )
+                          : Icon(
+                              isChild ? Icons.star_rounded : Icons.emoji_events_rounded,
+                              color: statusColor,
+                              size: 22,
+                            ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tournament.name.toUpperCase(),
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5, height: 1.2),
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded, size: 11, color: Colors.white38),
+                              const SizedBox(width: 3),
+                              Text(
+                                tournament.location,
+                                style: const TextStyle(color: Colors.white38, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on, size: 12, color: cs.onSurfaceVariant),
-                        const SizedBox(width: 4),
-                        Text(
-                          tournament.location,
-                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        tournament.displayStatus,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1,
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: tournament.displayStatus == 'ACTIVE'
-                      ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
-                      : (tournament.displayStatus == 'FINISHED'
-                          ? cs.onSurface.withValues(alpha: 0.08)
-                          : Colors.blue.withValues(alpha: 0.1)),
-                  borderRadius: BorderRadius.circular(6),
+                  color: Colors.white.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                 ),
-                child: Text(
-                  tournament.displayStatus,
-                  style: TextStyle(
-                    color: tournament.displayStatus == 'ACTIVE'
-                        ? PremiumTheme.neonGreen
-                        : (tournament.displayStatus == 'FINISHED' ? cs.onSurfaceVariant : Colors.blueAccent),
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildInfoItem(Icons.calendar_today, tournament.startDate),
-              _buildInfoItem(Icons.sports_soccer, tournament.format),
-              _buildInfoItem(Icons.groups, tournament.ageCategory),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Divider(height: 1, color: cs.onSurface.withValues(alpha: 0.08)),
-          const SizedBox(height: 12),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                'VIEW DETAILS',
-                style: TextStyle(
-                  color: PremiumTheme.neonGreen,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildInfoChip(Icons.calendar_today_rounded, tournament.startDate, statusColor),
+                    _buildInfoChip(Icons.sports_soccer_rounded, tournament.format, statusColor),
+                    _buildInfoChip(Icons.groups_rounded, tournament.ageCategory, statusColor),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'DETAILS',
+                          style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 9, color: statusColor),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 4),
-              Icon(Icons.arrow_forward_ios, size: 10, color: PremiumTheme.neonGreen),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String value) {
-    final cs = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildInfoChip(IconData icon, String value, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 10, color: cs.onSurfaceVariant),
-            const SizedBox(width: 4),
-            Text(
-              value,
-              style: TextStyle(color: cs.onSurface, fontSize: 11, fontWeight: FontWeight.w500),
-            ),
-          ],
+        Icon(icon, size: 10, color: color.withValues(alpha: 0.6)),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w600),
         ),
       ],
     );

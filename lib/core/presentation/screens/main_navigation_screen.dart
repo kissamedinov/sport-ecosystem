@@ -42,6 +42,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       return _buildChildNav(context);
     }
 
+    if (role == 'PARENT') {
+      return _buildParentNav(context);
+    }
+
     if (role == 'COACH') {
       return const RoleRouter();
     }
@@ -271,6 +275,128 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   fontSize: 8,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParentNav(BuildContext context) {
+    final safeIndex = _selectedIndex.clamp(0, 4);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final parentScreens = [
+      const RoleRouter(),
+      const TournamentListScreen(),
+      const ChildrenActivityScreen(),
+      const NotificationScreen(),
+      const ProfileScreen(),
+    ];
+
+    return Scaffold(
+      extendBody: true,
+      body: IndexedStack(
+        index: safeIndex,
+        children: parentScreens,
+      ),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.07),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: Container(
+                    color: isDark
+                        ? const Color(0xFF161B22).withValues(alpha: 0.62)
+                        : Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
+                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'CUP')),
+                  _buildParentFamilyFab(),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParentFamilyFab() {
+    final isSelected = _selectedIndex == 2;
+    return Transform.translate(
+      offset: const Offset(0, -14),
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedIndex = 2),
+        child: Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isSelected
+                  ? [const Color(0xFFFFA726), const Color(0xFFFF6F00)]
+                  : [const Color(0xFF2A1800), const Color(0xFF1A1000)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: const Color(0xFFFFA726).withValues(alpha: isSelected ? 1.0 : 0.35),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFA726).withValues(alpha: isSelected ? 0.55 : 0.2),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.family_restroom_rounded, color: isSelected ? Colors.black : const Color(0xFFFFA726), size: 22),
+              const SizedBox(height: 2),
+              Text(
+                'FAMILY',
+                style: TextStyle(
+                  color: isSelected ? Colors.black : const Color(0xFFFFA726),
+                  fontSize: 7,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
