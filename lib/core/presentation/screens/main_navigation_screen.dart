@@ -17,7 +17,6 @@ import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.
 import 'package:mobile/features/clubs/presentation/screens/create_child_profile_screen.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/features/notifications/presentation/screens/notification_screen.dart';
-import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -160,66 +159,121 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   Widget _buildChildNav(BuildContext context) {
-    final safeIndex = _selectedIndex.clamp(0, 3);
+    final safeIndex = _selectedIndex.clamp(0, 4);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final childScreens = [
       const RoleRouter(),
+      const TournamentListScreen(),
       const FootballHubScreen(),
       const NotificationScreen(),
       const ProfileScreen(),
     ];
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(
         index: safeIndex,
         children: childScreens,
       ),
-      floatingActionButton: Container(
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.07),
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00E676).withValues(alpha: 0.4),
-              blurRadius: 16,
-              spreadRadius: 2,
+              color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
-        child: FloatingActionButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const DailyQuizScreen()),
-          ),
-          backgroundColor: const Color(0xFF00E676),
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: const Icon(Icons.bolt_rounded, color: Colors.black, size: 28, weight: 700),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: BottomAppBar(
-            color: const Color(0xFF0A0A0A).withValues(alpha: 0.75),
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 6,
-            elevation: 0,
-            padding: EdgeInsets.zero,
-            child: SizedBox(
-              height: 56,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: Container(
+                    color: isDark
+                        ? const Color(0xFF161B22).withValues(alpha: 0.62)
+                        : Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
-                  _buildChildNavItem(1, Icons.hub_outlined, Icons.hub_rounded, 'HUB'),
-                  const SizedBox(width: 56),
-                  _buildChildNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
-                  _buildChildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
+                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'CUP')),
+                  _buildChildHubFab(),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChildHubFab() {
+    final isSelected = _selectedIndex == 2;
+    return Transform.translate(
+      offset: const Offset(0, -14),
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedIndex = 2),
+        child: Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isSelected
+                  ? [const Color(0xFF00E676), const Color(0xFF00C853)]
+                  : [const Color(0xFF1A3A1A), const Color(0xFF0F250F)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: const Color(0xFF00E676).withValues(alpha: isSelected ? 1.0 : 0.35),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00E676).withValues(alpha: isSelected ? 0.55 : 0.2),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.hub_rounded, color: isSelected ? Colors.black : const Color(0xFF00E676), size: 22),
+              const SizedBox(height: 2),
+              Text(
+                'HUB',
+                style: TextStyle(
+                  color: isSelected ? Colors.black : const Color(0xFF00E676),
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -234,7 +288,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       onTap: () => setState(() => _selectedIndex = index),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

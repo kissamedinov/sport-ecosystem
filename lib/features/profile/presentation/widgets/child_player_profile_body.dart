@@ -143,7 +143,9 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     final user = widget.user.id == context.watch<AuthProvider>().user?.id
         ? context.watch<AuthProvider>().user!
         : widget.user;
-    final isDefaultDob = user.dateOfBirth?.year == 2000 && user.dateOfBirth?.month == 1 && user.dateOfBirth?.day == 1;
+    final isDefaultDob = user.dateOfBirth?.year == 2000 &&
+        user.dateOfBirth?.month == 1 &&
+        user.dateOfBirth?.day == 1;
     final age = _calculateAge(user.dateOfBirth);
     final showSet = user.dateOfBirth == null || isDefaultDob;
 
@@ -153,7 +155,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.35,
+      childAspectRatio: 1.65,
       children: [
         GestureDetector(
           onTap: () => _selectBirthday(context),
@@ -231,7 +233,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: 1.5),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -239,22 +241,22 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: accent, size: 20),
+                child: Icon(icon, color: accent, size: 16),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   badge,
-                  style: TextStyle(color: accent, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: accent, fontSize: 9, letterSpacing: 0.8, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -262,12 +264,12 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
           const Spacer(),
           Text(
             value,
-            style: TextStyle(color: accent, fontSize: 36, fontWeight: FontWeight.bold, height: 1.0),
+            style: TextStyle(color: accent, fontSize: 26, fontWeight: FontWeight.bold, height: 1.0),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           Text(
             label,
-            style: const TextStyle(color: Colors.white70, fontSize: 12, letterSpacing: 1.2, fontWeight: FontWeight.w600),
+            style: const TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.0, fontWeight: FontWeight.w600),
           ),
         ],
       ),

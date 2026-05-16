@@ -1,11 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import '../../../teams/presentation/screens/team_leaderboard_screen.dart';
 
-class FootballHubScreen extends StatelessWidget {
+class FootballHubScreen extends StatefulWidget {
   const FootballHubScreen({super.key});
+
+  @override
+  State<FootballHubScreen> createState() => _FootballHubScreenState();
+}
+
+class _FootballHubScreenState extends State<FootballHubScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _pulseCtrl;
+  late final AnimationController _entryCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _entryCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    _entryCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,32 +49,28 @@ class FootballHubScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Container(
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topRight,
-            radius: 1.5,
-            colors: [
-              PremiumTheme.neonGreen.withValues(alpha: 0.05),
-              PremiumTheme.surfaceBase(context),
-            ],
-          ),
-        ),
+      body: FadeTransition(
+        opacity: CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOut),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 110, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 108, 20, 120),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildQuizCard(context),
-              const SizedBox(height: 24),
-              const OrleonSectionHeader(title: "GLOBAL ANALYTICS"),
-              _buildRankingsCard(context),
-              const SizedBox(height: 24),
-              const OrleonSectionHeader(title: "TOP ACADEMIES"),
+              _buildDailyChallengeCard(context),
+              const SizedBox(height: 14),
+              _buildStreakRow(context),
+              const SizedBox(height: 28),
+              _buildSectionLabel(context, 'SKILLS ARENA'),
               const SizedBox(height: 12),
-              _buildAcademyList(context),
-              const SizedBox(height: 100),
+              _buildSkillsGrid(context),
+              const SizedBox(height: 28),
+              _buildSectionLabel(context, 'GLOBAL RANKINGS'),
+              const SizedBox(height: 12),
+              _buildLeaderboardCard(context),
+              const SizedBox(height: 28),
+              _buildSectionLabel(context, 'TOP ACADEMIES'),
+              const SizedBox(height: 12),
+              _buildAcademiesList(context),
             ],
           ),
         ),
@@ -54,156 +78,588 @@ class FootballHubScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuizCard(BuildContext context) {
-    return OrleonCard(
-      padding: const EdgeInsets.all(24),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          PremiumTheme.neonGreen.withValues(alpha: 0.15),
-          PremiumTheme.electricBlue.withValues(alpha: 0.05),
-        ],
-      ),
-      borderColor: PremiumTheme.neonGreen.withValues(alpha: 0.3),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
-            ),
-            child: const Icon(Icons.quiz_rounded, size: 40, color: PremiumTheme.neonGreen),
+  Widget _buildSectionLabel(BuildContext context, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(4),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'DAILY FOOTBALL QUIZ',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            letterSpacing: 2,
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Test your knowledge, win points and\nclimb the global leaderboard!',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.white60, height: 1.4),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DailyQuizScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PremiumTheme.neonGreen,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                elevation: 0,
-              ),
-              child: const Text(
-                'START TODAY\'S CHALLENGE',
-                style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildRankingsCard(BuildContext context) {
-    return OrleonCard(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const TeamLeaderboardScreen()),
-        );
-      },
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.leaderboard_rounded, size: 28, color: Colors.orange),
+  Widget _buildDailyChallengeCard(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulseCtrl,
+      builder: (context, child) {
+        final glow = 0.05 * _pulseCtrl.value;
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DailyQuizScreen()),
           ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TEAM RANKINGS',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-                ),
-                Text(
-                  'Global performance metrics',
-                  style: TextStyle(fontSize: 11, color: Colors.white54),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF00E676).withValues(alpha: 0.16 + glow),
+                  const Color(0xFF082210),
+                  const Color(0xFF004020).withValues(alpha: 0.7),
+                ],
+                stops: const [0.0, 0.55, 1.0],
+              ),
+              border: Border.all(
+                color: const Color(0xFF00E676).withValues(alpha: 0.3 + glow),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF00E676).withValues(alpha: 0.1 + glow),
+                  blurRadius: 28,
+                  spreadRadius: -2,
                 ),
               ],
             ),
+            child: child,
           ),
-          const Icon(Icons.chevron_right_rounded, color: Colors.white24),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAcademyList(BuildContext context) {
-    final academies = [
-      {'name': 'Real Madrid Academy', 'rating': '4.9', 'rank': '1'},
-      {'name': 'Barcelona Academy', 'rating': '4.8', 'rank': '2'},
-      {'name': 'Manchester City', 'rating': '4.7', 'rank': '3'},
-    ];
-
-    return Column(
-      children: academies.map((ac) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: OrleonCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+                  color: const Color(0xFF00E676).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.3)),
                 ),
-                alignment: Alignment.center,
-                child: Text(
-                  ac['rank']!,
-                  style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900),
-                ),
+                child: const Icon(Icons.bolt_rounded, color: Color(0xFF00E676), size: 22),
               ),
-              const SizedBox(width: 16),
-              Expanded(
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      ac['name']!.toUpperCase(),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                      'DAILY CHALLENGE',
+                      style: TextStyle(
+                        color: Color(0xFF00E676),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                      ),
                     ),
                     Text(
-                      'Rating: ${ac['rating']}/5',
-                      style: const TextStyle(fontSize: 11, color: Colors.white54),
+                      'Football Kick-Off',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        height: 1.2,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00E676).withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.4)),
+                ),
+                child: const Text(
+                  '+7 PTS',
+                  style: TextStyle(
+                    color: Color(0xFF00E676),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'Answer 5 questions, beat your streak and\nclimb the global leaderboard today!',
+            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.55),
+          ),
+          const SizedBox(height: 18),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00E676),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.play_arrow_rounded, color: Colors.black, size: 20),
+                SizedBox(width: 6),
+                Text(
+                  "START TODAY'S CHALLENGE",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStreakRow(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: _buildStreakChip(
+          icon: Icons.local_fire_department_rounded,
+          value: '7',
+          label: 'DAY STREAK',
+          color: Colors.deepOrange,
+        )),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStreakChip(
+          icon: Icons.stars_rounded,
+          value: '142',
+          label: 'TOTAL PTS',
+          color: const Color(0xFF00E676),
+        )),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStreakChip(
+          icon: Icons.emoji_events_rounded,
+          value: '#24',
+          label: 'WORLD RANK',
+          color: Colors.amber,
+        )),
+      ],
+    );
+  }
+
+  Widget _buildStreakChip({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(height: 5),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 8,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkillsGrid(BuildContext context) {
+    final skills = [
+      _SkillItem('SHOOTING', Icons.sports_soccer_rounded,
+          const Color(0xFF42A5F5), const Color(0xFF0D1B2A), 'POWER', 0.72),
+      _SkillItem('DRIBBLING', Icons.directions_run_rounded,
+          const Color(0xFF00E676), const Color(0xFF0A1F0A), 'AGILITY', 0.58),
+      _SkillItem('PASSING', Icons.swap_horiz_rounded,
+          const Color(0xFFFFA726), const Color(0xFF1A1200), 'VISION', 0.85),
+      _SkillItem('DEFENDING', Icons.shield_rounded,
+          const Color(0xFFCE93D8), const Color(0xFF1A001A), 'STRENGTH', 0.44),
+    ];
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.35,
+      children: skills.map((s) => _SkillCard(skill: s)).toList(),
+    );
+  }
+
+  Widget _buildLeaderboardCard(BuildContext context) {
+    final teams = [
+      {'name': 'FC Barcelona Youth', 'pts': '87', 'rank': '1'},
+      {'name': 'Real Madrid Academy', 'pts': '84', 'rank': '2'},
+      {'name': 'Ajax Youth Squad', 'pts': '79', 'rank': '3'},
+    ];
+    final medalColors = [Colors.amber, Colors.grey.shade400, const Color(0xFFCD7F32)];
+
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const TeamLeaderboardScreen()),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0D1117),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            ...teams.asMap().entries.map((e) {
+              final i = e.key;
+              final t = e.value;
+              final medal = medalColors[i];
+              return Padding(
+                padding: EdgeInsets.only(bottom: i < 2 ? 12 : 0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: medal.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: medal.withValues(alpha: 0.35)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        t['rank']!,
+                        style: TextStyle(
+                          color: medal,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        t['name']!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: medal.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${t['pts']} PTS',
+                        style: TextStyle(
+                          color: medal,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'SEE FULL LEADERBOARD',
+                  style: TextStyle(
+                    color: PremiumTheme.neonGreen,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_ios_rounded, color: PremiumTheme.neonGreen, size: 10),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAcademiesList(BuildContext context) {
+    final academies = [
+      {'name': 'Real Madrid Academy', 'rating': '4.9', 'flag': '🇪🇸', 'players': '320'},
+      {'name': 'Ajax Youth School', 'rating': '4.8', 'flag': '🇳🇱', 'players': '240'},
+      {'name': 'Man City Academy', 'rating': '4.7', 'flag': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'players': '280'},
+    ];
+
+    return Column(
+      children: academies.asMap().entries.map((e) {
+        final i = e.key;
+        final a = e.value;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D1117),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${i + 1}',
+                    style: const TextStyle(
+                      color: PremiumTheme.neonGreen,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        a['name']!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${a['flag']} · ${a['players']} players',
+                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                    const SizedBox(width: 3),
+                    Text(
+                      a['rating']!,
+                      style: const TextStyle(
+                        color: Colors.amber,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _SkillItem {
+  final String name;
+  final IconData icon;
+  final Color accent;
+  final Color bg;
+  final String badge;
+  final double progress;
+
+  const _SkillItem(this.name, this.icon, this.accent, this.bg, this.badge, this.progress);
+}
+
+class _SkillCard extends StatefulWidget {
+  final _SkillItem skill;
+  const _SkillCard({required this.skill});
+
+  @override
+  State<_SkillCard> createState() => _SkillCardState();
+}
+
+class _SkillCardState extends State<_SkillCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _scaleCtrl;
+  late final Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleCtrl, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.skill;
+    return GestureDetector(
+      onTapDown: (_) => _scaleCtrl.forward(),
+      onTapUp: (_) => _scaleCtrl.reverse(),
+      onTapCancel: () => _scaleCtrl.reverse(),
+      child: ScaleTransition(
+        scale: _scaleAnim,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                s.bg,
+                Colors.black.withValues(alpha: 0.25),
+              ],
+            ),
+            border: Border.all(
+              color: s.accent.withValues(alpha: 0.32),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: s.accent.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: s.accent.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(s.icon, color: s.accent, size: 18),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: s.accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      s.badge,
+                      style: TextStyle(
+                        color: s.accent,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                s.name,
+                style: TextStyle(
+                  color: s.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: s.progress,
+                  backgroundColor: s.accent.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(s.accent),
+                  minHeight: 3,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${(s.progress * 100).toInt()}%',
+                style: TextStyle(
+                  color: s.accent.withValues(alpha: 0.7),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
         ),
-      )).toList(),
+      ),
     );
   }
 }
