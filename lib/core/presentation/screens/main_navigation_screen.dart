@@ -76,54 +76,114 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   Widget _buildClubNav(BuildContext context) {
-    final safeIndex = _selectedIndex.clamp(0, 3);
+    final safeIndex = _selectedIndex.clamp(0, 4);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final clubScreens = [
       const RoleRouter(),
       const ClubDashboardScreen(isHome: false),
+      const SizedBox.shrink(),
       const NotificationScreen(),
       const ProfileScreen(),
     ];
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(
         index: safeIndex,
         children: clubScreens,
       ),
-      floatingActionButton: Container(
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.07),
+          ),
           boxShadow: [
             BoxShadow(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.4),
-              blurRadius: 16,
-              spreadRadius: 2,
+              color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
-        child: FloatingActionButton(
-          onPressed: _showQuickActions,
-          backgroundColor: PremiumTheme.accent(context),
-          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          elevation: 0,
-          child: const Icon(Icons.add, size: 28, weight: 700),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: Container(
+                    color: isDark
+                        ? const Color(0xFF161B22).withValues(alpha: 0.62)
+                        : Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
+                  Expanded(child: _buildChildNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE')),
+                  _buildClubAddFab(),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        color: PremiumTheme.surfaceCard(context),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+    );
+  }
+
+  Widget _buildClubAddFab() {
+    return Transform.translate(
+      offset: const Offset(0, -14),
+      child: GestureDetector(
+        onTap: _showQuickActions,
+        child: Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF00E676), Color(0xFF00C853)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFF00E676), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00E676).withValues(alpha: 0.55),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME'),
-              _buildNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE'),
-              const SizedBox(width: 56),
-              _buildNavItem(2, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX'),
-              _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE'),
+              Icon(Icons.add_rounded, color: Colors.black, size: 24),
+              SizedBox(height: 1),
+              Text(
+                'ADD',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.3,
+                ),
+              ),
             ],
           ),
         ),
