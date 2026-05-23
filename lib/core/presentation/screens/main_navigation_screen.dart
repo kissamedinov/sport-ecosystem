@@ -469,7 +469,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget _buildChildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final isSelected = _selectedIndex == index;
     final activeColor = const Color(0xFF00E676);
-    final inactiveColor = Colors.white38;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inactiveColor = isDark ? Colors.white38 : Colors.black45;
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       behavior: HitTestBehavior.opaque,

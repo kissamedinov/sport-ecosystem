@@ -133,19 +133,23 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
   }
 
   Widget _buildStatCard(String label, String value, IconData icon, Color color, {String? subtitle}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.02)],
+          colors: [
+            color.withValues(alpha: isDark ? 0.08 : 0.14),
+            color.withValues(alpha: isDark ? 0.02 : 0.06),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.1 : 0.2)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.03),
+            color: color.withValues(alpha: isDark ? 0.03 : 0.08),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -193,7 +197,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w800,
-              color: Colors.white24,
+              color: isDark ? Colors.white24 : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               letterSpacing: 1.5,
             ),
           ),
@@ -220,16 +224,20 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
   }
 
   Widget _buildGrowthCard(String label, String value, Color color, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.02)],
+          colors: [
+            color.withValues(alpha: isDark ? 0.08 : 0.14),
+            color.withValues(alpha: isDark ? 0.02 : 0.06),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.1 : 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +279,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             label.toUpperCase(),
             style: TextStyle(
               fontSize: 9,
-              color: Colors.white24,
+              color: isDark ? Colors.white24 : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
             ),
