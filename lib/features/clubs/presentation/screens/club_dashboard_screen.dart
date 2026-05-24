@@ -997,16 +997,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              centerTitle: false,
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 52),
-              title: Text(
-                dashboard.club.name,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20,
-                    letterSpacing: -0.3,
-                    color: Colors.white),
-              ),
+              collapseMode: CollapseMode.parallax,
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -1025,36 +1016,48 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     child: Icon(Icons.sports_soccer_rounded,
                         size: 180, color: Colors.white.withValues(alpha: 0.05)),
                   ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
+                  Positioned.fill(
                     child: SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: PremiumTheme.neonGreen,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.sports_soccer_rounded,
-                                  color: Colors.black, size: 22),
-                            ),
-                            const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () => _copyToClipboard(dashboard.club.id, 'Club ID'),
-                              child: Text(
-                                'ID: ${dashboard.club.id.substring(0, 8)}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white54,
-                                  fontFamily: 'monospace',
+                            Row(
+                              children: [
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: PremiumTheme.neonGreen,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.sports_soccer_rounded,
+                                      color: Colors.black, size: 22),
                                 ),
+                                const SizedBox(width: 12),
+                                GestureDetector(
+                                  onTap: () => _copyToClipboard(dashboard.club.id, 'Club ID'),
+                                  child: Text(
+                                    'ID: ${dashboard.club.id.substring(0, 8)}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white54,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              dashboard.club.name,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
                               ),
                             ),
                           ],
@@ -1065,21 +1068,27 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 ],
               ),
             ),
-            bottom: TabBar(
-              isScrollable: true,
-              indicatorColor: PremiumTheme.neonGreen,
-              indicatorWeight: 3,
-              labelColor: Theme.of(context).colorScheme.onSurface,
-              unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-              tabs: [
-                Tab(text: 'ACADEMIES'),
-                Tab(text: 'TEAMS'),
-                Tab(text: 'PLAYERS'),
-                Tab(text: 'COACHES'),
-                Tab(text: 'MEDIA'),
-                Tab(text: 'PENDING'),
-              ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: ColoredBox(
+                color: PremiumTheme.surfaceBase(context),
+                child: TabBar(
+                  isScrollable: true,
+                  indicatorColor: PremiumTheme.neonGreen,
+                  indicatorWeight: 3,
+                  labelColor: Theme.of(context).colorScheme.onSurface,
+                  unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                  tabs: const [
+                    Tab(text: 'ACADEMIES'),
+                    Tab(text: 'TEAMS'),
+                    Tab(text: 'PLAYERS'),
+                    Tab(text: 'COACHES'),
+                    Tab(text: 'MEDIA'),
+                    Tab(text: 'PENDING'),
+                  ],
+                ),
+              ),
             ),
           ),
           SliverFillRemaining(
