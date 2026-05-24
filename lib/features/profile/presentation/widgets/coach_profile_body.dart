@@ -8,6 +8,8 @@ import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import 'package:mobile/features/matches/presentation/screens/live_match_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_dashboard_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_attendance_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_tactics_screen.dart';
+import 'package:mobile/features/coaches/presentation/screens/coach_planner_screen.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 
 class CoachProfileBody extends StatefulWidget {
@@ -395,7 +397,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                     subtitle: 'Formations',
                     onTap: () {
                       HapticFeedback.heavyImpact();
-                      // Navigate
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoachTacticsScreen()),
+                      );
                     },
                   ),
                 ),
@@ -412,6 +417,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                     subtitle: 'Daily Agenda',
                     onTap: () {
                       HapticFeedback.heavyImpact();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoachPlannerScreen()),
+                      );
                     },
                   ),
                 ),
