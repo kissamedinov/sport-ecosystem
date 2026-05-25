@@ -104,6 +104,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
   }
 
   Widget _buildDailyChallengeCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (context, child) {
@@ -118,24 +119,33 @@ class _FootballHubScreenState extends State<FootballHubScreen>
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF00E676).withValues(alpha: 0.16 + glow),
-                  const Color(0xFF082210),
-                  const Color(0xFF004020).withValues(alpha: 0.7),
-                ],
-                stops: const [0.0, 0.55, 1.0],
-              ),
+              gradient: isDark
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF00E676).withValues(alpha: 0.16 + glow),
+                        const Color(0xFF082210),
+                        const Color(0xFF004020).withValues(alpha: 0.7),
+                      ],
+                      stops: const [0.0, 0.55, 1.0],
+                    )
+                  : LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF00E676).withValues(alpha: 0.18 + glow),
+                        const Color(0xFF00E676).withValues(alpha: 0.08),
+                      ],
+                    ),
               border: Border.all(
                 color: const Color(0xFF00E676).withValues(alpha: 0.3 + glow),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF00E676).withValues(alpha: 0.1 + glow),
-                  blurRadius: 28,
+                  color: const Color(0xFF00E676).withValues(alpha: 0.08 + glow),
+                  blurRadius: 20,
                   spreadRadius: -2,
                 ),
               ],
@@ -159,11 +169,11 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                 child: const Icon(Icons.bolt_rounded, color: Color(0xFF00E676), size: 22),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'DAILY CHALLENGE',
                       style: TextStyle(
                         color: Color(0xFF00E676),
@@ -175,7 +185,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                     Text(
                       'Football Kick-Off',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                         height: 1.2,
@@ -203,9 +213,13 @@ class _FootballHubScreenState extends State<FootballHubScreen>
             ],
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Answer 5 questions, beat your streak and\nclimb the global leaderboard today!',
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.55),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 12,
+              height: 1.55,
+            ),
           ),
           const SizedBox(height: 18),
           Container(
@@ -293,8 +307,8 @@ class _FootballHubScreenState extends State<FootballHubScreen>
           const SizedBox(height: 3),
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white38,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 8,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.4,
@@ -345,14 +359,14 @@ class _FootballHubScreenState extends State<FootballHubScreen>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF0D1117),
+          color: PremiumTheme.surfaceCard(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -388,8 +402,8 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                     Expanded(
                       child: Text(
                         t['name']!,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -453,9 +467,9 @@ class _FootballHubScreenState extends State<FootballHubScreen>
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF0D1117),
+              color: PremiumTheme.surfaceCard(context),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
             ),
             child: Row(
               children: [
@@ -483,8 +497,8 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                     children: [
                       Text(
                         a['name']!,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
@@ -492,7 +506,10 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                       const SizedBox(height: 2),
                       Text(
                         '${a['flag']} · ${a['players']} players',
-                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -571,20 +588,22 @@ class _SkillCardState extends State<_SkillCard>
       onTapCancel: () => _scaleCtrl.reverse(),
       child: ScaleTransition(
         scale: _scaleAnim,
-        child: Container(
+        child: Builder(
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                s.bg,
-                Colors.black.withValues(alpha: 0.25),
-              ],
+              colors: isDark
+                  ? [s.bg, Colors.black.withValues(alpha: 0.25)]
+                  : [s.accent.withValues(alpha: 0.14), s.accent.withValues(alpha: 0.05)],
             ),
             border: Border.all(
-              color: s.accent.withValues(alpha: 0.32),
+              color: s.accent.withValues(alpha: 0.35),
               width: 1.5,
             ),
             boxShadow: [
@@ -658,6 +677,8 @@ class _SkillCardState extends State<_SkillCard>
               ),
             ],
           ),
+        );
+          },
         ),
       ),
     );

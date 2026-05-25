@@ -263,9 +263,9 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [accent.withValues(alpha: 0.18), accent.withValues(alpha: 0.05)],
+        colors: [accent.withValues(alpha: 0.22), accent.withValues(alpha: 0.10)],
       ),
-      borderColor: accent.withValues(alpha: 0.25),
+      borderColor: accent.withValues(alpha: 0.35),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -316,9 +316,9 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [accent.withValues(alpha: 0.10), accent.withValues(alpha: 0.03)],
+        colors: [accent.withValues(alpha: 0.16), accent.withValues(alpha: 0.07)],
       ),
-      borderColor: accent.withValues(alpha: 0.2),
+      borderColor: accent.withValues(alpha: 0.28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

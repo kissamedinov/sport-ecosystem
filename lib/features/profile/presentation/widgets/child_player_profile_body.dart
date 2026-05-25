@@ -214,11 +214,11 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          accent.withValues(alpha: 0.18),
-          accent.withValues(alpha: 0.05),
+          accent.withValues(alpha: 0.22),
+          accent.withValues(alpha: 0.10),
         ],
       ),
-      borderColor: accent.withValues(alpha: 0.25),
+      borderColor: accent.withValues(alpha: 0.35),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -257,6 +257,8 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
 
   Widget _buildDailyChallenge(BuildContext context) {
     const accent = Color(0xFF00E676);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -264,9 +266,12 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0A1F0A),
+          color: isDark ? const Color(0xFF0A1F0A) : accent.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF1B5E20), width: 1.5),
+          border: Border.all(
+            color: isDark ? const Color(0xFF1B5E20) : accent.withValues(alpha: 0.4),
+            width: 1.5,
+          ),
         ),
         padding: const EdgeInsets.all(20),
         child: Row(
@@ -280,7 +285,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
               child: const Icon(Icons.bolt_rounded, color: accent, size: 28),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -290,15 +295,15 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1,
-                      color: Colors.white,
+                      color: cs.onSurface,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     "Win 7 points today to keep your streak!",
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.white70,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ],
