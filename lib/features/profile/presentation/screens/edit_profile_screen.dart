@@ -47,7 +47,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       
       if (image != null) {
         setState(() => _isUploadingImage = true);
-        final success = await context.read<AuthProvider>().uploadAvatar(image.path);
+        final bytes = await image.readAsBytes();
+        final filename = image.name.isNotEmpty ? image.name : image.path.split('/').last;
+        final success = await context.read<AuthProvider>().uploadAvatar(bytes, filename);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(success
             ? const SnackBar(content: Text("Profile picture updated!"))

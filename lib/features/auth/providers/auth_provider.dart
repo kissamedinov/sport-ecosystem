@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/models/user.dart';
 import 'dart:developer' as dev;
+import 'dart:typed_data';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository;
@@ -280,11 +281,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> uploadAvatar(String filePath) async {
+  Future<bool> uploadAvatar(List<int> bytes, String filename) async {
     _setLoading(true);
     _error = null;
     try {
-      final url = await _repository.uploadAvatar(filePath);
+      final url = await _repository.uploadAvatar(
+        Uint8List.fromList(bytes), filename);
       _user = await _repository.updateProfile({"avatar_url": url});
       notifyListeners();
       return true;

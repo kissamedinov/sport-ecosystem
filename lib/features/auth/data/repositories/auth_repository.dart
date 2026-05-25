@@ -1,7 +1,7 @@
 import '../../../../core/api/api_client.dart';
 import '../../../../core/services/token_service.dart';
 import '../models/user.dart';
-import 'dart:io';
+import 'dart:typed_data';
 
 class AuthRepository {
   final ApiClient _apiClient;
@@ -88,11 +88,11 @@ class AuthRepository {
     return User.fromJson(response.data);
   }
 
-  Future<String> uploadAvatar(String filePath) async {
-    final file = File(filePath);
+  Future<String> uploadAvatar(Uint8List bytes, String filename) async {
     final response = await _apiClient.multipartPost(
       '/media/upload',
-      file,
+      bytes,
+      filename,
       'AVATAR',
       extraData: {'user_id': (await getCurrentUser()).id},
     );

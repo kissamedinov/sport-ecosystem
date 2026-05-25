@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import '../services/token_service.dart';
 
 class ApiExceptions implements Exception {
@@ -70,10 +71,14 @@ class ApiClient {
     }
   }
 
-  Future<Response> multipartPost(String path, File file, String type, {Map<String, dynamic>? extraData}) async {
+  Future<Response> multipartPost(
+    String path,
+    Uint8List bytes,
+    String filename,
+    String type, {
+    Map<String, dynamic>? extraData,
+  }) async {
     try {
-      final bytes = await file.readAsBytes();
-      final filename = file.path.split('/').last;
       final formData = FormData.fromMap({
         'file': MultipartFile.fromBytes(bytes, filename: filename),
         'type': type,
