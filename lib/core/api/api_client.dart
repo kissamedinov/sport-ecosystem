@@ -72,8 +72,10 @@ class ApiClient {
 
   Future<Response> multipartPost(String path, File file, String type, {Map<String, dynamic>? extraData}) async {
     try {
+      final bytes = await file.readAsBytes();
+      final filename = file.path.split('/').last;
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path),
+        'file': MultipartFile.fromBytes(bytes, filename: filename),
         'type': type,
         ...?extraData,
       });
