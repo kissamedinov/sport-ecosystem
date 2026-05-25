@@ -41,4 +41,11 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  String? get fullAvatarUrl {
+    if (avatarUrl == null || avatarUrl!.isEmpty) return null;
+    return avatarUrl!.startsWith('http')
+        ? avatarUrl
+        : 'http://207.154.222.151$avatarUrl';
+  }
 }

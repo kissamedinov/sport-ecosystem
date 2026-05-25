@@ -138,10 +138,17 @@ class ProfileHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: PremiumTheme.neonShadow(),
                 ),
-                child: user.avatarUrl != null
+                child: user.fullAvatarUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: Image.network(user.avatarUrl!, fit: BoxFit.cover),
+                        child: Image.network(
+                          user.fullAvatarUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Text(initials,
+                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.black)),
+                          ),
+                        ),
                       )
                     : Center(
                         child: Text(

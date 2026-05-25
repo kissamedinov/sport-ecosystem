@@ -48,16 +48,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (image != null) {
         setState(() => _isUploadingImage = true);
         final success = await context.read<AuthProvider>().uploadAvatar(image.path);
-        if (success && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile picture updated!")),
-          );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(success
+            ? const SnackBar(content: Text("Profile picture updated!"))
+            : SnackBar(content: Text("Upload failed: ${context.read<AuthProvider>().error ?? 'unknown error'}")));
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error picking image: $e")),
+          SnackBar(content: Text("Error: $e")),
         );
       }
     } finally {
@@ -186,12 +186,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: PremiumTheme.surfaceCard(context),
-                image: user?.avatarUrl != null 
-                  ? DecorationImage(image: NetworkImage(user!.avatarUrl!), fit: BoxFit.cover)
+                image: user?.fullAvatarUrl != null
+                  ? DecorationImage(image: NetworkImage(user!.fullAvatarUrl!), fit: BoxFit.cover)
                   : null,
                 border: Border.all(color: PremiumTheme.surfaceBase(context), width: 4),
               ),
-              child: user?.avatarUrl == null
+              child: user?.fullAvatarUrl == null
                 ? Center(
                     child: Text(
                       user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : "?",
