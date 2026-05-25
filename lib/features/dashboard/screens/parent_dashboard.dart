@@ -8,6 +8,10 @@ import '../../children/presentation/screens/child_list_screen.dart';
 import '../../children/providers/child_provider.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
+import 'parent_coach_notes_screen.dart';
+import 'parent_academy_info_screen.dart';
+import 'parent_attendance_screen.dart';
+import 'parent_payments_screen.dart';
 
 class ParentDashboard extends StatefulWidget {
   const ParentDashboard({super.key});
@@ -64,7 +68,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       tag: 'MSG',
                       color: PremiumTheme.electricBlue,
                       onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Coach Feedback'))),
+                          MaterialPageRoute(builder: (_) => const ParentCoachNotesScreen())),
                     ),
                     _buildToolCard(
                       context: context,
@@ -74,7 +78,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       tag: 'INFO',
                       color: const Color(0xFFFFC107),
                       onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Academy Info'))),
+                          MaterialPageRoute(builder: (_) => const ParentAcademyInfoScreen())),
                     ),
                     _buildToolCard(
                       context: context,
@@ -84,7 +88,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       tag: 'TRACK',
                       color: PremiumTheme.neonGreen,
                       onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Attendance'))),
+                          MaterialPageRoute(builder: (_) => const ParentAttendanceScreen())),
                     ),
                     _buildToolCard(
                       context: context,
@@ -94,7 +98,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       tag: 'WALLET',
                       color: const Color(0xFFB490D0),
                       onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Payments'))),
+                          MaterialPageRoute(builder: (_) => const ParentPaymentsScreen())),
                     ),
                   ]),
                 ),

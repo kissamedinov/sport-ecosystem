@@ -250,3 +250,44 @@ class AcademyCompositePlayerResponse(BaseModel):
     team_name: str
 
     model_config = ConfigDict(from_attributes=True)
+
+# Parent-specific response schemas
+class ParentFeedbackItem(BaseModel):
+    child_id: str
+    child_name: str
+    feedbacks: List[CoachFeedbackResponse]
+
+class ParentAttendanceSummary(BaseModel):
+    child_id: str
+    child_name: str
+    total_sessions: int
+    present: int
+    absent: int
+    late: int
+    injured: int
+    attendance_rate: float
+
+class ParentAcademySchedule(BaseModel):
+    day_of_week: str
+    start_time: str
+    end_time: str
+    location: Optional[str] = None
+
+class ParentAcademyInfo(BaseModel):
+    academy_id: str
+    name: str
+    city: str
+    address: str
+    description: Optional[str] = None
+    child_names: List[str]
+    schedules: List[ParentAcademySchedule]
+
+class ParentBillingItem(BaseModel):
+    child_id: str
+    child_name: str
+    total_owed: float
+    base_fee: float
+    currency: str
+    total_sessions: int
+    present: int
+    absent: int

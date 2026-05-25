@@ -66,4 +66,31 @@ class ProfileApiService {
     final response = await _apiClient.post('/users/link-child-by-email', data: {'email': email});
     return response.data;
   }
+
+  /// Get coach feedback for parent's children
+  Future<List<Map<String, dynamic>>> getParentChildrenFeedback() async {
+    final response = await _apiClient.get('/academies/parent/feedback');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Get attendance summary for parent's children
+  Future<List<Map<String, dynamic>>> getParentChildrenAttendance() async {
+    final response = await _apiClient.get('/academies/parent/attendance');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Get academy info for parent's children
+  Future<List<Map<String, dynamic>>> getParentAcademyInfo() async {
+    final response = await _apiClient.get('/academies/parent/info');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
+  /// Get billing summary for parent's children
+  Future<List<Map<String, dynamic>>> getParentChildrenBilling({int? month, int? year}) async {
+    final params = <String, dynamic>{};
+    if (month != null) params['month'] = month;
+    if (year != null) params['year'] = year;
+    final response = await _apiClient.get('/academies/parent/billing', queryParameters: params);
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
 }

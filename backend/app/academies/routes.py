@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
-from datetime import date
+from datetime import date, datetime
+import calendar as cal_module
 
 from app.database import get_db
 from app.users.models import User, Role, ParentChildRelation, ParentChildStatus
@@ -325,3 +326,167 @@ def get_player_billing_report(
     current_user: User = Depends(require_coach)
 ):
     return services.get_player_billing_summary(db, id, player_id, month, year)
+
+# ── PARENT ENDPOINTS ────────────────────────────────────────────────────────
+
+def _get_accepted_children(db: Session, parent_id: UUID):
+    return db.query(ParentChildRelation).filter(
+        ParentChildRelation.parent_id == parent_id,
+        ParentChildRelation.status == ParentChildStatus.ACCEPTED
+    ).all()
+
+@router.get("/parent/feedback", response_model=List[schemas.ParentFeedbackItem])
+def get_parent_children_feedback(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns all coach feedback for the current parent's accepted children."""
+    relations = _get_accepted_children(db, current_user.id)
+    results = []
+    for rel in relations:
+        child = rel.child
+        feedbacks = db.query(models.CoachFeedback).filter(
+            models.CoachFeedback.player_id == rel.child_id
+        ).order_by(models.CoachFeedback.created_at.desc()).limit(10).all()
+        results.append(schemas.ParentFeedbackItem(
+            child_id=str(rel.child_id),
+            child_name=child.name or "Child",
+            feedbacks=[schemas.CoachFeedbackResponse.model_validate(f) for f in feedbacks]
+        ))
+    return results
+
+@router.get("/parent/attendance", response_model=List[schemas.ParentAttendanceSummary])
+def get_parent_children_attendance(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns attendance summary for the current parent's accepted children."""
+    relations = _get_accepted_children(db, current_user.id)
+    results = []
+    for rel in relations:
+        child = rel.child
+        records = db.query(models.TrainingAttendance).filter(
+            models.TrainingAttendance.player_id == rel.child_id
+        ).all()
+        total = len(records)
+        present = sum(1 for r in records if r.status == models.AttendanceStatus.PRESENT)
+        absent = sum(1 for r in records if r.status == models.AttendanceStatus.ABSENT)
+        late = sum(1 for r in records if r.status == models.AttendanceStatus.LATE)
+        injured = sum(1 for r in records if r.status == models.AttendanceStatus.INJURED)
+        rate = round((present / total * 100), 1) if total > 0 else 0.0
+        results.append(schemas.ParentAttendanceSummary(
+            child_id=str(rel.child_id),
+            child_name=child.name or "Child",
+            total_sessions=total,
+            present=present,
+            absent=absent,
+            late=late,
+            injured=injured,
+            attendance_rate=rate
+        ))
+    return results
+
+@router.get("/parent/info", response_model=List[schemas.ParentAcademyInfo])
+def get_parent_children_academy_info(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns academy information for the academies that contain the parent's children."""
+    relations = _get_accepted_children(db, current_user.id)
+    child_ids = [rel.child_id for rel in relations]
+    child_name_map = {rel.child_id: (rel.child.name or "Child") for rel in relations}
+
+    academy_children: dict = {}
+    for child_id in child_ids:
+        enrollments = db.query(models.AcademyPlayer).filter(
+            models.AcademyPlayer.player_id == child_id
+        ).all()
+        for enr in enrollments:
+            if enr.academy_id not in academy_children:
+                academy_children[enr.academy_id] = []
+            academy_children[enr.academy_id].append(child_name_map.get(child_id, "Child"))
+
+    results = []
+    for academy_id, names in academy_children.items():
+        academy = db.query(models.Academy).filter(models.Academy.id == academy_id).first()
+        if not academy:
+            continue
+        schedules = db.query(models.TrainingSchedule).filter(
+            models.TrainingSchedule.academy_id == academy_id
+        ).all()
+        schedule_items = [
+            schemas.ParentAcademySchedule(
+                day_of_week=s.day_of_week,
+                start_time=str(s.start_time),
+                end_time=str(s.end_time),
+                location=s.location
+            ) for s in schedules
+        ]
+        results.append(schemas.ParentAcademyInfo(
+            academy_id=str(academy_id),
+            name=academy.name,
+            city=academy.city,
+            address=academy.address,
+            description=academy.description,
+            child_names=list(set(names)),
+            schedules=schedule_items
+        ))
+    return results
+
+@router.get("/parent/billing", response_model=List[schemas.ParentBillingItem])
+def get_parent_children_billing(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    month: Optional[int] = None,
+    year: Optional[int] = None
+):
+    """Returns billing summary for the current parent's accepted children."""
+    now = datetime.now()
+    month = month or now.month
+    year = year or now.year
+
+    relations = _get_accepted_children(db, current_user.id)
+    results = []
+    for rel in relations:
+        child = rel.child
+        enrollments = db.query(models.AcademyPlayer).filter(
+            models.AcademyPlayer.player_id == rel.child_id
+        ).first()
+        if not enrollments:
+            results.append(schemas.ParentBillingItem(
+                child_id=str(rel.child_id),
+                child_name=child.name or "Child",
+                total_owed=0.0,
+                base_fee=0.0,
+                currency="KZT",
+                total_sessions=0,
+                present=0,
+                absent=0
+            ))
+            continue
+        try:
+            summary = services.get_player_billing_summary(
+                db, enrollments.academy_id, rel.child_id, month, year
+            )
+            results.append(schemas.ParentBillingItem(
+                child_id=str(rel.child_id),
+                child_name=child.name or "Child",
+                total_owed=summary.total_owed,
+                base_fee=summary.base_fee,
+                currency=summary.currency,
+                total_sessions=summary.attendance.total_sessions,
+                present=summary.attendance.present,
+                absent=summary.attendance.absent
+            ))
+        except Exception:
+            results.append(schemas.ParentBillingItem(
+                child_id=str(rel.child_id),
+                child_name=child.name or "Child",
+                total_owed=0.0,
+                base_fee=0.0,
+                currency="KZT",
+                total_sessions=0,
+                present=0,
+                absent=0
+            ))
+    return results
