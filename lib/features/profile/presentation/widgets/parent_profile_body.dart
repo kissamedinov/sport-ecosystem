@@ -308,21 +308,17 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
         Expanded(child: _buildStatCard(
           icon: Icons.child_care_rounded,
           value: '$childCount',
-          label: 'KIDS',
-          badge: 'LINKED',
-          accent: const Color(0xFFE0AE5A),
-          cardBg: const Color(0xFF1E1508),
-          borderColor: const Color(0xFF7A4818),
+          label: 'LINKED KIDS',
+          badge: 'FAMILY',
+          accent: PremiumTheme.neonGreen,
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildStatCard(
           icon: Icons.sports_soccer_rounded,
           value: '$matchCount',
-          label: 'GAMES',
-          badge: 'WEEKLY',
-          accent: const Color(0xFF80AADC),
-          cardBg: const Color(0xFF111E2A),
-          borderColor: const Color(0xFF224A72),
+          label: 'THIS WEEK',
+          badge: 'GAMES',
+          accent: PremiumTheme.electricBlue,
         )),
       ],
     );
@@ -334,92 +330,112 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     required String label,
     required String badge,
     required Color accent,
-    required Color cardBg,
-    required Color borderColor,
   }) {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor, width: 1.5),
+        color: accent.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accent.withValues(alpha: 0.18), width: 1.5),
       ),
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(7),
-                ),
-                child: Icon(icon, color: accent, size: 13),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(color: accent, fontSize: 8, letterSpacing: 0.6, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: accent, size: 16),
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(color: accent, fontSize: 20, fontWeight: FontWeight.bold, height: 1.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(badge,
+                style: TextStyle(color: accent, fontSize: 8,
+                    letterSpacing: 0.8, fontWeight: FontWeight.w800)),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(color: accent.withValues(alpha: 0.5), fontSize: 9, letterSpacing: 0.8, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
+        ]),
+        const SizedBox(height: 14),
+        Text(value,
+            style: TextStyle(color: accent, fontSize: 32,
+                fontWeight: FontWeight.w900, height: 1.0)),
+        const SizedBox(height: 4),
+        Text(label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 10, letterSpacing: 0.8, fontWeight: FontWeight.w700)),
+      ]),
     );
   }
 
   Widget _buildChildrenList(List<ChildProfile> children) {
-    if (children.isEmpty) {
-      return Container();
-    }
+    if (children.isEmpty) return const SizedBox.shrink();
     return Column(
       children: children.map((child) {
+        final initials = child.fullName.trim().split(' ')
+            .where((w) => w.isNotEmpty).take(2)
+            .map((w) => w[0].toUpperCase()).join();
         return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: PremiumCard(
-            padding: EdgeInsets.zero,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: child.id)),
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.only(bottom: 10),
+          child: GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => PlayerStatsScreen(playerId: child.id))),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: PremiumTheme.surfaceCard(context),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07)),
+              ),
+              child: Row(children: [
+                Container(
+                  width: 46, height: 46,
+                  decoration: BoxDecoration(
+                    gradient: PremiumTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [BoxShadow(
+                        color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
+                        blurRadius: 8)],
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(initials,
+                      style: const TextStyle(color: Colors.black,
+                          fontSize: 16, fontWeight: FontWeight.w900)),
                 ),
-                child: const Icon(Icons.person_rounded, color: PremiumTheme.neonGreen, size: 20),
-              ),
-              title: Text(
-                child.fullName.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-              ),
-              subtitle: Text(
-                child.position?.toUpperCase() ?? "PLAYER",
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-              trailing: Icon(Icons.arrow_forward_ios_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 14),
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(child.fullName,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w800, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(child.position?.toUpperCase() ?? 'PLAYER',
+                        style: const TextStyle(color: PremiumTheme.neonGreen,
+                            fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                  ),
+                ])),
+                Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.arrow_forward_ios_rounded,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                      size: 13),
+                ),
+              ]),
             ),
           ),
         );
@@ -429,46 +445,81 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
 
   Widget _buildUpcomingMatches(List<MatchModel> matches) {
     if (matches.isEmpty) {
-      return PremiumCard(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(Icons.event_busy_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 32),
-              const SizedBox(height: 12),
-              Text("NO UPCOMING SCHEDULE", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
-            ],
-          ),
+      return Container(
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: PremiumTheme.surfaceCard(context),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
         ),
+        child: Column(children: [
+          Icon(Icons.event_busy_rounded,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), size: 36),
+          const SizedBox(height: 12),
+          Text('NO UPCOMING SCHEDULE',
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25),
+                  fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+        ]),
       );
     }
     return Column(
-      children: matches.skip(1).map((match) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: PremiumCard(
-          padding: const EdgeInsets.all(16),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: match.id)),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), size: 16),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  "Match vs Academy B",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      children: matches.skip(1).map((match) {
+        final dateStr = match.scheduledAt.length >= 10
+            ? match.scheduledAt.substring(0, 10)
+            : match.scheduledAt;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: GestureDetector(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: match.id))),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: PremiumTheme.surfaceCard(context),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07)),
+              ),
+              child: Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.sports_soccer_rounded,
+                      color: PremiumTheme.electricBlue, size: 16),
                 ),
-              ),
-              Text(
-                match.scheduledAt.substring(0, 10),
-                style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ],
+                const SizedBox(width: 14),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Match vs Academy B',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w700, fontSize: 13)),
+                  const SizedBox(height: 3),
+                  Text('Upcoming fixture',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11)),
+                ])),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                  ),
+                  child: Text(dateStr,
+                      style: const TextStyle(color: PremiumTheme.neonGreen,
+                          fontSize: 10, fontWeight: FontWeight.w800)),
+                ),
+              ]),
+            ),
           ),
-        ),
-      )).toList(),
+        );
+      }).toList(),
     );
   }
 }
