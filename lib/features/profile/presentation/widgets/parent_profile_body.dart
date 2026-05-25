@@ -446,6 +446,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
   Widget _buildUpcomingMatches(List<MatchModel> matches) {
     if (matches.isEmpty) {
       return Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: PremiumTheme.surfaceCard(context),

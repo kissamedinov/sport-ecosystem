@@ -190,23 +190,30 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildTournamentCard(dynamic tournament, bool isChild) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final statusColor = tournament.displayStatus == 'ACTIVE'
         ? const Color(0xFF00E676)
         : (tournament.displayStatus == 'FINISHED'
-            ? Colors.white38
+            ? cs.onSurfaceVariant
             : const Color(0xFF42A5F5));
 
-    final cardBg = tournament.displayStatus == 'ACTIVE'
-        ? const Color(0xFF0A1F0A)
-        : (tournament.displayStatus == 'FINISHED'
-            ? const Color(0xFF111418)
-            : const Color(0xFF0D1B2A));
+    final cardBg = isDark
+        ? (tournament.displayStatus == 'ACTIVE'
+            ? const Color(0xFF0A1F0A)
+            : (tournament.displayStatus == 'FINISHED'
+                ? const Color(0xFF111418)
+                : const Color(0xFF0D1B2A)))
+        : PremiumTheme.surfaceCard(context);
 
-    final borderColor = tournament.displayStatus == 'ACTIVE'
-        ? const Color(0xFF1B5E20)
-        : (tournament.displayStatus == 'FINISHED'
-            ? const Color(0xFF2A2F36)
-            : const Color(0xFF1E3A5F));
+    final borderColor = isDark
+        ? (tournament.displayStatus == 'ACTIVE'
+            ? const Color(0xFF1B5E20)
+            : (tournament.displayStatus == 'FINISHED'
+                ? const Color(0xFF2A2F36)
+                : const Color(0xFF1E3A5F)))
+        : statusColor.withValues(alpha: 0.2);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -255,16 +262,16 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                         children: [
                           Text(
                             tournament.name.toUpperCase(),
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5, height: 1.2),
+                            style: TextStyle(color: cs.onSurface, fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5, height: 1.2),
                           ),
                           const SizedBox(height: 5),
                           Row(
                             children: [
-                              const Icon(Icons.location_on_rounded, size: 11, color: Colors.white38),
+                              Icon(Icons.location_on_rounded, size: 11, color: cs.onSurfaceVariant),
                               const SizedBox(width: 3),
                               Text(
                                 tournament.location,
-                                style: const TextStyle(color: Colors.white38, fontSize: 11),
+                                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                               ),
                             ],
                           ),
@@ -294,9 +301,9 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.03),
+                  color: cs.onSurface.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -326,6 +333,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   }
 
   Widget _buildInfoChip(IconData icon, String value, Color color) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -333,7 +341,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         const SizedBox(width: 4),
         Text(
           value,
-          style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w600),
+          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -407,9 +415,9 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   'Ready for your next big match?',
-                  style: TextStyle(color: Colors.white60, fontSize: 11),
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                 ),
               ],
             ),

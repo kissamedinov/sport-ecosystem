@@ -295,6 +295,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _buildChildHubFab() {
     final isSelected = _selectedIndex == 2;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accent = Color(0xFF00E676);
     return Transform.translate(
       offset: const Offset(0, -14),
       child: GestureDetector(
@@ -307,17 +309,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: isSelected
-                  ? [const Color(0xFF00E676), const Color(0xFF00C853)]
-                  : [const Color(0xFF1A3A1A), const Color(0xFF0F250F)],
+                  ? [accent, const Color(0xFF00C853)]
+                  : isDark
+                      ? [const Color(0xFF1A3A1A), const Color(0xFF0F250F)]
+                      : [accent.withValues(alpha: 0.12), accent.withValues(alpha: 0.06)],
             ),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: const Color(0xFF00E676).withValues(alpha: isSelected ? 1.0 : 0.35),
+              color: accent.withValues(alpha: isSelected ? 1.0 : 0.4),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00E676).withValues(alpha: isSelected ? 0.55 : 0.2),
+                color: accent.withValues(alpha: isSelected ? 0.55 : 0.15),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -326,12 +330,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.hub_rounded, color: isSelected ? Colors.black : const Color(0xFF00E676), size: 22),
+              Icon(Icons.hub_rounded, color: isSelected ? Colors.black : accent, size: 22),
               const SizedBox(height: 2),
               Text(
                 'HUB',
                 style: TextStyle(
-                  color: isSelected ? Colors.black : const Color(0xFF00E676),
+                  color: isSelected ? Colors.black : accent,
                   fontSize: 8,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -417,6 +421,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _buildParentFamilyFab() {
     final isSelected = _selectedIndex == 2;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accent = Color(0xFFFFA726);
     return Transform.translate(
       offset: const Offset(0, -14),
       child: GestureDetector(
@@ -429,17 +435,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: isSelected
-                  ? [const Color(0xFFFFA726), const Color(0xFFFF6F00)]
-                  : [const Color(0xFF2A1800), const Color(0xFF1A1000)],
+                  ? [accent, const Color(0xFFFF6F00)]
+                  : isDark
+                      ? [const Color(0xFF2A1800), const Color(0xFF1A1000)]
+                      : [accent.withValues(alpha: 0.15), accent.withValues(alpha: 0.07)],
             ),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: const Color(0xFFFFA726).withValues(alpha: isSelected ? 1.0 : 0.35),
+              color: accent.withValues(alpha: isSelected ? 1.0 : 0.4),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFA726).withValues(alpha: isSelected ? 0.55 : 0.2),
+                color: accent.withValues(alpha: isSelected ? 0.55 : 0.15),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -448,12 +456,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.family_restroom_rounded, color: isSelected ? Colors.black : const Color(0xFFFFA726), size: 22),
+              Icon(Icons.family_restroom_rounded, color: isSelected ? Colors.black : accent, size: 22),
               const SizedBox(height: 2),
               Text(
                 'FAMILY',
                 style: TextStyle(
-                  color: isSelected ? Colors.black : const Color(0xFFFFA726),
+                  color: isSelected ? Colors.black : accent,
                   fontSize: 7,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.3,

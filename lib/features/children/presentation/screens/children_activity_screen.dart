@@ -53,7 +53,7 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: PremiumTheme.surfaceBase(context),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -61,11 +61,11 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
             '${displayName.toUpperCase()}\'S HUB',
             style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16),
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: PremiumTheme.neonGreen,
             labelColor: PremiumTheme.neonGreen,
-            unselectedLabelColor: Colors.white38,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10),
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 10),
             tabs: [
               Tab(text: 'CALENDAR'),
               Tab(text: 'PERFORMANCE'),
@@ -107,9 +107,9 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'ATTENDANCE RATE',
-            style: TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 11),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 11),
           ),
           const SizedBox(height: 16),
           Container(
@@ -117,16 +117,16 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
             decoration: BoxDecoration(
               color: PremiumTheme.surfaceCard(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('85%', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 32, fontWeight: FontWeight.w900)),
-                    Text('PRESENT', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+                    const Text('85%', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 32, fontWeight: FontWeight.w900)),
+                    Text('PRESENT', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 SizedBox(
@@ -134,7 +134,7 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
                   width: 60,
                   child: CircularProgressIndicator(
                     value: 0.85,
-                    backgroundColor: Colors.white.withOpacity(0.05),
+                    backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                     color: PremiumTheme.neonGreen,
                     strokeWidth: 8,
                   ),
@@ -143,29 +143,25 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'BILLING SUMMARY',
-            style: TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 11),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 11),
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [PremiumTheme.surfaceCard(context), Colors.blue.withOpacity(0.1)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: PremiumTheme.surfaceCard(context),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
             ),
             child: Column(
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total Owed (April)', style: TextStyle(color: Colors.white70)),
-                    Text('45,000 KZT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text('Total Owed (April)', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text('45,000 KZT', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -198,9 +194,9 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.emoji_events_outlined, color: Colors.white10, size: 64),
+            Icon(Icons.emoji_events_outlined, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), size: 64),
             const SizedBox(height: 16),
-            const Text('No awards yet', style: TextStyle(color: Colors.white24)),
+            Text('No awards yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -217,14 +213,14 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
           decoration: BoxDecoration(
             color: PremiumTheme.surfaceCard(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.emoji_events, color: Colors.amber, size: 28),
@@ -236,18 +232,18 @@ class _ChildrenActivityScreenState extends State<ChildrenActivityScreen> {
                   children: [
                     Text(
                       award['award_type'] ?? 'Achievement',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Text(
                       award['tournament_name'] ?? 'Regional Cup',
-                      style: const TextStyle(color: Colors.white38, fontSize: 12),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                     ),
                   ],
                 ),
               ),
               Text(
                 award['awarded_at']?.split('T')?.first ?? '2024',
-                style: const TextStyle(color: Colors.white24, fontSize: 10),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
               ),
             ],
           ),

@@ -63,15 +63,19 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
               width: 60,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: isSelected ? PremiumTheme.neonGreen : Colors.white.withOpacity(0.05),
+                color: isSelected
+                    ? PremiumTheme.neonGreen
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? PremiumTheme.neonGreen : Colors.white.withOpacity(0.1),
+                  color: isSelected
+                      ? PremiumTheme.neonGreen
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: isSelected ? [
                   BoxShadow(
-                    color: PremiumTheme.neonGreen.withOpacity(0.3),
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
                     blurRadius: 10,
                     spreadRadius: 1,
                   )
@@ -83,7 +87,9 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
                   Text(
                     dayName,
                     style: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white38,
+                      color: isSelected
+                          ? Colors.black
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                     ),
@@ -92,7 +98,9 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
                   Text(
                     dayNum,
                     style: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white,
+                      color: isSelected
+                          ? Colors.black
+                          : Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -121,19 +129,22 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.calendar_today_outlined, color: Colors.white10, size: 48),
+            Icon(Icons.calendar_today_outlined,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), size: 48),
             const SizedBox(height: 16),
             Text(
               'RELAX DAY',
               style: TextStyle(
-                color: Colors.white24,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w900,
               ),
             ),
             Text(
               'No activities scheduled',
-              style: TextStyle(color: Colors.white10, fontSize: 12),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+                  fontSize: 12),
             ),
           ],
         ),
@@ -152,7 +163,7 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
           decoration: BoxDecoration(
             color: PremiumTheme.surfaceCard(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
           ),
           child: IntrinsicHeight(
             child: Row(
@@ -174,15 +185,15 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
                           children: [
                             Text(
                               DateFormat('HH:mm').format(DateTime.parse(activity.scheduledAt ?? activity.date)),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'START',
-                              style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -202,8 +213,8 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
                               ),
                               Text(
                                 activity.title ?? activity.topic ?? 'Session',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
                                 ),
@@ -211,18 +222,22 @@ class _ActivityCalendarWidgetState extends State<ActivityCalendarWidget> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on, color: Colors.white24, size: 14),
+                                  Icon(Icons.location_on,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant, size: 14),
                                   const SizedBox(width: 4),
                                   Text(
                                     activity.location ?? 'Main Field',
-                                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                                    style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        fontSize: 12),
                                   ),
                                 ],
                               ),
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right, color: Colors.white12),
+                        Icon(Icons.chevron_right,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15)),
                       ],
                     ),
                   ),
