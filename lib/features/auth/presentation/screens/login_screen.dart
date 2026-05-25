@@ -52,8 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Scaffold(
-      backgroundColor: _kNavy,
+      backgroundColor: isDark ? _kNavy : Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -90,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         icon: Icon(
                           _obscurePass ? Icons.visibility_off : Icons.visibility,
                           size: 18,
-                          color: Colors.white.withValues(alpha: 0.4),
+                          color: onSurface.withValues(alpha: 0.4),
                         ),
                         onPressed: () =>
                             setState(() => _obscurePass = !_obscurePass),
@@ -123,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     border: Border.all(
                                       color: _rememberMe
                                           ? _kGreen
-                                          : Colors.white.withValues(alpha: 0.3),
+                                          : onSurface.withValues(alpha: 0.3),
                                       width: 1.5,
                                     ),
                                     borderRadius: BorderRadius.circular(5),
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Remember me',
                                   style: GoogleFonts.outfit(
                                     fontSize: 11,
-                                    color: Colors.white.withValues(alpha: 0.6),
+                                    color: onSurface.withValues(alpha: 0.6),
                                   ),
                                 ),
                               ],
@@ -181,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: Container(
                             height: 1,
-                            color: Colors.white.withValues(alpha: 0.07),
+                            color: onSurface.withValues(alpha: 0.07),
                           ),
                         ),
                         Padding(
@@ -192,14 +194,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 2,
-                              color: Colors.white.withValues(alpha: 0.38),
+                              color: onSurface.withValues(alpha: 0.38),
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
                             height: 1,
-                            color: Colors.white.withValues(alpha: 0.07),
+                            color: onSurface.withValues(alpha: 0.07),
                           ),
                         ),
                       ],
@@ -247,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           'New to OrleOn?  ',
                           style: GoogleFonts.outfit(
                             fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         GestureDetector(
@@ -288,26 +290,27 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return TextButton.icon(
       onPressed: onTap,
       style: TextButton.styleFrom(
-        backgroundColor: Colors.white.withValues(alpha: 0.04),
+        backgroundColor: onSurface.withValues(alpha: 0.04),
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.07)),
+          side: BorderSide(color: onSurface.withValues(alpha: 0.08)),
         ),
       ),
       icon: Icon(
         icon,
-        color: Colors.white.withValues(alpha: 0.7),
+        color: onSurface.withValues(alpha: 0.7),
         size: 22,
       ),
       label: Text(
         label,
         style: GoogleFonts.outfit(
           fontSize: 13,
-          color: Colors.white.withValues(alpha: 0.7),
+          color: onSurface.withValues(alpha: 0.7),
         ),
       ),
     );

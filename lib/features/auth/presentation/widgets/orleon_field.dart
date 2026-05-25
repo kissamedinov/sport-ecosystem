@@ -67,13 +67,13 @@ class _OrleonFieldState extends State<OrleonField> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 160),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                 border: Border.all(
                   color: hasError
                       ? _kRed
                       : _focused
                           ? _kGreen
-                          : Colors.white.withValues(alpha: 0.07),
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.18),
                   width: 1.5,
                 ),
                 borderRadius: BorderRadius.circular(14),
@@ -90,7 +90,7 @@ class _OrleonFieldState extends State<OrleonField> {
                       letterSpacing: 1.5,
                       color: _focused
                           ? _kGreen
-                          : Colors.white.withValues(alpha: 0.38),
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Row(
@@ -99,7 +99,7 @@ class _OrleonFieldState extends State<OrleonField> {
                         Icon(
                           widget.icon,
                           size: 16,
-                          color: Colors.white.withValues(alpha: 0.4),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 8),
                       ],
@@ -114,7 +114,7 @@ class _OrleonFieldState extends State<OrleonField> {
                           style: GoogleFonts.outfit(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           decoration: InputDecoration(
                             isDense: true,
@@ -129,7 +129,7 @@ class _OrleonFieldState extends State<OrleonField> {
                             hintText: widget.hintText,
                             hintStyle: GoogleFonts.outfit(
                               fontSize: 15,
-                              color: Colors.white.withValues(alpha: 0.24),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                             errorStyle: const TextStyle(height: 0, fontSize: 0),
                           ),

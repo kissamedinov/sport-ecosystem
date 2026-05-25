@@ -34,7 +34,7 @@ class OrleonPrimaryButton extends StatelessWidget {
                   colors: [_kGreen, _kGreenDeep],
                 )
               : null,
-          color: enabled ? null : Colors.white.withValues(alpha: 0.06),
+          color: enabled ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(14),
           boxShadow: enabled
               ? [
@@ -65,7 +65,7 @@ class OrleonPrimaryButton extends StatelessWidget {
                         size: 18,
                         color: enabled
                             ? Colors.black
-                            : Colors.white.withValues(alpha: 0.38),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -77,7 +77,7 @@ class OrleonPrimaryButton extends StatelessWidget {
                         letterSpacing: 1.2,
                         color: enabled
                             ? Colors.black
-                            : Colors.white.withValues(alpha: 0.38),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
                     ),
                   ],

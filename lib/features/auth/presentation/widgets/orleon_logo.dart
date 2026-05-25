@@ -125,6 +125,7 @@ class OrleonBrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Column(
       children: [
         Row(
@@ -132,39 +133,41 @@ class OrleonBrandHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const OrleonLogo(size: 56),
-            const SizedBox(width: 4),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'rle',
-                    style: GoogleFonts.outfit(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.5,
-                      color: Colors.white,
+            Transform.translate(
+              offset: const Offset(-2, 0),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'rle',
+                      style: GoogleFonts.outfit(
+                        fontSize: 38,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1.5,
+                        color: onSurface,
+                      ),
                     ),
-                  ),
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [_kGold, _kGreen],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      child: Text(
-                        'On',
-                        style: GoogleFonts.outfit(
-                          fontSize: 38,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.5,
-                          color: Colors.white,
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [_kGold, _kGreen],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: Text(
+                          'On',
+                          style: GoogleFonts.outfit(
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -1.5,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -176,7 +179,7 @@ class OrleonBrandHeader extends StatelessWidget {
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 2.4,
-            color: _kGold.withValues(alpha: 0.7),
+            color: _kGold.withValues(alpha: 0.85),
           ),
         ),
         if (subtitle != null) ...[
@@ -185,7 +188,8 @@ class OrleonBrandHeader extends StatelessWidget {
             subtitle!,
             style: GoogleFonts.outfit(
               fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w600,
+              color: onSurface.withValues(alpha: 0.65),
             ),
           ),
         ],

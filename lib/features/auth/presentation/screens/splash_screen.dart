@@ -160,8 +160,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _kNavy,
+      backgroundColor: isDark ? _kNavy : Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -274,6 +275,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildWordmark() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.white : _kNavy;
     return AnimatedBuilder(
       animation: _entranceCtrl,
       builder: (_, _) => Transform.translate(
@@ -288,11 +291,11 @@ class _SplashScreenState extends State<SplashScreen>
                 begin: Alignment(shimmerX - 0.6, 0),
                 end: Alignment(shimmerX + 0.6, 0),
                 colors: [
-                  Colors.white,
-                  Colors.white.withValues(alpha: 0.92),
+                  baseColor,
+                  baseColor.withValues(alpha: 0.92),
                   _kGold.withValues(alpha: 0.9),
-                  Colors.white.withValues(alpha: 0.92),
-                  Colors.white,
+                  baseColor.withValues(alpha: 0.92),
+                  baseColor,
                 ],
                 stops: const [0.0, 0.35, 0.5, 0.65, 1.0],
               ).createShader(bounds);
@@ -308,7 +311,7 @@ class _SplashScreenState extends State<SplashScreen>
                     fontSize: 52,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -2.0,
-                    color: Colors.white,
+                    color: baseColor,
                   ),
                 ),
                 ShaderMask(
@@ -440,7 +443,7 @@ class _SplashScreenState extends State<SplashScreen>
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.28),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.28),
                     letterSpacing: 0.4,
                   ),
                 ),

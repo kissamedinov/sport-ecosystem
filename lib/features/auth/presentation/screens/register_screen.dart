@@ -132,9 +132,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     final role = _currentRole;
     return Scaffold(
-      backgroundColor: _kNavy,
+      backgroundColor: isDark ? _kNavy : Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -163,16 +165,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.05),
+                                color: cs.onSurface.withValues(alpha: 0.05),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.08),
+                                  color: cs.onSurface.withValues(alpha: 0.08),
                                 ),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
                                 Icons.arrow_back_ios_new_rounded,
                                 size: 16,
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: cs.onSurface.withValues(alpha: 0.7),
                               ),
                             ),
                           ),
@@ -207,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           decoration: BoxDecoration(
                             color: _step == 2
                                 ? _kGreen
-                                : Colors.white.withValues(alpha: 0.1),
+                                : cs.onSurface.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -231,7 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'Already have an account?  ',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: cs.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       GestureDetector(
@@ -258,6 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildStep1() {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Column(
       key: const ValueKey('step1'),
       children: [
@@ -281,11 +284,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: BoxDecoration(
                   color: selected
                       ? r.color.withValues(alpha: 0.1)
-                      : Colors.white.withValues(alpha: 0.04),
+                      : onSurface.withValues(alpha: 0.05),
                   border: Border.all(
                     color: selected
                         ? r.color.withValues(alpha: 0.4)
-                        : Colors.white.withValues(alpha: 0.07),
+                        : onSurface.withValues(alpha: 0.15),
                     width: 1.5,
                   ),
                   borderRadius: BorderRadius.circular(14),
@@ -311,7 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontWeight: FontWeight.w700,
                         color: selected
                             ? r.color
-                            : Colors.white.withValues(alpha: 0.7),
+                            : onSurface.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
@@ -330,6 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildStep2(_RoleInfo role) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Column(
       key: const ValueKey('step2'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -364,7 +368,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.4,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                     Text(
@@ -390,7 +394,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ),
@@ -431,7 +435,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icon(
                     _obscurePass ? Icons.visibility_off : Icons.visibility,
                     size: 18,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: onSurface.withValues(alpha: 0.4),
                   ),
                   onPressed: () =>
                       setState(() => _obscurePass = !_obscurePass),
@@ -474,7 +478,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           border: Border.all(
                             color: _agreedToTerms
                                 ? _kGreen
-                                : Colors.white.withValues(alpha: 0.3),
+                                : onSurface.withValues(alpha: 0.3),
                             width: 1.5,
                           ),
                           borderRadius: BorderRadius.circular(5),
@@ -489,7 +493,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           text: TextSpan(
                             style: GoogleFonts.outfit(
                               fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: onSurface.withValues(alpha: 0.5),
                               height: 1.5,
                             ),
                             children: [
