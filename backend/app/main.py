@@ -16,6 +16,7 @@ from app.academies.routes import router as academies_router
 from app.users.routes import router as users_router
 from app.clubs.routes import router as clubs_router
 from app.quizzes.routes import router as quizzes_router
+from app.planner.routes import router as planner_router
 
 # Import all models for Base.metadata
 from app.users import models as user_models
@@ -33,6 +34,7 @@ from app.stats import models as stats_models
 from app.media import models as media_models
 from app.notifications import models as notification_models
 from app.quizzes import models as quiz_models
+from app.planner import models as planner_models
 
 # Create DB tables (Disabled for Gunicorn concurrency)
 # Base.metadata.create_all(bind=engine)
@@ -98,6 +100,7 @@ app.include_router(academies_router)
 app.include_router(users_router)
 app.include_router(clubs_router)
 app.include_router(quizzes_router)
+app.include_router(planner_router)
 
 # Ensure uploads directory exists
 if not os.path.exists("uploads"):
