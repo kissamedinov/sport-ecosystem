@@ -174,5 +174,9 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "onboarding_completed": current_user.onboarding_completed,
         "unique_code": current_user.unique_code,
         "player_profile_id": current_user.player_profile_id,
+        "bio": current_user.bio,
+        "phone": current_user.phone,
+        "avatar_url": current_user.avatar_url,
+        "date_of_birth": current_user.date_of_birth,
     }
 

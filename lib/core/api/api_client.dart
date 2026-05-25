@@ -16,12 +16,12 @@ class ApiClient {
   late Dio _dio;
   final TokenService _tokenService = TokenService();
   
-  static const String _baseUrl = 'http://207.154.222.151';
+  static const String baseUrl = 'http://207.154.222.151';
 
   ApiClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 60),
         headers: {

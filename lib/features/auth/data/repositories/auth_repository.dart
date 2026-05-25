@@ -91,12 +91,13 @@ class AuthRepository {
   Future<String> uploadAvatar(String filePath) async {
     final file = File(filePath);
     final response = await _apiClient.multipartPost(
-      '/media/upload', 
-      file, 
-      'AVATAR', 
+      '/media/upload',
+      file,
+      'AVATAR',
       extraData: {'user_id': (await getCurrentUser()).id},
     );
-    return response.data['url'];
+    final rawUrl = response.data['url'] as String;
+    return rawUrl.startsWith('http') ? rawUrl : '${ApiClient.baseUrl}$rawUrl';
   }
 
   Future<User> loginWithGoogle(String idToken) async {
