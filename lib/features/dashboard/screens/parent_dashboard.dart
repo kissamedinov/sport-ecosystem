@@ -46,13 +46,14 @@ class _ParentDashboardState extends State<ParentDashboard> {
               SliverToBoxAdapter(child: _buildManageCard(context)),
               SliverToBoxAdapter(child: _buildSectionLabel('PARENT TOOLS')),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
+                padding: EdgeInsets.fromLTRB(20, 12, 20,
+                    MediaQuery.of(context).padding.bottom + 90),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1.45,
+                    childAspectRatio: 1.3,
                   ),
                   delegate: SliverChildListDelegate([
                     _buildToolCard(
@@ -364,14 +365,18 @@ class _ParentDashboardState extends State<ParentDashboard> {
         onTap();
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: PremiumTheme.surfaceCard(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07)),
+              color: color.withValues(alpha: 0.12)),
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+          // Top: icon + tag
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Container(
               padding: const EdgeInsets.all(7),
@@ -392,19 +397,27 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       letterSpacing: 0.6, fontWeight: FontWeight.w800)),
             ),
           ]),
-          const Spacer(),
-          Text(action,
-              style: TextStyle(
-                  color: color, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.3)),
-          const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 10, fontWeight: FontWeight.w600)),
+          // Bottom: label title + action arrow row
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 12, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Row(children: [
+              Text(action,
+                  style: TextStyle(
+                      color: color, fontSize: 11,
+                      fontWeight: FontWeight.w700, letterSpacing: 0.4)),
+              const SizedBox(width: 4),
+              Icon(Icons.arrow_forward_rounded, color: color.withValues(alpha: 0.7), size: 12),
+            ]),
+          ]),
         ]),
       ),
     );
   }
+
 }
 
 class TemporaryScreen extends StatelessWidget {
