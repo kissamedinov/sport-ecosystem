@@ -85,6 +85,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           if (dashboard == null) {
             final user = context.read<AuthProvider>().user;
             final isAdmin = user?.roles?.contains('ADMIN') ?? false;
+            final isClubManager = user?.roles?.contains('CLUB_MANAGER') ?? false;
 
             return Center(
               child: Padding(
@@ -95,12 +96,17 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     Icon(Icons.business_center, size: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                     const SizedBox(height: 24),
                     Text(
-                      'You don\'t have a club registered yet.',
+                      isClubManager
+                          ? 'You are not assigned to a club yet.'
+                          : 'You don\'t have a club registered yet.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 32),
-                    _buildEmptyClubCard(context),
+                    if (isClubManager)
+                      _buildManagerNoClubMessage(context)
+                    else
+                      _buildEmptyClubCard(context),
                     if (isAdmin) ...[
                       const SizedBox(height: 8),
                       TextButton.icon(
@@ -1894,6 +1900,32 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManagerNoClubMessage(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.onSurface.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline_rounded, color: cs.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'You have been added as a club manager. Contact your club owner.',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );

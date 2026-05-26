@@ -7,7 +7,8 @@ import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.
 import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 
 class ClubOwnerProfileBody extends StatefulWidget {
-  const ClubOwnerProfileBody({super.key});
+  final bool isManager;
+  const ClubOwnerProfileBody({super.key, this.isManager = false});
 
   @override
   State<ClubOwnerProfileBody> createState() => _ClubOwnerProfileBodyState();
@@ -43,6 +44,31 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
           );
         }
         if (snapshot.hasError) {
+          final isNotFound = snapshot.error.toString().contains('404');
+          if (widget.isManager && isNotFound) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  children: [
+                    Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 56),
+                    const SizedBox(height: 16),
+                    Text(
+                      "You are not assigned to a club yet.",
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Contact your club owner to be added.",
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32),

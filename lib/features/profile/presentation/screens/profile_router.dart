@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import 'club_owner_profile.dart';
+import 'club_manager_profile.dart';
 import 'adult_player_profile.dart';
 import 'child_player_profile.dart';
 import 'parent_profile.dart';
@@ -26,8 +27,9 @@ class ProfileRouter extends StatelessWidget {
   Widget _getProfileByRole(String role, user) {
     switch (role) {
       case 'CLUB_OWNER':
-      case 'CLUB_MANAGER':
         return ClubOwnerProfile(user: user);
+      case 'CLUB_MANAGER':
+        return ClubManagerProfile(user: user);
       case 'COACH':
         return CoachProfile(user: user);
       case 'PARENT':
