@@ -127,34 +127,51 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
-            child: DropdownButtonFormField<String>(
-              initialValue: _selectedCoachId,
-              dropdownColor: PremiumTheme.surfaceCard(context),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.person_search_rounded, color: PremiumTheme.neonGreen, size: 20),
-                labelText: 'Select Coach',
-                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
+            child: () {
+              final uniqueCoaches = <String, PlayerInfo>{};
+              for (var c in widget.availableCoaches) {
+                if (c.userId.isNotEmpty) {
+                  uniqueCoaches[c.userId] = c;
+                }
+              }
+              final coachList = uniqueCoaches.values.toList();
+              final isValueValid = uniqueCoaches.containsKey(_selectedCoachId);
+
+              return DropdownButtonFormField<String?>(
+                value: isValueValid ? _selectedCoachId : null,
+                dropdownColor: PremiumTheme.surfaceCard(context),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.person_search_rounded, color: PremiumTheme.neonGreen, size: 20),
+                  labelText: 'Select Coach',
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: PremiumTheme.neonGreen),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: PremiumTheme.neonGreen),
-                ),
-              ),
-              items: widget.availableCoaches.map((c) {
-                return DropdownMenuItem(
-                  value: c.userId,
-                  child: Text(c.name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                );
-              }).toList(),
-              onChanged: (val) => setState(() => _selectedCoachId = val),
-            ),
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('Unassigned / No Coach', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
+                  ),
+                  ...coachList.map((c) {
+                    return DropdownMenuItem<String?>(
+                      value: c.userId,
+                      child: Text(c.name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    );
+                  }),
+                ],
+                onChanged: (val) => setState(() => _selectedCoachId = val),
+              );
+            }(),
           ),
           const SizedBox(height: 28),
 
