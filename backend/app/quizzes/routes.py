@@ -4,12 +4,12 @@ from datetime import date
 from typing import List
 from app.database import get_db
 from app.auth.routes import get_current_user
-from app.quizzes.schemas import DailyQuizSchema, QuizAttemptSchema, QuizAttemptCreate
+from app.quizzes import schemas
 from app.quizzes.services import QuizService, get_astana_date
 
 router = APIRouter(prefix="/quizzes", tags=["Quizzes"])
 
-@router.get("/daily", response_model=DailyQuizSchema)
+@router.get("/daily", response_model=schemas.DailyQuizSchema)
 def get_daily_quiz(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -22,9 +22,9 @@ def get_daily_quiz(
     quiz.user_rank = rank
     return quiz
 
-@router.post("/daily/submit", response_model=QuizAttemptSchema)
+@router.post("/daily/submit", response_model=schemas.QuizAttemptSchema)
 def submit_quiz_attempt(
-    attempt_data: QuizAttemptCreate,
+    attempt_data: schemas.QuizAttemptCreate,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
