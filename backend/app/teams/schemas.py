@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
-from app.users.schemas import UserResponse
+# UserResponse import removed - using PlayerInfo instead to avoid serialization issues
 
 class TeamBase(BaseModel):
     name: str
@@ -25,7 +25,7 @@ class TeamUpdate(BaseModel):
 
 class TeamResponse(TeamBase):
     id: UUID
-    coach_id: UUID
+    coach_id: Optional[UUID] = None
     created_at: datetime
 
     class Config:
@@ -71,7 +71,7 @@ class TeamJoinRequest(BaseModel):
     child_profile_id: Optional[UUID] = None
 
 class TeamDetailResponse(TeamResponse):
-    coach: UserResponse
+    coach: Optional[PlayerInfo] = None
     players: List[PlayerTeamResponse] = []
     recent_matches: List[TeamMatchResponse] = []
     form: List[str] = [] # e.g. ["W", "D", "L"]
