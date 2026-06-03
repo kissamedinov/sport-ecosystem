@@ -32,6 +32,7 @@ class UserResponse(UserBase):
     unique_code: Optional[str] = None
     onboarding_completed: bool = False
     player_profile_id: Optional[UUID] = None
+    club_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

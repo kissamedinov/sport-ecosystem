@@ -111,8 +111,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
-    final clubProvider = context.watch<ClubProvider>();
-    final clubName = clubProvider.dashboard?.club.name;
 
     if (user == null) {
       return Scaffold(
@@ -122,6 +120,9 @@ class ProfileScreen extends StatelessWidget {
     }
 
     final roles = user.roles ?? [];
+    final clubProvider = context.watch<ClubProvider>();
+    final isClubStaff = roles.contains('CLUB_OWNER') || roles.contains('CLUB_MANAGER') || roles.contains('ADMIN');
+    final clubName = isClubStaff ? clubProvider.dashboard?.club.name : null;
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),

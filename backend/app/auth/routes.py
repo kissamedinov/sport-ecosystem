@@ -165,6 +165,10 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
     user_roles = db.query(UserRole).filter(UserRole.user_id == current_user.id).all()
     role_values = [ur.role.value for ur in user_roles]
     primary_role = role_values[0] if role_values else "PLAYER_ADULT"
+    
+    from app.users.routes import get_user_club_name
+    club_name = get_user_club_name(db, current_user.id)
+    
     return {
         "id": str(current_user.id),
         "name": current_user.name,
@@ -178,5 +182,6 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "phone": current_user.phone,
         "avatar_url": current_user.avatar_url,
         "date_of_birth": current_user.date_of_birth,
+        "club_name": club_name,
     }
 

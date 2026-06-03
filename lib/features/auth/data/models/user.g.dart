@@ -23,6 +23,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
   bio: json['bio'] as String?,
   avatarUrl: json['avatar_url'] as String?,
   uniqueCode: json['unique_code'] as String?,
+  clubName: json['club_name'] as String?,
 );
 
 
@@ -39,5 +40,6 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'bio': instance.bio,
   'avatar_url': instance.avatarUrl,
   'unique_code': instance.uniqueCode,
+  'club_name': instance.clubName,
 };
 
