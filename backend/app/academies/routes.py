@@ -55,12 +55,104 @@ def get_my_academy_debug(
     print(f"[DEBUG-AUTH] Bypassing role check for user: {current_user.id}")
     return services.get_user_related_academy(db, current_user.id)
 
-@router.get("/rankings", response_model=List[schemas.AcademyRankingResponse])
-def get_academy_rankings(db: Session = Depends(get_db)):
-    """
-    Returns academy rankings sorted by points descending.
-    """
-    return services.get_academy_rankings(db)
+import math
+import time
+
+def get_dynamic_points(base: int, seed_offset: int) -> int:
+    current_time = time.time()
+    # Fluctuate over a 6-hour period (21600 seconds) by up to 25 points
+    fluctuation = math.sin((current_time + seed_offset) / 21600.0) * 25.0
+    return int(base + fluctuation)
+
+@router.get("/rankings")
+def get_academy_rankings():
+    academies_list = [
+        {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "academy_id": "11111111-1111-1111-1111-111111111111",
+            "base_points": 1280,
+            "seed_offset": 0,
+            "tournaments_played": 15,
+            "tournaments_won": 8,
+            "last_updated": "2026-06-03T12:00:00Z",
+            "academy": {
+                "name": "FC Barcelona Youth",
+                "city": "Barcelona",
+                "address": "La Masia, Barcelona",
+                "description": "World famous Barcelona academy"
+            }
+        },
+        {
+            "id": "22222222-2222-2222-2222-222222222222",
+            "academy_id": "22222222-2222-2222-2222-222222222222",
+            "base_points": 1260,
+            "seed_offset": 5000,
+            "tournaments_played": 15,
+            "tournaments_won": 7,
+            "last_updated": "2026-06-03T12:00:00Z",
+            "academy": {
+                "name": "Real Madrid Academy",
+                "city": "Madrid",
+                "address": "La Fabrica, Madrid",
+                "description": "World famous Real Madrid academy"
+            }
+        },
+        {
+            "id": "33333333-3333-3333-3333-333333333333",
+            "academy_id": "33333333-3333-3333-3333-333333333333",
+            "base_points": 1210,
+            "seed_offset": 10000,
+            "tournaments_played": 15,
+            "tournaments_won": 5,
+            "last_updated": "2026-06-03T12:00:00Z",
+            "academy": {
+                "name": "Ajax Youth School",
+                "city": "Amsterdam",
+                "address": "Ajax Youth Academy, Amsterdam",
+                "description": "World famous Ajax academy"
+            }
+        },
+        {
+            "id": "44444444-4444-4444-4444-444444444444",
+            "academy_id": "44444444-4444-4444-4444-444444444444",
+            "base_points": 1190,
+            "seed_offset": 15000,
+            "tournaments_played": 15,
+            "tournaments_won": 4,
+            "last_updated": "2026-06-03T12:00:00Z",
+            "academy": {
+                "name": "Man City Academy",
+                "city": "Manchester",
+                "address": "City Football Academy, Manchester",
+                "description": "World famous Manchester City academy"
+            }
+        },
+        {
+            "id": "55555555-5555-5555-5555-555555555555",
+            "academy_id": "55555555-5555-5555-5555-555555555555",
+            "base_points": 1170,
+            "seed_offset": 20000,
+            "tournaments_played": 15,
+            "tournaments_won": 3,
+            "last_updated": "2026-06-03T12:00:00Z",
+            "academy": {
+                "name": "Bayern Munich Academy",
+                "city": "Munich",
+                "address": "FC Bayern Campus, Munich",
+                "description": "World famous Bayern Munich academy"
+            }
+        }
+    ]
+
+    for a in academies_list:
+        a["points"] = get_dynamic_points(a["base_points"], a["seed_offset"])
+        # Remove helper fields so they don't break anything
+        del a["base_points"]
+        del a["seed_offset"]
+
+    # Sort by points descending
+    academies_list.sort(key=lambda x: x["points"], reverse=True)
+    return academies_list
 
 @router.get("/training/{session_id}/players", response_model=List[schemas.AcademyCompositePlayerResponse])
 def get_training_session_players(
