@@ -515,86 +515,96 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 16,
+            bottom: 32 + MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                Text(
+                  'QUICK ACTIONS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildQuickAction(
+                  ctx,
+                  Icons.group_add_outlined,
+                  'Invite Member',
+                  PremiumTheme.electricBlue,
+                  () {
+                    Navigator.pop(ctx);
+                    if (clubId != null) {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => InviteMemberScreen(clubId: clubId),
+                      ));
+                    }
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.sports_soccer_outlined,
+                  'Add Player Profile',
+                  PremiumTheme.neonGreen,
+                  () {
+                    Navigator.pop(ctx);
+                    if (clubId != null) {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => CreateChildProfileScreen(clubId: clubId),
+                      ));
+                    }
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.shield_outlined,
+                  'Create Team',
+                  Colors.tealAccent,
+                  () {
+                    Navigator.pop(ctx);
+                    _showCreateTeamDialog();
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.account_balance_outlined,
+                  'Add Academy',
+                  Colors.amber,
+                  () {
+                    Navigator.pop(ctx);
+                    _showCreateAcademyDialog();
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'QUICK ACTIONS',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildQuickAction(
-              ctx,
-              Icons.group_add_outlined,
-              'Invite Member',
-              PremiumTheme.electricBlue,
-              () {
-                Navigator.pop(ctx);
-                if (clubId != null) {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => InviteMemberScreen(clubId: clubId),
-                  ));
-                }
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.sports_soccer_outlined,
-              'Add Player Profile',
-              PremiumTheme.neonGreen,
-              () {
-                Navigator.pop(ctx);
-                if (clubId != null) {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => CreateChildProfileScreen(clubId: clubId),
-                  ));
-                }
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.shield_outlined,
-              'Create Team',
-              Colors.tealAccent,
-              () {
-                Navigator.pop(ctx);
-                _showCreateTeamDialog();
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.account_balance_outlined,
-              'Add Academy',
-              Colors.amber,
-              () {
-                Navigator.pop(ctx);
-                _showCreateAcademyDialog();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

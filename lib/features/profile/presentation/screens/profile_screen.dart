@@ -25,6 +25,7 @@ class ProfileScreen extends StatelessWidget {
   void _showProfileMenu(BuildContext context, AuthProvider auth) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -32,48 +33,57 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         final muted = Theme.of(ctx).colorScheme.onSurfaceVariant;
         final divider = Theme.of(ctx).dividerColor;
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: divider,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 16,
+              bottom: 32 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildMenuItem(Icons.edit_rounded, 'Edit Profile', muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
+                  }),
+                  _buildMenuItem(Icons.notifications_outlined, 'Notifications', muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+                  }),
+                  _buildMenuItem(Icons.calendar_month_outlined, 'My Bookings', muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
+                  }),
+                  _buildMenuItem(Icons.settings_outlined, 'Settings', muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  }),
+                  Divider(color: divider, height: 24),
+                  _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
+                    Navigator.pop(ctx);
+                    await auth.logout();
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    }
+                  }),
+                ],
               ),
-              const SizedBox(height: 20),
-              _buildMenuItem(Icons.edit_rounded, 'Edit Profile', muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
-              }),
-              _buildMenuItem(Icons.notifications_outlined, 'Notifications', muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-              }),
-              _buildMenuItem(Icons.calendar_month_outlined, 'My Bookings', muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
-              }),
-              _buildMenuItem(Icons.settings_outlined, 'Settings', muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              }),
-              Divider(color: divider, height: 24),
-              _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
-                Navigator.pop(ctx);
-                await auth.logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacementNamed('/login');
-                }
-              }),
-            ],
+            ),
           ),
         );
       },
