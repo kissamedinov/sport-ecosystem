@@ -17,7 +17,7 @@ def get_daily_quiz(
     """Get the football quiz for today. Generates it if it doesn't exist."""
     today = get_astana_date()
     quiz = QuizService.get_daily_quiz(db, today, current_user)
-    points, rank = QuizService.get_user_quiz_stats(db, current_user.id)
+    points, rank = QuizService.get_user_quiz_stats(db, current_user)
     quiz.user_points = points
     quiz.user_rank = rank
     return quiz
@@ -53,7 +53,7 @@ def get_quiz_leaderboard(
     current_user = Depends(get_current_user)
 ):
     """Get the global quiz leaderboard of users/players."""
-    leaderboard = QuizService.get_global_leaderboard(db)
+    leaderboard = QuizService.get_global_leaderboard(db, current_user)
     result = []
     for index, entry in enumerate(leaderboard):
         result.append({

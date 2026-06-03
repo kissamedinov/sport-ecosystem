@@ -247,45 +247,64 @@ class QuizService:
         return attempt
 
     @staticmethod
-    def get_user_quiz_stats(db: Session, user_id: str):
+    def get_user_quiz_stats(db: Session, user: User):
         from sqlalchemy import func
         from app.quizzes.models import QuizAttempt
         
         # Calculate total points
-        total_points = db.query(func.sum(QuizAttempt.score)).filter(QuizAttempt.user_id == user_id).scalar() or 0
+        total_points = db.query(func.sum(QuizAttempt.score)).filter(QuizAttempt.user_id == user.id).scalar() or 0
         
         # Calculate rank
-        leaderboard = QuizService.get_global_leaderboard(db)
+        leaderboard = QuizService.get_global_leaderboard(db, user)
         user_rank = len(leaderboard) + 1
         
         for index, entry in enumerate(leaderboard):
-            if str(entry.id) == str(user_id):
+            if str(entry.id) == str(user.id):
                 user_rank = index + 1
                 break
                 
         return int(total_points), user_rank
 
     @staticmethod
-    def get_global_leaderboard(db: Session):
+    def get_global_leaderboard(db: Session, current_user: User):
         from sqlalchemy import func
         from app.quizzes.models import QuizAttempt
-        from app.users.models import User
+        from app.users.models import User, UserRole, Role
         
+        # Determine audience
+        audience = "KIDS"
+        user_roles = [r.role.value for r in current_user.roles]
+        if "PLAYER_ADULT" in user_roles or "COACH" in user_roles or "CLUB_OWNER" in user_roles:
+            audience = "ADULTS"
+            
+        # 1. Subquery for total points (> 0)
         user_points_sub = db.query(
             QuizAttempt.user_id,
             func.sum(QuizAttempt.score).label("total_points")
-        ).group_by(QuizAttempt.user_id).subquery()
-        
-        users_with_pts = db.query(
+        ).group_by(QuizAttempt.user_id)\
+         .having(func.sum(QuizAttempt.score) > 0).subquery()
+         
+        # 2. Base query
+        query = db.query(
             User.id,
             User.name,
             User.quiz_streak,
-            func.coalesce(user_points_sub.c.total_points, 0).label("points")
-        ).outerjoin(user_points_sub, User.id == user_points_sub.c.user_id)\
-         .order_by(
-             func.coalesce(user_points_sub.c.total_points, 0).desc(),
-             User.quiz_streak.desc(),
-             User.name.asc()
-         ).all()
+            user_points_sub.c.total_points.label("points")
+        ).join(user_points_sub, User.id == user_points_sub.c.user_id)\
+         .join(UserRole, User.id == UserRole.user_id)
          
+        # 3. Filter by role based on audience
+        if audience == "KIDS":
+            query = query.filter(UserRole.role == Role.PLAYER_CHILD)
+        else:
+            query = query.filter(UserRole.role.in_([Role.PLAYER_ADULT, Role.COACH, Role.CLUB_OWNER]))
+            
+        # 4. Group by and Order by
+        users_with_pts = query.group_by(User.id, user_points_sub.c.total_points)\
+            .order_by(
+                user_points_sub.c.total_points.desc(),
+                User.quiz_streak.desc(),
+                User.name.asc()
+            ).all()
+            
         return users_with_pts
