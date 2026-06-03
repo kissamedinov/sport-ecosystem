@@ -18,6 +18,7 @@ import 'package:mobile/features/settings/presentation/screens/settings_screen.da
 import 'package:mobile/features/clubs/providers/club_provider.dart';
 import 'package:mobile/features/fields/presentation/screens/my_bookings_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/features/settings/presentation/widgets/language_picker_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -64,6 +65,10 @@ class ProfileScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 );
+              }),
+              _buildMenuItem(Icons.language_rounded, 'Language', muted, () {
+                Navigator.pop(ctx);
+                LanguagePickerSheet.show(context);
               }),
               Divider(color: divider, height: 24),
               _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
