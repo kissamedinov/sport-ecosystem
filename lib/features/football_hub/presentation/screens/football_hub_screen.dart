@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import '../../../teams/presentation/screens/team_leaderboard_screen.dart';
+import '../../../teams/providers/team_provider.dart';
+import '../../../academies/providers/academy_provider.dart';
 
 class FootballHubScreen extends StatefulWidget {
   const FootballHubScreen({super.key});
@@ -26,6 +29,10 @@ class _FootballHubScreenState extends State<FootballHubScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TeamProvider>().fetchTeamRankings();
+      context.read<AcademyProvider>().fetchAcademyRankings();
+    });
   }
 
   @override
@@ -344,11 +351,26 @@ class _FootballHubScreenState extends State<FootballHubScreen>
   }
 
   Widget _buildLeaderboardCard(BuildContext context) {
-    final teams = [
-      {'name': 'FC Barcelona Youth', 'pts': '87', 'rank': '1'},
-      {'name': 'Real Madrid Academy', 'pts': '84', 'rank': '2'},
-      {'name': 'Ajax Youth Squad', 'pts': '79', 'rank': '3'},
-    ];
+    final teamProvider = context.watch<TeamProvider>();
+    final realRankings = teamProvider.rankings;
+    
+    final List<Map<String, dynamic>> teams = [];
+    if (realRankings.isNotEmpty) {
+      for (int i = 0; i < realRankings.length && i < 3; i++) {
+        final t = realRankings[i];
+        teams.add({
+          'name': t.name,
+          'pts': '${t.rating}',
+          'rank': '${i + 1}',
+        });
+      }
+    } else {
+      teams.addAll([
+        {'name': 'FC Barcelona Youth', 'pts': '87', 'rank': '1'},
+        {'name': 'Real Madrid Academy', 'pts': '84', 'rank': '2'},
+        {'name': 'Ajax Youth Squad', 'pts': '79', 'rank': '3'},
+      ]);
+    }
     final medalColors = [Colors.amber, Colors.grey.shade400, const Color(0xFFCD7F32)];
 
     return GestureDetector(
@@ -452,11 +474,27 @@ class _FootballHubScreenState extends State<FootballHubScreen>
   }
 
   Widget _buildAcademiesList(BuildContext context) {
-    final academies = [
-      {'name': 'Real Madrid Academy', 'rating': '4.9', 'flag': '🇪🇸', 'players': '320'},
-      {'name': 'Ajax Youth School', 'rating': '4.8', 'flag': '🇳🇱', 'players': '240'},
-      {'name': 'Man City Academy', 'rating': '4.7', 'flag': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'players': '280'},
-    ];
+    final academyProvider = context.watch<AcademyProvider>();
+    final realRankings = academyProvider.academyRankings;
+
+    final List<Map<String, dynamic>> academies = [];
+    if (realRankings.isNotEmpty) {
+      for (int i = 0; i < realRankings.length && i < 3; i++) {
+        final r = realRankings[i];
+        academies.add({
+          'name': r.academyName,
+          'subtitle': '${r.academyCity} · ${r.tournamentsPlayed} tournaments',
+          'value': '${r.points} PTS',
+          'isReal': true,
+        });
+      }
+    } else {
+      academies.addAll([
+        {'name': 'Real Madrid Academy', 'subtitle': '🇪🇸 · 320 players', 'value': '4.9', 'isReal': false},
+        {'name': 'Ajax Youth School', 'subtitle': '🇳🇱 · 240 players', 'value': '4.8', 'isReal': false},
+        {'name': 'Man City Academy', 'subtitle': '🏴󠁧󠁢󠁥󠁮󠁧󠁿 · 280 players', 'value': '4.7', 'isReal': false},
+      ]);
+    }
 
     return Column(
       children: academies.asMap().entries.map((e) {
@@ -505,7 +543,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${a['flag']} · ${a['players']} players',
+                        a['subtitle']!,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 11,
@@ -516,10 +554,14 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                    Icon(
+                      a['isReal'] == true ? Icons.emoji_events_rounded : Icons.star_rounded, 
+                      color: Colors.amber, 
+                      size: 14
+                    ),
                     const SizedBox(width: 3),
                     Text(
-                      a['rating']!,
+                      a['value']!,
                       style: const TextStyle(
                         color: Colors.amber,
                         fontWeight: FontWeight.w800,
