@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -23,15 +24,15 @@ class _RoleInfo {
 }
 
 const _kRoles = [
-  _RoleInfo('PLAYER_ADULT', 'Adult Player', Icons.sports_soccer_rounded, _kGreen),
-  _RoleInfo('PLAYER_CHILD', 'Youth Player', Icons.child_care_rounded, _kGreenDeep),
-  _RoleInfo('PARENT', 'Parent', Icons.family_restroom, Color(0xFFB388FF)),
-  _RoleInfo('COACH', 'Coach', Icons.sports_rounded, _kGold),
-  _RoleInfo('CLUB_OWNER', 'Club Owner', Icons.shield_rounded, Color(0xFF2979FF)),
-  _RoleInfo('CLUB_MANAGER', 'Club Manager', Icons.manage_accounts, Color(0xFFFF9800)),
-  _RoleInfo('TOURNAMENT_ORGANIZER', 'Organizer', Icons.emoji_events, Color(0xFFFFC107)),
-  _RoleInfo('FIELD_OWNER', 'Field Owner', Icons.stadium_rounded, Color(0xFF26C6DA)),
-  _RoleInfo('REFEREE', 'Referee', Icons.gavel_rounded, _kRed),
+  _RoleInfo('PLAYER_ADULT', 'auth.role_player_adult', Icons.sports_soccer_rounded, _kGreen),
+  _RoleInfo('PLAYER_CHILD', 'auth.role_player_child', Icons.child_care_rounded, _kGreenDeep),
+  _RoleInfo('PARENT', 'auth.role_parent', Icons.family_restroom, Color(0xFFB388FF)),
+  _RoleInfo('COACH', 'auth.role_coach', Icons.sports_rounded, _kGold),
+  _RoleInfo('CLUB_OWNER', 'auth.role_club_owner', Icons.shield_rounded, Color(0xFF2979FF)),
+  _RoleInfo('CLUB_MANAGER', 'auth.role_club_manager', Icons.manage_accounts, Color(0xFFFF9800)),
+  _RoleInfo('TOURNAMENT_ORGANIZER', 'auth.role_organizer', Icons.emoji_events, Color(0xFFFFC107)),
+  _RoleInfo('FIELD_OWNER', 'auth.role_field_owner', Icons.stadium_rounded, Color(0xFF26C6DA)),
+  _RoleInfo('REFEREE', 'auth.role_referee', Icons.gavel_rounded, _kRed),
 ];
 
 class RegisterScreen extends StatefulWidget {
@@ -95,15 +96,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _register(AuthProvider auth) async {
     if (!_formKey.currentState!.validate()) return;
     if (_dob == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Please select your date of birth'),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('auth.select_dob'.tr()),
         backgroundColor: _kRed,
       ));
       return;
     }
     if (!_agreedToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Please agree to the Terms and Privacy Policy'),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('auth.agree_terms'.tr()),
         backgroundColor: _kRed,
       ));
       return;
@@ -119,12 +120,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created! Please log in.')),
+        SnackBar(content: Text('auth.account_created'.tr())),
       );
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(auth.error ?? 'Registration failed'),
+        content: Text(auth.error ?? 'auth.registration_failed'.tr()),
         backgroundColor: _kRed,
       ));
     }
@@ -184,8 +185,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
                   OrleonBrandHeader(
                     subtitle: _step == 1
-                        ? 'Choose your role'
-                        : 'Tell us about yourself',
+                        ? 'auth.choose_your_role'.tr()
+                        : 'auth.tell_us_about_yourself'.tr(),
                   ),
                   const SizedBox(height: 16),
                   // Step indicator
@@ -230,7 +231,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Already have an account?  ',
+                        'auth.already_have_account'.tr(),
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           color: cs.onSurface.withValues(alpha: 0.5),
@@ -240,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () =>
                             Navigator.pushReplacementNamed(context, '/login'),
                         child: Text(
-                          'Log in',
+                          'auth.log_in'.tr(),
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -307,7 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      r.label,
+                      r.label.tr(),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         fontSize: 10,
@@ -325,7 +326,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         const SizedBox(height: 22),
         OrleonPrimaryButton(
-          label: 'CONTINUE',
+          label: 'auth.continue_btn'.tr(),
           onPressed: () => setState(() => _step = 2),
         ),
       ],
@@ -363,7 +364,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SIGNING UP AS',
+                      'auth.signing_up_as'.tr(),
                       style: GoogleFonts.outfit(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -372,7 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     Text(
-                      role.label,
+                      role.label.tr(),
                       style: GoogleFonts.outfit(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -390,7 +391,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  'CHANGE',
+                  'auth.change'.tr(),
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -407,27 +408,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               OrleonField(
-                label: 'Full Name',
+                label: 'auth.full_name'.tr(),
                 controller: _nameCtrl,
                 icon: Icons.person_outline,
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                    (v == null || v.trim().isEmpty) ? 'auth.name_required'.tr() : null,
               ),
               const SizedBox(height: 12),
               OrleonField(
-                label: 'Email',
+                label: 'auth.email'.tr(),
                 controller: _emailCtrl,
                 icon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Email is required';
-                  if (!v.contains('@')) return 'Enter a valid email';
+                  if (v == null || v.isEmpty) return 'auth.email_required'.tr();
+                  if (!v.contains('@')) return 'auth.enter_valid_email'.tr();
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               OrleonField(
-                label: 'Password (min 6 chars)',
+                label: 'auth.password_min_chars'.tr(),
                 controller: _passCtrl,
                 icon: Icons.lock_outline,
                 obscureText: _obscurePass,
@@ -443,14 +444,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   constraints: const BoxConstraints(),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Password is required';
-                  if (v.length < 6) return 'Minimum 6 characters';
+                  if (v == null || v.isEmpty) return 'auth.password_required'.tr();
+                  if (v.length < 6) return 'auth.minimum_6_chars'.tr();
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               OrleonField(
-                label: 'Date of Birth',
+                label: 'auth.date_of_birth'.tr(),
                 controller: _dobCtrl,
                 icon: Icons.cake_outlined,
                 readOnly: true,
@@ -497,9 +498,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               height: 1.5,
                             ),
                             children: [
-                              const TextSpan(text: 'I agree to the '),
+                              TextSpan(text: 'auth.i_agree_to'.tr()),
                               TextSpan(
-                                text: 'Terms',
+                                text: 'auth.terms'.tr(),
                                 style: GoogleFonts.outfit(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -507,9 +508,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   height: 1.5,
                                 ),
                               ),
-                              const TextSpan(text: ' and '),
+                              TextSpan(text: 'auth.and'.tr()),
                               TextSpan(
-                                text: 'Privacy Policy',
+                                text: 'auth.privacy_policy'.tr(),
                                 style: GoogleFonts.outfit(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -528,7 +529,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Consumer<AuthProvider>(
                 builder: (context, auth, _) => OrleonPrimaryButton(
                   label:
-                      auth.isLoading ? 'CREATING ACCOUNT…' : 'CREATE ACCOUNT',
+                      auth.isLoading ? 'auth.creating_account'.tr() : 'auth.create_account_btn'.tr(),
                   loading: auth.isLoading,
                   onPressed: auth.isLoading ? null : () => _register(auth),
                 ),

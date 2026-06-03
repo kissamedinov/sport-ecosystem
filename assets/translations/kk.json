@@ -327,7 +327,8 @@
     "complete": "Баптауды аяқтау",
     "completion_title": "Дайын!",
     "completion_desc": "Профиліңіз жасалды. Қолданбаны пайдалануды бастаңыз.",
-    "select_role": "Рөліңізді таңдаңыз"
+    "select_role": "Рөліңізді таңдаңыз",
+    "step_of": "{current} / {total} қадам"
   },
   "player": {
     "player_profile": "Ойыншы профилі",

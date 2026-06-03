@@ -327,7 +327,8 @@
     "complete": "Завершить настройку",
     "completion_title": "Всё готово!",
     "completion_desc": "Ваш профиль создан. Начните использовать приложение.",
-    "select_role": "Выберите роль"
+    "select_role": "Выберите роль",
+    "step_of": "Шаг {current} из {total}"
   },
   "player": {
     "player_profile": "Профиль игрока",

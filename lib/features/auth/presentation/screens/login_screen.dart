@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.error ?? 'Login failed'),
+          content: Text(auth.error ?? 'auth.login_failed'.tr()),
           backgroundColor: _kRed,
         ),
       );
@@ -69,22 +70,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const OrleonBrandHeader(subtitle: 'Welcome back'),
+                    OrleonBrandHeader(subtitle: 'auth.welcome_back'.tr()),
                     const SizedBox(height: 28),
                     OrleonField(
-                      label: 'Email',
+                      label: 'auth.email'.tr(),
                       controller: _emailCtrl,
                       icon: Icons.mail_outline_rounded,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Email is required';
-                        if (!v.contains('@')) return 'Enter a valid email';
+                        if (v == null || v.isEmpty) return 'auth.email_required'.tr();
+                        if (!v.contains('@')) return 'auth.enter_valid_email'.tr();
                         return null;
                       },
                     ),
                     const SizedBox(height: 12),
                     OrleonField(
-                      label: 'Password',
+                      label: 'auth.password'.tr(),
                       controller: _passCtrl,
                       icon: Icons.lock_outline,
                       obscureText: _obscurePass,
@@ -100,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         constraints: const BoxConstraints(),
                       ),
                       validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Password is required' : null,
+                          (v == null || v.isEmpty) ? 'auth.password_required'.tr() : null,
                     ),
                     // Remember me + Forgot password row
                     Padding(
@@ -140,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Remember me',
+                                  'auth.remember_me'.tr(),
                                   style: GoogleFonts.outfit(
                                     fontSize: 11,
                                     color: onSurface.withValues(alpha: 0.6),
@@ -158,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: Text(
-                              'Forgot password?',
+                              'auth.forgot_password'.tr(),
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -171,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Consumer<AuthProvider>(
                       builder: (context, auth, _) => OrleonPrimaryButton(
-                        label: auth.isLoading ? 'SIGNING IN…' : 'LOG IN',
+                        label: auth.isLoading ? 'auth.signing_in'.tr() : 'auth.sign_in'.tr(),
                         loading: auth.isLoading,
                         onPressed: auth.isLoading ? null : () => _login(auth),
                       ),
@@ -189,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            'OR',
+                            'auth.or'.tr(),
                             style: GoogleFonts.outfit(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -213,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: _SocialButton(
                             icon: Icons.g_mobiledata,
-                            label: 'Google',
+                            label: 'auth.google'.tr(),
                             onTap: () async {
                               final auth = context.read<AuthProvider>();
                               final success = await auth.signInWithGoogle();
@@ -235,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: _SocialButton(
                             icon: Icons.apple,
-                            label: 'Apple',
+                            label: 'auth.apple'.tr(),
                             onTap: () {},
                           ),
                         ),
@@ -246,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'New to OrleOn?  ',
+                          'auth.new_to_orleon'.tr(),
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             color: onSurface.withValues(alpha: 0.5),
@@ -256,7 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () => Navigator.pushReplacementNamed(
                               context, '/register'),
                           child: Text(
-                            'Create account',
+                            'auth.create_account'.tr(),
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,

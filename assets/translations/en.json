@@ -327,7 +327,8 @@
     "complete": "Complete Setup",
     "completion_title": "You're All Set!",
     "completion_desc": "Your profile has been created. Start exploring the app.",
-    "select_role": "Select Your Role"
+    "select_role": "Select Your Role",
+    "step_of": "Step {current} of {total}"
   },
   "player": {
     "player_profile": "Player Profile",
