@@ -245,3 +245,47 @@ class QuizService:
         db.commit()
         db.refresh(attempt)
         return attempt
+
+    @staticmethod
+    def get_user_quiz_stats(db: Session, user_id: str):
+        from sqlalchemy import func
+        from app.quizzes.models import QuizAttempt
+        
+        # Calculate total points
+        total_points = db.query(func.sum(QuizAttempt.score)).filter(QuizAttempt.user_id == user_id).scalar() or 0
+        
+        # Calculate rank
+        leaderboard = QuizService.get_global_leaderboard(db)
+        user_rank = len(leaderboard) + 1
+        
+        for index, entry in enumerate(leaderboard):
+            if str(entry.id) == str(user_id):
+                user_rank = index + 1
+                break
+                
+        return int(total_points), user_rank
+
+    @staticmethod
+    def get_global_leaderboard(db: Session):
+        from sqlalchemy import func
+        from app.quizzes.models import QuizAttempt
+        from app.users.models import User
+        
+        user_points_sub = db.query(
+            QuizAttempt.user_id,
+            func.sum(QuizAttempt.score).label("total_points")
+        ).group_by(QuizAttempt.user_id).subquery()
+        
+        users_with_pts = db.query(
+            User.id,
+            User.name,
+            User.quiz_streak,
+            func.coalesce(user_points_sub.c.total_points, 0).label("points")
+        ).outerjoin(user_points_sub, User.id == user_points_sub.c.user_id)\
+         .order_by(
+             func.coalesce(user_points_sub.c.total_points, 0).desc(),
+             User.quiz_streak.desc(),
+             User.name.asc()
+         ).all()
+         
+        return users_with_pts

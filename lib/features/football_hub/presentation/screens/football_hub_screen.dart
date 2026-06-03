@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
-import '../../../teams/presentation/screens/team_leaderboard_screen.dart';
 import '../../../teams/providers/team_provider.dart';
 import '../../../academies/providers/academy_provider.dart';
+import '../../../quiz/providers/quiz_provider.dart';
+import '../../../quiz/presentation/screens/quiz_leaderboard_screen.dart';
 
 class FootballHubScreen extends StatefulWidget {
   const FootballHubScreen({super.key});
@@ -32,6 +33,8 @@ class _FootballHubScreenState extends State<FootballHubScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TeamProvider>().fetchTeamRankings();
       context.read<AcademyProvider>().fetchAcademyRankings();
+      context.read<QuizProvider>().fetchDailyQuiz();
+      context.read<QuizProvider>().fetchLeaderboard();
     });
   }
 
@@ -259,25 +262,32 @@ class _FootballHubScreenState extends State<FootballHubScreen>
   }
 
   Widget _buildStreakRow(BuildContext context) {
+    final quizProvider = context.watch<QuizProvider>();
+    final quiz = quizProvider.currentQuiz;
+    
+    final streak = quiz != null ? '${quiz.userStreak}' : '7';
+    final points = quiz != null ? '${quiz.userPoints}' : '142';
+    final rank = quiz != null ? '#${quiz.userRank}' : '#24';
+
     return Row(
       children: [
         Expanded(child: _buildStreakChip(
           icon: Icons.local_fire_department_rounded,
-          value: '7',
+          value: streak,
           label: 'DAY STREAK',
           color: Colors.deepOrange,
         )),
         const SizedBox(width: 10),
         Expanded(child: _buildStreakChip(
           icon: Icons.stars_rounded,
-          value: '142',
+          value: points,
           label: 'TOTAL PTS',
           color: const Color(0xFF00E676),
         )),
         const SizedBox(width: 10),
         Expanded(child: _buildStreakChip(
           icon: Icons.emoji_events_rounded,
-          value: '#24',
+          value: rank,
           label: 'WORLD RANK',
           color: Colors.amber,
         )),
@@ -351,21 +361,21 @@ class _FootballHubScreenState extends State<FootballHubScreen>
   }
 
   Widget _buildLeaderboardCard(BuildContext context) {
-    final teamProvider = context.watch<TeamProvider>();
-    final realRankings = teamProvider.rankings;
+    final quizProvider = context.watch<QuizProvider>();
+    final realRankings = quizProvider.leaderboard;
     
-    final List<Map<String, dynamic>> teams = [];
+    final List<Map<String, dynamic>> players = [];
     if (realRankings.isNotEmpty) {
       for (int i = 0; i < realRankings.length && i < 3; i++) {
-        final t = realRankings[i];
-        teams.add({
-          'name': t.name,
-          'pts': '${t.rating}',
-          'rank': '${i + 1}',
+        final r = realRankings[i];
+        players.add({
+          'name': r.name,
+          'pts': '${r.points}',
+          'rank': '${r.rank}',
         });
       }
     } else {
-      teams.addAll([
+      players.addAll([
         {'name': 'FC Barcelona Youth', 'pts': '87', 'rank': '1'},
         {'name': 'Real Madrid Academy', 'pts': '84', 'rank': '2'},
         {'name': 'Ajax Youth Squad', 'pts': '79', 'rank': '3'},
@@ -376,7 +386,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const TeamLeaderboardScreen()),
+        MaterialPageRoute(builder: (_) => const QuizLeaderboardScreen()),
       ),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -394,7 +404,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
         ),
         child: Column(
           children: [
-            ...teams.asMap().entries.map((e) {
+            ...players.asMap().entries.map((e) {
               final i = e.key;
               final t = e.value;
               final medal = medalColors[i];

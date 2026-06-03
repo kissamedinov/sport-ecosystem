@@ -24,12 +24,24 @@ class QuizAttemptSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class QuizLeaderboardEntry(BaseModel):
+    rank: int
+    name: str
+    points: int
+    streak: int
+    user_id: UUID
+
+    class Config:
+        from_attributes = True
+
 class DailyQuizSchema(BaseModel):
     id: UUID
     date: date
     questions: List[QuizQuestionSchema]
     user_attempt: Optional[QuizAttemptSchema] = None
     user_streak: int = 0
+    user_points: int = 0
+    user_rank: int = 0
 
     class Config:
         from_attributes = True

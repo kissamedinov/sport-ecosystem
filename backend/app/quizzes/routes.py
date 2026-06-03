@@ -17,6 +17,9 @@ def get_daily_quiz(
     """Get the football quiz for today. Generates it if it doesn't exist."""
     today = get_astana_date()
     quiz = QuizService.get_daily_quiz(db, today, current_user)
+    points, rank = QuizService.get_user_quiz_stats(db, current_user.id)
+    quiz.user_points = points
+    quiz.user_rank = rank
     return quiz
 
 @router.post("/daily/submit", response_model=QuizAttemptSchema)
@@ -43,3 +46,21 @@ def submit_quiz_attempt(
         score=attempt_data.score
     )
     return attempt
+
+@router.get("/leaderboard", response_model=List[schemas.QuizLeaderboardEntry])
+def get_quiz_leaderboard(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get the global quiz leaderboard of users/players."""
+    leaderboard = QuizService.get_global_leaderboard(db)
+    result = []
+    for index, entry in enumerate(leaderboard):
+        result.append({
+            "rank": index + 1,
+            "name": entry.name,
+            "points": entry.points,
+            "streak": entry.quiz_streak,
+            "user_id": entry.id
+        })
+    return result

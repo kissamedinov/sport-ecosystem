@@ -30,6 +30,8 @@ class DailyQuiz {
   final List<QuizQuestion> questions;
   final Map<String, dynamic>? userAttempt;
   final int userStreak;
+  final int userPoints;
+  final int userRank;
 
   DailyQuiz({
     required this.id,
@@ -37,6 +39,8 @@ class DailyQuiz {
     required this.questions,
     this.userAttempt,
     this.userStreak = 0,
+    this.userPoints = 0,
+    this.userRank = 0,
   });
 
   factory DailyQuiz.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,34 @@ class DailyQuiz {
           .toList(),
       userAttempt: json['user_attempt'],
       userStreak: json['user_streak'] ?? 0,
+      userPoints: json['user_points'] ?? 0,
+      userRank: json['user_rank'] ?? 0,
+    );
+  }
+}
+
+class QuizLeaderboardEntry {
+  final int rank;
+  final String name;
+  final int points;
+  final int streak;
+  final String userId;
+
+  QuizLeaderboardEntry({
+    required this.rank,
+    required this.name,
+    required this.points,
+    required this.streak,
+    required this.userId,
+  });
+
+  factory QuizLeaderboardEntry.fromJson(Map<String, dynamic> json) {
+    return QuizLeaderboardEntry(
+      rank: json['rank'] as int,
+      name: json['name'] as String,
+      points: json['points'] as int,
+      streak: json['streak'] as int,
+      userId: json['user_id'] as String,
     );
   }
 }
