@@ -177,17 +177,6 @@ def add_player_to_team(db: Session, team_id: UUID, player_id: UUID, current_user
         is_coach = Role.COACH in user_roles and team.coach_id == current_user.id
         is_admin = Role.ADMIN in user_roles
         
-        # Club owners/managers can manage any team in their club
-        if is_club_owner or is_club_manager:
-            from ..clubs.models import Club
-            club = db.query(Club).filter(Club.id == team.club_id).first() if team.club_id else None
-            if not club or (club.owner_id != current_user.id and not is_club_manager):
-                # Club managers can manage any club's teams; owners only their own club
-                if is_club_manager:
-                    pass  # managers authorized for any club
-                else:
-                    is_club_owner = False
-        
         if not (is_club_owner or is_club_manager or is_team_owner or is_coach or is_admin):
              raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to manage this team")
 
