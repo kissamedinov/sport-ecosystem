@@ -132,7 +132,7 @@ class QuizService:
         Return ONLY the JSON array.
         """
         
-        response = model.generate_content(prompt, request_options={"timeout": 8.0})
+        response = model.generate_content(prompt)
         # Clean response text from markdown code blocks if present
         text = response.text.strip()
         if text.startswith("```json"):
