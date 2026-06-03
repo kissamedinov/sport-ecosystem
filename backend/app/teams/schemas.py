@@ -32,15 +32,24 @@ class TeamResponse(TeamBase):
         orm_mode = True
         from_attributes = True
 
+class PlayerInfo(BaseModel):
+    id: UUID
+    name: str
+    email: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 class PlayerTeamResponse(BaseModel):
     id: UUID
     team_id: UUID
-    player_id: UUID
-    joined_at: datetime
+    player_id: Optional[UUID] = None
+    joined_at: Optional[datetime] = None
     left_at: Optional[datetime] = None
     join_status: Optional[str] = "APPROVED"
     child_profile_id: Optional[UUID] = None
-    player: Optional[UserResponse] = None
+    jersey_number: Optional[int] = None
+    player: Optional[PlayerInfo] = None
 
     class Config:
         orm_mode = True
