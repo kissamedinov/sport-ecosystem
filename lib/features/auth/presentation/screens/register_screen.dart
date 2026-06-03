@@ -455,7 +455,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _dobCtrl,
                 icon: Icons.cake_outlined,
                 readOnly: true,
-                hintText: 'dd/MM/yyyy',
+                hintText: 'auth.dob_hint'.tr(),
                 onTap: _pickDate,
               ),
               // Terms checkbox

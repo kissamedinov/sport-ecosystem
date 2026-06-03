@@ -48,6 +48,7 @@
     "password_min_chars": "Password (min 6 chars)",
     "minimum_6_chars": "Minimum 6 characters",
     "date_of_birth": "Date of Birth",
+    "dob_hint": "dd/MM/yyyy",
     "select_dob": "Please select your date of birth",
     "agree_terms": "Please agree to the Terms and Privacy Policy",
     "i_agree_to": "I agree to the ",
