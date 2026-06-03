@@ -208,7 +208,7 @@ class _ParentPaymentsScreenState extends State<ParentPaymentsScreen> {
           const SizedBox(width: 8),
           _buildMiniStat('ABSENT', '$absent', cs, color: PremiumTheme.danger),
           const SizedBox(width: 8),
-          _buildMiniStat('BASE FEE', '${baseFee.toStringAsFixed(0)}', cs,
+          _buildMiniStat('BASE FEE', baseFee.toStringAsFixed(0), cs,
               color: const Color(0xFFB490D0)),
         ]),
         if (totalOwed > 0) ...[

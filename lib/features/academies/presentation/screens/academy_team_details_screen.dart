@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/academy_team.dart';
-import '../../data/models/academy.dart' as academy_models;
 
 class AcademyTeamDetailsScreen extends StatefulWidget {
   final AcademyTeam team;

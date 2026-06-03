@@ -3,18 +3,355 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../../auth/providers/auth_provider.dart';
-import '../../../lineups/providers/lineup_provider.dart';
 import '../../../tournaments/data/models/tournament_match.dart';
 import 'match_details_screen.dart';
 
-class MatchListScreen extends StatelessWidget {
+class LobbyMatch {
+  final String id;
+  final String organizerName;
+  final String organizerAvatar;
+  final String location;
+  final String time;
+  final String date;
+  final double price;
+  final String format;
+  final int maxPlayers;
+  final List<String> joinedPlayers;
+  final bool isPlus;
+
+  LobbyMatch({
+    required this.id,
+    required this.organizerName,
+    required this.organizerAvatar,
+    required this.location,
+    required this.time,
+    required this.date,
+    required this.price,
+    required this.format,
+    required this.maxPlayers,
+    required this.joinedPlayers,
+    this.isPlus = false,
+  });
+
+  LobbyMatch copyWith({
+    List<String>? joinedPlayers,
+  }) {
+    return LobbyMatch(
+      id: id,
+      organizerName: organizerName,
+      organizerAvatar: organizerAvatar,
+      location: location,
+      time: time,
+      date: date,
+      price: price,
+      format: format,
+      maxPlayers: maxPlayers,
+      joinedPlayers: joinedPlayers ?? this.joinedPlayers,
+      isPlus: isPlus,
+    );
+  }
+}
+
+class PlayerMiniStats {
+  final String name;
+  final String avatar;
+  final String position;
+  final int rating;
+  final int matchesPlayed;
+  final int goals;
+  final int assists;
+  final int mvpCount;
+  final double winRate;
+  final String preferredFoot;
+  final double form;
+  final int age;
+
+  PlayerMiniStats({
+    required this.name,
+    required this.avatar,
+    required this.position,
+    required this.rating,
+    required this.matchesPlayed,
+    required this.goals,
+    required this.assists,
+    required this.mvpCount,
+    required this.winRate,
+    required this.preferredFoot,
+    required this.form,
+    required this.age,
+  });
+}
+
+class MatchListScreen extends StatefulWidget {
   const MatchListScreen({super.key});
+
+  @override
+  State<MatchListScreen> createState() => _MatchListScreenState();
+}
+
+class _MatchListScreenState extends State<MatchListScreen> {
+  late List<LobbyMatch> _lobbies;
+
+  // Pre-configured mock stats for specific players
+  final Map<String, PlayerMiniStats> _playerStatsMock = {
+    'Maksat K.': PlayerMiniStats(
+      name: 'Maksat K.',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
+      position: 'FORWARD',
+      rating: 85,
+      matchesPlayed: 42,
+      goals: 28,
+      assists: 14,
+      mvpCount: 8,
+      winRate: 66.7,
+      preferredFoot: 'Right',
+      form: 92,
+      age: 24,
+    ),
+    'Yernar S.': PlayerMiniStats(
+      name: 'Yernar S.',
+      avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop',
+      position: 'MIDFIELDER',
+      rating: 81,
+      matchesPlayed: 35,
+      goals: 10,
+      assists: 22,
+      mvpCount: 4,
+      winRate: 58.3,
+      preferredFoot: 'Left',
+      form: 88,
+      age: 22,
+    ),
+    'Daulet A.': PlayerMiniStats(
+      name: 'Daulet A.',
+      avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&auto=format&fit=crop',
+      position: 'DEFENDER',
+      rating: 88,
+      matchesPlayed: 50,
+      goals: 2,
+      assists: 6,
+      mvpCount: 6,
+      winRate: 72.0,
+      preferredFoot: 'Right',
+      form: 95,
+      age: 26,
+    ),
+    'Arman T.': PlayerMiniStats(
+      name: 'Arman T.',
+      avatar: 'https://images.unsplash.com/photo-1489980508314-941910ded1f4?w=100&auto=format&fit=crop',
+      position: 'GOALKEEPER',
+      rating: 83,
+      matchesPlayed: 28,
+      goals: 0,
+      assists: 1,
+      mvpCount: 3,
+      winRate: 54.5,
+      preferredFoot: 'Right',
+      form: 85,
+      age: 25,
+    ),
+    'Kairat B.': PlayerMiniStats(
+      name: 'Kairat B.',
+      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop',
+      position: 'MIDFIELDER',
+      rating: 79,
+      matchesPlayed: 20,
+      goals: 4,
+      assists: 8,
+      mvpCount: 1,
+      winRate: 50.0,
+      preferredFoot: 'Right',
+      form: 80,
+      age: 23,
+    ),
+    'Alibek Z.': PlayerMiniStats(
+      name: 'Alibek Z.',
+      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop',
+      position: 'FORWARD',
+      rating: 82,
+      matchesPlayed: 30,
+      goals: 18,
+      assists: 9,
+      mvpCount: 5,
+      winRate: 60.0,
+      preferredFoot: 'Left',
+      form: 90,
+      age: 21,
+    ),
+    'Sanzhar M.': PlayerMiniStats(
+      name: 'Sanzhar M.',
+      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&auto=format&fit=crop',
+      position: 'DEFENDER',
+      rating: 78,
+      matchesPlayed: 18,
+      goals: 1,
+      assists: 2,
+      mvpCount: 0,
+      winRate: 44.4,
+      preferredFoot: 'Right',
+      form: 75,
+      age: 19,
+    ),
+    'Baurzhan K.': PlayerMiniStats(
+      name: 'Baurzhan K.',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop',
+      position: 'MIDFIELDER',
+      rating: 84,
+      matchesPlayed: 40,
+      goals: 12,
+      assists: 18,
+      mvpCount: 5,
+      winRate: 65.0,
+      preferredFoot: 'Right',
+      form: 91,
+      age: 27,
+    ),
+  };
+
+  PlayerMiniStats _getOrCreateStats(String name) {
+    if (_playerStatsMock.containsKey(name)) {
+      return _playerStatsMock[name]!;
+    }
+    
+    // Hash the name to create consistent random mock stats
+    final int hash = name.hashCode;
+    final int rating = 70 + (hash.abs() % 20); // 70 to 89
+    final int matches = 10 + (hash.abs() % 40); // 10 to 49
+    final List<String> positions = ['FORWARD', 'MIDFIELDER', 'DEFENDER', 'GOALKEEPER'];
+    final String pos = positions[hash.abs() % positions.length];
+    
+    int goals = 0;
+    int assists = 0;
+    if (pos == 'FORWARD') {
+      goals = (matches * 0.4 + (hash.abs() % 10)).toInt();
+      assists = (matches * 0.2 + (hash.abs() % 5)).toInt();
+    } else if (pos == 'MIDFIELDER') {
+      goals = (matches * 0.15 + (hash.abs() % 5)).toInt();
+      assists = (matches * 0.35 + (hash.abs() % 10)).toInt();
+    } else if (pos == 'DEFENDER') {
+      goals = (hash.abs() % 3);
+      assists = (matches * 0.1 + (hash.abs() % 4)).toInt();
+    }
+    
+    final int mvp = (matches * 0.12).toInt();
+    final double winRate = 45.0 + (hash.abs() % 25); // 45% to 70%
+    final String foot = (hash % 3 == 0) ? 'Left' : 'Right';
+    final double form = 80.0 + (hash.abs() % 18); // 80% to 98%
+    final int age = 18 + (hash.abs() % 15); // 18 to 32
+    
+    final List<String> avatars = [
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop',
+    ];
+    final String avatarUrl = avatars[hash.abs() % avatars.length];
+
+    return PlayerMiniStats(
+      name: name,
+      avatar: avatarUrl,
+      position: pos,
+      rating: rating,
+      matchesPlayed: matches,
+      goals: goals,
+      assists: assists,
+      mvpCount: mvp,
+      winRate: double.parse(winRate.toStringAsFixed(1)),
+      preferredFoot: foot,
+      form: form,
+      age: age,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _lobbies = [
+      LobbyMatch(
+        id: 'lobby_1',
+        organizerName: 'Medina Club',
+        organizerAvatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop',
+        location: 'Medina Pitch 1 - Almaty, Kazakhstan',
+        time: '19:00 - 21:00',
+        date: 'Wed, Jun 3',
+        price: 2000,
+        format: '5 vs 5',
+        maxPlayers: 15,
+        joinedPlayers: ['Maksat K.', 'Yernar S.', 'Daulet A.', 'Arman T.', 'Kairat B.'],
+      ),
+      LobbyMatch(
+        id: 'lobby_2',
+        organizerName: 'Gagarina Arena',
+        organizerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop',
+        location: 'Gagarina 135a - Almaty, Kazakhstan',
+        time: '19:45 - 22:00',
+        date: 'Wed, Jun 3',
+        price: 2800,
+        format: '6 vs 6',
+        maxPlayers: 18,
+        joinedPlayers: List.generate(18, (i) => 'Player $i'),
+        isPlus: true,
+      ),
+      LobbyMatch(
+        id: 'lobby_3',
+        organizerName: 'Jarys Arena',
+        organizerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop',
+        location: 'Jarys Arena Pitch 1 - Almaty, Kazakhstan',
+        time: '21:00 - 23:00',
+        date: 'Wed, Jun 3',
+        price: 3500,
+        format: '6 vs 6',
+        maxPlayers: 18,
+        joinedPlayers: List.generate(17, (i) => 'Player $i'),
+        isPlus: true,
+      ),
+      LobbyMatch(
+        id: 'lobby_4',
+        organizerName: 'Jarys Arena',
+        organizerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop',
+        location: 'Jarys Arena Pitch 2 - Almaty, Kazakhstan',
+        time: '21:00 - 23:00',
+        date: 'Wed, Jun 3',
+        price: 3500,
+        format: '6 vs 6',
+        maxPlayers: 18,
+        joinedPlayers: ['Alibek Z.', 'Sanzhar M.', 'Baurzhan K.'],
+      ),
+      LobbyMatch(
+        id: 'lobby_5',
+        organizerName: 'Almaty Arena',
+        organizerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
+        location: 'Almaty Arena Stadium - Almaty, Kazakhstan',
+        time: '21:30 - 23:30',
+        date: 'Wed, Jun 3',
+        price: 2300,
+        format: '11 vs 11',
+        maxPlayers: 22,
+        joinedPlayers: List.generate(17, (i) => 'Player $i'),
+        isPlus: true,
+      ),
+      LobbyMatch(
+        id: 'lobby_6',
+        organizerName: 'Heylebery Pitch',
+        organizerAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop',
+        location: 'Heylebery School Field - Almaty, Kazakhstan',
+        time: '21:45 - 23:45',
+        date: 'Wed, Jun 3',
+        price: 3000,
+        format: '7 vs 7',
+        maxPlayers: 21,
+        joinedPlayers: List.generate(14, (i) => 'Player $i'),
+        isPlus: true,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final role = user?.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
-    
+    final isAdultPlayer = role == 'PLAYER_ADULT' || role == 'USER' || (!['PARENT', 'COACH', 'FIELD_OWNER'].contains(role));
+
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
@@ -26,16 +363,666 @@ class MatchListScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
-        itemCount: 8,
-        itemBuilder: (context, index) {
-          final isLive = index < 3;
-          final isMyTeam = index % 3 == 0;
-          
-          return _buildMatchCard(context, index, isLive, isMyTeam);
-        },
+      body: isAdultPlayer 
+          ? ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+              itemCount: _lobbies.length,
+              itemBuilder: (context, index) {
+                return _buildLobbyCard(context, _lobbies[index]);
+              },
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+              itemCount: 8,
+              itemBuilder: (context, index) {
+                final isLive = index < 3;
+                final isMyTeam = index % 3 == 0;
+                
+                return _buildMatchCard(context, index, isLive, isMyTeam);
+              },
+            ),
+    );
+  }
+
+  Widget _buildLobbyCard(BuildContext context, LobbyMatch lobby) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final int spotsLeft = lobby.maxPlayers - lobby.joinedPlayers.length;
+    final bool isFull = spotsLeft <= 0;
+    
+    final currentUser = context.read<AuthProvider>().user;
+    final String currentUserName = currentUser?.name ?? 'Me';
+    final bool isJoined = lobby.joinedPlayers.contains(currentUserName);
+
+    final Color accentColor = isJoined 
+        ? PremiumTheme.electricBlue 
+        : (isFull ? cs.onSurfaceVariant.withValues(alpha: 0.4) : PremiumTheme.neonGreen);
+        
+    final Color bg = isDark ? const Color(0xFF161B22) : Colors.white;
+    final Color borderCol = isDark ? const Color(0xFF30363D) : const Color(0xFFE0E0E0);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderCol, width: 1),
+        boxShadow: PremiumTheme.softShadowOf(context),
       ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showLobbyDetails(context, lobby),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 1.5),
+                        image: DecorationImage(
+                          image: NetworkImage(lobby.organizerAvatar),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    if (lobby.isPlus)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'PLUS',
+                            style: TextStyle(color: Colors.white, fontSize: 6, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${lobby.time}  •  ${lobby.date}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          Text(
+                            '${lobby.price.toInt()} KZT',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_rounded, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              lobby.location,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: cs.onSurface.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  lobby.format,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Icon(Icons.person_rounded, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${lobby.joinedPlayers.length} / ${lobby.maxPlayers}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isJoined 
+                                  ? PremiumTheme.electricBlue.withValues(alpha: 0.15)
+                                  : (isFull ? cs.onSurface.withValues(alpha: 0.05) : PremiumTheme.neonGreen.withValues(alpha: 0.15)),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isJoined
+                                    ? PremiumTheme.electricBlue.withValues(alpha: 0.3)
+                                    : (isFull ? Colors.transparent : PremiumTheme.neonGreen.withValues(alpha: 0.3)),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  isJoined
+                                      ? 'BOOKED'
+                                      : (isFull ? 'FULL' : '$spotsLeft SPOTS'),
+                                  style: TextStyle(
+                                    color: accentColor,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  isJoined 
+                                      ? Icons.check_circle_rounded 
+                                      : (isFull ? Icons.lock_rounded : Icons.chevron_right_rounded),
+                                  size: 11,
+                                  color: accentColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLobbyDetails(BuildContext context, LobbyMatch lobby) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final currentUser = context.read<AuthProvider>().user;
+    final String currentUserName = currentUser?.name ?? 'Me';
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final int spotsLeft = lobby.maxPlayers - lobby.joinedPlayers.length;
+            final bool isFull = spotsLeft <= 0;
+            final bool isJoined = lobby.joinedPlayers.contains(currentUserName);
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.onSurface.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundImage: NetworkImage(lobby.organizerAvatar),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lobby.organizerName.toUpperCase(),
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                              ),
+                              const Text(
+                                'ORGANIZER',
+                                style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 9, letterSpacing: 0.8),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF161B22) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: isDark ? const Color(0xFF30363D) : const Color(0xFFE0E0E0)),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildDetailRow(Icons.calendar_today_rounded, 'Date', lobby.date),
+                              const Divider(height: 20, color: Colors.white10),
+                              _buildDetailRow(Icons.access_time_rounded, 'Time', lobby.time),
+                              const Divider(height: 20, color: Colors.white10),
+                              _buildDetailRow(Icons.location_on_rounded, 'Location', lobby.location),
+                              const Divider(height: 20, color: Colors.white10),
+                              _buildDetailRow(Icons.sports_soccer_rounded, 'Format', lobby.format),
+                              const Divider(height: 20, color: Colors.white10),
+                              _buildDetailRow(Icons.payments_rounded, 'Price', '${lobby.price.toInt()} KZT'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'JOINED PLAYERS (${lobby.joinedPlayers.length}/${lobby.maxPlayers})',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: cs.onSurfaceVariant,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            if (isFull)
+                              const Text(
+                                'LOBBY FULL',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.redAccent,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: 3.5,
+                          ),
+                          itemCount: lobby.maxPlayers,
+                          itemBuilder: (context, index) {
+                            final bool slotFilled = index < lobby.joinedPlayers.length;
+                            final String name = slotFilled ? lobby.joinedPlayers[index] : 'Empty Slot';
+                            final bool isMe = slotFilled && name == currentUserName;
+                            
+                            return GestureDetector(
+                              onTap: !slotFilled ? null : () {
+                                _showPlayerMiniProfile(context, name);
+                              },
+                              behavior: HitTestBehavior.opaque,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: slotFilled 
+                                      ? (isMe ? PremiumTheme.electricBlue.withValues(alpha: 0.12) : cs.onSurface.withValues(alpha: 0.04))
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: slotFilled
+                                        ? (isMe ? PremiumTheme.electricBlue.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.08))
+                                        : cs.onSurface.withValues(alpha: 0.05),
+                                    style: slotFilled ? BorderStyle.solid : BorderStyle.none,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: slotFilled 
+                                          ? (isMe ? PremiumTheme.electricBlue : PremiumTheme.neonGreen.withValues(alpha: 0.3))
+                                          : cs.onSurface.withValues(alpha: 0.1),
+                                      child: Text(
+                                        slotFilled ? name[0].toUpperCase() : '${index + 1}',
+                                        style: TextStyle(
+                                          color: slotFilled ? (isMe ? Colors.white : cs.onSurface) : cs.onSurfaceVariant,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        isMe ? 'YOU' : name,
+                                        style: TextStyle(
+                                          color: slotFilled 
+                                              ? (isMe ? PremiumTheme.electricBlue : cs.onSurface)
+                                              : cs.onSurfaceVariant.withValues(alpha: 0.5),
+                                          fontSize: 11,
+                                          fontWeight: slotFilled ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.of(context).padding.bottom),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF161B22) : Colors.white,
+                      border: Border.all(color: isDark ? const Color(0xFF30363D) : const Color(0xFFE0E0E0)),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: PremiumButton(
+                            text: isJoined 
+                                ? 'LEAVE LOBBY' 
+                                : (isFull ? 'NO SLOTS AVAILABLE' : 'BOOK SLOT'),
+                            color: isJoined ? PremiumTheme.danger : PremiumTheme.neonGreen,
+                            onPressed: isFull && !isJoined ? () {} : () {
+                              setState(() {
+                                if (isJoined) {
+                                  lobby.joinedPlayers.remove(currentUserName);
+                                } else {
+                                  lobby.joinedPlayers.add(currentUserName);
+                                }
+                              });
+                              setModalState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showPlayerMiniProfile(BuildContext context, String name) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final stats = _getOrCreateStats(name);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), width: 1.5),
+              boxShadow: PremiumTheme.neonShadow(color: PremiumTheme.neonGreen, opacity: 0.15),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top Header Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(stats.avatar),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              stats.name.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                stats.position,
+                                style: const TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w900,
+                                  color: PremiumTheme.neonGreen,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: PremiumTheme.neonGreen, width: 2),
+                          boxShadow: PremiumTheme.neonShadow(opacity: 0.2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${stats.rating}',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: PremiumTheme.neonGreen,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: _buildMiniStatCard('Matches', '${stats.matchesPlayed}', cs)),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildMiniStatCard('Win Rate', '${stats.winRate}%', cs)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _buildMiniStatCard('Goals', '${stats.goals}', cs)),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildMiniStatCard('Assists', '${stats.assists}', cs)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _buildMiniStatCard('Preferred Foot', stats.preferredFoot, cs)),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildMiniStatCard('Physical Form', '${stats.form.toInt()}%', cs)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _buildMiniStatCard('Age', '${stats.age} y.o.', cs)),
+                          const SizedBox(width: 10),
+                          Expanded(child: _buildMiniStatCard('MVP Awards', '${stats.mvpCount}', cs)),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      PremiumButton(
+                        text: 'CLOSE PROFILE',
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMiniStatCard(String label, String value, ColorScheme cs) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: PremiumTheme.neonGreen),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white30, letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -189,7 +1176,7 @@ class MatchListScreen extends StatelessWidget {
       case 'FIELD_OWNER':
         return 'FIELD SCHEDULE';
       default:
-        return 'LIVE MATCHES';
+        return 'MATCH LOBBY';
     }
   }
 }

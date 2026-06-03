@@ -7,6 +7,7 @@ import 'create_tournament_screen.dart';
 import 'tournament_details_page.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
+import '../../data/models/tournament.dart';
 
 class TournamentListScreen extends StatefulWidget {
   final int initialIndex;
@@ -20,6 +21,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   late TabController _tabController;
   String? _selectedCity;
   int? _selectedYear;
+  bool _showAdults = true;
 
   final List<String> _kazakhstanCities = [
     'All Cities', 'Astana', 'Almaty', 'Shymkent', 'Karaganda', 'Aktobe', 'Taraz', 'Pavlodar', 'Semey'
@@ -35,6 +37,12 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<AuthProvider>().user;
+      if (user != null && user.roles?.contains('PARENT') == true) {
+        setState(() {
+          _showAdults = false;
+        });
+      }
       _refresh();
       context.read<AcademyProvider>().fetchMyAcademy();
     });
@@ -58,6 +66,71 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  bool _isAdultTournament(Tournament tournament) {
+    final category = tournament.ageCategory.trim().toUpperCase();
+    if (category == 'ADULT' || category == 'OPEN' || category == 'MEN' || category == 'WOMEN') {
+      return true;
+    }
+    
+    // Check if category is a 4-digit number (e.g. 2013)
+    final isYear = RegExp(r'^\d{4}$').hasMatch(category);
+    if (isYear) {
+      final year = int.tryParse(category);
+      if (year != null && year >= 2000 && year <= 2030) {
+        return false; // Youth birth year
+      }
+    }
+    
+    // Check if category starts with U or Y followed by digits (e.g. U13, Y2013, U-13, U 13)
+    if (RegExp(r'^[UY]\d+').hasMatch(category) || RegExp(r'\b[UY][- ]?\d+').hasMatch(category)) {
+      return false;
+    }
+    
+    return true; // Default to adult
+  }
+
+  Widget _buildAgeToggle() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: Row(
+        children: [
+          _buildAgeChip('ADULT', _showAdults, () {
+            if (!_showAdults) {
+              setState(() => _showAdults = true);
+            }
+          }),
+          const SizedBox(width: 8),
+          _buildAgeChip('YOUTH', !_showAdults, () {
+            if (_showAdults) {
+              setState(() => _showAdults = false);
+            }
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgeChip(String label, bool isSelected, VoidCallback onTap) {
+    final cs = Theme.of(context).colorScheme;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) => onTap(),
+      backgroundColor: PremiumTheme.surfaceCard(context),
+      selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+      labelStyle: TextStyle(
+        color: isSelected ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
+        fontSize: 11,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      showCheckmark: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent),
+      ),
+    );
   }
 
   @override
@@ -113,10 +186,13 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       body: Column(
         children: [
           if (isChild) ...[
-            _buildChildGreeting(user.name ?? 'Champion'),
+            _buildChildGreeting(user.name),
             const SizedBox(height: 10),
           ],
-          if (!isChild) _buildFilterBar(),
+          if (!isChild) ...[
+            _buildFilterBar(),
+            _buildAgeToggle(),
+          ],
           Expanded(
             child: Consumer<TournamentProvider>(
               builder: (context, provider, _) {
@@ -126,18 +202,23 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 if (provider.error != null) {
                   return _buildErrorState(provider.error!);
                 }
-                if (provider.tournaments.isEmpty) {
+
+                final tournaments = isChild
+                    ? provider.tournaments
+                    : provider.tournaments.where((t) => _showAdults ? _isAdultTournament(t) : !_isAdultTournament(t)).toList();
+
+                if (tournaments.isEmpty) {
                   return _buildEmptyState();
                 }
 
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  itemCount: provider.tournaments.length + 1,
+                  itemCount: tournaments.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == provider.tournaments.length) {
+                    if (index == tournaments.length) {
                       return const SizedBox(height: 180);
                     }
-                    final tournament = provider.tournaments[index];
+                    final tournament = tournaments[index];
                     return _buildTournamentCard(tournament, isChild);
                   },
                 );

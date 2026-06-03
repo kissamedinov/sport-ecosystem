@@ -3,11 +3,9 @@ import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../teams/providers/team_provider.dart';
 import '../../matches/providers/match_provider.dart';
-import '../../clubs/presentation/screens/club_dashboard_screen.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../quiz/presentation/screens/daily_quiz_screen.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class AdultPlayerDashboard extends StatefulWidget {

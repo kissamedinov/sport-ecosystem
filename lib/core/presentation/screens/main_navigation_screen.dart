@@ -12,6 +12,8 @@ import 'package:mobile/features/football_hub/presentation/screens/football_hub_s
 import 'package:mobile/features/tournaments/presentation/screens/tournament_announcements_screen.dart';
 import 'package:mobile/features/children/presentation/screens/children_activity_screen.dart';
 import 'package:mobile/features/fields/presentation/screens/field_management_screen.dart';
+import 'package:mobile/features/fields/presentation/screens/owner_calendar_screen.dart';
+import 'package:mobile/features/fields/presentation/screens/owner_analytics_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/club_dashboard_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/create_child_profile_screen.dart';
@@ -988,6 +990,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           activeIcon: Icons.calendar_today,
           label: 'Booking',
         );
+    }
+
+    if (role == 'FIELD_OWNER') {
+      return [
+        homeTab,
+        _TabItem(
+          screen: const OwnerCalendarScreen(),
+          icon: Icons.calendar_month_outlined,
+          activeIcon: Icons.calendar_month,
+          label: 'Schedule',
+        ),
+        _TabItem(
+          screen: const OwnerAnalyticsScreen(),
+          icon: Icons.insights_outlined,
+          activeIcon: Icons.insights,
+          label: 'Analytics',
+        ),
+        dynamicTab,
+        profileTab,
+      ];
     }
 
     return [homeTab, tournamentTab, matchTab, dynamicTab, profileTab];

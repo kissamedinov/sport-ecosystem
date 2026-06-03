@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../../lineups/providers/lineup_provider.dart';
 import '../../../lineups/models/lineup.dart';
 import '../../../tournaments/data/models/tournament_match.dart';

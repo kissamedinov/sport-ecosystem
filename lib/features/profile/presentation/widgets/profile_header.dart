@@ -30,6 +30,7 @@ class ProfileHeader extends StatelessWidget {
   String _roleLabel(List<String>? roles) {
     if (roles == null || roles.isEmpty) return 'Member';
     final r = roles.first;
+    if (r == 'FIELD_OWNER') return 'Field Owner';
     if (r.contains('OWNER')) return 'Club Owner';
     if (r.contains('MANAGER')) return 'Club Manager';
     if (r.contains('COACH')) return 'Coach';

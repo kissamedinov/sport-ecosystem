@@ -421,6 +421,11 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       return;
     }
     
+    if (_selectedCoachId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a coach first.')));
+      return;
+    }
+    
     final clubProvider = context.read<ClubProvider>();
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Updating coach...')));
     

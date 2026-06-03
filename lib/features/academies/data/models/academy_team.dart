@@ -23,7 +23,7 @@ class AcademyTeam {
       academyId: json['academy_id'] as String,
       name: json['name'] as String,
       ageGroup: (json['age_group'] ?? json['age_category'] ?? 'Unknown') as String,
-      coachId: json['coach_id'] as String,
+      coachId: (json['coach_id'] as String?) ?? '',
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
