@@ -200,11 +200,17 @@ def add_player_to_team(db: Session, team_id: UUID, player_id: UUID, current_user
         ).first()
         
         if existing:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Player already has an active membership in this team")
+            # Fix player_id if it was missing from a previous insert
+            if not existing.player_id:
+                existing.player_id = player_id
+                db.commit()
+                db.refresh(existing)
+            return existing
 
         new_membership = TeamMembership(
             team_id=team_id,
             player_profile_id=profile.id,
+            player_id=player_id,
             role=MembershipRole.PLAYER,
             status=MembershipStatus.ACTIVE
         )
