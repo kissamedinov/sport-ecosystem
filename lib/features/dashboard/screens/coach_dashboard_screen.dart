@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -169,22 +170,22 @@ class _HomeTab extends StatelessWidget {
                 ),
               SliverToBoxAdapter(
                 child: OrleonSectionHeader(
-                  title: 'My Teams',
-                  action: 'See all',
+                  title: 'coach.teams'.tr(),
+                  action: 'profile.view_all'.tr(),
                   onAction: () {},
                 ),
               ),
               SliverToBoxAdapter(child: _TeamsList(teams: teams)),
-              const SliverToBoxAdapter(
-                child: OrleonSectionHeader(title: 'Upcoming Fixtures'),
+              SliverToBoxAdapter(
+                child: OrleonSectionHeader(title: 'coach.upcoming_fixtures'.tr()),
               ),
               SliverToBoxAdapter(child: _FixturesList(matches: matches)),
-              const SliverToBoxAdapter(
-                child: OrleonSectionHeader(title: 'Trainings This Week'),
+              SliverToBoxAdapter(
+                child: OrleonSectionHeader(title: 'coach.trainings_this_week'.tr()),
               ),
               SliverToBoxAdapter(child: _TrainingsList(trainings: trainings)),
-              const SliverToBoxAdapter(
-                child: OrleonSectionHeader(title: 'Coaching Tools'),
+              SliverToBoxAdapter(
+                child: OrleonSectionHeader(title: 'coach.coaching_tools'.tr()),
               ),
               const SliverToBoxAdapter(child: _CoachingToolsGrid()),
               const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
@@ -267,19 +268,19 @@ class _HeroBlock extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            _menuItem(ctx, Icons.person_outline_rounded, 'My Profile', cs.onSurfaceVariant, () {
+            _menuItem(ctx, Icons.person_outline_rounded, 'profile.my_profile'.tr(), cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProfileScreen()),
               );
             }),
-            _menuItem(ctx, Icons.notifications_outlined, 'Notifications', cs.onSurfaceVariant, () {
+            _menuItem(ctx, Icons.notifications_outlined, 'profile.notifications'.tr(), cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const NotificationScreen()),
               );
             }),
-            _menuItem(ctx, Icons.settings_outlined, 'Settings', cs.onSurfaceVariant, () {
+            _menuItem(ctx, Icons.settings_outlined, 'settings.settings'.tr(), cs.onSurfaceVariant, () {
               Navigator.pop(ctx);
             }),
           ],
@@ -349,10 +350,10 @@ class _HeroBlock extends StatelessWidget {
                   ),
                 ),
               ],
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'COACH  ·  DASHBOARD',
-                  style: TextStyle(
+                  'coach.coach_dashboard'.tr(),
+                  style: const TextStyle(
                     color: PremiumTheme.neonGreen,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -462,7 +463,7 @@ class _HeroBlock extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'coach rating',
+                          'profile.win_rate'.tr(),
                           style: TextStyle(
                             color: cs.onSurfaceVariant,
                             fontSize: 12,
@@ -482,7 +483,7 @@ class _HeroBlock extends StatelessWidget {
               Expanded(
                 child: OrleonStatCard(
                   icon: Icons.auto_graph_rounded,
-                  label: 'Win Rate',
+                  label: 'profile.win_rate'.tr(),
                   value: _pct(perf['win_rate'] ?? perf['winRate']),
                   accent: PremiumTheme.neonGreen,
                 ),
@@ -491,7 +492,7 @@ class _HeroBlock extends StatelessWidget {
               Expanded(
                 child: OrleonStatCard(
                   icon: Icons.sports_soccer_outlined,
-                  label: 'Matches',
+                  label: 'profile.matches_label'.tr(),
                   value: (perf['matches_played'] ?? perf['matches'] ?? 0).toString(),
                   accent: cs.onSurfaceVariant,
                 ),
@@ -500,7 +501,7 @@ class _HeroBlock extends StatelessWidget {
               Expanded(
                 child: OrleonStatCard(
                   icon: Icons.sports_soccer,
-                  label: 'Goals',
+                  label: 'profile.goals_scored'.tr(),
                   value: (perf['goals_scored'] ?? perf['goals'] ?? 0).toString(),
                   accent: PremiumTheme.electricBlue,
                 ),
@@ -509,7 +510,7 @@ class _HeroBlock extends StatelessWidget {
               Expanded(
                 child: OrleonStatCard(
                   icon: Icons.shield_rounded,
-                  label: 'Clean',
+                  label: 'profile.clean_sheets_label'.tr(),
                   value: (perf['clean_sheets'] ?? 0).toString(),
                   accent: PremiumTheme.amber,
                 ),
@@ -598,9 +599,9 @@ class _LineupAlertCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'LINEUP REQUIRED',
-                  style: TextStyle(
+                Text(
+                  'coach.lineup_required'.tr(),
+                  style: const TextStyle(
                     color: PremiumTheme.amber,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -630,9 +631,9 @@ class _LineupAlertCard extends StatelessWidget {
                 color: PremiumTheme.amber,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text(
-                'SUBMIT',
-                style: TextStyle(
+              child: Text(
+                'common.submit'.tr(),
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -661,7 +662,7 @@ class _TeamsList extends StatelessWidget {
     if (teams.isEmpty) {
       return _EmptyPlaceholder(
         icon: Icons.shield_outlined,
-        label: 'No teams assigned yet',
+        label: 'profile.no_teams_assigned'.tr(),
       );
     }
     return Padding(
@@ -779,7 +780,7 @@ class _FixturesList extends StatelessWidget {
     if (matches.isEmpty) {
       return _EmptyPlaceholder(
         icon: Icons.event_outlined,
-        label: 'No upcoming fixtures',
+        label: 'coach.no_upcoming_fixtures'.tr(),
       );
     }
     return Padding(
@@ -896,17 +897,17 @@ class _CoachingToolsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <_ToolItem>[
-      _ToolItem('Lineup', Icons.grid_view_rounded, PremiumTheme.neonGreen,
+      _ToolItem('match.lineup'.tr(), Icons.grid_view_rounded, PremiumTheme.neonGreen,
           () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const LineupScreen()),
               )),
-      _ToolItem('Training Plan', Icons.assignment_outlined, PremiumTheme.electricBlue,
+      _ToolItem('coach.training_plan'.tr(), Icons.assignment_outlined, PremiumTheme.electricBlue,
           () {}),
-      _ToolItem('Performance', Icons.insights_outlined, PremiumTheme.amber,
+      _ToolItem('coach.performance'.tr(), Icons.insights_outlined, PremiumTheme.amber,
           () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const PerformanceScreen()),
               )),
-      _ToolItem('Messages', Icons.chat_bubble_outline, Colors.purpleAccent, () {}),
+      _ToolItem('coach.messages'.tr(), Icons.chat_bubble_outline, Colors.purpleAccent, () {}),
     ];
 
     return Padding(
@@ -1045,7 +1046,7 @@ class _CoachBottomNav extends StatelessWidget {
             Expanded(
               child: _NavItem(
                 icon: Icons.home_rounded,
-                label: 'HOME',
+                label: 'nav.home'.tr(),
                 active: index == 0,
                 onTap: () => onChanged(0),
               ),
@@ -1053,7 +1054,7 @@ class _CoachBottomNav extends StatelessWidget {
             Expanded(
               child: _NavItem(
                 icon: Icons.shield_rounded,
-                label: 'TEAMS',
+                label: 'coach.teams'.tr(),
                 active: index == 1,
                 onTap: () => onChanged(1),
               ),
@@ -1062,7 +1063,7 @@ class _CoachBottomNav extends StatelessWidget {
             Expanded(
               child: _NavItem(
                 icon: Icons.event_available_rounded,
-                label: 'EVENTS',
+                label: 'nav.events'.tr(),
                 active: index == 2,
                 onTap: () => onChanged(2),
               ),
@@ -1070,7 +1071,7 @@ class _CoachBottomNav extends StatelessWidget {
             Expanded(
               child: _NavItem(
                 icon: Icons.person_rounded,
-                label: 'PROFILE',
+                label: 'nav.profile'.tr(),
                 active: index == 3,
                 onTap: () => onChanged(3),
               ),

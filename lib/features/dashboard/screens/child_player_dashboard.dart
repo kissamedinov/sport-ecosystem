@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -39,7 +40,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('FOOTBALL HUB', style: TextStyle(letterSpacing: 2)),
+        title: Text('player.football_hub'.tr(), style: const TextStyle(letterSpacing: 2)),
         actions: [
           Consumer<NotificationProvider>(
             builder: (context, provider, _) {
@@ -85,8 +86,8 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
           for (var req in authProvider.parentRequests) {
             pendingInvites.add(PendingRequestItem(
               id: req['id'],
-              title: 'Parent Link Request',
-              message: '${req['parent_name']} wants to link to your account as a parent.',
+              title: 'player.parent_link_request'.tr(),
+              message: 'player.parent_link_message'.tr(namedArgs: {'name': req['parent_name'].toString()}),
               entityId: req['id'],
               isParentRequest: true,
             ));
@@ -111,8 +112,8 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PremiumHeader(
-                  title: 'Hi, ${(user?.name ?? 'Player').split(' ').first}!',
-                  subtitle: 'YOUTH PLAYER',
+                  title: 'profile.hello'.tr(namedArgs: {'name': (user?.name ?? 'Player').split(' ').first}),
+                  subtitle: 'player.youth_player'.tr(),
                   trailing: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -128,10 +129,10 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const PremiumSectionLabel('ACTION REQUIRED'),
+                      PremiumSectionLabel('player.action_required'.tr()),
                       TextButton(
                         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
-                        child: const Text('See All', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 12)),
+                        child: Text('profile.view_all'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 12)),
                       ),
                     ],
                   ),
@@ -140,10 +141,10 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                 ],
 
                 const SizedBox(height: 24),
-                const PremiumSectionLabel('YOUR NEXT MATCH'),
+                PremiumSectionLabel('player.your_next_match'.tr()),
                 const SizedBox(height: 12),
                 PremiumCard(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Match Details'))),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'match.match_details'.tr()))),
                   child: Row(
                     children: [
                       Container(
@@ -160,12 +161,12 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              nextMatch != null ? 'Match Day!' : 'Tournament Prep',
+                              nextMatch != null ? 'player.match_day'.tr() : 'player.tournament_prep'.tr(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              nextMatch != null ? nextMatch.scheduledAt : 'Train hard, stay ready',
+                              nextMatch != null ? nextMatch.scheduledAt : 'player.train_hard'.tr(),
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
                             ),
                           ],
@@ -184,7 +185,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                       child: _buildStatCard(
                         icon: Icons.shield_rounded,
                         value: teamCount > 0 ? teamProvider.myTeams.first.name.split(' ').first.toUpperCase() : 'NONE',
-                        label: 'TEAM',
+                        label: 'player.team_label'.tr(),
                         accent: PremiumTheme.electricBlue,
                       ),
                     ),
@@ -193,7 +194,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                       child: _buildStatCard(
                         icon: Icons.bolt_rounded,
                         value: 'LVL 5',
-                        label: 'LEVEL',
+                        label: 'player.level'.tr(),
                         accent: PremiumTheme.neonGreen,
                       ),
                     ),
@@ -201,7 +202,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                 ),
 
                 const SizedBox(height: 24),
-                const PremiumSectionLabel('MY ACTIVITY'),
+                PremiumSectionLabel('player.my_activity'.tr()),
                 const SizedBox(height: 12),
 
                 GridView.count(
@@ -214,31 +215,31 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                   children: [
                     _buildActionCard(
                       icon: Icons.emoji_events_rounded,
-                      title: 'TOURNAMENTS',
-                      subtitle: 'Compete & Win',
+                      title: 'nav.tournaments'.tr(),
+                      subtitle: 'player.compete_win'.tr(),
                       accent: Colors.amber,
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
                     ),
                     _buildActionCard(
                       icon: Icons.insert_chart_outlined_rounded,
-                      title: 'MY STATS',
-                      subtitle: 'Track Progress',
+                      title: 'player.my_stats'.tr(),
+                      subtitle: 'player.track_progress'.tr(),
                       accent: PremiumTheme.electricBlue,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'My Statistics'))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'player.my_statistics'.tr()))),
                     ),
                     _buildActionCard(
                       icon: Icons.forum_outlined,
-                      title: 'COACH MSG',
-                      subtitle: 'Read Feedback',
+                      title: 'player.coach_msg'.tr(),
+                      subtitle: 'player.read_feedback'.tr(),
                       accent: PremiumTheme.neonGreen,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Message from Coach'))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'player.message_from_coach'.tr()))),
                     ),
                     _buildActionCard(
                       icon: Icons.fitness_center_rounded,
-                      title: 'TRAINING',
-                      subtitle: 'Daily Schedule',
+                      title: 'academy.training'.tr(),
+                      subtitle: 'player.daily_schedule'.tr(),
                       accent: const Color(0xFFCE93D8),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Training Schedule'))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'player.training_schedule'.tr()))),
                     ),
                   ],
                 ),
@@ -405,7 +406,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                     minimumSize: const Size(80, 32),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  child: const Text('Decline'),
+                  child: Text('notification.decline'.tr()),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -416,7 +417,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                     minimumSize: const Size(80, 32),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  child: const Text('Accept', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('notification.accept'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -449,7 +450,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(accept ? 'Invitation accepted!' : 'Invitation declined.')),
+          SnackBar(content: Text(accept ? 'notification.invitation_accepted'.tr() : 'notification.invitation_declined'.tr())),
         );
         if (!invite.isParentRequest) {
           notificationProvider.markAsRead(invite.id);
@@ -457,7 +458,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Action failed. Please try again.')),
+          SnackBar(content: Text('notification.action_failed'.tr())),
         );
       }
     }
@@ -488,7 +489,7 @@ class TemporaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('Content for $title coming soon!')),
+      body: Center(child: Text('common.coming_soon_content'.tr(namedArgs: {'title': title}))),
     );
   }
 }

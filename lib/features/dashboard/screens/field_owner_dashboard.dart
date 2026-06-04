@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -26,7 +27,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PARTNER HUB'),
+        title: Text('field.partner_hub'.tr()),
         actions: [
           Consumer<NotificationProvider>(
             builder: (context, provider, _) {
@@ -74,29 +75,29 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DashboardHeader(
-              title: 'Welcome, ${user?.name ?? 'Partner'}!',
-              subtitle: 'FIELD OWNER',
+              title: 'field.welcome_partner'.tr(namedArgs: {'name': user?.name ?? 'field.partner'.tr()}),
+              subtitle: 'field.field_owner_dashboard'.tr(),
             ),
             const SizedBox(height: 24),
             DashboardActionCard(
-              title: 'Booking Requests',
-              subtitle: '5 new requests waiting for approval',
+              title: 'field.booking_requests'.tr(),
+              subtitle: 'field.booking_requests_desc'.tr(),
               icon: Icons.book_online,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Booking Requests')));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.booking_requests'.tr())));
               },
             ),
             const SizedBox(height: 16),
             DashboardActionCard(
-              title: 'My Fields',
-              subtitle: 'Manage availability and pricing',
+              title: 'profile.my_fields'.tr(),
+              subtitle: 'field.manage_availability_pricing'.tr(),
               icon: Icons.stadium,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Manage Fields')));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.manage_fields'.tr())));
               },
             ),
             const SizedBox(height: 32),
-            const Text('Management Tools', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('field.management_tools'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             GridView.count(
               shrinkWrap: true,
@@ -107,28 +108,28 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
               childAspectRatio: 2.5,
               children: [
                 DashboardGridAction(
-                  label: 'Calendar',
+                  label: 'field.calendar'.tr(),
                   icon: Icons.calendar_month,
                   color: Colors.blue,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Reservations Calendar'))),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.reservations_calendar'.tr()))),
                 ),
                 DashboardGridAction(
-                  label: 'Earnings',
+                  label: 'field.earnings'.tr(),
                   icon: Icons.attach_money,
                   color: Colors.green,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Earnings Overview'))),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.earnings_overview'.tr()))),
                 ),
                 DashboardGridAction(
-                  label: 'Reviews',
+                  label: 'field.reviews'.tr(),
                   icon: Icons.star_border,
                   color: Colors.orange,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Customer Reviews'))),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.customer_reviews'.tr()))),
                 ),
                 DashboardGridAction(
-                  label: 'Promotions',
+                  label: 'field.promotions'.tr(),
                   icon: Icons.local_offer,
                   color: Colors.purple,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TemporaryScreen(title: 'Promotions'))),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'field.promotions'.tr()))),
                 ),
               ],
             ),

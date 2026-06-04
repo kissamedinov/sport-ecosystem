@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:flutter/services.dart';
@@ -41,23 +42,23 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
                     children: [
                       _buildPrimaryAction(context),
                       const SizedBox(height: 24),
-                      _buildSectionHeader("OPERATIONAL OVERVIEW"),
+                      _buildSectionHeader('organizer.operational_overview'.tr()),
                       const SizedBox(height: 16),
                       _buildStatsGrid(context, provider),
                       const SizedBox(height: 24),
-                      _buildSectionHeader("PENDING APPROVALS"),
+                      _buildSectionHeader('organizer.pending_approvals'.tr()),
                       const SizedBox(height: 12),
                       _buildEmptyPlaceholder(
-                        context, 
-                        "No pending team registrations at the moment.", 
+                        context,
+                        'organizer.no_pending_registrations'.tr(),
                         Icons.assignment_ind_outlined
                       ),
                       const SizedBox(height: 24),
-                      _buildSectionHeader("UPCOMING DEADLINES"),
+                      _buildSectionHeader('organizer.upcoming_deadlines'.tr()),
                       const SizedBox(height: 12),
                       _buildEmptyPlaceholder(
-                        context, 
-                        "Your calendar is clear. No immediate deadlines found.", 
+                        context,
+                        'organizer.calendar_clear'.tr(),
                         Icons.calendar_today_outlined
                       ),
                     ],
@@ -80,9 +81,9 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-        title: const Text(
-          "ORGANIZER HUB",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 2),
+        title: Text(
+          'organizer.hub'.tr(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         background: Container(
           decoration: BoxDecoration(
@@ -136,17 +137,17 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
               child: const Icon(Icons.add_rounded, color: Colors.black, size: 24),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Launch Tournament",
-                    style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
+                    'organizer.launch_tournament'.tr(),
+                    style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                   Text(
-                    "Start your next big event",
-                    style: TextStyle(color: Colors.black54, fontSize: 11, fontWeight: FontWeight.w600),
+                    'organizer.start_next_event'.tr(),
+                    style: const TextStyle(color: Colors.black54, fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -171,17 +172,17 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
     return Row(
       children: [
         _statCard(
-          context, 
-          "ACTIVE", "$active", "TOURNAMENTS", 
-          Icons.emoji_events_rounded, 
+          context,
+          'tournament.status_active'.tr(), "$active", 'nav.tournaments'.tr(),
+          Icons.emoji_events_rounded,
           PremiumTheme.electricBlue,
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen())),
         ),
         const SizedBox(width: 12),
         _statCard(
-          context, 
-          "TOTAL", "48", "TEAMS", 
-          Icons.group_rounded, 
+          context,
+          'organizer.total'.tr(), "48", 'club.teams'.tr(),
+          Icons.group_rounded,
           Colors.purpleAccent,
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TeamManagementScreen())),
         ),
