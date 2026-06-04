@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 import '../data/repositories/club_repository.dart';
 import '../data/models/club_dashboard.dart';
 import '../data/models/career_record.dart';
@@ -15,7 +16,9 @@ class ClubProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  ClubProvider(this._repository);
+  ClubProvider(this._repository) {
+    AuthProvider.onLogoutCallbacks.add(clear);
+  }
 
   ClubDashboard? get dashboard => _dashboard;
   Map<String, dynamic>? get coachDashboard => _coachDashboard;
@@ -73,9 +76,9 @@ class ClubProvider extends ChangeNotifier {
         _dashboard = await _repository.getMyClubDashboard();
       }
     } catch (e) {
+      _dashboard = null; // Prevent stale dashboard leakage across accounts
       final errorStr = e.toString();
-      if (errorStr.contains('404')) {
-        _dashboard = null;
+      if (errorStr.contains('404') || errorStr.contains('403')) {
         _error = null;
       } else {
         _error = errorStr;
@@ -278,6 +281,17 @@ class ClubProvider extends ChangeNotifier {
   }
 
   void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  void clear() {
+    _dashboard = null;
+    _coachDashboard = null;
+    _playerCareer = null;
+    _clubRequests = [];
+    _myInvitations = [];
+    _isLoading = false;
     _error = null;
     notifyListeners();
   }

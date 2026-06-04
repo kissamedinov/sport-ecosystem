@@ -3,6 +3,7 @@ import '../data/repositories/academy_repository.dart';
 import '../data/models/academy.dart';
 import '../data/models/academy_team.dart';
 import '../data/models/crm_models.dart';
+import '../data/models/academy_ranking.dart';
 
 class AcademyProvider extends ChangeNotifier {
   final AcademyRepository _repository;
@@ -17,6 +18,7 @@ class AcademyProvider extends ChangeNotifier {
   List<AcademyBranch> _branches = [];
   AcademyBillingConfig? _billingConfig;
   BillingSummary? _currentBillingReport;
+  List<AcademyRanking> _academyRankings = [];
   
   bool _isLoading = false;
   String? _error;
@@ -32,6 +34,7 @@ class AcademyProvider extends ChangeNotifier {
 
   Academy? get myAcademy => _myAcademy;
   List<Academy> get academies => _academies;
+  List<AcademyRanking> get academyRankings => _academyRankings;
   List<AcademyTeam> get teams => _teams;
   List<AcademyPlayer> get players => _players;
   List<TrainingSession> get sessions => _sessions;
@@ -426,6 +429,20 @@ class AcademyProvider extends ChangeNotifier {
         _childSessions[id] = sessions; // Placeholder logic
       }
       _sessions = sessions; // Also update the main sessions list for the general calendar
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchAcademyRankings() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _academyRankings = await _repository.getAcademyRankings();
     } catch (e) {
       _error = e.toString();
     } finally {

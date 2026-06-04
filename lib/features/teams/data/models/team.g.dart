@@ -10,7 +10,7 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
   id: json['id'] as String,
   name: json['name'] as String,
   city: json['city'] as String,
-  coachId: json['coach_id'] as String,
+  coachId: json['coach_id'] as String?,
   rating: (json['rating'] as num).toInt(),
   matchesPlayed: (json['matches_played'] as num).toInt(),
   wins: (json['wins'] as num).toInt(),

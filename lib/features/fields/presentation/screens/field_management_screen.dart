@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import '../../providers/booking_provider.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
+import '../../data/field_pricing_manager.dart';
 
 class FieldManagementScreen extends StatefulWidget {
   const FieldManagementScreen({super.key});
@@ -14,6 +14,24 @@ class FieldManagementScreen extends StatefulWidget {
 }
 
 class _FieldManagementScreenState extends State<FieldManagementScreen> {
+  late final VoidCallback _managerListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _managerListener = () {
+      if (mounted) {
+        setState(() {});
+      }
+    };
+    FieldPricingManager().addListener(_managerListener);
+  }
+
+  @override
+  void dispose() {
+    FieldPricingManager().removeListener(_managerListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +57,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
               'field.booking_requests_desc'.tr(),
               Icons.book_online,
               PremiumTheme.neonGreen,
-              () {},
+              () => _showBookingRequestsSheet(context),
             ),
             const SizedBox(height: 16),
             _buildActionCard(
@@ -57,7 +75,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
               'field.manual_availability_desc'.tr(),
               Icons.timer_outlined,
               Colors.orange,
-              () {},
+              () => _showManualAvailabilitySheet(context),
             ),
           ],
         ),
@@ -73,6 +91,15 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
   }
 
   Widget _buildStatGrid() {
+    final manager = FieldPricingManager();
+    final rawRevenue = manager.todayRevenue.toInt().toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
+    );
+    final revenueFormatted = '$rawRevenue ₸';
+    
+    final occupancyFormatted = '${(manager.occupancy * 100).toInt()}%';
+
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -81,8 +108,8 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
       mainAxisSpacing: 12,
       childAspectRatio: 2,
       children: [
-        _buildStatItem('Today Revenue', '25,000 ₸', Colors.green),
-        _buildStatItem('Occupancy', '85%', Colors.blue),
+        _buildStatItem('Today Revenue', revenueFormatted, Colors.green),
+        _buildStatItem('Occupancy', occupancyFormatted, Colors.blue),
       ],
     );
   }
@@ -118,6 +145,594 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
         trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
         onTap: onTap,
       ),
+    );
+  }
+
+  void _showBookingRequestsSheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final manager = FieldPricingManager();
+            final requests = manager.pendingRequests;
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.onSurface.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'BOOKING REQUESTS',
+                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: requests.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No booking requests found.',
+                              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            itemCount: requests.length,
+                            itemBuilder: (context, index) {
+                              final req = requests[index];
+                              final String clientName = req['clientName'];
+                              final String field = req['field'];
+                              final String date = req['date'];
+                              final String time = req['time'];
+                              final double price = req['price'];
+                              final String status = req['status'];
+
+                              Color statusColor = Colors.grey;
+                              if (status == 'APPROVED') statusColor = PremiumTheme.neonGreen;
+                              if (status == 'REJECTED') statusColor = Colors.redAccent;
+                              if (status == 'PENDING') statusColor = Colors.orangeAccent;
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF161B22) : Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 16,
+                                              backgroundColor: PremiumTheme.electricBlue.withValues(alpha: 0.15),
+                                              child: Text(
+                                                clientName.substring(0, 1),
+                                                style: const TextStyle(color: PremiumTheme.electricBlue, fontWeight: FontWeight.bold, fontSize: 12),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(clientName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                                Text(field, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+                                          ),
+                                          child: Text(
+                                            status,
+                                            style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 9, letterSpacing: 0.5),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Divider(height: 24, color: Colors.white10),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('DATE & TIME', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                            const SizedBox(height: 2),
+                                            Text('$date, $time', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Text('REVENUE', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '${price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ₸',
+                                              style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    if (status == 'PENDING') ...[
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: OutlinedButton(
+                                              onPressed: () {
+                                                setModalState(() {
+                                                  req['status'] = 'REJECTED';
+                                                });
+                                                manager.notify();
+                                              },
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor: Colors.redAccent,
+                                                side: const BorderSide(color: Colors.redAccent, width: 1),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                              child: const Text('REJECT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                setModalState(() {
+                                                  req['status'] = 'APPROVED';
+                                                });
+                                                manager.todayRevenue += price;
+                                                manager.occupancy = (manager.occupancy + 0.05).clamp(0.0, 1.0);
+                                                manager.notify();
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: PremiumTheme.neonGreen,
+                                                foregroundColor: Colors.black,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              ),
+                                              child: const Text('APPROVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showManualAvailabilitySheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    int selectedDateIndex = 0;
+    String selectedField = 'SAIRAN ARENA';
+
+    final slotsConfig = [
+      '08:00 - 09:30',
+      '10:00 - 11:30',
+      '12:00 - 13:30',
+      '14:00 - 15:30',
+      '16:00 - 17:30',
+      '18:00 - 19:30',
+      '20:00 - 21:30',
+      '22:00 - 23:30',
+      '00:00 - 01:30',
+    ];
+
+    final List<String> fields = [
+      'SAIRAN ARENA',
+      'SPORT CITY PITCHES',
+      'ASTANA ARENA',
+      'DUMAN SPORT COMPLEX',
+      'QAZAQSTAN ATHLETIC COMPLEX',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final manager = FieldPricingManager();
+            
+            final primePct = ((manager.primeTimeMultiplier - 1.0) * 100).round();
+            final weekendPct = ((manager.weekendMultiplier - 1.0) * 100).round();
+            final nightPct = ((1.0 - manager.nightOwlMultiplier) * 100).round();
+
+            final selectedDate = DateTime.now().add(Duration(days: selectedDateIndex));
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.onSurface.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'AVAILABILITY & PRICING',
+                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      children: [
+                        const Text(
+                          'DYNAMIC PRICING ADJUSTMENTS',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF161B22) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Prime-Time Rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(
+                                    '+$primePct%',
+                                    style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              Slider(
+                                value: manager.primeTimeMultiplier,
+                                min: 1.0,
+                                max: 1.5,
+                                divisions: 10,
+                                activeColor: Colors.orange,
+                                inactiveColor: Colors.orange.withValues(alpha: 0.2),
+                                onChanged: (val) {
+                                  setModalState(() {
+                                    manager.primeTimeMultiplier = val;
+                                  });
+                                  manager.notify();
+                                },
+                              ),
+                              const SizedBox(height: 10),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Weekend Rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(
+                                    '+$weekendPct%',
+                                    style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w900, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              Slider(
+                                value: manager.weekendMultiplier,
+                                min: 1.0,
+                                max: 1.6,
+                                divisions: 12,
+                                activeColor: Colors.blue,
+                                inactiveColor: Colors.blue.withValues(alpha: 0.2),
+                                onChanged: (val) {
+                                  setModalState(() {
+                                    manager.weekendMultiplier = val;
+                                  });
+                                  manager.notify();
+                                },
+                              ),
+                              const SizedBox(height: 10),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Night-Owl Discount', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(
+                                    '-$nightPct%',
+                                    style: const TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w900, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              Slider(
+                                value: manager.nightOwlMultiplier,
+                                min: 0.5,
+                                max: 1.0,
+                                divisions: 10,
+                                activeColor: Colors.purpleAccent,
+                                inactiveColor: Colors.purpleAccent.withValues(alpha: 0.2),
+                                onChanged: (val) {
+                                  setModalState(() {
+                                    manager.nightOwlMultiplier = val;
+                                  });
+                                  manager.notify();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        const Text(
+                          'SELECT FIELD',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF161B22) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedField,
+                              isExpanded: true,
+                              dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+                              items: fields.map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setModalState(() {
+                                    selectedField = val;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        const Text(
+                          'SELECT DATE',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 60,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 7,
+                            itemBuilder: (context, index) {
+                              final date = DateTime.now().add(Duration(days: index));
+                              final isSelected = selectedDateIndex == index;
+                              return GestureDetector(
+                                onTap: () {
+                                  setModalState(() {
+                                    selectedDateIndex = index;
+                                  });
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  width: 55,
+                                  margin: const EdgeInsets.only(right: 10),
+                                  decoration: BoxDecoration(
+                                    gradient: isSelected ? PremiumTheme.primaryGradient : null,
+                                    color: isSelected ? null : cs.onSurface.withValues(alpha: 0.04),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isSelected ? Colors.transparent : cs.onSurface.withValues(alpha: 0.05),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][date.weekday - 1],
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: isSelected ? Colors.black : Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${date.day}',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w900,
+                                          color: isSelected ? Colors.black : cs.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        const Text(
+                          'TIME SLOTS (TAP TO TOGGLE BLOCKED STATUS)',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                        ),
+                        const SizedBox(height: 8),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1.35,
+                          ),
+                          itemCount: slotsConfig.length,
+                          itemBuilder: (context, index) {
+                            final time = slotsConfig[index];
+                            final isBlocked = manager.isSlotBlocked(selectedField, selectedDate.day, time);
+
+                            Color cardColor = Colors.transparent;
+                            Color borderColor = cs.onSurface.withValues(alpha: 0.08);
+                            Color textColor = cs.onSurface;
+                            IconData statusIcon = Icons.check_circle_outline_rounded;
+                            Color statusColor = Colors.green;
+
+                            if (isBlocked) {
+                              cardColor = Colors.red.withValues(alpha: 0.1);
+                              borderColor = Colors.redAccent.withValues(alpha: 0.5);
+                              textColor = Colors.redAccent;
+                              statusIcon = Icons.block_rounded;
+                              statusColor = Colors.redAccent;
+                            } else {
+                              cardColor = Colors.green.withValues(alpha: 0.05);
+                              borderColor = Colors.green.withValues(alpha: 0.3);
+                              textColor = cs.onSurface;
+                              statusIcon = Icons.check_circle_rounded;
+                              statusColor = Colors.green;
+                            }
+
+                            return GestureDetector(
+                              onTap: () {
+                                setModalState(() {
+                                  if (isBlocked) {
+                                    manager.unblockSlot(selectedField, selectedDate.day, time);
+                                  } else {
+                                    manager.blockSlot(selectedField, selectedDate.day, time);
+                                  }
+                                });
+                                manager.notify();
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                decoration: BoxDecoration(
+                                  color: cardColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: borderColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      time.split(' - ')[0],
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
+                                        color: textColor,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                    Text(
+                                      '- ${time.split(' - ')[1]}',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(statusIcon, size: 10, color: statusColor),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          isBlocked ? 'BLOCKED' : 'OPEN',
+                                          style: TextStyle(
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.w900,
+                                            color: statusColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -163,7 +778,6 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           ElevatedButton(
             onPressed: () async {
               final provider = context.read<BookingProvider>();
-              // Use a dummy field ID for now or fetch it from a selection
               const dummyFieldId = '00000000-0000-0000-0000-000000000000'; 
               
               final success = await provider.generateFieldSlots(dummyFieldId, {

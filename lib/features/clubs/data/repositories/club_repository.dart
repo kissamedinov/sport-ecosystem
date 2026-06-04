@@ -80,7 +80,8 @@ class ClubRepository {
   }
 
   Future<void> addPlayerToTeam(String teamId, Map<String, dynamic> playerData) async {
-    await _apiClient.post('/clubs/teams/$teamId/players', data: playerData);
+    final playerId = playerData['invited_user_id'];
+    await _apiClient.post('/teams/$teamId/players/$playerId');
   }
 
   Future<void> addClubStaff(String clubId, Map<String, dynamic> staffData) async {

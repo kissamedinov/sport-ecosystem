@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 import '../data/repositories/child_repository.dart';
 import '../models/child.dart';
 
@@ -8,7 +9,9 @@ class ChildProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  ChildProvider(this._repository);
+  ChildProvider(this._repository) {
+    AuthProvider.onLogoutCallbacks.add(clear);
+  }
 
   List<Child> get children => _children;
   bool get isLoading => _isLoading;
@@ -58,5 +61,13 @@ class ChildProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void clear() {
+    _children = [];
+    _activities = [];
+    _awards = [];
+    _error = null;
+    notifyListeners();
   }
 }

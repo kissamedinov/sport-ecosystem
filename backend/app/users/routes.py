@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
 from app.database import get_db
@@ -10,6 +10,35 @@ from app.common.dependencies import get_current_user, require_parent
 from app.auth.security import hash_password
 from app.notifications.models import NotificationType, EntityType
 from app.notifications.service import create_notification
+
+
+def get_user_club_name(db: Session, user_id: UUID) -> Optional[str]:
+    try:
+        from app.clubs.models import Club, ChildProfile, ClubStaff
+        # 1. Check if owner of a club
+        club = db.query(Club).filter(Club.owner_id == user_id).first()
+        if club:
+            return club.name
+            
+        # 2. Check if linked user in ChildProfile
+        child_profile = db.query(ChildProfile).filter(ChildProfile.linked_user_id == user_id).first()
+        if child_profile:
+            club = db.query(Club).filter(Club.id == child_profile.club_id).first()
+            if club:
+                return club.name
+                
+        # 3. Check ClubStaff memberships
+        club_membership = db.query(ClubStaff).filter(
+            ClubStaff.user_id == user_id,
+            ClubStaff.status == "ACTIVE"
+        ).first()
+        if club_membership:
+            club = db.query(Club).filter(Club.id == club_membership.club_id).first()
+            if club:
+                return club.name
+    except Exception as e:
+        print(f"Error resolving club name for user {user_id}: {e}")
+    return None
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -48,7 +77,8 @@ def get_my_children(
                 "phone": child.phone,
                 "onboarding_completed": child.onboarding_completed,
                 "unique_code": child.unique_code,
-                "player_profile_id": child.player_profile_id
+                "player_profile_id": child.player_profile_id,
+                "club_name": get_user_club_name(db, child.id)
             }
 
             response.append(child_data)
@@ -253,7 +283,8 @@ def update_my_profile(
         "avatar_url": current_user.avatar_url,
         "onboarding_completed": current_user.onboarding_completed,
         "unique_code": current_user.unique_code,
-        "player_profile_id": current_user.player_profile_id
+        "player_profile_id": current_user.player_profile_id,
+        "club_name": get_user_club_name(db, current_user.id)
     }
 
 
@@ -315,7 +346,8 @@ def update_user_profile(
         "avatar_url": target_user.avatar_url,
         "onboarding_completed": target_user.onboarding_completed,
         "unique_code": target_user.unique_code,
-        "player_profile_id": target_user.player_profile_id
+        "player_profile_id": target_user.player_profile_id,
+        "club_name": get_user_club_name(db, target_user.id)
     }
 
 
@@ -444,7 +476,8 @@ def create_child_by_parent(
         "date_of_birth": new_child.date_of_birth,
         "phone": new_child.phone,
         "onboarding_completed": new_child.onboarding_completed,
-        "created_at": new_child.created_at
+        "created_at": new_child.created_at,
+        "club_name": get_user_club_name(db, new_child.id)
     }
 
 
@@ -490,11 +523,13 @@ def update_user(
     roles_list = db.execute(stmt).scalars().all()
     roles = [r.value for r in roles_list]
     
-    return {
+    res = {
         **target_user.__dict__,
         "roles": roles,
         "role": roles[0] if roles else "PLAYER_ADULT"
     }
+    res["club_name"] = get_user_club_name(db, target_user.id)
+    return res
 
 
 @router.get("/{user_id}/profile")

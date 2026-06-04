@@ -22,7 +22,15 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
   @override
   void initState() {
     super.initState();
-    _leaderboardFuture = _apiService.getTopScorers(widget.tournamentId);
+    // MOCK DATA for UI visual demonstration to bypass backend
+    _leaderboardFuture = Future.value([
+      TopScorer(playerId: 'p1', name: 'Cristiano Ronaldo', teamName: 'Golden Eagles', goals: 12),
+      TopScorer(playerId: 'p2', name: 'Lionel Messi', teamName: 'Blue Lions', goals: 9),
+      TopScorer(playerId: 'p3', name: 'Kylian Mbappe', teamName: 'Red Dragons', goals: 7),
+      TopScorer(playerId: 'p4', name: 'Erling Haaland', teamName: 'Green Tigers', goals: 5),
+      TopScorer(playerId: 'p5', name: 'Neymar Jr', teamName: 'Silver Hawks', goals: 3),
+    ]);
+    // _leaderboardFuture = _apiService.getTopScorers(widget.tournamentId);
   }
 
   @override

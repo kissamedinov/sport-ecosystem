@@ -17,4 +17,10 @@ class QuizRepository {
       'total_questions': 7,
     });
   }
+
+  Future<List<QuizLeaderboardEntry>> getQuizLeaderboard() async {
+    final response = await _apiClient.get('/quizzes/leaderboard');
+    final List<dynamic> data = response.data;
+    return data.map((json) => QuizLeaderboardEntry.fromJson(json)).toList();
+  }
 }

@@ -10,7 +10,6 @@ import '../../../auth/providers/auth_provider.dart';
 import 'package:mobile/features/admin/presentation/screens/admin_hub_screen.dart';
 import 'create_child_profile_screen.dart';
 import 'invite_member_screen.dart';
-import 'invitations_screen.dart';
 import '../../../notifications/providers/notification_provider.dart';
 import '../../../notifications/presentation/screens/notification_screen.dart';
 import '../../../media/presentation/screens/media_gallery_screen.dart';
@@ -1967,8 +1966,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.surfaceCard(context),
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: PremiumTheme.surfaceCard(dialogContext),
         title: Text('club.request_club_creation'.tr()),
         content: SingleChildScrollView(
           child: Column(
@@ -1981,7 +1980,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text('common.cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.isNotEmpty && cityController.text.isNotEmpty) {
@@ -1990,7 +1989,21 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   'city': cityController.text,
                   'address': addressController.text,
                 });
-                if (success && context.mounted) Navigator.pop(context);
+                if (success && dialogContext.mounted) {
+                  Navigator.pop(dialogContext); // Close dialog
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('club.club_request_sent'.tr()),
+                        backgroundColor: PremiumTheme.neonGreen,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(); // Return to previous screen
+                    }
+                  }
+                }
               }
             },
             child: Text('common.submit'.tr()),

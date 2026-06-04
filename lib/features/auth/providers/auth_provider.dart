@@ -120,10 +120,19 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  static final List<VoidCallback> onLogoutCallbacks = [];
+
   Future<void> logout() async {
     await _repository.logout();
     _user = null;
     notifyListeners();
+    for (final callback in onLogoutCallbacks) {
+      try {
+        callback();
+      } catch (e) {
+        // ignore errors
+      }
+    }
   }
 
   Future<List<dynamic>> fetchMyChildren() async {

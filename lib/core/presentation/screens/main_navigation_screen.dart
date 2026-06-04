@@ -13,6 +13,8 @@ import 'package:mobile/features/football_hub/presentation/screens/football_hub_s
 import 'package:mobile/features/tournaments/presentation/screens/tournament_announcements_screen.dart';
 import 'package:mobile/features/children/presentation/screens/children_activity_screen.dart';
 import 'package:mobile/features/fields/presentation/screens/field_management_screen.dart';
+import 'package:mobile/features/fields/presentation/screens/owner_calendar_screen.dart';
+import 'package:mobile/features/fields/presentation/screens/owner_analytics_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/club_dashboard_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/create_child_profile_screen.dart';
@@ -514,86 +516,96 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 16,
+            bottom: 32 + MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                Text(
+                  'nav.quick_actions'.tr().toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildQuickAction(
+                  ctx,
+                  Icons.group_add_outlined,
+                  'nav.invite_member'.tr(),
+                  PremiumTheme.electricBlue,
+                  () {
+                    Navigator.pop(ctx);
+                    if (clubId != null) {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => InviteMemberScreen(clubId: clubId),
+                      ));
+                    }
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.sports_soccer_outlined,
+                  'nav.add_player_profile'.tr(),
+                  PremiumTheme.neonGreen,
+                  () {
+                    Navigator.pop(ctx);
+                    if (clubId != null) {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => CreateChildProfileScreen(clubId: clubId),
+                      ));
+                    }
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.shield_outlined,
+                  'nav.create_team'.tr(),
+                  Colors.tealAccent,
+                  () {
+                    Navigator.pop(ctx);
+                    _showCreateTeamDialog();
+                  },
+                ),
+                _buildQuickAction(
+                  ctx,
+                  Icons.account_balance_outlined,
+                  'nav.add_academy'.tr(),
+                  Colors.amber,
+                  () {
+                    Navigator.pop(ctx);
+                    _showCreateAcademyDialog();
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'nav.quick_actions'.tr().toUpperCase(),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildQuickAction(
-              ctx,
-              Icons.group_add_outlined,
-              'nav.invite_member'.tr(),
-              PremiumTheme.electricBlue,
-              () {
-                Navigator.pop(ctx);
-                if (clubId != null) {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => InviteMemberScreen(clubId: clubId),
-                  ));
-                }
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.sports_soccer_outlined,
-              'nav.add_player_profile'.tr(),
-              PremiumTheme.neonGreen,
-              () {
-                Navigator.pop(ctx);
-                if (clubId != null) {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => CreateChildProfileScreen(clubId: clubId),
-                  ));
-                }
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.shield_outlined,
-              'nav.create_team'.tr(),
-              Colors.tealAccent,
-              () {
-                Navigator.pop(ctx);
-                _showCreateTeamDialog();
-              },
-            ),
-            _buildQuickAction(
-              ctx,
-              Icons.account_balance_outlined,
-              'nav.add_academy'.tr(),
-              Colors.amber,
-              () {
-                Navigator.pop(ctx);
-                _showCreateAcademyDialog();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -989,6 +1001,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           activeIcon: Icons.calendar_today,
           label: 'nav.booking'.tr(),
         );
+    }
+
+    if (role == 'FIELD_OWNER') {
+      return [
+        homeTab,
+        _TabItem(
+          screen: const OwnerCalendarScreen(),
+          icon: Icons.calendar_month_outlined,
+          activeIcon: Icons.calendar_month,
+          label: 'Schedule',
+        ),
+        _TabItem(
+          screen: const OwnerAnalyticsScreen(),
+          icon: Icons.insights_outlined,
+          activeIcon: Icons.insights,
+          label: 'Analytics',
+        ),
+        dynamicTab,
+        profileTab,
+      ];
     }
 
     return [homeTab, tournamentTab, matchTab, dynamicTab, profileTab];

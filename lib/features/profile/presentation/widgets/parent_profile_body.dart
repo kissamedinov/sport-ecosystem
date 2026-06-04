@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
@@ -8,6 +9,7 @@ import 'package:mobile/features/clubs/data/models/child_profile.dart';
 import 'package:mobile/features/matches/data/models/match.dart';
 import 'package:mobile/features/player_stats/presentation/screens/player_stats_screen.dart';
 import 'package:mobile/features/matches/presentation/screens/match_events_screen.dart';
+import 'package:mobile/features/children/providers/child_provider.dart';
 
 class ParentProfileBody extends StatefulWidget {
   const ParentProfileBody({super.key});
@@ -26,6 +28,24 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
   void initState() {
     super.initState();
     _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChildProvider>().addListener(_onChildProviderChanged);
+    });
+  }
+
+  void _onChildProviderChanged() {
+    if (mounted) {
+      _refresh();
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      context.read<ChildProvider>().removeListener(_onChildProviderChanged);
+    } catch (_) {}
+    _emailController.dispose();
+    super.dispose();
   }
 
   void _loadData() {
@@ -54,6 +74,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
       if (mounted) {
         Navigator.pop(context); // Close bottom sheet
         _emailController.clear();
+        context.read<ChildProvider>().fetchChildren();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message'] ?? 'profile.link_request_sent'.tr()),

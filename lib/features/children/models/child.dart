@@ -46,7 +46,7 @@ class Child {
       age: calculatedAge,
       dateOfBirth: dob,
       email: json['email'] ?? '',
-      teamName: json['team_name'] ?? json['teamName'] ?? 'No Team',
+      teamName: json['club_name'] ?? json['team_name'] ?? json['teamName'] ?? 'без клуба',
       matchesPlayed: json['matchesPlayed'] ?? 0,
       goals: json['goals'] ?? 0,
       assists: json['assists'] ?? 0,

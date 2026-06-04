@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../../../core/theme/premium_theme.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/data/models/user.dart';
+import '../widgets/profile_header.dart';
+import '../widgets/field_owner_profile_body.dart';
+import 'edit_profile_screen.dart';
 
 class FieldOwnerProfile extends StatelessWidget {
   final User user;
@@ -10,79 +14,61 @@ class FieldOwnerProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          const CircleAvatar(radius: 50, child: Icon(Icons.stadium, size: 50)),
-          const SizedBox(height: 16),
-          Text(user.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text('club.field_owner_label'.tr(), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          _buildFinanceSummary(context),
-          const SizedBox(height: 24),
-          _buildManagedFields(context),
-          const SizedBox(height: 24),
-          _buildLogoutCard(context),
+    return Scaffold(
+      backgroundColor: PremiumTheme.surfaceBase(context),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          'profile.profile_title'.tr().toUpperCase(),
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            fontSize: 16,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
+            tooltip: 'Quit',
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
+          const SizedBox(width: 8),
         ],
       ),
-    );
-  }
-
-  Widget _buildLogoutCard(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.logout, color: Colors.red),
-        title: Text('profile.logout'.tr(), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-        onTap: () async {
-          await context.read<AuthProvider>().logout();
-        },
-      ),
-    );
-  }
-
-  Widget _buildFinanceSummary(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildStatItem('profile.my_fields'.tr(), '2'),
-            _buildStatItem('field.my_bookings'.tr(), '156'),
-            _buildStatItem('profile.total_revenue'.tr(), '850K ₸'),
-          ],
+      body: Container(
+        color: PremiumTheme.surfaceBase(context),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ProfileHeader(
+                user: user,
+                onEdit: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                  );
+                },
+              ),
+              Container(
+                color: PremiumTheme.surfaceBase(context),
+                child: const Column(
+                  children: [
+                    SizedBox(height: 4),
+                    FieldOwnerProfileBody(),
+                    SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget _buildManagedFields(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('profile.my_fields'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        const ListTile(
-          leading: Icon(Icons.stadium_outlined),
-          title: Text('Emirates Stadium (Mock)'),
-          subtitle: Text('Address: Isatay Batyr 141'),
-        ),
-        const ListTile(
-          leading: Icon(Icons.stadium_outlined),
-          title: Text('Academy Training Pitch'),
-          subtitle: Text('Address: Abay Ave 45'),
-        ),
-      ],
     );
   }
 }

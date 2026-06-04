@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 import '../data/repositories/notification_repository.dart';
 import '../../clubs/data/repositories/club_repository.dart';
 import '../data/models/notification.dart';
@@ -11,7 +12,9 @@ class NotificationProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  NotificationProvider(this._repository, this._clubRepository);
+  NotificationProvider(this._repository, this._clubRepository) {
+    AuthProvider.onLogoutCallbacks.add(clear);
+  }
 
   List<NotificationModel> get notifications => _notifications;
   int get unreadCount => _unreadCount;
@@ -97,5 +100,12 @@ class NotificationProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  void clear() {
+    _notifications = [];
+    _unreadCount = 0;
+    _error = null;
+    notifyListeners();
   }
 }

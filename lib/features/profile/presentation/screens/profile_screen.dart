@@ -27,6 +27,7 @@ class ProfileScreen extends StatelessWidget {
   void _showProfileMenu(BuildContext context, AuthProvider auth) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -34,52 +35,61 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx) {
         final muted = Theme.of(ctx).colorScheme.onSurfaceVariant;
         final divider = Theme.of(ctx).dividerColor;
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: divider,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 16,
+              bottom: 32 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildMenuItem(Icons.edit_rounded, 'profile.edit_profile'.tr(), muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
+                  }),
+                  _buildMenuItem(Icons.notifications_outlined, 'profile.notifications'.tr(), muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+                  }),
+                  _buildMenuItem(Icons.calendar_month_outlined, 'profile.my_bookings'.tr(), muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
+                  }),
+                  _buildMenuItem(Icons.settings_outlined, 'profile.settings'.tr(), muted, () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  }),
+                  _buildMenuItem(Icons.language_rounded, 'profile.language'.tr(), muted, () {
+                    Navigator.pop(ctx);
+                    LanguagePickerSheet.show(context);
+                  }),
+                  Divider(color: divider, height: 24),
+                  _buildMenuItem(Icons.logout_rounded, 'profile.logout'.tr(), Colors.redAccent, () async {
+                    Navigator.pop(ctx);
+                    await auth.logout();
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    }
+                  }),
+                ],
               ),
-              const SizedBox(height: 20),
-              _buildMenuItem(Icons.edit_rounded, 'profile.edit_profile'.tr(), muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
-              }),
-              _buildMenuItem(Icons.notifications_outlined, 'profile.notifications'.tr(), muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-              }),
-              _buildMenuItem(Icons.calendar_month_outlined, 'profile.my_bookings'.tr(), muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
-              }),
-              _buildMenuItem(Icons.settings_outlined, 'profile.settings'.tr(), muted, () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              }),
-              _buildMenuItem(Icons.language_rounded, 'profile.language'.tr(), muted, () {
-                Navigator.pop(ctx);
-                LanguagePickerSheet.show(context);
-              }),
-              Divider(color: divider, height: 24),
-              _buildMenuItem(Icons.logout_rounded, 'profile.logout'.tr(), Colors.redAccent, () async {
-                Navigator.pop(ctx);
-                await auth.logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacementNamed('/login');
-                }
-              }),
-            ],
+            ),
           ),
         );
       },
@@ -117,8 +127,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
-    final clubProvider = context.watch<ClubProvider>();
-    final clubName = clubProvider.dashboard?.club.name;
 
     if (user == null) {
       return Scaffold(
@@ -128,6 +136,9 @@ class ProfileScreen extends StatelessWidget {
     }
 
     final roles = user.roles ?? [];
+    final clubProvider = context.watch<ClubProvider>();
+    final isClubStaff = roles.contains('CLUB_OWNER') || roles.contains('CLUB_MANAGER') || roles.contains('ADMIN');
+    final clubName = isClubStaff ? clubProvider.dashboard?.club.name : null;
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),

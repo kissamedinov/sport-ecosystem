@@ -510,3 +510,7 @@ def get_players_activities(db: Session, player_ids: List[UUID]) -> List[Training
     ).order_by(TrainingSession.date, TrainingSession.start_time).all()
 
     return sessions
+
+def get_academy_rankings(db: Session) -> List[AcademyRanking]:
+    return db.query(AcademyRanking).order_by(AcademyRanking.points.desc()).all()
+

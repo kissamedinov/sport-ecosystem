@@ -66,6 +66,9 @@ def migrate_db():
             # Fix tournament_standings constraints
             conn.execute(text("ALTER TABLE tournament_standings ADD COLUMN IF NOT EXISTS division_id UUID;"))
             
+            # Add missing division_id column to matches table
+            conn.execute(text("ALTER TABLE matches ADD COLUMN IF NOT EXISTS division_id UUID;"))
+            
             print("Columns added and constraints fixed")
         except Exception as e:
             print(f"Error during migration: {e}")

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/auth/providers/auth_provider.dart';
 import '../data/repositories/team_repository.dart';
 import '../data/models/team.dart';
 
@@ -10,7 +11,9 @@ class TeamProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  TeamProvider(this._repository);
+  TeamProvider(this._repository) {
+    AuthProvider.onLogoutCallbacks.add(clear);
+  }
 
   List<Team> get teams => _teams;
   List<Team> get myTeams => _myTeams;
@@ -129,6 +132,14 @@ class TeamProvider extends ChangeNotifier {
 
   void _setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void clear() {
+    _teams = [];
+    _myTeams = [];
+    _rankings = [];
+    _error = null;
     notifyListeners();
   }
 }

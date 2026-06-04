@@ -31,6 +31,7 @@ class ProfileHeader extends StatelessWidget {
   String _roleLabel(List<String>? roles) {
     if (roles == null || roles.isEmpty) return 'profile.member'.tr();
     final r = roles.first;
+    if (r == 'FIELD_OWNER') return 'profile.role_owner'.tr();
     if (r.contains('OWNER')) return 'profile.role_owner'.tr();
     if (r.contains('MANAGER')) return 'profile.role_manager'.tr();
     if (r.contains('COACH')) return 'profile.role_coach'.tr();
@@ -177,12 +178,22 @@ class ProfileHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      clubName != null ? '$roleLabel  ·  $clubName' : roleLabel,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: onSurfaceMuted,
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final displayClub = clubName ?? user.clubName;
+                        final isPlayer = roleLabel.toLowerCase().contains('player');
+                        final clubLabel = (displayClub != null && displayClub.trim().isNotEmpty)
+                            ? displayClub.trim()
+                            : (isPlayer ? 'без клуба' : null);
+                        final headerSub = clubLabel != null ? '$roleLabel  ·  $clubLabel' : roleLabel;
+                        return Text(
+                          headerSub,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: onSurfaceMuted,
+                          ),
+                        );
+                      },
                     ),
                     if (age != null) ...[
                       const SizedBox(height: 2),

@@ -2,6 +2,7 @@ import '../../../../core/api/api_client.dart';
 import '../models/academy.dart';
 import '../models/academy_team.dart';
 import '../models/crm_models.dart';
+import '../models/academy_ranking.dart';
 
 class AcademyRepository {
   final ApiClient _apiClient;
@@ -171,5 +172,11 @@ class AcademyRepository {
     });
     final List<dynamic> data = response.data;
     return data.map((json) => TrainingSession.fromJson(json)).toList();
+  }
+
+  Future<List<AcademyRanking>> getAcademyRankings() async {
+    final response = await _apiClient.get('/academies/rankings');
+    final List<dynamic> data = response.data;
+    return data.map((json) => AcademyRanking.fromJson(json)).toList();
   }
 }
