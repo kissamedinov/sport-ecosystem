@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/club_provider.dart';
@@ -20,7 +21,7 @@ class _AdminClubRequestsScreenState extends State<AdminClubRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Club Moderation')),
+      appBar: AppBar(title: Text('club.moderation'.tr())),
       body: Consumer<ClubProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.clubRequests.isEmpty) {
@@ -28,7 +29,7 @@ class _AdminClubRequestsScreenState extends State<AdminClubRequestsScreen> {
           }
 
           if (provider.clubRequests.isEmpty) {
-            return const Center(child: Text('No requests found'));
+            return Center(child: Text('club.no_requests'.tr()));
           }
 
           return ListView.builder(
@@ -39,26 +40,26 @@ class _AdminClubRequestsScreenState extends State<AdminClubRequestsScreen> {
               return Card(
                 child: ExpansionTile(
                   title: Text(request.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${request.city} | Status: ${request.status.name.toUpperCase()}'),
+                  subtitle: Text('${request.city} | ${'common.status'.tr()}: ${request.status.name.toUpperCase()}'),
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Address: ${request.address}'),
-                          Text('Created By: ${request.createdBy.substring(0, 8)}...'),
+                          Text('${'common.address'.tr()}: ${request.address}'),
+                          Text('${'admin.created_by'.tr()}: ${request.createdBy.substring(0, 8)}...'),
                           if (request.status == RequestStatus.pending)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton(
                                   onPressed: () => provider.approveClubRequest(request.id),
-                                  child: const Text('Approve', style: TextStyle(color: Colors.green)),
+                                  child: Text('admin.approve'.tr(), style: const TextStyle(color: Colors.green)),
                                 ),
                                 TextButton(
                                   onPressed: () => provider.rejectClubRequest(request.id.toString()),
-                                  child: const Text('Reject', style: TextStyle(color: Colors.red)),
+                                  child: Text('admin.reject'.tr(), style: const TextStyle(color: Colors.red)),
                                 ),
                               ],
                             ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
@@ -32,13 +33,13 @@ class AcademyManagementScreen extends StatelessWidget {
         children: [
           _buildAcademyDetails(context),
           const SizedBox(height: 32),
-          Text('TEAMS IN THIS BRANCH',
+          Text('club.teams_in_branch'.tr(),
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 2)),
           const SizedBox(height: 16),
           if (academyTeams.isEmpty)
             Center(child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
-              child: Text('No teams registered in this academy yet.', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2))),
+              child: Text('club.no_teams_in_academy'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2))),
             ))
           else
             ...academyTeams.map((team) => _buildTeamCard(context, team)),
@@ -81,8 +82,8 @@ class AcademyManagementScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSimpleStat(context, 'TEAMS', academyTeamsCount.toString()),
-              _buildSimpleStat(context, 'PLAYERS', academy.playersCount?.toString() ?? '0'),
+              _buildSimpleStat(context, 'club.teams'.tr().toUpperCase(), academyTeamsCount.toString()),
+              _buildSimpleStat(context, 'club.players'.tr().toUpperCase(), academy.playersCount?.toString() ?? '0'),
             ],
           ),
         ],

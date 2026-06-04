@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -57,7 +58,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch social link')),
+          SnackBar(content: Text('team.could_not_launch'.tr())),
         );
       }
     }
@@ -83,7 +84,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     
     if (children.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add a child profile first in your profile settings.')),
+        SnackBar(content: Text('team.add_child_first'.tr())),
       );
       return;
     }
@@ -99,9 +100,9 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Child',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              'team.select_child'.tr(),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ...children.map((child) => ListTile(
@@ -124,7 +125,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trial request sent successfully!')),
+        SnackBar(content: Text('team.trial_sent'.tr())),
       );
       _loadTeam();
     }
@@ -158,22 +159,22 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                     _buildCoachActions(team),
                   _buildTrialAction(isApproved, isPending),
                   const SizedBox(height: 24),
-                  _buildSectionTitle('TEAM PERFORMANCE'),
+                  _buildSectionTitle('team.team_performance'.tr()),
                   const SizedBox(height: 12),
                   _buildStatsCard(team),
                   const SizedBox(height: 24),
-                  _buildSectionTitle('TRAINING SCHEDULE'),
+                  _buildSectionTitle('team.training_schedule'.tr()),
                   const SizedBox(height: 12),
                   _buildScheduleCard(team),
                   const SizedBox(height: 24),
-                  _buildSectionTitle('RECENT MATCHES'),
+                  _buildSectionTitle('team.recent_matches'.tr()),
                   const SizedBox(height: 12),
                   if (team.recentMatches.isEmpty)
-                    const Center(child: Text('No recent matches recorded'))
+                    Center(child: Text('team.no_recent_matches'.tr()))
                   else
                     ...team.recentMatches.map((match) => _buildMatchTile(match, team.id)),
                   const SizedBox(height: 24),
-                  _buildSectionTitle('ROSTER'),
+                  _buildSectionTitle('team.roster'.tr()),
                   const SizedBox(height: 12),
                   _buildRosterSection(team, isApproved),
                   const SizedBox(height: 80), // Space for button
@@ -264,8 +265,8 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Coach Dashboard', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text('$pendingCount pending requests', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
+                Text('team.coach_dashboard'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text('team.pending_requests'.tr(namedArgs: {'count': pendingCount.toString()}), style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
               ],
             ),
           ),
@@ -280,7 +281,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
               minimumSize: const Size(0, 32),
             ),
-            child: const Text('View All'),
+            child: Text('team.view_all'.tr()),
           ),
         ],
       ),
@@ -303,10 +304,10 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Pending Trial Requests', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text('team.pending_trials'.tr(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               if (pendingRequests.isEmpty)
-                const Expanded(child: Center(child: Text('No pending requests')))
+                Expanded(child: Center(child: Text('team.no_pending'.tr())))
               else
                 Expanded(
                   child: ListView.builder(
@@ -318,7 +319,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
                           title: Text(req.player?.name ?? 'Candidate ${index + 1}'),
-                          subtitle: Text(req.childProfileId != null ? 'Apply by Parent' : 'Apply by Player'),
+                          subtitle: Text(req.childProfileId != null ? 'team.apply_by_parent'.tr() : 'team.apply_by_player'.tr()),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -365,11 +366,11 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.green.withOpacity(0.3)),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 12),
-            Text('You are an active member', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            const Icon(Icons.check_circle, color: Colors.green),
+            const SizedBox(width: 12),
+            Text('team.active_member'.tr(), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           ],
         ),
       );
@@ -384,17 +385,17 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.orange.withOpacity(0.3)),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            Icon(Icons.hourglass_empty, color: Colors.orange),
-            SizedBox(height: 8),
+            const Icon(Icons.hourglass_empty, color: Colors.orange),
+            const SizedBox(height: 8),
             Text(
-              'TRIAL REQUEST PENDING',
-              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              'team.trial_pending'.tr(),
+              style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
             ),
             Text(
-              'Coach will contact you soon',
-              style: TextStyle(color: Colors.orange, fontSize: 12),
+              'team.coach_contact_soon'.tr(),
+              style: const TextStyle(color: Colors.orange, fontSize: 12),
             ),
           ],
         ),
@@ -411,9 +412,9 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
       ),
-      child: const Text(
-        'ЗАПИСАТЬСЯ НА ПРОБНУЮ ТРЕНИРОВКУ',
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+      child: Text(
+        'team.join_trial'.tr(),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.1),
       ),
     ).animate().scale(delay: 200.ms);
   }
@@ -432,7 +433,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('CURRENT FORM', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                Text('team.current_form'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                 TeamFormIndicator(form: team.form, size: 28),
               ],
             ),
@@ -440,9 +441,9 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('RATING', team.rating.toString(), Colors.orange),
-                _buildStatItem('WINS', team.wins.toString(), Colors.green),
-                _buildStatItem('LOSSES', team.losses.toString(), Colors.red),
+                _buildStatItem('player.rating'.tr().toUpperCase(), team.rating.toString(), Colors.orange),
+                _buildStatItem('team.wins'.tr().toUpperCase(), team.wins.toString(), Colors.green),
+                _buildStatItem('team.losses'.tr().toUpperCase(), team.losses.toString(), Colors.red),
               ],
             ),
           ],
@@ -463,15 +464,15 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.location_on, color: Colors.blue),
-              title: const Text('Location', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text('team.location'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(team.city, style: const TextStyle(fontSize: 13)),
             ),
             const Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.calendar_today, color: Colors.blue),
-              title: const Text('Training Times', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('Check back for specific schedule or contact coach', style: TextStyle(fontSize: 12)),
+              title: Text('team.training_times'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('team.training_contact'.tr(), style: const TextStyle(fontSize: 12)),
             ),
           ],
         ),
@@ -496,7 +497,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
               Icon(Icons.lock_outline, color: Colors.grey[400]),
               const SizedBox(height: 8),
               Text(
-                'Full roster visible after trial approval',
+                'team.roster_locked'.tr(),
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
@@ -508,8 +509,8 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     return Column(
       children: team.players.map((p) => ListTile(
         leading: CircleAvatar(child: Text(p.player?.name.substring(0, 1) ?? '?')),
-        title: Text(p.player?.name ?? 'Unknown Player'),
-        subtitle: Text(p.joinStatus ?? 'Member'),
+        title: Text(p.player?.name ?? 'common.unknown'.tr()),
+        subtitle: Text(p.joinStatus ?? 'profile.member'.tr()),
       )).toList(),
     );
   }
@@ -561,7 +562,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
             child: Text(result, style: TextStyle(color: resultColor, fontWeight: FontWeight.bold)),
           ),
         ),
-        title: Text(isHome ? 'vs Rival' : 'at Rival', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text(isHome ? 'team.vs_rival'.tr() : 'team.at_rival'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         subtitle: Text(match.scheduledAt.split('T')[0], style: const TextStyle(fontSize: 11)),
         trailing: Text('$teamScore - $opponentScore', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),

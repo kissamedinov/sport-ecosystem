@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/team_provider.dart';
@@ -24,7 +25,7 @@ class _TeamLeaderboardScreenState extends State<TeamLeaderboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GLOBAL RANKINGS'),
+        title: Text('team.global_rankings'.tr()),
         elevation: 0,
       ),
       body: Consumer<TeamProvider>(
@@ -40,10 +41,10 @@ class _TeamLeaderboardScreenState extends State<TeamLeaderboardScreen> {
                 children: [
                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
                    const SizedBox(height: 16),
-                   Text('Error: ${provider.error}'),
+                   Text('${'common.error'.tr()}: ${provider.error}'),
                    ElevatedButton(
                      onPressed: () => provider.fetchTeamRankings(),
-                     child: const Text('Retry'),
+                     child: Text('team.retry'.tr()),
                    ),
                 ],
               ),
@@ -51,7 +52,7 @@ class _TeamLeaderboardScreenState extends State<TeamLeaderboardScreen> {
           }
 
           if (provider.rankings.isEmpty) {
-            return const Center(child: Text('No team rankings available.'));
+            return Center(child: Text('team.no_rankings'.tr()));
           }
 
           return RefreshIndicator(
@@ -127,7 +128,7 @@ class _TeamLeaderboardScreenState extends State<TeamLeaderboardScreen> {
             const SizedBox(width: 12),
             const Icon(Icons.groups, size: 12, color: Colors.grey),
             const SizedBox(width: 4),
-            Text(team.ageCategory ?? 'Open', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(team.ageCategory ?? 'team.open'.tr(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
         trailing: Column(
@@ -142,9 +143,9 @@ class _TeamLeaderboardScreenState extends State<TeamLeaderboardScreen> {
                 color: Colors.orangeAccent[400],
               ),
             ),
-            const Text(
-              'ELO RATING',
-              style: TextStyle(fontSize: 9, color: Colors.grey),
+            Text(
+              'team.elo_rating'.tr(),
+              style: const TextStyle(fontSize: 9, color: Colors.grey),
             ),
           ],
         ),

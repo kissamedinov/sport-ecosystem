@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TeamListScreen extends StatelessWidget {
@@ -6,8 +7,8 @@ class TeamListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Teams')),
-      body: const Center(child: Text('Team List Coming Soon')),
+      appBar: AppBar(title: Text('team.my_teams'.tr())),
+      body: Center(child: Text('team.team_coming_soon'.tr())),
     );
   }
 }
