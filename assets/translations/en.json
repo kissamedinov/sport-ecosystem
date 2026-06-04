@@ -1128,6 +1128,36 @@
     "daily_streak_day": "DAILY STREAK: {streak} DAY",
     "daily_streak_days": "DAILY STREAK: {streak} DAYS",
     "streak_maintain": "Get 5+ correct answers to maintain streak!",
-    "connection_error": "CONNECTION ERROR"
+    "connection_error": "CONNECTION ERROR",
+    "global_leaders": "GLOBAL LEADERS",
+    "leaderboard_title": "QUIZ LEADERBOARD"
+  },
+  "hub": {
+    "football_hub": "FOOTBALL HUB",
+    "skills_arena": "SKILLS ARENA",
+    "global_rankings": "GLOBAL RANKINGS",
+    "top_academies": "TOP ACADEMIES",
+    "daily_challenge": "DAILY CHALLENGE",
+    "day_streak": "DAY STREAK",
+    "total_pts": "TOTAL PTS",
+    "world_rank": "WORLD RANK",
+    "see_full_leaderboard": "SEE FULL LEADERBOARD"
+  },
+  "analytics": {
+    "total_revenue": "TOTAL REVENUE",
+    "occupancy_rate": "OCCUPANCY RATE",
+    "total_bookings": "TOTAL BOOKINGS",
+    "revenue_by_arena": "REVENUE BY ARENA",
+    "peak_hours": "PEAK BOOKING HOURS",
+    "transaction_logs": "TRANSACTION LOGS"
+  },
+  "payments": {
+    "payments": "PAYMENTS",
+    "sessions": "SESSIONS",
+    "present": "PRESENT",
+    "absent": "ABSENT",
+    "base_fee": "BASE FEE",
+    "pay_now": "PAY NOW",
+    "no_billing_data": "NO BILLING DATA"
   }
 }

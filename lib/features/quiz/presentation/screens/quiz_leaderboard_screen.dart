@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -25,9 +26,9 @@ class _QuizLeaderboardScreenState extends State<QuizLeaderboardScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text(
-          'GLOBAL LEADERS',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14),
+        title: Text(
+          'quiz.global_leaders'.tr(),
+          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,

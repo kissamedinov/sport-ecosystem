@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -140,7 +141,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               children: [
                 Expanded(
                   child: _buildMiniStat(
-                    'TOTAL REVENUE',
+                    'analytics.total_revenue'.tr(),
                     '${totalRevenue.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸',
                     Icons.payments_outlined,
                     PremiumTheme.neonGreen,
@@ -149,7 +150,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildMiniStat(
-                    'OCCUPANCY RATE',
+                    'analytics.occupancy_rate'.tr(),
                     '${(occupancy * 100).toInt()}%',
                     Icons.trending_up,
                     PremiumTheme.electricBlue,
@@ -159,7 +160,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             ),
             const SizedBox(height: 12),
             _buildMiniStat(
-              'TOTAL BOOKINGS',
+              'analytics.total_bookings'.tr(),
               '$bookingsCount Reservations',
               Icons.calendar_today_outlined,
               Colors.orangeAccent,
@@ -168,7 +169,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Revenue breakdown by field
-            _buildSectionHeader('REVENUE BY ARENA'),
+            _buildSectionHeader('analytics.revenue_by_arena'.tr()),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(20),
@@ -227,7 +228,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Peak Booking Times
-            _buildSectionHeader('PEAK BOOKING HOURS'),
+            _buildSectionHeader('analytics.peak_hours'.tr()),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(20),
@@ -249,7 +250,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Recent Transaction Logs
-            _buildSectionHeader('TRANSACTION LOGS'),
+            _buildSectionHeader('analytics.transaction_logs'.tr()),
             const SizedBox(height: 12),
             if (approvedReqs.isEmpty) ...[
               Center(

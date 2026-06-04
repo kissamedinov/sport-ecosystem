@@ -974,6 +974,36 @@
     "daily_streak_day": "СЕРИЯ: {streak} КҮН",
     "daily_streak_days": "СЕРИЯ: {streak} КҮН",
     "streak_maintain": "Серияны сақтау үшін 5+ дұрыс жауап беріңіз!",
-    "connection_error": "ҚОСЫЛУ ҚАТЕСІ"
+    "connection_error": "ҚОСЫЛУ ҚАТЕСІ",
+    "global_leaders": "ЖАҺАНДЫҚ КӨШБАСШЫЛАР",
+    "leaderboard_title": "ВИКТОРИНА РЕЙТИНГІ"
+  },
+  "hub": {
+    "football_hub": "ФУТБОЛ ХАБЫ",
+    "skills_arena": "ДАҒДЫ АРЕНАСЫ",
+    "global_rankings": "ЖАҺАНДЫҚ РЕЙТИНГТЕР",
+    "top_academies": "ҮЗДІК АКАДЕМИЯЛАР",
+    "daily_challenge": "КҮНДЕЛІКТІ СЫНАҚ",
+    "day_streak": "КҮН СЕРИЯСЫ",
+    "total_pts": "БАРЛЫҚ ҰПАЙ",
+    "world_rank": "ӘЛЕМДІК РЕЙТИНГ",
+    "see_full_leaderboard": "ТОЛЫҚ РЕЙТИНГТІ КӨРУ"
+  },
+  "analytics": {
+    "total_revenue": "ЖАЛПЫ КІРІС",
+    "occupancy_rate": "ТОЛЫМДЫЛЫҚ КОЭФФИЦИЕНТІ",
+    "total_bookings": "БАРЛЫҚ БРОНДАУЛАР",
+    "revenue_by_arena": "АРЕНЯЛАР БОЙЫНША КІРІС",
+    "peak_hours": "БРОНДАУДЫҢ ЖОЛ САҒАТТАРЫ",
+    "transaction_logs": "ТРАНЗАКЦИЯ ЖУРНАЛЫ"
+  },
+  "payments": {
+    "payments": "ТӨЛЕМДЕР",
+    "sessions": "САБАҚТАР",
+    "present": "ҚАТЫСТЫ",
+    "absent": "ҚАТЫСПАДЫ",
+    "base_fee": "НЕГІЗГІ ТӨЛЕМ",
+    "pay_now": "ТӨЛЕУ",
+    "no_billing_data": "ТӨЛЕМ ДЕРЕКТЕРІ ЖОҚ"
   }
 }

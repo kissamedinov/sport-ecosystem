@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -51,9 +52,9 @@ class _FootballHubScreenState extends State<FootballHubScreen>
       backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'FOOTBALL HUB',
-          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14),
+        title: Text(
+          'hub.football_hub'.tr(),
+          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -70,15 +71,15 @@ class _FootballHubScreenState extends State<FootballHubScreen>
               const SizedBox(height: 14),
               _buildStreakRow(context),
               const SizedBox(height: 28),
-              _buildSectionLabel(context, 'SKILLS ARENA'),
+              _buildSectionLabel(context, 'hub.skills_arena'.tr()),
               const SizedBox(height: 12),
               _buildSkillsGrid(context),
               const SizedBox(height: 28),
-              _buildSectionLabel(context, 'GLOBAL RANKINGS'),
+              _buildSectionLabel(context, 'hub.global_rankings'.tr()),
               const SizedBox(height: 12),
               _buildLeaderboardCard(context),
               const SizedBox(height: 28),
-              _buildSectionLabel(context, 'TOP ACADEMIES'),
+              _buildSectionLabel(context, 'hub.top_academies'.tr()),
               const SizedBox(height: 12),
               _buildAcademiesList(context),
             ],
@@ -183,9 +184,9 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'DAILY CHALLENGE',
-                      style: TextStyle(
+                    Text(
+                      'hub.daily_challenge'.tr(),
+                      style: const TextStyle(
                         color: Color(0xFF00E676),
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
@@ -274,21 +275,21 @@ class _FootballHubScreenState extends State<FootballHubScreen>
         Expanded(child: _buildStreakChip(
           icon: Icons.local_fire_department_rounded,
           value: streak,
-          label: 'DAY STREAK',
+          label: 'hub.day_streak'.tr(),
           color: Colors.deepOrange,
         )),
         const SizedBox(width: 10),
         Expanded(child: _buildStreakChip(
           icon: Icons.stars_rounded,
           value: points,
-          label: 'TOTAL PTS',
+          label: 'hub.total_pts'.tr(),
           color: const Color(0xFF00E676),
         )),
         const SizedBox(width: 10),
         Expanded(child: _buildStreakChip(
           icon: Icons.emoji_events_rounded,
           value: rank,
-          label: 'WORLD RANK',
+          label: 'hub.world_rank'.tr(),
           color: Colors.amber,
         )),
       ],
@@ -465,8 +466,8 @@ class _FootballHubScreenState extends State<FootballHubScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'SEE FULL LEADERBOARD',
-                  style: TextStyle(
+                  'hub.see_full_leaderboard'.tr(),
+                  style: const TextStyle(
                     color: PremiumTheme.neonGreen,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,

@@ -1128,6 +1128,36 @@
     "daily_streak_day": "СЕРИЯ: {streak} ДЕНЬ",
     "daily_streak_days": "СЕРИЯ: {streak} ДНЕЙ",
     "streak_maintain": "Правильно ответьте на 5+ вопросов, чтобы сохранить серию!",
-    "connection_error": "ОШИБКА ПОДКЛЮЧЕНИЯ"
+    "connection_error": "ОШИБКА ПОДКЛЮЧЕНИЯ",
+    "global_leaders": "МИРОВЫЕ ЛИДЕРЫ",
+    "leaderboard_title": "ТАБЛИЦА ЛИДЕРОВ ВИКТОРИНЫ"
+  },
+  "hub": {
+    "football_hub": "ФУТБОЛЬНЫЙ ХАБ",
+    "skills_arena": "АРЕНА НАВЫКОВ",
+    "global_rankings": "МИРОВЫЕ РЕЙТИНГИ",
+    "top_academies": "ЛУЧШИЕ АКАДЕМИИ",
+    "daily_challenge": "ЕЖЕДНЕВНЫЙ ЧЕЛЛЕНДЖ",
+    "day_streak": "СЕРИЯ ДНЕЙ",
+    "total_pts": "ВСЕГО ОЧКОВ",
+    "world_rank": "МИРОВОЙ РЕЙТИНГ",
+    "see_full_leaderboard": "ПОЛНАЯ ТАБЛИЦА ЛИДЕРОВ"
+  },
+  "analytics": {
+    "total_revenue": "ОБЩИЙ ДОХОД",
+    "occupancy_rate": "КОЭФФИЦИЕНТ ЗАГРУЗКИ",
+    "total_bookings": "ВСЕГО БРОНИРОВАНИЙ",
+    "revenue_by_arena": "ДОХОД ПО АРЕНАМ",
+    "peak_hours": "ПИКОВЫЕ ЧАСЫ БРОНИРОВАНИЯ",
+    "transaction_logs": "ЖУРНАЛ ТРАНЗАКЦИЙ"
+  },
+  "payments": {
+    "payments": "ПЛАТЕЖИ",
+    "sessions": "ЗАНЯТИЙ",
+    "present": "ПРИСУТСТВОВАЛ",
+    "absent": "ОТСУТСТВОВАЛ",
+    "base_fee": "БАЗОВАЯ ПЛАТА",
+    "pay_now": "ОПЛАТИТЬ",
+    "no_billing_data": "НЕТ ДАННЫХ ОБ ОПЛАТЕ"
   }
 }
