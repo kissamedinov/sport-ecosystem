@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
@@ -79,17 +80,17 @@ class _MatchReportScreenState extends State<MatchReportScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MATCH REPORT'),
+        title: Text('tournament.match_report_title'.tr()),
         bottom: _isOrganizer
             ? TabBar(
                 controller: _tabController,
                 indicatorColor: PremiumTheme.neonGreen,
                 labelColor: PremiumTheme.neonGreen,
                 unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                tabs: const [
-                  Tab(icon: Icon(Icons.scoreboard, size: 20), text: 'SCORE'),
-                  Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
-                  Tab(icon: Icon(Icons.bar_chart, size: 20), text: 'STATS'),
+                tabs: [
+                  Tab(icon: const Icon(Icons.scoreboard, size: 20), text: 'tournament.score_tab'.tr()),
+                  Tab(icon: const Icon(Icons.flash_on, size: 20), text: 'tournament.live_tab'.tr()),
+                  Tab(icon: const Icon(Icons.bar_chart, size: 20), text: 'tournament.stats_tab_label'.tr()),
                 ],
               )
             : TabBar(
@@ -97,9 +98,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 indicatorColor: PremiumTheme.neonGreen,
                 labelColor: PremiumTheme.neonGreen,
                 unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                tabs: const [
-                  Tab(icon: Icon(Icons.flash_on, size: 20), text: 'LIVE'),
-                  Tab(icon: Icon(Icons.bar_chart, size: 20), text: 'STATS'),
+                tabs: [
+                  Tab(icon: const Icon(Icons.flash_on, size: 20), text: 'tournament.live_tab'.tr()),
+                  Tab(icon: const Icon(Icons.bar_chart, size: 20), text: 'tournament.stats_tab_label'.tr()),
                 ],
               ),
       ),
@@ -120,9 +121,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Final Score',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            'tournament.final_score'.tr(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           Row(
@@ -130,7 +131,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
               Expanded(
                 child: Column(
                   children: [
-                    const Text('HOME', style: TextStyle(color: Colors.grey)),
+                    Text('tournament.home_label'.tr(), style: const TextStyle(color: Colors.grey)),
                     const SizedBox(height: 8),
                     _buildScoreInput(_homeScoreController),
                   ],
@@ -146,7 +147,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
               Expanded(
                 child: Column(
                   children: [
-                    const Text('AWAY', style: TextStyle(color: Colors.grey)),
+                    Text('tournament.away_label'.tr(), style: const TextStyle(color: Colors.grey)),
                     const SizedBox(height: 8),
                     _buildScoreInput(_awayScoreController),
                   ],
@@ -175,9 +176,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                     else
                       const Icon(Icons.check_circle_rounded, color: Colors.black, size: 18),
                     const SizedBox(width: 12),
-                    const Text(
-                      'SUBMIT FINAL SCORE',
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
+                    Text(
+                      'tournament.submit_final_score'.tr(),
+                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
                     ),
                   ],
                 ),
@@ -185,9 +186,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Submitting the score will update the tournament standings automatically.',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+          Text(
+            'tournament.score_will_update'.tr(),
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -231,13 +232,13 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
   Widget _buildStatsTab() {
     if (widget.myTournamentTeamId == null) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Text(
-            'Player stats are submitted by the coach of each team.',
+            'tournament.player_stats_info'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
       );
@@ -249,7 +250,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
           return const Center(child: CircularProgressIndicator());
         }
         if (provider.squad.isEmpty) {
-          return const Center(child: Text('No squad members. Set a squad first.'));
+          return Center(child: Text('tournament.no_squad_set'.tr()));
         }
 
         return Column(
@@ -286,9 +287,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                         else
                           const Icon(Icons.send_rounded, color: Colors.black, size: 18),
                         const SizedBox(width: 12),
-                        const Text(
-                          'SUBMIT PLAYER STATS',
-                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
+                        Text(
+                          'tournament.submit_player_stats'.tr(),
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1),
                         ),
                       ],
                     ),
@@ -418,8 +419,8 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(success
-            ? 'Score submitted! Standings updated.'
-            : 'Failed: ${context.read<TournamentProvider>().error}'),
+            ? 'tournament.score_will_update'.tr()
+            : '${'common.failed'.tr()}: ${context.read<TournamentProvider>().error}'),
         backgroundColor: success ? Colors.green : Colors.red,
       ));
       if (success) Navigator.pop(context);
@@ -441,7 +442,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
     if (totalEvents == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No stats to submit.')),
+        SnackBar(content: Text('tournament.no_squad_set'.tr())),
       );
       return;
     }
@@ -474,7 +475,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Successfully submitted $successCount events!'),
+          content: Text('tournament.submit_player_stats'.tr()),
           backgroundColor: Colors.green,
         ));
         Navigator.pop(context);
@@ -482,7 +483,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text('tournament.error_message'.tr(namedArgs: {'error': e.toString()})),
           backgroundColor: Colors.red,
         ));
       }
@@ -512,12 +513,12 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 await context.read<MatchProvider>().addMatchEvent(widget.matchId, result);
               }
             },
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_circle, color: PremiumTheme.neonGreen),
-                SizedBox(width: 12),
-                Text('RECORD LIVE EVENT (GOAL/CARD)', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Icon(Icons.add_circle, color: PremiumTheme.neonGreen),
+                const SizedBox(width: 12),
+                Text('tournament.live_tab'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +87,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('TOURNAMENT', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.tournament_label'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         actions: [
           if (_isOrganizer)
             IconButton(
@@ -113,11 +114,11 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           isScrollable: _isOrganizer,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
           tabs: [
-            const Tab(text: 'INFO'),
-            const Tab(text: 'MATCHES'),
-            const Tab(text: 'STANDINGS'),
-            const Tab(text: 'CONTACT'),
-            if (_isOrganizer) const Tab(text: 'REQUESTS'),
+            Tab(text: 'tournament.info_tab'.tr()),
+            Tab(text: 'tournament.matches_tab'.tr()),
+            Tab(text: 'tournament.standings_tab'.tr()),
+            Tab(text: 'tournament.contact_tab'.tr()),
+            if (_isOrganizer) Tab(text: 'tournament.requests_tab'.tr()),
           ],
         ),
       ),
@@ -128,12 +129,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           }
 
           if (provider.error != null && provider.selectedTournament == null) {
-            return Center(child: Text('Error: ${provider.error}', style: TextStyle(color: cs.onSurfaceVariant)));
+            return Center(child: Text('tournament.error_message'.tr(namedArgs: {'error': provider.error ?? ''}), style: TextStyle(color: cs.onSurfaceVariant)));
           }
 
           final tournament = provider.selectedTournament;
           if (tournament == null) {
-            return Center(child: Text('Tournament not found', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
+            return Center(child: Text('tournament.tournament_not_found'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
           }
 
           return TabBarView(
@@ -160,12 +161,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           _buildPremiumHeader(tournament),
           const SizedBox(height: 24),
           if (provider.divisions.isNotEmpty) ...[
-            _buildSectionTitle('AGE DIVISIONS', Icons.groups),
+            _buildSectionTitle('tournament.age_divisions'.tr(), Icons.groups),
             const SizedBox(height: 12),
             ...provider.divisions.map((d) => _buildDivisionCard(d, provider)),
             const SizedBox(height: 24),
           ] else ...[
-            _buildSectionTitle('REGISTRATION', Icons.app_registration),
+            _buildSectionTitle('tournament.registration_tab'.tr(), Icons.app_registration),
             const SizedBox(height: 12),
             _buildDivisionCard({
               'id': tournament.id,
@@ -176,7 +177,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             }, provider),
             const SizedBox(height: 24),
           ],
-          _buildSectionTitle('CONFIGURATION', Icons.settings),
+          _buildSectionTitle('tournament.configuration'.tr(), Icons.settings),
           _buildInfoGrid(tournament),
         ],
       ),
@@ -243,7 +244,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: PremiumTheme.danger.withValues(alpha: 0.2)),
                   ),
-                  child: const Text('DEADLINE', style: TextStyle(color: PremiumTheme.danger, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Text('tournament.deadline'.tr(), style: const TextStyle(color: PremiumTheme.danger, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 4),
                 Text(t.registrationClose!.split('T').first, style: TextStyle(color: cs.onSurface, fontSize: 11, fontWeight: FontWeight.bold)),
@@ -259,7 +260,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch contact application')),
+          SnackBar(content: Text('tournament.could_not_launch'.tr())),
         );
       }
     }
@@ -276,7 +277,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('ORGANIZER CONTACTS', Icons.contact_support),
+          _buildSectionTitle('tournament.organizer_contacts_section'.tr(), Icons.contact_support),
           PremiumCard(
             child: Column(
               children: [
@@ -312,13 +313,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 if (!hasWhatsapp && !hasPhone && !hasInstagram)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text('No contact information provided', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
+                    child: Center(child: Text('tournament.no_contact_info'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
                   ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          _buildSectionTitle('LOCATION', Icons.map),
+          _buildSectionTitle('tournament.location_section'.tr(), Icons.map),
           PremiumCard(
             child: Row(
               children: [
@@ -445,7 +446,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
-                  registeredTeam.status == 'APPROVED' ? 'MANAGE SQUAD' : 'PENDING...',
+                  registeredTeam.status == 'APPROVED' ? 'tournament.manage_squad_btn'.tr() : 'tournament.pending_btn'.tr(),
                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)
                 ),
               ),
@@ -460,7 +461,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('REGISTER', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text('tournament.register_btn'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ),
         ],
@@ -473,13 +474,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     return PremiumCard(
       child: Column(
         children: [
-          _buildInfoRow(Icons.format_list_bulleted, 'Format', t.format),
+          _buildInfoRow(Icons.format_list_bulleted, 'tournament.format_row'.tr(), t.format),
           Divider(color: cs.onSurface.withValues(alpha: 0.08)),
-          _buildInfoRow(Icons.terrain, 'Surface', t.surfaceType ?? 'Natural Grass'),
+          _buildInfoRow(Icons.terrain, 'tournament.surface_row'.tr(), t.surfaceType ?? 'tournament.natural_grass'.tr()),
           Divider(color: cs.onSurface.withValues(alpha: 0.08)),
-          _buildInfoRow(Icons.timer, 'Match Time', '${t.matchHalfDuration}m halves'),
+          _buildInfoRow(Icons.timer, 'tournament.match_time_row'.tr(), 'tournament.halves_suffix'.tr(namedArgs: {'min': t.matchHalfDuration.toString()})),
           Divider(color: cs.onSurface.withValues(alpha: 0.08)),
-          _buildInfoRow(Icons.coffee, 'Break', '${t.breakBetweenMatches}m rest'),
+          _buildInfoRow(Icons.coffee, 'tournament.break_row'.tr(), 'tournament.rest_suffix'.tr(namedArgs: {'min': t.breakBetweenMatches.toString()})),
         ],
       ),
     );
@@ -514,7 +515,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         if (matches.isEmpty)
           Expanded(
             child: Center(
-              child: Text('No matches scheduled yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+              child: Text('tournament.no_matches_scheduled'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
             ),
           )
         else
@@ -560,22 +561,22 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen, size: 18),
               const SizedBox(width: 8),
               Text(
-                !hasMatches ? 'AI SCHEDULER' : 'AI DRAFT REVIEW',
+                !hasMatches ? 'tournament.ai_scheduler'.tr() : 'tournament.ai_draft_review'.tr(),
                 style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 12),
               ),
               const Spacer(),
               if (isDraft)
                 TextButton(
                   onPressed: () => _showAIDetails(provider.aiReport ?? 'AI analyzed team balance and field availability.'),
-                  child: Text('VIEW REPORT', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, decoration: TextDecoration.underline)),
+                  child: Text('tournament.view_report'.tr(), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, decoration: TextDecoration.underline)),
                 ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             !hasMatches
-                ? 'Ready to generate the tournament schedule using AI optimization?'
-                : 'The schedule is currently in DRAFT mode. Review it and finalize to make it public.',
+                ? 'tournament.ai_ready'.tr()
+                : 'tournament.ai_draft_mode'.tr(),
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
           ),
           const SizedBox(height: 16),
@@ -586,7 +587,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   child: ElevatedButton.icon(
                     onPressed: () => provider.generateSchedule(widget.tournamentId),
                     icon: const Icon(Icons.bolt, size: 16),
-                    label: const Text('GENERATE WITH AI'),
+                    label: Text('tournament.generate_with_ai'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: PremiumTheme.neonGreen,
                       foregroundColor: Colors.black,
@@ -599,7 +600,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   child: OutlinedButton.icon(
                     onPressed: () => provider.generateSchedule(widget.tournamentId),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('RE-GENERATE'),
+                    label: Text('tournament.re_generate'.tr()),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: cs.onSurfaceVariant,
                       side: BorderSide(color: cs.onSurface.withValues(alpha: 0.2)),
@@ -614,12 +615,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       final success = await provider.finalizeSchedule(widget.tournamentId);
                       if (success && mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Schedule finalized and published!')),
+                          SnackBar(content: Text('tournament.schedule_finalized'.tr())),
                         );
                       }
                     },
                     icon: const Icon(Icons.check, size: 16),
-                    label: const Text('FINALIZE'),
+                    label: Text('tournament.finalize'.tr()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: PremiumTheme.neonGreen,
                       foregroundColor: Colors.black,
@@ -656,7 +657,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 children: [
                   const Icon(Icons.swap_horiz, color: PremiumTheme.neonGreen),
                   const SizedBox(width: 12),
-                  Text('SWAP ${teamToSwap.teamName?.toUpperCase()} WITH...', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('tournament.swap_with'.tr(namedArgs: {'team': teamToSwap.teamName?.toUpperCase() ?? ''}), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -670,13 +671,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   return ListTile(
                     leading: Icon(Icons.group, color: cs.onSurface.withValues(alpha: 0.4)),
                     title: Text(team.teamName ?? 'Team', style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                    subtitle: Text('Current: Group ${team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                    subtitle: Text('tournament.current_group'.tr(namedArgs: {'group': team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                     onTap: () async {
                       Navigator.pop(context);
                       final success = await provider.swapTeams(widget.tournamentId, teamToSwap.teamId, team.teamId);
                       if (success && mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Teams swapped and matches updated!')),
+                          SnackBar(content: Text('tournament.teams_swapped'.tr())),
                         );
                       }
                     },
@@ -706,14 +707,14 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             children: [
               const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
               const SizedBox(width: 12),
-              Text('AI Logic Report', style: TextStyle(color: cs.onSurface, fontSize: 16)),
+              Text('tournament.ai_logic_report'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 16)),
             ],
           ),
           content: Text(report, style: TextStyle(color: cs.onSurfaceVariant)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('CLOSE', style: TextStyle(color: PremiumTheme.neonGreen)),
+              child: Text('common.close'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen)),
             ),
           ],
         );
@@ -734,7 +735,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.bold),
               ),
               if (match.status == 'finished')
-                const Text('FINISHED', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold))
+                Text('tournament.finished_status'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold))
               else if (match.status == 'DRAFT')
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -743,7 +744,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.3)),
                   ),
-                  child: const Text('AI DRAFT', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.bold)),
+                  child: Text('tournament.ai_draft'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.bold)),
                 )
               else if (match.matchDate != null) ...[
                 if (match.matchDate!.difference(DateTime.now()).inHours < 2)
@@ -753,7 +754,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       color: PremiumTheme.danger.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text('LINEUP DEADLINE', style: TextStyle(color: PremiumTheme.danger, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: Text('tournament.lineup_deadline'.tr(), style: const TextStyle(color: PremiumTheme.danger, fontSize: 9, fontWeight: FontWeight.bold)),
                   ),
               ],
             ],
@@ -788,7 +789,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       )
                     ),
                     const SizedBox(height: 4),
-                    Text('HOME', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
+                    Text('tournament.home_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -822,7 +823,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       )
                     ),
                     const SizedBox(height: 4),
-                    Text('AWAY', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
+                    Text('tournament.away_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -854,7 +855,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                         side: BorderSide(color: cs.onSurface.withValues(alpha: 0.08)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: Text('LINEUP', style: TextStyle(color: cs.onSurface, fontSize: 11)),
+                      child: Text('tournament.lineup_btn'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 11)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -878,7 +879,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                         side: BorderSide(color: cs.onSurface.withValues(alpha: 0.08)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: Text('STATS', style: TextStyle(color: cs.onSurface, fontSize: 11)),
+                      child: Text('tournament.stats_btn'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 11)),
                     ),
                   ),
                 ],
@@ -904,7 +905,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               side: const BorderSide(color: PremiumTheme.electricBlue),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            child: const Text('MANAGE', style: TextStyle(color: PremiumTheme.electricBlue, fontSize: 10, fontWeight: FontWeight.bold)),
+                            child: Text('tournament.manage_btn'.tr(), style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 10, fontWeight: FontWeight.bold)),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -927,7 +928,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               elevation: 0,
                             ),
-                            child: const Text('SCORE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+                            child: Text('tournament.score_btn'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
                           ),
                         ),
                       ],
@@ -955,7 +956,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           children: [
             Icon(Icons.leaderboard_outlined, size: 64, color: cs.onSurface.withValues(alpha: 0.1)),
             const SizedBox(height: 16),
-            Text('No standings data available', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
+            Text('tournament.no_standings'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -974,7 +975,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle('GROUP ${entry.key?.toString().split("-").last.toUpperCase() ?? "A"}', Icons.grid_view),
+              _buildSectionTitle('tournament.group_prefix'.tr(namedArgs: {'group': entry.key?.toString().split("-").last.toUpperCase() ?? "A"}), Icons.grid_view),
               const SizedBox(height: 12),
               _buildStandingsHeader(),
               const SizedBox(height: 8),
@@ -997,8 +998,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildActionCard(
-            'GOLDEN BOOT RACE',
-            'View top goal scorers of the tournament',
+            'tournament.golden_boot_race'.tr(),
+            'tournament.view_top_scorers'.tr(),
             Icons.military_tech,
             PremiumTheme.neonGreen,
             () {
@@ -1011,7 +1012,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             },
           ),
           const SizedBox(height: 32),
-          _buildSectionTitle('LEADERBOARD', Icons.table_chart),
+          _buildSectionTitle('tournament.leaderboard_title'.tr(), Icons.table_chart),
           const SizedBox(height: 8),
           _buildStandingsHeader(),
           const SizedBox(height: 12),
@@ -1041,12 +1042,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: Row(
         children: [
-          SizedBox(width: 32, child: Text('POS', style: headerStyle)),
+          SizedBox(width: 32, child: Text('tournament.pos_header'.tr(), style: headerStyle)),
           const SizedBox(width: 12),
-          Expanded(child: Text('TEAM', style: headerStyle)),
-          SizedBox(width: 35, child: Text('MP', textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 35, child: Text('GD', textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 45, child: Text('PTS', textAlign: TextAlign.center, style: headerStyle)),
+          Expanded(child: Text('tournament.team_header'.tr(), style: headerStyle)),
+          SizedBox(width: 35, child: Text('tournament.mp_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 35, child: Text('tournament.gd_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
+          SizedBox(width: 45, child: Text('tournament.pts_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
         ],
       ),
     );
@@ -1229,7 +1230,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           children: [
             Icon(Icons.check_circle_outline, size: 48, color: cs.onSurface.withValues(alpha: 0.08)),
             const SizedBox(height: 16),
-            Text('No pending requests', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
+            Text('tournament.pending_requests'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
           ],
         ),
       );
@@ -1269,7 +1270,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 onPressed: () async {
                   final success = await provider.updateTeamStatus(widget.tournamentId, reg.teamId, 'REJECTED');
                   if (context.mounted && !success) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error rejecting team')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('tournament.error_rejecting'.tr())));
                   }
                 },
                 icon: const Icon(Icons.cancel_outlined, color: PremiumTheme.danger, size: 20),
@@ -1279,7 +1280,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 onPressed: () async {
                   final success = await provider.updateTeamStatus(widget.tournamentId, reg.teamId, 'APPROVED');
                   if (context.mounted && !success) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error approving team')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('tournament.error_approving'.tr())));
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -1289,7 +1290,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   minimumSize: const Size(0, 36),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('APPROVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text('tournament.approve_btn'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -1351,9 +1352,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'APPLY FOR DIVISION',
-                            style: TextStyle(fontSize: 12, color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, letterSpacing: 2),
+                          Text(
+                            'tournament.apply_for_division'.tr(),
+                            style: const TextStyle(fontSize: 12, color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, letterSpacing: 2),
                           ),
                           Text(
                             divisionName.toUpperCase(),
@@ -1369,24 +1370,24 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      _buildMiniInfo(Icons.grid_view, 'FORMAT', format),
+                      _buildMiniInfo(Icons.grid_view, 'tournament.format_info'.tr(), format),
                       Container(width: 1, height: 24, color: cs.onSurface.withValues(alpha: 0.08), margin: const EdgeInsets.symmetric(horizontal: 16)),
-                      _buildMiniInfo(Icons.child_care, 'BIRTH YEAR', requiredBirthYear.toString()),
+                      _buildMiniInfo(Icons.child_care, 'tournament.birth_year_info'.tr(), requiredBirthYear.toString()),
                       Container(width: 1, height: 24, color: cs.onSurface.withValues(alpha: 0.08), margin: const EdgeInsets.symmetric(horizontal: 16)),
-                      _buildMiniInfo(Icons.payments_outlined, 'FEE', '$entryFee ₸'),
+                      _buildMiniInfo(Icons.payments_outlined, 'tournament.fee_info'.tr(), '$entryFee ₸'),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'SELECT YOUR TEAM',
+                  'tournament.select_your_team'.tr(),
                   style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 16),
                 if (tp.isLoading)
                   const Expanded(child: Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen)))
                 else if (tp.myTeams.isEmpty)
-                  Expanded(child: Center(child: Text('No teams found in your profile.', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))))
+                  Expanded(child: Center(child: Text('tournament.no_teams_profile'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))))
                 else
                   Expanded(
                     child: ListView.builder(
@@ -1402,7 +1403,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               if (context.mounted) {
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(success ? 'Registration request sent!' : 'Error submitting registration'),
+                                  content: Text(success ? 'tournament.registration_sent'.tr() : 'tournament.error_registration'.tr()),
                                   backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
                                   behavior: SnackBarBehavior.floating,
                                   margin: const EdgeInsets.all(20),
@@ -1454,7 +1455,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Birth Year: ${team.birthYear ?? "N/A"}',
+                                          'tournament.birth_year_label'.tr(namedArgs: {'year': (team.birthYear ?? 'N/A').toString()}),
                                           style: TextStyle(
                                             color: isEligible ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : cs.onSurface.withValues(alpha: 0.08),
                                             fontSize: 11,
@@ -1481,7 +1482,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('CANCEL', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    child: Text('common.cancel'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontWeight: FontWeight.bold, letterSpacing: 1)),
                   ),
                 ),
               ],

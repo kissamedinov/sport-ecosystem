@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 import 'package:mobile/features/academies/data/models/academy_team.dart';
-import 'package:intl/intl.dart';
+
 
 class TrainingManagementScreen extends StatefulWidget {
   final String academyId;
@@ -26,13 +27,13 @@ class _TrainingManagementScreenState extends State<TrainingManagementScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('TRAINING HUB', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
+        title: Text('academy.training_hub'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
             icon: const Icon(Icons.auto_awesome, color: PremiumTheme.neonGreen),
             onPressed: () => _showGenerateSessionsDialog(context),
-            tooltip: 'Bulk Generate from Schedules',
+            tooltip: 'academy.bulk_generate_tooltip'.tr(),
           ),
         ],
       ),
@@ -48,7 +49,7 @@ class _TrainingManagementScreenState extends State<TrainingManagementScreen> {
 
           final sessions = provider.sessions;
           if (sessions.isEmpty) {
-            return const Center(child: Text('No training sessions scheduled', style: TextStyle(color: Colors.white38)));
+            return Center(child: Text('academy.no_training_sessions'.tr(), style: const TextStyle(color: Colors.white38)));
           }
 
           return ListView.builder(
@@ -161,7 +162,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('ATTENDANCE TRACKING', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 10, color: PremiumTheme.neonGreen)),
+            Text('academy.attendance_tracking'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 10, color: PremiumTheme.neonGreen)),
             Text(widget.session.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -212,11 +213,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                   dropdownColor: PremiumTheme.surfaceCard(context),
                                   value: data['status'],
                                   style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 12),
-                                  items: const [
-                                    DropdownMenuItem(value: 'PRESENT', child: Text('PRESENT')),
-                                    DropdownMenuItem(value: 'ABSENT', child: Text('ABSENT')),
-                                    DropdownMenuItem(value: 'LATE', child: Text('LATE')),
-                                    DropdownMenuItem(value: 'INJURED', child: Text('INJURED')),
+                                  items: [
+                                    DropdownMenuItem(value: 'PRESENT', child: Text('academy.present_status'.tr())),
+                                    DropdownMenuItem(value: 'ABSENT', child: Text('academy.absent_status'.tr())),
+                                    DropdownMenuItem(value: 'LATE', child: Text('academy.late_status'.tr())),
+                                    DropdownMenuItem(value: 'INJURED', child: Text('academy.injured_status'.tr())),
                                   ],
                                   onChanged: (val) {
                                     setState(() {
@@ -280,7 +281,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     final success = await provider.recordAttendance(widget.session.id, _attendance);
                     if (success && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Attendance recorded successfully!'), backgroundColor: PremiumTheme.neonGreen),
+                        SnackBar(content: Text('academy.attendance_recorded'.tr()), backgroundColor: PremiumTheme.neonGreen),
                       );
                       Navigator.pop(context);
                     }
@@ -291,7 +292,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     minimumSize: const Size(double.infinity, 56),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('SUBMIT ATTENDANCE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  child: Text('academy.submit_attendance'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
               ),
             ],

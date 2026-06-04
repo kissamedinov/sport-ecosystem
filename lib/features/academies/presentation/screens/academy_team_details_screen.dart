@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/academy_team.dart';
@@ -25,10 +26,10 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
         child: Column(
           children: [
             _buildTeamHeader(),
-            const TabBar(
+            TabBar(
               tabs: [
-                Tab(text: 'Players'),
-                Tab(text: 'Training'),
+                Tab(text: 'academy.players'.tr()),
+                Tab(text: 'academy.training'.tr()),
               ],
             ),
             Expanded(
@@ -64,7 +65,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.team.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              Text('Age Group: ${widget.team.ageGroup}', style: const TextStyle(color: Colors.grey)),
+              Text('academy.age_group_header'.tr(namedArgs: {'age': widget.team.ageGroup}), style: const TextStyle(color: Colors.grey)),
             ],
           ),
         ],
@@ -117,9 +118,9 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Move Player to Team', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('academy.move_player_to_team'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            const Text('Select target team:'),
+            Text('academy.select_target_team'.tr()),
             const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
@@ -160,13 +161,13 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             if (teamSchedules.isNotEmpty) ...[
-              const Text('Recurring Schedule', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('academy.recurring_schedule'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...teamSchedules.map((s) => Card(
                 child: ListTile(
                   leading: const Icon(Icons.calendar_today, color: Colors.blue),
                   title: Text('${s.dayOfWeek.toShortString()} | ${s.startTime} - ${s.endTime}'),
-                  subtitle: Text(s.location ?? 'Main Field'),
+                  subtitle: Text(s.location ?? 'academy.main_field'.tr()),
                 ),
               )),
               const Divider(height: 32),
@@ -180,11 +181,11 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
             ),
             const SizedBox(height: 8),
             if (teamSessions.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: Text('No actual sessions generated yet.\nUse "Generate Sessions" in Dashboard.', 
-                    textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text('academy.no_sessions_generated'.tr(),
+                    textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
                 ),
               )
             else
@@ -195,7 +196,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen> {
                   subtitle: Text('${session.date} | ${session.startTime} - ${session.endTime}'),
                   trailing: ElevatedButton(
                     onPressed: () => _showAttendanceDialog(session),
-                    child: const Text('Attendance'),
+                    child: Text('academy.attendance_section'.tr()),
                   ),
                 ),
               )),

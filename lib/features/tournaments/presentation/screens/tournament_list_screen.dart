@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
@@ -79,7 +80,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          isChild ? '⭐ MY CHAMPIONSHIPS' : 'TOURNAMENTS',
+          isChild ? '⭐ ${'tournament.my_championships'.tr()}' : 'tournament.tournaments'.tr(),
           style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 16)
         ),
         bottom: isChild ? null : TabBar(
@@ -88,9 +89,9 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
           labelColor: PremiumTheme.neonGreen,
           unselectedLabelColor: cs.onSurfaceVariant,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-          tabs: const [
-            Tab(text: 'EXPLORE'),
-            Tab(text: 'MY EVENTS'),
+          tabs: [
+            Tab(text: 'tournament.explore'.tr()),
+            Tab(text: 'tournament.my_events'.tr()),
           ],
         ),
         actions: [
@@ -164,7 +165,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(city),
+              label: Text(index == 0 ? 'tournament.all_cities'.tr() : city),
               selected: isSelected,
               onSelected: (val) {
                 setState(() => _selectedCity = val ? city : null);
@@ -315,7 +316,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'DETAILS',
+                          'tournament.details'.tr(),
                           style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8),
                         ),
                         const SizedBox(width: 2),
@@ -366,12 +367,12 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
           ),
           const SizedBox(height: 16),
           Text(
-            isChild ? 'NO GAMES SCHEDULED YET' : 'NO TOURNAMENTS YET',
+            isChild ? 'tournament.no_games_scheduled'.tr() : 'tournament.no_tournaments'.tr(),
             style: TextStyle(color: cs.onSurfaceVariant, letterSpacing: 2, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            isChild ? 'Ask your coach about upcoming cups! ⚽' : 'Be the first to organize an event!',
+            isChild ? 'tournament.ask_coach'.tr() : 'tournament.be_first'.tr(),
             style: TextStyle(color: cs.onSurface.withValues(alpha: 0.45), fontSize: 12),
           ),
         ],
@@ -407,16 +408,16 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'HELLO, $name!',
+                  'academy.hello_champion'.tr(namedArgs: {'name': name}),
                   style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
                 ),
                 Text(
-                  'REPRESENTING: ${academyName.toUpperCase()}',
+                  'academy.representing'.tr(namedArgs: {'name': academyName.toUpperCase()}),
                   style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Ready for your next big match?',
+                  'academy.ready_for_match'.tr(),
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                 ),
               ],

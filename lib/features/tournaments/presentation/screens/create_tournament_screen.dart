@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -256,7 +257,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Logo Upload Error: $e'), backgroundColor: PremiumTheme.danger),
+          SnackBar(content: Text('tournament.logo_upload_error'.tr(namedArgs: {'error': e.toString()})), backgroundColor: PremiumTheme.danger),
         );
       }
       setState(() => _isLoading = false);
@@ -349,16 +350,16 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.initialTournament != null 
-              ? 'Tournament Updated!' 
-              : 'Tournament Created with ${_divisions.length} divisions!'), 
+            content: Text(widget.initialTournament != null
+              ? 'tournament.tournament_updated'.tr()
+              : 'tournament.tournament_created'.tr(namedArgs: {'count': _divisions.length.toString()})),
             backgroundColor: PremiumTheme.neonGreen
           ),
         );
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${provider.error}'), backgroundColor: PremiumTheme.danger),
+          SnackBar(content: Text('tournament.error_message'.tr(namedArgs: {'error': provider.error ?? ''})), backgroundColor: PremiumTheme.danger),
         );
       }
     }
@@ -374,7 +375,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(isEdit ? 'EDIT TOURNAMENT' : 'NEW TOURNAMENT',
+        title: Text(isEdit ? 'tournament.edit_tournament'.tr() : 'tournament.new_tournament'.tr(),
           style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
       body: SingleChildScrollView(
@@ -390,29 +391,29 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                 subtitle: isEdit ? 'Tournament Details' : 'Event Setup'
               ),
 
-              _buildSectionTitle('BASIC INFORMATION', Icons.info_outline, cs),
+              _buildSectionTitle('tournament.basic_information'.tr(), Icons.info_outline, cs),
               PremiumCard(
                 child: Column(
                   children: [
                     PremiumTextField(
                       controller: _nameController,
-                      label: 'Tournament Name',
+                      label: 'tournament.tournament_name'.tr(),
                       icon: Icons.emoji_events,
                     ),
                     const SizedBox(height: 16),
                     PremiumTextField(
                       controller: _locationController,
-                      label: 'Location / Stadium',
+                      label: 'tournament.location_stadium'.tr(),
                       icon: Icons.location_on,
                     ),
                     const SizedBox(height: 16),
                     Row(
                         children: [
-                            Expanded(child: _buildDropdown('Year', _selectedYear.toString(),
+                            Expanded(child: _buildDropdown('tournament.year'.tr(), _selectedYear.toString(),
                                 List.generate(5, (i) => (DateTime.now().year - 2 + i).toString()),
                                 (v) => setState(() => _selectedYear = int.parse(v!)), cs)),
                             const SizedBox(width: 12),
-                            Expanded(child: _buildDropdown('Season', _selectedSeason, _seasons,
+                            Expanded(child: _buildDropdown('tournament.season'.tr(), _selectedSeason, _seasons,
                                 (v) => setState(() => _selectedSeason = v!), cs)),
                         ]
                     )
@@ -421,25 +422,25 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('ORGANIZER CONTACTS', Icons.contact_phone, cs),
+              _buildSectionTitle('tournament.organizer_contacts'.tr(), Icons.contact_phone, cs),
               PremiumCard(
                 child: Column(
                   children: [
                     PremiumTextField(
                       controller: _whatsappController,
-                      label: 'WhatsApp (e.g. +7...)',
+                      label: 'tournament.whatsapp_hint'.tr(),
                       icon: Icons.message,
                     ),
                     const SizedBox(height: 16),
                     PremiumTextField(
                       controller: _phoneController,
-                      label: 'Phone Number',
+                      label: 'tournament.phone_number'.tr(),
                       icon: Icons.phone,
                     ),
                     const SizedBox(height: 16),
                     PremiumTextField(
                       controller: _instagramController,
-                      label: 'Instagram (handle only)',
+                      label: 'tournament.instagram_hint'.tr(),
                       icon: Icons.camera_alt_outlined,
                       hintText: 'e.g. kff_team',
                     ),
@@ -448,80 +449,80 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('AGE DIVISIONS', Icons.groups, cs),
+              _buildSectionTitle('tournament.age_divisions'.tr(), Icons.groups, cs),
               _buildDivisionsSection(cs),
               const SizedBox(height: 24),
 
-              _buildSectionTitle('CONFIGURATION', Icons.settings, cs),
+              _buildSectionTitle('tournament.configuration'.tr(), Icons.settings, cs),
               PremiumCard(
                 child: Column(
                   children: [
-                    _buildDropdown('Format', _selectedFormat, _formats, (v) => setState(() => _selectedFormat = v!), cs),
+                    _buildDropdown('tournament.format_row'.tr(), _selectedFormat, _formats, (v) => setState(() => _selectedFormat = v!), cs),
                     const SizedBox(height: 16),
-                    _buildDropdown('Surface', _selectedSurface, _surfaces, (v) => setState(() => _selectedSurface = v!), cs),
+                    _buildDropdown('tournament.surface'.tr(), _selectedSurface, _surfaces, (v) => setState(() => _selectedSurface = v!), cs),
                   ],
                 ),
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('DATES', Icons.calendar_month, cs),
+              _buildSectionTitle('tournament.dates'.tr(), Icons.calendar_month, cs),
               PremiumCard(
                 child: Column(
                   children: [
-                    _buildDateTile('Starts', _startDate, (d) => setState(() => _startDate = d), cs),
-                    _buildDateTile('Ends', _endDate, (d) => setState(() => _endDate = d), cs),
+                    _buildDateTile('tournament.starts'.tr(), _startDate, (d) => setState(() => _startDate = d), cs),
+                    _buildDateTile('tournament.ends'.tr(), _endDate, (d) => setState(() => _endDate = d), cs),
                     Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 24),
-                    _buildDateTile('Reg. Opens', _regOpen, (d) => setState(() => _regOpen = d), cs),
-                    _buildDateTile('Reg. Closes', _regClose, (d) => setState(() => _regClose = d), cs),
+                    _buildDateTile('tournament.reg_opens'.tr(), _regOpen, (d) => setState(() => _regOpen = d), cs),
+                    _buildDateTile('tournament.reg_closes'.tr(), _regClose, (d) => setState(() => _regClose = d), cs),
                   ],
                 ),
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('MATCH SETTINGS', Icons.timer, cs),
+              _buildSectionTitle('tournament.match_settings'.tr(), Icons.timer, cs),
               PremiumCard(
                 child: Column(
                   children: [
                     _buildFieldSelectionToggle(cs),
                     const SizedBox(height: 16),
                     if (!_useAcademyFields)
-                      _buildNumberField('Number of Fields', _numFields, (v) => _numFields = v, cs)
+                      _buildNumberField('tournament.num_fields'.tr(), _numFields, (v) => _numFields = v, cs)
                     else
                       _buildFieldsList(cs),
                     Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
                     Row(
                       children: [
-                        Expanded(child: _buildNumberField('Half (min)', _matchHalf, (v) => _matchHalf = v, cs)),
+                        Expanded(child: _buildNumberField('tournament.half_min'.tr(), _matchHalf, (v) => _matchHalf = v, cs)),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildNumberField('Break (min)', _halfBreak, (v) => _halfBreak = v, cs)),
+                        Expanded(child: _buildNumberField('tournament.break_min'.tr(), _halfBreak, (v) => _halfBreak = v, cs)),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildNumberField('Min Rest Slots', _minRest, (v) => _minRest = v, cs),
+                    _buildNumberField('tournament.min_rest_slots'.tr(), _minRest, (v) => _minRest = v, cs),
                     Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
-                    _buildTimeTile('Day Starts', _startTime, (t) => setState(() => _startTime = t), cs),
-                    _buildTimeTile('Day Ends', _endTime, (t) => setState(() => _endTime = t), cs),
+                    _buildTimeTile('tournament.day_starts'.tr(), _startTime, (t) => setState(() => _startTime = t), cs),
+                    _buildTimeTile('tournament.day_ends'.tr(), _endTime, (t) => setState(() => _endTime = t), cs),
                   ],
                 ),
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('POINTS SYSTEM', Icons.score, cs),
+              _buildSectionTitle('tournament.points_system'.tr(), Icons.score, cs),
               PremiumCard(
                 child: Row(
                   children: [
-                    Expanded(child: _buildNumberField('Win', _ptsWin, (v) => _ptsWin = v, cs)),
+                    Expanded(child: _buildNumberField('tournament.win'.tr(), _ptsWin, (v) => _ptsWin = v, cs)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildNumberField('Draw', _ptsDraw, (v) => _ptsDraw = v, cs)),
+                    Expanded(child: _buildNumberField('tournament.draw'.tr(), _ptsDraw, (v) => _ptsDraw = v, cs)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildNumberField('Loss', _ptsLoss, (v) => _ptsLoss = v, cs)),
+                    Expanded(child: _buildNumberField('tournament.loss'.tr(), _ptsLoss, (v) => _ptsLoss = v, cs)),
                   ],
                 ),
               ),
 
               const SizedBox(height: 32),
               PremiumButton(
-                text: isEdit ? 'SAVE CHANGES' : 'PUBLISH TOURNAMENT',
+                text: isEdit ? 'tournament.save_changes'.tr() : 'tournament.publish_tournament'.tr(),
                 icon: isEdit ? Icons.save : Icons.check_circle_outline,
                 isLoading: _isLoading,
                 onPressed: _submit,
@@ -536,7 +537,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   void _addDivision() {
     if (_divisionNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a division name')),
+        SnackBar(content: Text('tournament.please_enter_division_name'.tr())),
       );
       return;
     }
@@ -576,24 +577,24 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                     flex: 2,
                     child: PremiumTextField(
                       controller: _divisionNameController,
-                      label: 'Division Name',
+                      label: 'tournament.tournament_name'.tr(),
                       icon: Icons.label_outline,
-                      hintText: 'e.g. U10 Gold',
+                      hintText: 'tournament.division_name_hint'.tr(),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: PremiumTextField(
                       controller: _divisionFormatController,
-                      label: 'Format',
+                      label: 'tournament.format_row'.tr(),
                       icon: Icons.grid_view,
-                      hintText: 'e.g. 8+1',
+                      hintText: 'tournament.format_hint'.tr(),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildDropdown(
-                      'Year',
+                      'tournament.year'.tr(),
                       _selectedDivisionAge,
                       _ages,
                       (v) => setState(() => _selectedDivisionAge = v!),
@@ -609,7 +610,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                   Expanded(
                     child: PremiumTextField(
                       controller: _divisionFeeController,
-                      label: 'Entry Fee',
+                      label: 'tournament.entry_fee'.tr(),
                       icon: Icons.payments_outlined,
                       keyboardType: TextInputType.number,
                       hintText: '0',
@@ -619,7 +620,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                   Expanded(
                     child: PremiumTextField(
                       controller: _divisionMaxTeamsController,
-                      label: 'Max Teams',
+                      label: 'tournament.max_teams'.tr(),
                       icon: Icons.format_list_numbered,
                       keyboardType: TextInputType.number,
                     ),
@@ -780,7 +781,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Use Academy Fields', style: TextStyle(color: cs.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
+        Text('tournament.use_academy_fields'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
         Switch(
           value: _useAcademyFields,
           onChanged: (v) {
@@ -797,7 +798,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
   Widget _buildFieldsList(ColorScheme cs) {
     if (_availableFields.isEmpty) {
-      return Text('No fields found in your academy', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12));
+      return Text('tournament.no_fields_academy'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12));
     }
     return Wrap(
       spacing: 8,

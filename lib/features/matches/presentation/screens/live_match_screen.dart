@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/stats_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -159,16 +160,16 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: Text('SUBMIT FINAL RESULT', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
+        title: Text('match.submit_final_result'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
         content: Text(
-          'Final score: $_homeScore - $_awayScore\n\nThis cannot be undone.',
+          'match.final_score_confirm'.tr(namedArgs: {'home': _homeScore.toString(), 'away': _awayScore.toString()}),
           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('common.cancel'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('SUBMIT', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900)),
+            child: Text('match.submit'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900)),
           ),
         ],
       ),
@@ -179,8 +180,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       await _statsApi.submitMatchResult(widget.matchId, _homeScore, _awayScore);
       _timer?.cancel();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Result submitted!'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('match.result_submitted'.tr()),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ));
@@ -198,12 +199,12 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('LIVE MATCH', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 2)),
+        title: Text('match.live_match'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 2)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _submitResult,
-            child: const Text('SUBMIT', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1)),
+            child: Text('match.submit'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1)),
           ),
         ],
       ),
@@ -394,7 +395,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   Widget _buildEventFeed() {
     if (_events.isEmpty) {
       return Center(
-        child: Text('No events yet', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 12, letterSpacing: 1)),
+        child: Text('match.no_events'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 12, letterSpacing: 1)),
       );
     }
     return ListView.builder(
@@ -486,16 +487,16 @@ class _PlayerPickerSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Select player', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
+          Text('match.select_player'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
           const SizedBox(height: 16),
           if (starters.isNotEmpty) ...[
-            Text('STARTERS', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            Text('match.starters'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 8),
             ..._buildPlayerTiles(context, starters, color),
           ],
           if (subs.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text('SUBSTITUTES', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            Text('match.substitutes'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             const SizedBox(height: 8),
             ..._buildPlayerTiles(context, subs, color),
           ],

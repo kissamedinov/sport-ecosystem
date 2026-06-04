@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/tournament.dart';
 
@@ -45,11 +46,11 @@ class TournamentDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Format: ${tournament.format}',
+              'tournament.format_label'.tr(namedArgs: {'format': tournament.format}),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text(
-              'Category: ${tournament.ageCategory}',
+              'tournament.category_label'.tr(namedArgs: {'category': tournament.ageCategory}),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 30),
@@ -59,7 +60,7 @@ class TournamentDetailsScreen extends StatelessWidget {
                 onPressed: () {
                   // Register logic
                 },
-                child: const Text('Register for Tournament'),
+                child: Text('tournament.register_for_tournament'.tr()),
               ),
             ),
           ],

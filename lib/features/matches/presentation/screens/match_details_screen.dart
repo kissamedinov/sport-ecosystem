@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -48,7 +49,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('MATCH CENTER', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14)),
+        title: Text('match.match_center'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -190,15 +191,15 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         Icon(Icons.calendar_today_rounded, size: 14, color: Colors.white38),
         const SizedBox(width: 8),
         Text(
-          widget.match.matchDate?.toString().substring(0, 16) ?? 'TIME TBD',
+          widget.match.matchDate?.toString().substring(0, 16) ?? 'match.time_tbd'.tr(),
           style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(width: 20),
         Icon(Icons.location_on_outlined, size: 14, color: Colors.white38),
         const SizedBox(width: 8),
-        const Text(
-          'ARENA CENTER',
-          style: TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
+        Text(
+          'match.arena_center'.tr(),
+          style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -208,13 +209,13 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildCircleAction(Icons.analytics_outlined, 'STATS', () {
+        _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: widget.match.id)));
         }),
         const SizedBox(width: 24),
-        _buildCircleAction(Icons.videocam_outlined, 'REPLAY', null),
+        _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), null),
         const SizedBox(width: 24),
-        _buildCircleAction(Icons.share_outlined, 'SHARE', null),
+        _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), null),
       ],
     );
   }
@@ -246,11 +247,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildTab('LINEUPS', true),
+          _buildTab('match.lineups'.tr(), true),
           const SizedBox(width: 12),
-          _buildTab('TIMELINE', false),
+          _buildTab('match.timeline'.tr(), false),
           const SizedBox(width: 12),
-          _buildTab('INFO', false),
+          _buildTab('match.info'.tr(), false),
         ],
       ),
     );
@@ -297,7 +298,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             if (lineup != null)
               const Icon(Icons.check_circle_rounded, color: PremiumTheme.neonGreen, size: 18)
             else
-              const Text('PENDING', style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w800)),
+              Text('match.pending'.tr(), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w800)),
           ],
         ),
         const SizedBox(height: 16),
@@ -314,7 +315,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
               children: [
                 const Icon(Icons.groups_3_outlined, color: Colors.white10, size: 40),
                 const SizedBox(height: 12),
-                const Text('No lineup submitted yet', style: TextStyle(color: Colors.white24, fontSize: 12)),
+                Text('match.no_lineup'.tr(), style: const TextStyle(color: Colors.white24, fontSize: 12)),
                 if (isCoach) ...[
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -333,7 +334,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
-                    child: const Text('SUBMIT LINEUP', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
+                    child: Text('match.submit_lineup'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
                   ),
                 ],
               ],
@@ -352,9 +353,9 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSquadCategory('STARTING XI', starters),
+        _buildSquadCategory('match.starting_xi'.tr(), starters),
         const SizedBox(height: 16),
-        _buildSquadCategory('SUBSTITUTES', bench),
+        _buildSquadCategory('match.substitutes'.tr(), bench),
       ],
     );
   }

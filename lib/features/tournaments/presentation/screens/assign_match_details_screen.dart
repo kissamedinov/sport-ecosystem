@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -104,7 +105,7 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? 'MATCH DETAILS UPDATED' : 'ERROR UPDATING MATCH'),
+          content: Text(success ? 'tournament.match_details_updated'.tr() : 'tournament.error_updating_match'.tr()),
           backgroundColor: success ? PremiumTheme.neonGreen : PremiumTheme.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -120,7 +121,7 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('ASSIGN MATCH DETAILS', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.assign_match_details'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -129,28 +130,28 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
           children: [
             _buildMatchSummary(),
             const SizedBox(height: 32),
-            _buildSectionLabel("LOGISTICS"),
+            _buildSectionLabel('tournament.logistics'.tr()),
             const SizedBox(height: 16),
             PremiumTextField(
               controller: _fieldController,
-              label: "FIELD / COURT NAME",
+              label: 'tournament.field_court_name'.tr(),
               icon: Icons.stadium_rounded,
             ),
             const SizedBox(height: 16),
             PremiumTextField(
               controller: _refereeController,
-              label: "ASSIGN REFEREE",
+              label: 'tournament.assign_referee'.tr(),
               icon: Icons.sports_rounded,
             ),
             const SizedBox(height: 32),
-            _buildSectionLabel("SCHEDULE"),
+            _buildSectionLabel('tournament.schedule_label'.tr()),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildPickerTile(
-                    "DATE",
-                    _selectedDate != null ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}" : "SELECT",
+                    'tournament.date_label'.tr(),
+                    _selectedDate != null ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}" : 'tournament.select_label'.tr(),
                     Icons.calendar_month_rounded,
                     _pickDate,
                   ),
@@ -158,8 +159,8 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildPickerTile(
-                    "TIME",
-                    _selectedTime != null ? _selectedTime!.format(context) : "SELECT",
+                    'tournament.time_label'.tr(),
+                    _selectedTime != null ? _selectedTime!.format(context) : 'tournament.select_label'.tr(),
                     Icons.access_time_filled_rounded,
                     _pickTime,
                   ),
@@ -168,7 +169,7 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
             ),
             const SizedBox(height: 48),
             PremiumButton(
-              text: "SAVE ASSIGNMENTS",
+              text: 'tournament.save_assignments'.tr(),
               onPressed: _save,
             ),
           ],
@@ -184,13 +185,13 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildTeamInfo(widget.match.homeTeamId, "HOME"),
+          _buildTeamInfo(widget.match.homeTeamId, 'tournament.home_label'.tr()),
           const Column(
             children: [
               Text("VS", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2)),
             ],
           ),
-          _buildTeamInfo(widget.match.awayTeamId, "AWAY"),
+          _buildTeamInfo(widget.match.awayTeamId, 'tournament.away_label'.tr()),
         ],
       ),
     );
