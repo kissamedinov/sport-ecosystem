@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/data/models/user.dart';
 
@@ -18,7 +19,7 @@ class ParentProfile extends StatelessWidget {
           Text(user.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           Text(user.email, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 24),
-          _buildChildrenSection(),
+          _buildChildrenSection(context),
           const SizedBox(height: 24),
           _buildContactInfo(context),
         ],
@@ -26,21 +27,21 @@ class ParentProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildChildrenSection() {
+  Widget _buildChildrenSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Linked Children', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('children.my_children'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        ListTile(
-          leading: const Icon(Icons.child_care),
-          title: const Text('Leo'),
-          subtitle: const Text('Academy: Tigers U12'),
+        const ListTile(
+          leading: Icon(Icons.child_care),
+          title: Text('Leo'),
+          subtitle: Text('Academy: Tigers U12'),
         ),
-        ListTile(
-          leading: const Icon(Icons.child_care),
-          title: const Text('Mia'),
-          subtitle: const Text('Academy: Lions U10'),
+        const ListTile(
+          leading: Icon(Icons.child_care),
+          title: Text('Mia'),
+          subtitle: Text('Academy: Lions U10'),
         ),
       ],
     );
@@ -52,7 +53,7 @@ class ParentProfile extends StatelessWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.phone),
-            title: const Text('Contact Support'),
+            title: Text('profile.contact_support'.tr()),
             onTap: () {},
           ),
         ),
@@ -60,11 +61,8 @@ class ParentProfile extends StatelessWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            title: Text('profile.logout'.tr(), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             onTap: () async {
-              // Implementation detail: AuthProvider handles the logout state
-              // In MainNavigationScreen, watch<AuthProvider>().user will trigger a rebuild.
-              // However, explicitly calling logout here is good.
               await context.read<AuthProvider>().logout();
             },
           ),

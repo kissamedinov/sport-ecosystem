@@ -48,19 +48,19 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildMenuItem(Icons.edit_rounded, 'Edit Profile', muted, () {
+              _buildMenuItem(Icons.edit_rounded, 'profile.edit_profile'.tr(), muted, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
               }),
-              _buildMenuItem(Icons.notifications_outlined, 'Notifications', muted, () {
+              _buildMenuItem(Icons.notifications_outlined, 'profile.notifications'.tr(), muted, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
               }),
-              _buildMenuItem(Icons.calendar_month_outlined, 'My Bookings', muted, () {
+              _buildMenuItem(Icons.calendar_month_outlined, 'profile.my_bookings'.tr(), muted, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
               }),
-              _buildMenuItem(Icons.settings_outlined, 'Settings', muted, () {
+              _buildMenuItem(Icons.settings_outlined, 'profile.settings'.tr(), muted, () {
                 Navigator.pop(ctx);
                 Navigator.push(
                   context,
@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                 LanguagePickerSheet.show(context);
               }),
               Divider(color: divider, height: 24),
-              _buildMenuItem(Icons.logout_rounded, 'Logout', Colors.redAccent, () async {
+              _buildMenuItem(Icons.logout_rounded, 'profile.logout'.tr(), Colors.redAccent, () async {
                 Navigator.pop(ctx);
                 await auth.logout();
                 if (context.mounted) {
@@ -173,11 +173,11 @@ class ProfileScreen extends StatelessWidget {
                (roles.contains('PLAYER_ADULT') || roles.contains('PLAYER_YOUTH'))) {
       return PlayerProfileBody(playerProfileId: user.id);
     } else {
-      return const Padding(
-        padding: EdgeInsets.all(32.0),
+      return Padding(
+        padding: const EdgeInsets.all(32.0),
         child: Center(
           child: Text(
-            "Account setup in progress. Please contact your club administrator.",
+            'profile.account_setup'.tr(),
             textAlign: TextAlign.center,
           ),
         ),

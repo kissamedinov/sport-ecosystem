@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/features/clubs/data/models/club_dashboard.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -37,7 +38,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                 children: [
                   const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
                   const SizedBox(height: 16),
-                  Text("Loading dashboard...", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, letterSpacing: 1)),
+                  Text('profile.loading_dashboard'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12, letterSpacing: 1)),
                 ],
               ),
             ),
@@ -54,13 +55,13 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                     Icon(Icons.manage_accounts_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 56),
                     const SizedBox(height: 16),
                     Text(
-                      "You are not assigned to a club yet.",
+                      'club.not_assigned'.tr(),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Contact your club owner to be added.",
+                      'club.contact_owner'.tr(),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
@@ -90,29 +91,29 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              _buildSectionLabel("OPERATIONAL STATS"),
+              _buildSectionLabel('profile.operational_stats'.tr()),
               const SizedBox(height: 12),
               _buildClubStats(dashboard),
               const SizedBox(height: 28),
-              _buildSectionLabel("MONTHLY GROWTH"),
+              _buildSectionLabel('profile.monthly_growth'.tr()),
               const SizedBox(height: 12),
               _buildGrowthStats(dashboard),
               const SizedBox(height: 28),
-              _buildSectionLabel("MANAGEMENT TEAM  •  ${dashboard.managersCount}"),
+              _buildSectionLabel('${'profile.management_team'.tr()}  •  ${dashboard.managersCount}'),
               const SizedBox(height: 12),
               _buildManagersList(dashboard),
               const SizedBox(height: 28),
-              _buildSectionLabel("CLUB ROSTER  •  ${dashboard.playersCount}"),
+              _buildSectionLabel('${'profile.club_roster'.tr()}  •  ${dashboard.playersCount}'),
               const SizedBox(height: 12),
               _buildPlayersList(dashboard),
               if (dashboard.academies.isNotEmpty) ...[
                 const SizedBox(height: 28),
-                _buildSectionLabel("ACADEMIES & BRANCHES"),
+                _buildSectionLabel('profile.academies_branches'.tr()),
                 const SizedBox(height: 12),
                 _buildAcademiesList(dashboard),
               ],
               const SizedBox(height: 28),
-              _buildSectionLabel("QUICK ACTIONS"),
+              _buildSectionLabel('profile.quick_actions'.tr()),
               const SizedBox(height: 12),
               _buildActions(dashboard),
               const SizedBox(height: 40),
@@ -150,10 +151,10 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.4, // Increased height
       children: [
-        _buildStatCard("Teams", "${dashboard.teams.length}", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "ACTIVE"),
-        _buildStatCard("Players", "${dashboard.playersCount}", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "REGISTERED"),
-        _buildStatCard("Coaches", "${dashboard.coachesCount}", Icons.sports_rounded, Colors.amber, subtitle: "ON STAFF"),
-        _buildStatCard("Academies", "${dashboard.academies.length}", Icons.account_balance_rounded, Colors.purpleAccent, subtitle: "BRANCHES"),
+        _buildStatCard('club.teams'.tr(), "${dashboard.teams.length}", Icons.shield_rounded, PremiumTheme.electricBlue, subtitle: "ACTIVE"),
+        _buildStatCard('club.players'.tr(), "${dashboard.playersCount}", Icons.sports_soccer_rounded, PremiumTheme.neonGreen, subtitle: "REGISTERED"),
+        _buildStatCard('club.coaches'.tr(), "${dashboard.coachesCount}", Icons.sports_rounded, Colors.amber, subtitle: "ON STAFF"),
+        _buildStatCard('club.academies'.tr(), "${dashboard.academies.length}", Icons.account_balance_rounded, Colors.purpleAccent, subtitle: "BRANCHES"),
       ],
     );
   }
@@ -239,11 +240,11 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
     return Row(
       children: [
         Expanded(
-          child: _buildGrowthCard("New Coaches", "+$newCoaches", Colors.orangeAccent, Icons.trending_up_rounded),
+          child: _buildGrowthCard('club.new_coaches'.tr(), "+$newCoaches", Colors.orangeAccent, Icons.trending_up_rounded),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildGrowthCard("New Players", "+$newPlayers", PremiumTheme.neonGreen, Icons.trending_up_rounded),
+          child: _buildGrowthCard('club.new_players'.tr(), "+$newPlayers", PremiumTheme.neonGreen, Icons.trending_up_rounded),
         ),
       ],
     );
@@ -317,7 +318,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
 
   Widget _buildManagersList(ClubDashboard dashboard) {
     if (dashboard.managers.isEmpty) {
-      return _buildEmptyState("No managers assigned", Icons.person_off_rounded);
+      return _buildEmptyState('club.no_managers'.tr(), Icons.person_off_rounded);
     }
 
     final roles = ["Operations Director", "Sporting Director", "Technical Director", "Academy Director"];
@@ -407,7 +408,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
 
   Widget _buildPlayersList(ClubDashboard dashboard) {
     if (dashboard.players.isEmpty) {
-      return _buildEmptyState("No players in the roster", Icons.sports_soccer_outlined);
+      return _buildEmptyState('club.no_players'.tr(), Icons.sports_soccer_outlined);
     }
     final displayPlayers = dashboard.players.length > 5 ? dashboard.players.take(5).toList() : dashboard.players;
 
@@ -500,7 +501,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
   Widget _buildActions(ClubDashboard dashboard) {
     return Column(
       children: [
-        _buildActionButton("Manage All Teams", Icons.settings_applications_rounded, PremiumTheme.electricBlue, () {
+        _buildActionButton('club.manage_all_teams'.tr(), Icons.settings_applications_rounded, PremiumTheme.electricBlue, () {
           if (dashboard.teams.isNotEmpty) {
             Navigator.push(
               context,
@@ -513,12 +514,12 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("No teams available to manage.")),
+              SnackBar(content: Text('club.no_teams_available'.tr())),
             );
           }
         }),
         const SizedBox(height: 10),
-        _buildActionButton("Invite Professionals", Icons.person_add_rounded, PremiumTheme.neonGreen, () {
+        _buildActionButton('club.invite_professionals'.tr(), Icons.person_add_rounded, PremiumTheme.neonGreen, () {
           Navigator.push(
             context,
             MaterialPageRoute(

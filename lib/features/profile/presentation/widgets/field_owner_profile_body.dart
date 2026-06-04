@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -48,17 +49,17 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              _buildSectionLabel("OVERVIEW"),
+              _buildSectionLabel('profile.overview'.tr()),
               const SizedBox(height: 12),
               _buildStatsRow(myFields.length, activeBookings, revenue),
               const SizedBox(height: 28),
 
-              _buildSectionLabel("MY FIELDS"),
+              _buildSectionLabel('profile.my_fields'.tr()),
               const SizedBox(height: 12),
               _buildFieldsList(myFields),
               const SizedBox(height: 28),
 
-              _buildSectionLabel("RECENT BOOKINGS"),
+              _buildSectionLabel('profile.recent_bookings'.tr()),
               const SizedBox(height: 12),
               _buildBookingsList(myBookings),
               const SizedBox(height: 40),
@@ -78,7 +79,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
             const SizedBox(height: 20),
             Text(
-              "SYNCING DATA...",
+              'profile.syncing'.tr(),
               style: TextStyle(
                 color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
                 fontSize: 10,
@@ -124,7 +125,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
           children: [
             Expanded(
               child: PremiumStatCard(
-                title: "FIELDS",
+                title: 'profile.my_fields'.tr(),
                 value: "$fieldCount",
                 icon: Icons.stadium_rounded,
                 color: PremiumTheme.neonGreen,
@@ -133,7 +134,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             const SizedBox(width: 12),
             Expanded(
               child: PremiumStatCard(
-                title: "BOOKINGS",
+                title: 'field.my_bookings'.tr(),
                 value: "$bookingCount",
                 icon: Icons.event_available_rounded,
                 color: PremiumTheme.electricBlue,
@@ -143,7 +144,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
         ),
         const SizedBox(height: 12),
         PremiumStatCard(
-          title: "REVENUE",
+          title: 'profile.total_revenue'.tr(),
           value: "${revenue.toStringAsFixed(0)} ₸",
           icon: Icons.payments_rounded,
           color: Colors.amber,
@@ -154,7 +155,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
   Widget _buildFieldsList(List<Field> fields) {
     if (fields.isEmpty) {
-      return _buildEmptyCard("No fields registered yet", Icons.stadium_outlined);
+      return _buildEmptyCard('profile.no_fields'.tr(), Icons.stadium_outlined);
     }
 
     return Column(
@@ -215,9 +216,9 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  "ACTIVE",
-                  style: TextStyle(
+                child: Text(
+                  'profile.active_status'.tr(),
+                  style: const TextStyle(
                     color: PremiumTheme.neonGreen,
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
@@ -234,7 +235,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
   Widget _buildBookingsList(List<Booking> bookings) {
     if (bookings.isEmpty) {
-      return _buildEmptyCard("No bookings yet", Icons.event_busy_rounded);
+      return _buildEmptyCard('profile.no_bookings'.tr(), Icons.event_busy_rounded);
     }
 
     final onSurface = Theme.of(context).colorScheme.onSurface;
@@ -274,7 +275,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Booking #${booking.id.length >= 8 ? booking.id.substring(0, 8).toUpperCase() : booking.id.toUpperCase()}',
+                        'profile.booking_num'.tr(namedArgs: {'id': booking.id.length >= 8 ? booking.id.substring(0, 8).toUpperCase() : booking.id.toUpperCase()}),
                         style: TextStyle(
                           color: onSurface,
                           fontWeight: FontWeight.w700,

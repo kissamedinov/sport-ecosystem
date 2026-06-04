@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/player_stats/data/models/player_stats.dart';
 import 'package:mobile/features/player_stats/presentation/screens/player_stats_screen.dart';
 import 'package:mobile/core/api/stats_api_service.dart';
@@ -62,7 +63,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildSectionLabel("CAREER OVERVIEW"),
+                  _buildSectionLabel('profile.career_overview'.tr()),
                   const SizedBox(height: 12),
                   if (career != null) _buildCareerGrid(career) else _buildStatsGrid(stats),
                   const SizedBox(height: 28),
@@ -75,7 +76,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSectionLabel("PHYSICAL ATTRIBUTES"),
+                            _buildSectionLabel('profile.physical_attributes'.tr()),
                             const SizedBox(height: 12),
                             _buildPhysicalGrid(p),
                             const SizedBox(height: 28),
@@ -104,11 +105,11 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionLabel("GOALS DYNAMICS"),
+                          _buildSectionLabel('profile.goals_dynamics'.tr()),
                           const SizedBox(height: 12),
                           CareerHistoryChart(history: history),
                           const SizedBox(height: 28),
-                          _buildSectionLabel("RECENT MATCHES"),
+                          _buildSectionLabel('profile.recent_matches'.tr()),
                           const SizedBox(height: 12),
                           SizedBox(
                             height: 100,
@@ -125,17 +126,17 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   ),
 
                   if (stats.awards.isNotEmpty) ...[
-                    _buildSectionLabel("LATEST AWARDS"),
+                    _buildSectionLabel('profile.latest_awards'.tr()),
                     const SizedBox(height: 12),
                     _buildAwardsList(stats.awards),
                     const SizedBox(height: 28),
                   ],
 
-                  _buildSectionLabel("QUICK ACTIONS"),
+                  _buildSectionLabel('profile.quick_actions'.tr()),
                   const SizedBox(height: 12),
                   _buildActionCard(
                     icon: Icons.analytics_rounded,
-                    label: "View Detailed Career",
+                    label: 'profile.view_detailed_career'.tr(),
                     color: PremiumTheme.electricBlue,
                     onTap: () => Navigator.push(
                       context,
@@ -145,7 +146,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   const SizedBox(height: 10),
                   _buildActionCard(
                     icon: Icons.group_add_rounded,
-                    label: "Parent Requests",
+                    label: 'profile.parent_requests'.tr(),
                     color: Colors.orangeAccent,
                     onTap: () => Navigator.push(
                       context,
@@ -171,7 +172,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
             const SizedBox(height: 20),
             Text(
-              "SYNCING DATA...",
+              'profile.syncing'.tr(),
               style: TextStyle(
                 color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
                 fontSize: 10,
@@ -195,7 +196,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
               const SizedBox(height: 16),
               Text(
-                "SYSTEM ERROR",
+                'profile.system_error'.tr(),
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
@@ -212,7 +213,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
                   _historyFuture = _statsApi.getMatchHistory(widget.playerProfileId);
                 }),
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text("RETRY CONNECTION"),
+                label: Text('profile.retry_connection'.tr()),
                 style: TextButton.styleFrom(foregroundColor: PremiumTheme.neonGreen),
               ),
             ],
@@ -255,7 +256,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             Expanded(
               flex: 3,
               child: _buildMainStatCard(
-                label: "PERFORMANCE RATING",
+                label: 'profile.performance_rating'.tr(),
                 value: career.rating.toStringAsFixed(1),
                 icon: Icons.auto_graph_rounded,
                 gradient: [const Color(0xFF2C2200), const Color(0xFF1A1500)],
@@ -266,7 +267,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             Expanded(
               flex: 2,
               child: _buildMainStatCard(
-                label: "MATCHES",
+                label: 'profile.matches_label'.tr(),
                 value: "${career.matchesPlayed}",
                 icon: Icons.stadium_rounded,
                 gradient: [const Color(0xFF001A33), const Color(0xFF000D1A)],
@@ -280,7 +281,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           children: [
             Expanded(
               child: _buildSecondaryStatCard(
-                label: "GOALS",
+                label: 'profile.goals_label'.tr(),
                 value: "${career.goals}",
                 icon: Icons.sports_soccer_rounded,
                 color: PremiumTheme.neonGreen,
@@ -289,7 +290,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             const SizedBox(width: 10),
             Expanded(
               child: _buildSecondaryStatCard(
-                label: "ASSISTS",
+                label: 'profile.assists_label'.tr(),
                 value: "${career.assists}",
                 icon: Icons.analytics_rounded,
                 color: Colors.orangeAccent,
@@ -298,7 +299,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
             const SizedBox(width: 10),
             Expanded(
               child: _buildSecondaryStatCard(
-                label: "AWARDS",
+                label: 'profile.awards_label'.tr(),
                 value: "${career.bestPlayerAwards}",
                 icon: Icons.emoji_events_rounded,
                 color: Colors.purpleAccent,
@@ -380,7 +381,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       children: [
         Expanded(
           child: _buildSecondaryStatCard(
-            label: "GOALS",
+            label: 'profile.goals_label'.tr(),
             value: "${stats.goals}",
             icon: Icons.sports_soccer_rounded,
             color: PremiumTheme.neonGreen,
@@ -389,7 +390,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildSecondaryStatCard(
-            label: "ASSISTS",
+            label: 'profile.assists_label'.tr(),
             value: "${stats.assists}",
             icon: Icons.analytics_rounded,
             color: PremiumTheme.electricBlue,
@@ -398,7 +399,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildSecondaryStatCard(
-            label: "SAVES",
+            label: 'profile.saves_label'.tr(),
             value: "${stats.saves}",
             icon: Icons.front_hand_rounded,
             color: Colors.orangeAccent,
@@ -584,7 +585,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       children: [
         Expanded(
           child: _buildPhysicalCard(
-            label: "POSITION",
+            label: 'profile.position_label'.tr(),
             value: p['preferred_position'] ?? "N/A",
             icon: Icons.gps_fixed_rounded,
           ),
@@ -592,7 +593,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildPhysicalCard(
-            label: "FOOT",
+            label: 'profile.foot_label'.tr(),
             value: p['dominant_foot'] ?? "N/A",
             icon: Icons.directions_run_rounded,
           ),
@@ -600,7 +601,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildPhysicalCard(
-            label: "HEIGHT",
+            label: 'profile.height_label'.tr(),
             value: p['height'] ?? "N/A",
             icon: Icons.height_rounded,
           ),
@@ -608,7 +609,7 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildPhysicalCard(
-            label: "WEIGHT",
+            label: 'profile.weight_label'.tr(),
             value: p['weight'] ?? "N/A",
             icon: Icons.monitor_weight_outlined,
           ),

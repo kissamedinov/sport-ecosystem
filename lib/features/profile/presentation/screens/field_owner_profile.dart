@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/data/models/user.dart';
 
@@ -16,11 +17,11 @@ class FieldOwnerProfile extends StatelessWidget {
           const CircleAvatar(radius: 50, child: Icon(Icons.stadium, size: 50)),
           const SizedBox(height: 16),
           Text(user.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const Text('FIELD OWNER / PARTNER', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+          Text('club.field_owner_label'.tr(), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
-          _buildFinanceSummary(),
+          _buildFinanceSummary(context),
           const SizedBox(height: 24),
-          _buildManagedFields(),
+          _buildManagedFields(context),
           const SizedBox(height: 24),
           _buildLogoutCard(context),
         ],
@@ -32,7 +33,7 @@ class FieldOwnerProfile extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.logout, color: Colors.red),
-        title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+        title: Text('profile.logout'.tr(), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
         onTap: () async {
           await context.read<AuthProvider>().logout();
         },
@@ -40,16 +41,16 @@ class FieldOwnerProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildFinanceSummary() {
+  Widget _buildFinanceSummary(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildStatItem('Active Fields', '2'),
-            _buildStatItem('Bookings', '156'),
-            _buildStatItem('Revenue', '850K ₸'),
+            _buildStatItem('profile.my_fields'.tr(), '2'),
+            _buildStatItem('field.my_bookings'.tr(), '156'),
+            _buildStatItem('profile.total_revenue'.tr(), '850K ₸'),
           ],
         ),
       ),
@@ -65,21 +66,21 @@ class FieldOwnerProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildManagedFields() {
+  Widget _buildManagedFields(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Registered Fields', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('profile.my_fields'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        ListTile(
-          leading: const Icon(Icons.stadium_outlined),
-          title: const Text('Emirates Stadium (Mock)'),
-          subtitle: const Text('Address: Isatay Batyr 141'),
+        const ListTile(
+          leading: Icon(Icons.stadium_outlined),
+          title: Text('Emirates Stadium (Mock)'),
+          subtitle: Text('Address: Isatay Batyr 141'),
         ),
-        ListTile(
-          leading: const Icon(Icons.stadium_outlined),
-          title: const Text('Academy Training Pitch'),
-          subtitle: const Text('Address: Abay Ave 45'),
+        const ListTile(
+          leading: Icon(Icons.stadium_outlined),
+          title: Text('Academy Training Pitch'),
+          subtitle: Text('Address: Abay Ave 45'),
         ),
       ],
     );

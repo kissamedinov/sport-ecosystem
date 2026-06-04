@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:image_picker/image_picker.dart';
@@ -51,15 +52,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final filename = image.name.isNotEmpty ? image.name : image.path.split('/').last;
         final success = await context.read<AuthProvider>().uploadAvatar(bytes, filename);
         if (mounted) {
+          final authProv = context.read<AuthProvider>();
           ScaffoldMessenger.of(context).showSnackBar(success
-            ? const SnackBar(content: Text("Profile picture updated!"))
-            : SnackBar(content: Text("Upload failed: ${context.read<AuthProvider>().error ?? 'unknown error'}")));
+            ? SnackBar(content: Text('profile.picture_updated'.tr()))
+            : SnackBar(content: Text('profile.upload_failed'.tr(namedArgs: {'error': authProv.error ?? 'unknown error'}))));
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
+          SnackBar(content: Text('profile.error_prefix'.tr(namedArgs: {'error': e.toString()}))),
         );
       }
     } finally {
@@ -80,13 +82,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (success && mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile updated successfully!")),
+          SnackBar(content: Text('profile.update_success'.tr())),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
+          SnackBar(content: Text('profile.error_prefix'.tr(namedArgs: {'error': e.toString()}))),
         );
       }
     } finally {
@@ -99,7 +101,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text("EDIT PROFILE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
+        title: Text('profile.edit_title'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 16)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -111,7 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           if (!_isLoading)
             TextButton(
               onPressed: _saveProfile,
-              child: const Text("SAVE", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
+              child: Text('profile.save'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
             ),
           if (_isLoading)
             const Padding(
@@ -129,26 +131,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               _buildAvatarEdit(),
               const SizedBox(height: 40),
-              _buildSectionLabel("PERSONAL INFORMATION"),
+              _buildSectionLabel('profile.personal_info'.tr()),
               const SizedBox(height: 16),
-              _buildTextField("Full Name", _nameController, Icons.person_outline_rounded),
+              _buildTextField('profile.full_name'.tr(), _nameController, Icons.person_outline_rounded),
               const SizedBox(height: 24),
-              _buildSectionLabel("CONTACT INFORMATION"),
+              _buildSectionLabel('profile.contact_info'.tr()),
               const SizedBox(height: 16),
-              _buildTextField("Phone Number", _phoneController, Icons.phone_android_rounded, keyboardType: TextInputType.phone),
+              _buildTextField('profile.phone_number'.tr(), _phoneController, Icons.phone_android_rounded, keyboardType: TextInputType.phone),
               const SizedBox(height: 24),
-              _buildSectionLabel("BIO / DESCRIPTION"),
+              _buildSectionLabel('profile.bio_section'.tr()),
               const SizedBox(height: 16),
               _buildTextField(
-                "Tell us about yourself...", 
-                _bioController, 
-                Icons.description_outlined, 
+                'profile.bio_hint'.tr(),
+                _bioController,
+                Icons.description_outlined,
                 maxLines: 4,
               ),
               const SizedBox(height: 40),
               Center(
                 child: Text(
-                  "Your information is visible to other club members and professionals.",
+                  'profile.info_visible'.tr(),
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,
                 ),
@@ -261,7 +263,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         contentPadding: const EdgeInsets.all(18),
       ),
-      validator: (val) => val == null || val.isEmpty ? "Required" : null,
+      validator: (val) => val == null || val.isEmpty ? 'common.required'.tr() : null,
     );
   }
 }

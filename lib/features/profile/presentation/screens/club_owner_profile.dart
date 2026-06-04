@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/profile/presentation/widgets/profile_header.dart';
@@ -18,9 +19,9 @@ class ClubOwnerProfile extends StatelessWidget {
       backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(
+        title: Text(
+          'profile.title'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
             fontSize: 16,
@@ -32,7 +33,7 @@ class ClubOwnerProfile extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
-            tooltip: 'Quit',
+            tooltip: 'profile.quit'.tr(),
             onPressed: () {
               context.read<AuthProvider>().logout();
               Navigator.pushReplacementNamed(context, '/login');

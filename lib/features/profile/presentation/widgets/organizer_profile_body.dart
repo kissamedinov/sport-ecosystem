@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/tournaments/providers/tournament_provider.dart';
@@ -38,24 +39,24 @@ class _OrganizerProfileBodyState extends State<OrganizerProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              _buildSectionLabel("ORGANIZER DASHBOARD"),
+              _buildSectionLabel('profile.organizer_dashboard'.tr()),
               const SizedBox(height: 16),
               _buildStatsGrid(myTournaments),
               const SizedBox(height: 28),
-              _buildSectionLabel("QUICK ACTIONS"),
+              _buildSectionLabel('profile.quick_actions'.tr()),
               const SizedBox(height: 12),
               _buildQuickActions(context),
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildSectionLabel("MY TOURNAMENTS"),
+                  _buildSectionLabel('profile.my_tournaments'.tr()),
                   TextButton(
                     onPressed: () {
                       HapticFeedback.lightImpact();
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen()));
                     },
-                    child: const Text('VIEW ALL', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                    child: Text('profile.view_all'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
