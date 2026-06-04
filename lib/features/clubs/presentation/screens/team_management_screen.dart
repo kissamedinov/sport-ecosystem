@@ -412,7 +412,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       clubProvider.fetchClubDashboard();
       Navigator.pop(context); // Go back to refresh screen or we could just update local state
     } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('common.error'.tr() + ': ${clubProvider.error ?? 'common.unknown'.tr()}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${'common.error'.tr()}: ${clubProvider.error ?? 'common.unknown'.tr()}')));
     }
   }
 
@@ -432,7 +432,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
       clubProvider.fetchClubDashboard();
       Navigator.pop(context);
     } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('common.error'.tr() + ': ${clubProvider.error ?? 'common.unknown'.tr()}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${'common.error'.tr()}: ${clubProvider.error ?? 'common.unknown'.tr()}')));
     }
   }
 }
