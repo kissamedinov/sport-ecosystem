@@ -664,7 +664,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(div['name'] ?? 'Division ${div['birth_year']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text('Format: ${div['format'] ?? 'Standard'} • Fee: ${div['entry_fee'] ?? 0} • Year: ${div['birth_year']} • Max Teams: ${div['max_teams']}', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                          Text('tournament.division_format'.tr(namedArgs: {'format': div['format']?.toString() ?? 'Standard', 'fee': (div['entry_fee'] ?? 0).toString(), 'year': div['birth_year']?.toString() ?? '', 'max': (div['max_teams'] ?? 0).toString()}), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                         ],
                       ),
                     ),

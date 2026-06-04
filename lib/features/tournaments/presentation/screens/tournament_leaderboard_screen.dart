@@ -61,7 +61,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
                   return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: PremiumTheme.danger)));
+                  return Center(child: Text('tournament.error_message'.tr(namedArgs: {'error': snapshot.error.toString()}), style: const TextStyle(color: PremiumTheme.danger)));
                 }
                 final leaderboard = snapshot.data ?? [];
                 if (leaderboard.isEmpty) {

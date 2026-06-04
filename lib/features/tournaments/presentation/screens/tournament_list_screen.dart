@@ -445,7 +445,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             ),
             const SizedBox(height: 24),
             PremiumButton(
-              text: 'RETRY',
+              text: 'common.retry'.tr(),
               onPressed: () => context.read<TournamentProvider>().fetchTournaments(),
             ),
           ],

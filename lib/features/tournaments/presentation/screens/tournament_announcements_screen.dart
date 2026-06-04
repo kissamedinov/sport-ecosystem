@@ -149,29 +149,29 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('To register your team, please contact the organizer or use the direct registration button below.',
+            Text('tournament.could_not_launch'.tr(),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             const SizedBox(height: 20),
             if (t.whatsapp != null || t.phone != null) ...[
-              Text('ORGANIZER CONTACTS', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              Text('tournament.organizer_contacts_section'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               const SizedBox(height: 12),
               if (t.whatsapp != null)
                 ListTile(
                   leading: const Icon(Icons.message, color: PremiumTheme.neonGreen),
                   title: Text(t.whatsapp!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                  subtitle: Text('WhatsApp', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                  subtitle: Text('tournament.whatsapp_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
               if (t.phone != null)
                 ListTile(
                   leading: const Icon(Icons.phone, color: PremiumTheme.neonGreen),
                   title: Text(t.phone!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                  subtitle: Text('Phone', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                  subtitle: Text('tournament.phone_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
             ],
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('CLOSE', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.close'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
