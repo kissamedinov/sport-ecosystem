@@ -959,5 +959,21 @@
     "launch_tournament": "Турнир іске қосу",
     "start_next_event": "Келесі үлкен оқиғаны бастаңыз",
     "total": "БАРЛЫҒЫ"
+  },
+  "quiz": {
+    "no_quiz": "Викторина қол жетімді емес",
+    "daily_title": "КҮНДЕЛІКТІ ВИКТОРИНА",
+    "streak_hint": "СЕРИЯНЫ САҚТАУ ҮШІН 5+ ДҰРЫС ЖАУАП БЕРІҢІЗ",
+    "tip_prefix": "КЕҢЕС: {tip}",
+    "workout_complete": "ЖАТТЫҒУ АЯҚТАЛДЫ!",
+    "score_today": "Бүгін {score} / 10 ұпай жинадыңыз",
+    "back_to_profile": "ПРОФИЛЬГЕ ОРАЛУ",
+    "already_passed": "ӨТКІЗІЛДІ!",
+    "your_score": "Сіздің нәтижеңіз: {score} / {total}",
+    "come_back_tomorrow": "Жаңа тапсырма үшін ертең оралыңыз!",
+    "daily_streak_day": "СЕРИЯ: {streak} КҮН",
+    "daily_streak_days": "СЕРИЯ: {streak} КҮН",
+    "streak_maintain": "Серияны сақтау үшін 5+ дұрыс жауап беріңіз!",
+    "connection_error": "ҚОСЫЛУ ҚАТЕСІ"
   }
 }

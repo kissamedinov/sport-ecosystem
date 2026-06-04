@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/clubs/presentation/screens/admin_requests_screen.dart';
 
 class AdminHubScreen extends StatelessWidget {
@@ -8,7 +9,7 @@ class AdminHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ADMIN CONSOLE'),
+        title: Text('admin.admin_console'.tr()),
         centerTitle: true,
       ),
       body: Container(
@@ -30,36 +31,36 @@ class AdminHubScreen extends StatelessWidget {
           children: [
             _buildAdminCard(
               context,
-              'Club Requests',
+              'admin.club_requests'.tr(),
               Icons.business_rounded,
               Colors.blue,
               () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminClubRequestsScreen())),
             ),
             _buildAdminCard(
               context,
-              'Tournament Moderation',
+              'admin.tournament_moderation'.tr(),
               Icons.emoji_events_rounded,
               Colors.orange,
               () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Tournament Moderation coming soon!')),
+                  SnackBar(content: Text('admin.coming_soon'.tr(namedArgs: {'feature': 'admin.tournament_moderation'.tr()}))),
                 );
               },
             ),
             _buildAdminCard(
               context,
-              'User Management',
+              'admin.user_management'.tr(),
               Icons.people_alt_rounded,
               Colors.green,
               () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('User Management coming soon!')),
+                  SnackBar(content: Text('admin.coming_soon'.tr(namedArgs: {'feature': 'admin.user_management'.tr()}))),
                 );
               },
             ),
             _buildAdminCard(
               context,
-              'System Settings',
+              'admin.system_settings'.tr(),
               Icons.settings_suggest_rounded,
               Colors.purple,
               () {},

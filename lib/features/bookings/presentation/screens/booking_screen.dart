@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/premium_theme.dart';
 
@@ -47,9 +48,9 @@ class _BookingScreenState extends State<BookingScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text(
-          'FIELD BOOKING',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+        title: Text(
+          'field.book_field'.tr(),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -201,10 +202,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: PremiumTheme.neonShadow(),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'BOOK NOW',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
+                  'field.book_field'.tr(),
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
                 ),
               ),
             ),

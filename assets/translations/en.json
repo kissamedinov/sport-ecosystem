@@ -1113,5 +1113,21 @@
     "launch_tournament": "Launch Tournament",
     "start_next_event": "Start your next big event",
     "total": "TOTAL"
+  },
+  "quiz": {
+    "no_quiz": "No quiz available",
+    "daily_title": "DAILY KICK-OFF QUIZ",
+    "streak_hint": "GET 5+ CORRECT TO KEEP YOUR STREAK",
+    "tip_prefix": "TIP: {tip}",
+    "workout_complete": "WORKOUT COMPLETE!",
+    "score_today": "You scored {score} out of 10 points today",
+    "back_to_profile": "BACK TO PROFILE",
+    "already_passed": "ALREADY PASSED!",
+    "your_score": "Your score: {score} / {total}",
+    "come_back_tomorrow": "Come back tomorrow for a new challenge!",
+    "daily_streak_day": "DAILY STREAK: {streak} DAY",
+    "daily_streak_days": "DAILY STREAK: {streak} DAYS",
+    "streak_maintain": "Get 5+ correct answers to maintain streak!",
+    "connection_error": "CONNECTION ERROR"
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/premium_theme.dart';
@@ -42,7 +43,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
       body: Consumer<BookingProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-          if (provider.error != null) return Center(child: Text('Error: ${provider.error}', style: const TextStyle(color: Colors.red)));
+          if (provider.error != null) return Center(child: Text('${'common.error'.tr()}: ${provider.error}', style: const TextStyle(color: Colors.red)));
 
           final slots = provider.slots;
 
@@ -51,7 +52,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
               _buildDatePicker(),
               Expanded(
                 child: slots.isEmpty 
-                  ? const Center(child: Text('No slots available for this date', style: TextStyle(color: Colors.white38)))
+                  ? Center(child: Text('field.no_bookings'.tr(), style: const TextStyle(color: Colors.white38)))
                   : _buildSlotsGrid(slots),
               ),
               if (_selectedSlotId != null) _buildBookingBar(provider),
@@ -160,7 +161,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total Amount', style: TextStyle(color: Colors.white70)),
+                Text('booking.total'.tr(), style: const TextStyle(color: Colors.white70)),
                 Text('5,000 ₸', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 20, fontWeight: FontWeight.bold)),
               ],
             ),
@@ -170,7 +171,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
                 final success = await provider.confirmBooking(_selectedSlotId!);
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Booking Confirmed!'))
+                    SnackBar(content: Text('booking.booking_confirmed'.tr()))
                   );
                   Navigator.pop(context);
                 }
@@ -181,7 +182,7 @@ class _FieldBookingScreenState extends State<FieldBookingScreen> {
                 minimumSize: const Size(double.infinity, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('CONFIRM BOOKING', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              child: Text('field.confirm_booking'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
             ),
           ],
         ),

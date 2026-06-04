@@ -1113,5 +1113,21 @@
     "launch_tournament": "Запустить турнир",
     "start_next_event": "Начните следующее большое событие",
     "total": "ВСЕГО"
+  },
+  "quiz": {
+    "no_quiz": "Викторина недоступна",
+    "daily_title": "ЕЖЕДНЕВНАЯ ВИКТОРИНА",
+    "streak_hint": "ОТВЕТЬТЕ НА 5+ ВОПРОСОВ, ЧТОБЫ СОХРАНИТЬ СЕРИЮ",
+    "tip_prefix": "ПОДСКАЗКА: {tip}",
+    "workout_complete": "ТРЕНИРОВКА ЗАВЕРШЕНА!",
+    "score_today": "Сегодня вы набрали {score} из 10 очков",
+    "back_to_profile": "ВЕРНУТЬСЯ В ПРОФИЛЬ",
+    "already_passed": "УЖЕ ПРОЙДЕНО!",
+    "your_score": "Ваш счёт: {score} / {total}",
+    "come_back_tomorrow": "Возвращайтесь завтра за новым заданием!",
+    "daily_streak_day": "СЕРИЯ: {streak} ДЕНЬ",
+    "daily_streak_days": "СЕРИЯ: {streak} ДНЕЙ",
+    "streak_maintain": "Правильно ответьте на 5+ вопросов, чтобы сохранить серию!",
+    "connection_error": "ОШИБКА ПОДКЛЮЧЕНИЯ"
   }
 }

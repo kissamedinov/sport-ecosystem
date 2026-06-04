@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/media_item.dart';
@@ -48,7 +49,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('MEDIA GALLERY', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
+        title: Text('media.media_gallery'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -90,7 +91,7 @@ class _MediaGalleryScreenState extends State<MediaGalleryScreen> {
                 children: [
                   Icon(Icons.photo_library_outlined, size: 64, color: Colors.white10),
                   const SizedBox(height: 16),
-                  const Text('No media found', style: TextStyle(color: Colors.white38)),
+                  Text('media.no_media'.tr(), style: const TextStyle(color: Colors.white38)),
                 ],
               ),
             );

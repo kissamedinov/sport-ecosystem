@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('FIELD MANAGEMENT', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('field.field_management'.tr(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -30,30 +31,30 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           children: [
             _buildStatGrid(),
             const SizedBox(height: 32),
-            _buildSectionTitle('OPERATIONS'),
+            _buildSectionTitle('field.operations'.tr()),
             const SizedBox(height: 12),
             _buildActionCard(
-              context, 
-              'Booking Requests', 
-              'Review and approve pending reservations', 
+              context,
+              'field.booking_requests'.tr(),
+              'field.booking_requests_desc'.tr(),
               Icons.book_online,
               PremiumTheme.neonGreen,
               () {},
             ),
             const SizedBox(height: 16),
             _buildActionCard(
-              context, 
-              'Batch Slot Generation', 
-              'Automatically create time slots for a day', 
+              context,
+              'field.batch_slot_generation'.tr(),
+              'field.batch_slot_desc'.tr(),
               Icons.auto_awesome,
               PremiumTheme.electricBlue,
               () => _showGenerateSlotsDialog(context),
             ),
             const SizedBox(height: 16),
             _buildActionCard(
-              context, 
-              'Manual Availability', 
-              'Block specific hours or adjust pricing', 
+              context,
+              'field.manual_availability'.tr(),
+              'field.manual_availability_desc'.tr(),
               Icons.timer_outlined,
               Colors.orange,
               () {},
@@ -134,7 +135,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           borderRadius: BorderRadius.circular(24), 
           side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
-        title: Text('GENERATE SLOTS', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text('field.batch_slot_generation'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -158,7 +159,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () async {
               final provider = context.read<BookingProvider>();
@@ -175,11 +176,11 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
 
               if (success && mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Slots generated successfully!')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('field.booking_confirmed'.tr())));
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
-            child: const Text('GENERATE'),
+            child: Text('field.batch_slot_generation'.tr()),
           ),
         ],
       ),

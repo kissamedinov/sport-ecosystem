@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -38,7 +39,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
                 background: _buildHeaderBackground(),
                 titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
                 title: innerBoxIsScrolled 
-                  ? const Text("LOGISTICS HUB", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2))
+                  ? Text("booking.organizer_logistics".tr(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2))
                   : null,
               ),
             ),
@@ -78,7 +79,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "ORGANIZER TOOLS",
+              "organizer.hub".tr(),
               style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2),
             ),
           ),
@@ -236,7 +237,7 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
           Icon(Icons.inventory_2_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06), size: 80),
           const SizedBox(height: 20),
           Text("GEAR MANAGEMENT", style: TextStyle(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), letterSpacing: 2)),
-          Text("Coming in next update", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06), fontSize: 12)),
+          Text('common.coming_soon_content'.tr(namedArgs: {'title': 'GEAR'}), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06), fontSize: 12)),
         ],
       ),
     );

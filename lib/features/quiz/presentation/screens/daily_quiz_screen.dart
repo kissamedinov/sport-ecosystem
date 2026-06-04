@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
 import '../../providers/quiz_provider.dart';
@@ -89,7 +90,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 return _buildErrorState(provider.error!);
               }
               if (provider.currentQuiz == null) {
-                return const Center(child: Text("No quiz available"));
+                return Center(child: Text('quiz.no_quiz'.tr()));
               }
 
               final questions = provider.currentQuiz!.questions;
@@ -140,7 +141,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 onPressed: () => Navigator.pop(context),
               ),
               Text(
-                "DAILY KICK-OFF QUIZ",
+                'quiz.daily_title'.tr(),
                 style: TextStyle(
                   color: PremiumTheme.neonGreen.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w900,
@@ -159,14 +160,14 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.bolt_rounded, color: Colors.orange, size: 14),
-                SizedBox(width: 8),
+                const Icon(Icons.bolt_rounded, color: Colors.orange, size: 14),
+                const SizedBox(width: 8),
                 Text(
-                  "GET 5+ CORRECT TO KEEP YOUR STREAK",
-                  style: TextStyle(color: Colors.orange, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  'quiz.streak_hint'.tr(),
+                  style: const TextStyle(color: Colors.orange, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
               ],
             ),
@@ -290,7 +291,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
           if (_isAnswered && question.explanation != null) ...[
             const SizedBox(height: 20),
             Text(
-              "TIP: ${question.explanation}",
+              'quiz.tip_prefix'.tr(namedArgs: {'tip': question.explanation!}),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: PremiumTheme.neonGreen.withValues(alpha: 0.7),
@@ -316,9 +317,9 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
               style: TextStyle(fontSize: 64),
             ),
             const SizedBox(height: 24),
-            const Text(
-              "WORKOUT COMPLETE!",
-              style: TextStyle(
+            Text(
+              'quiz.workout_complete'.tr(),
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2,
@@ -326,7 +327,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              "You scored $_score out of 10 points today",
+              'quiz.score_today'.tr(namedArgs: {'score': _score.toString()}),
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 48),
@@ -342,7 +343,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text("BACK TO PROFILE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                child: Text('quiz.back_to_profile'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
               ),
             ),
           ],
@@ -360,9 +361,9 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
           children: [
             const Icon(Icons.check_circle_outline, color: PremiumTheme.neonGreen, size: 64),
             const SizedBox(height: 24),
-            const Text(
-              "ALREADY PASSED!",
-              style: TextStyle(
+            Text(
+              'quiz.already_passed'.tr(),
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2,
@@ -370,13 +371,13 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              "Your score: $score / $total",
+              'quiz.your_score'.tr(namedArgs: {'score': score.toString(), 'total': total.toString()}),
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "Come back tomorrow for a new challenge!",
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+            Text(
+              'quiz.come_back_tomorrow'.tr(),
+              style: const TextStyle(color: Colors.white54, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
@@ -392,7 +393,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text("CLOSE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                child: Text('common.close'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
               ),
             ),
           ],
@@ -419,12 +420,12 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "DAILY STREAK: $streak ${streak == 1 ? 'DAY' : 'DAYS'}",
+                  streak == 1 ? 'quiz.daily_streak_day'.tr(namedArgs: {'streak': streak.toString()}) : 'quiz.daily_streak_days'.tr(namedArgs: {'streak': streak.toString()}),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-                const Text(
-                  "Get 5+ correct answers to maintain streak!",
-                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                Text(
+                  'quiz.streak_maintain'.tr(),
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
               ],
             ),
@@ -441,13 +442,13 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
         children: [
           const Icon(Icons.wifi_off_rounded, color: Colors.redAccent, size: 48),
           const SizedBox(height: 16),
-          const Text("CONNECTION ERROR", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('quiz.connection_error'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(error, style: const TextStyle(color: Colors.white38, fontSize: 12), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           TextButton(
             onPressed: () => context.read<QuizProvider>().fetchDailyQuiz(),
-            child: const Text("RETRY", style: TextStyle(color: PremiumTheme.neonGreen)),
+            child: Text('common.retry'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen)),
           ),
         ],
       ),

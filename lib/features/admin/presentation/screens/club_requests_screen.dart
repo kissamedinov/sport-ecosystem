@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/admin/providers/admin_provider.dart';
@@ -57,7 +58,10 @@ class _ClubRequestsScreenState extends State<ClubRequestsScreen> {
                             color: status == 'PENDING' ? Colors.orange.withOpacity(0.1) : Colors.green.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(status, style: TextStyle(color: status == 'PENDING' ? Colors.orange : Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            status == 'PENDING' ? 'admin.pending'.tr() : status == 'APPROVED' ? 'admin.approved'.tr() : status == 'REJECTED' ? 'admin.rejected'.tr() : status,
+                            style: TextStyle(color: status == 'PENDING' ? Colors.orange : Colors.green, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
@@ -72,7 +76,7 @@ class _ClubRequestsScreenState extends State<ClubRequestsScreen> {
                             child: ElevatedButton(
                               onPressed: () => provider.approveRequest(req['id']),
                               style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
-                              child: const Text('APPROVE'),
+                              child: Text('admin.approve'.tr()),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -80,7 +84,7 @@ class _ClubRequestsScreenState extends State<ClubRequestsScreen> {
                             child: OutlinedButton(
                               onPressed: () => provider.rejectRequest(req['id']),
                               style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.redAccent), foregroundColor: Colors.redAccent),
-                              child: const Text('REJECT'),
+                              child: Text('admin.reject'.tr()),
                             ),
                           ),
                         ],
