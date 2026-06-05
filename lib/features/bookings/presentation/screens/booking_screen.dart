@@ -614,9 +614,9 @@ class _BookingScreenState extends State<BookingScreen> {
                           const SizedBox(height: 20),
 
                           // 1. SELECT DATE Section
-                          const Text(
+                          Text(
                             '1. SELECT DATE',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1.0),
                           ),
                           const SizedBox(height: 8),
                           SizedBox(
@@ -658,7 +658,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           style: TextStyle(
                                             fontSize: 9,
                                             fontWeight: FontWeight.bold,
-                                            color: isSelected ? Colors.black : Colors.grey,
+                                            color: isSelected ? Colors.black : cs.onSurface.withValues(alpha: 0.5),
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -680,9 +680,9 @@ class _BookingScreenState extends State<BookingScreen> {
                           const SizedBox(height: 20),
 
                           // 2. SELECT TIME SLOT Section
-                          const Text(
+                          Text(
                             '2. SELECT TIME SLOT',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1.0),
                           ),
                           const SizedBox(height: 8),
                           FutureBuilder<List<FieldSlot>>(
@@ -701,8 +701,8 @@ class _BookingScreenState extends State<BookingScreen> {
                               final slots = _generateSlots(arena['name'], currentDate, rentPrice, backendSlots);
 
                               if (slots.isEmpty) {
-                                return const Center(
-                                  child: Text("No slots generated", style: TextStyle(color: Colors.white24, fontSize: 12)),
+                                return Center(
+                                  child: Text("No slots generated", style: TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontSize: 12)),
                                 );
                               }
 
@@ -727,14 +727,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                   Color cardColor = Colors.transparent;
                                   Color borderColor = cs.onSurface.withValues(alpha: 0.08);
                                   Color textColor = cs.onSurface;
-                                  Color badgeColor = Colors.grey;
-                                  Color badgeTextColor = Colors.grey;
+                                  Color badgeColor = cs.onSurface.withValues(alpha: 0.1);
+                                  Color badgeTextColor = cs.onSurface.withValues(alpha: 0.5);
                                   IconData badgeIcon = Icons.access_time_rounded;
 
                                   if (isSelected) {
                                     cardColor = PremiumTheme.neonGreen.withValues(alpha: 0.1);
                                     borderColor = PremiumTheme.neonGreen;
-                                    textColor = Colors.white;
+                                    textColor = cs.onSurface;
                                   } else if (!isAvailable) {
                                     borderColor = cs.onSurface.withValues(alpha: 0.03);
                                     textColor = cs.onSurface.withValues(alpha: 0.15);
@@ -863,9 +863,9 @@ class _BookingScreenState extends State<BookingScreen> {
                             ),
                           ] else ...[
                             // 3. PAYMENT DETAILS
-                            const Text(
+                            Text(
                               '3. PAYMENT DETAILS',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 8),
                             Container(
@@ -914,7 +914,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                     ],
                                   ),
-                                  const Divider(height: 24, color: Colors.white10),
+                                  Divider(height: 24, color: cs.onSurface.withValues(alpha: 0.08)),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -934,9 +934,9 @@ class _BookingScreenState extends State<BookingScreen> {
                             const SizedBox(height: 20),
 
                             // 4. SELECT PAYMENT METHOD
-                            const Text(
+                            Text(
                               '4. SELECT PAYMENT METHOD',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.5), letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 8),
                             _buildPaymentMethodTile(
@@ -978,10 +978,10 @@ class _BookingScreenState extends State<BookingScreen> {
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Text(
                                   'SELECT A TIME SLOT',
-                                  style: TextStyle(color: Colors.white24, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.0),
+                                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.0),
                                 ),
                               ),
                             )
@@ -1022,9 +1022,9 @@ class _BookingScreenState extends State<BookingScreen> {
                               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
+                            Text(
                               'Please hold on a moment',
-                              style: TextStyle(color: Colors.white24, fontSize: 11),
+                              style: TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontSize: 11),
                             ),
                           ],
                         ),
@@ -1088,9 +1088,9 @@ class _BookingScreenState extends State<BookingScreen> {
                               height: 180,
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: isDark ? Colors.white : const Color(0xFFF5F5F5),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade300, width: 2),
+                                border: Border.all(color: cs.onSurface.withValues(alpha: 0.15), width: 2),
                               ),
                               child: GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
@@ -1193,15 +1193,15 @@ class _BookingScreenState extends State<BookingScreen> {
                               child: Column(
                                 children: [
                                   _buildReceiptRow('Invoice ID', 'TX-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}'),
-                                  const Divider(height: 20, color: Colors.white10),
+                                  Divider(height: 20, color: cs.onSurface.withValues(alpha: 0.08)),
                                   _buildReceiptRow('Merchant Name', 'IP Champion Sports (Kaspi Pay)'),
-                                  const Divider(height: 20, color: Colors.white10),
+                                  Divider(height: 20, color: cs.onSurface.withValues(alpha: 0.08)),
                                   _buildReceiptRow('Arena booked', arena['name']),
-                                  const Divider(height: 20, color: Colors.white10),
+                                  Divider(height: 20, color: cs.onSurface.withValues(alpha: 0.08)),
                                   _buildReceiptRow('Date & Slot', '${_getDayName(DateTime.now().add(Duration(days: selectedDateIndex)).weekday)}, ${DateTime.now().add(Duration(days: selectedDateIndex)).day} June @ ${selectedSlot!['time']}'),
-                                  const Divider(height: 20, color: Colors.white10),
+                                  Divider(height: 20, color: cs.onSurface.withValues(alpha: 0.08)),
                                   _buildReceiptRow('Total Amount', '${currentTotal.toInt()} ₸'),
-                                  const Divider(height: 20, color: Colors.white10),
+                                  Divider(height: 20, color: cs.onSurface.withValues(alpha: 0.08)),
                                   _buildReceiptRow('Status', 'COMPLETED', color: PremiumTheme.neonGreen),
                                 ],
                               ),
@@ -1242,7 +1242,7 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           value,
           style: TextStyle(
-            color: color ?? Colors.white,
+            color: color ?? cs.onSurface,
             fontSize: 11,
             fontWeight: FontWeight.bold,
           ),
@@ -1278,7 +1278,7 @@ class _BookingScreenState extends State<BookingScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : cs.onSurface,
+            color: isSelected ? cs.onSurface : cs.onSurface,
           ),
         ),
         subtitle: Text(
