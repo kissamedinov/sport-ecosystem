@@ -929,7 +929,14 @@
     "daily_schedule": "Күнделікті кесте",
     "training_schedule": "Жаттығу кестесі",
     "parent_link_request": "Ата-ана сұрауы",
-    "parent_link_message": "{name} ата-ана ретінде аккаунтыңызға байланысқысы келеді."
+    "parent_link_message": "{name} ата-ана ретінде аккаунтыңызға байланысқысы келеді.",
+    "career_insights_title": "МАНСАП СТАТИСТИКАСЫ",
+    "overall_rating": "ЖАЛПЫ РЕЙТИНГ",
+    "detailed_statistics": "ТОЛЫҚ СТАТИСТИКА",
+    "progression": "ПРОГРЕСС",
+    "latest_matches_label": "СОҢҒЫ МАТЧТАР",
+    "goal_ratio": "Матчтағы гол",
+    "clean_sheets_stat": "Таза матчтар"
   },
   "coach": {
     "coach_dashboard": "Жаттықтырушы тақтасы",

@@ -1083,7 +1083,14 @@
     "daily_schedule": "Дневное расписание",
     "training_schedule": "Расписание тренировок",
     "parent_link_request": "Запрос от родителя",
-    "parent_link_message": "{name} хочет привязаться к вашему аккаунту как родитель."
+    "parent_link_message": "{name} хочет привязаться к вашему аккаунту как родитель.",
+    "career_insights_title": "КАРЬЕРНАЯ СТАТИСТИКА",
+    "overall_rating": "ОБЩИЙ РЕЙТИНГ",
+    "detailed_statistics": "ПОДРОБНАЯ СТАТИСТИКА",
+    "progression": "ПРОГРЕСС",
+    "latest_matches_label": "ПОСЛЕДНИЕ МАТЧИ",
+    "goal_ratio": "Голов за матч",
+    "clean_sheets_stat": "Сухие матчи"
   },
   "coach": {
     "coach_dashboard": "Панель тренера",

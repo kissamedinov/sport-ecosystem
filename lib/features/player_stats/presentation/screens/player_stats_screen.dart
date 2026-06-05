@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/api/stats_api_service.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../data/models/player_stats.dart';
@@ -32,11 +33,11 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
   @override
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    
+
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text("CAREER INSIGHTS", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2)),
+        title: Text('player.career_insights_title'.tr(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -63,11 +64,11 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
               children: [
                 _buildMainDashboard(career),
                 const SizedBox(height: 32),
-                _buildSectionHeader("DETAILED STATISTICS"),
+                _buildSectionHeader('player.detailed_statistics'.tr()),
                 const SizedBox(height: 16),
                 _buildDetailedStatsGrid(career),
                 const SizedBox(height: 32),
-                _buildSectionHeader("PROGRESSION"),
+                _buildSectionHeader('player.progression'.tr()),
                 const SizedBox(height: 16),
                 FutureBuilder<List<MatchHistoryItem>>(
                   future: _historyFuture,
@@ -79,7 +80,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-                _buildSectionHeader("LATEST MATCHES"),
+                _buildSectionHeader('player.latest_matches_label'.tr()),
                 const SizedBox(height: 16),
                 _buildMatchHistoryList(),
               ],
@@ -95,7 +96,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
       children: [
         Container(width: 4, height: 14, decoration: BoxDecoration(color: PremiumTheme.neonGreen, borderRadius: BorderRadius.circular(2))),
         const SizedBox(width: 10),
-        Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Colors.grey)),
+        Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
     );
   }
@@ -116,7 +117,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("OVERALL RATING", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1)),
+                  Text('player.overall_rating'.tr(), style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1)),
                   const SizedBox(height: 4),
                   Text(career.rating.toStringAsFixed(1), style: const TextStyle(color: Colors.black, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -2)),
                 ],
@@ -127,7 +128,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
                 child: Column(
                   children: [
                     Text("${career.matchesPlayed}", style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w900)),
-                    const Text("MATCHES", style: TextStyle(color: Colors.black54, fontSize: 8, fontWeight: FontWeight.bold)),
+                    Text('player.matches_played'.tr(), style: const TextStyle(color: Colors.black54, fontSize: 8, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -139,9 +140,9 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildDashboardMetric("GOALS", "${career.goals}"),
-              _buildDashboardMetric("ASSISTS", "${career.assists}"),
-              _buildDashboardMetric("AWARDS", "${career.bestPlayerAwards}"),
+              _buildDashboardMetric('player.goals'.tr().toUpperCase(), "${career.goals}"),
+              _buildDashboardMetric('player.assists'.tr().toUpperCase(), "${career.assists}"),
+              _buildDashboardMetric('profile.awards_label'.tr().toUpperCase(), "${career.bestPlayerAwards}"),
             ],
           ),
         ],
@@ -167,35 +168,45 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       children: [
-        _buildStatTile("Yellow Cards", "${career.yellowCards}", Icons.square, Colors.amber),
-        _buildStatTile("Red Cards", "${career.redCards}", Icons.square, Colors.redAccent),
-        _buildStatTile("Goal Ratio", (career.goals / (career.matchesPlayed > 0 ? career.matchesPlayed : 1)).toStringAsFixed(2), Icons.calculate_rounded, PremiumTheme.electricBlue),
-        _buildStatTile("Clean Sheets", "0", Icons.shield_rounded, PremiumTheme.neonGreen),
+        _buildStatTile('player.yellow_cards'.tr(), "${career.yellowCards}", Icons.square, Colors.amber),
+        _buildStatTile('player.red_cards'.tr(), "${career.redCards}", Icons.square, Colors.redAccent),
+        _buildStatTile('player.goal_ratio'.tr(), (career.goals / (career.matchesPlayed > 0 ? career.matchesPlayed : 1)).toStringAsFixed(2), Icons.calculate_rounded, PremiumTheme.electricBlue),
+        _buildStatTile('player.clean_sheets_stat'.tr(), "0", Icons.shield_rounded, PremiumTheme.neonGreen),
       ],
     );
   }
 
   Widget _buildStatTile(String label, String value, IconData icon, Color color) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: isDark ? 0.10 : 0.05), blurRadius: 10, offset: const Offset(0, 3)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: color, size: 18),
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: color, size: 16),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(label, style: TextStyle(color: onSurface.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold)),
-              Text(value, style: TextStyle(color: onSurface, fontSize: 18, fontWeight: FontWeight.w900)),
+              Expanded(
+                child: Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+              Text(value, style: TextStyle(color: cs.onSurface, fontSize: 18, fontWeight: FontWeight.w900)),
             ],
           ),
         ],

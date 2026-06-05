@@ -1083,7 +1083,14 @@
     "daily_schedule": "Daily Schedule",
     "training_schedule": "Training Schedule",
     "parent_link_request": "Parent Link Request",
-    "parent_link_message": "{name} wants to link to your account as a parent."
+    "parent_link_message": "{name} wants to link to your account as a parent.",
+    "career_insights_title": "CAREER INSIGHTS",
+    "overall_rating": "OVERALL RATING",
+    "detailed_statistics": "DETAILED STATISTICS",
+    "progression": "PROGRESSION",
+    "latest_matches_label": "LATEST MATCHES",
+    "goal_ratio": "Goal Ratio",
+    "clean_sheets_stat": "Clean Sheets"
   },
   "coach": {
     "coach_dashboard": "Coach Dashboard",
