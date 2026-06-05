@@ -188,43 +188,57 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
   }
 
   Widget _buildStatsRow(int fieldCount, int bookingCount, double revenue) {
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: PremiumStatCard(
-                title: 'profile.my_fields'.tr(),
-                value: "$fieldCount",
-                icon: Icons.stadium_rounded,
-                color: PremiumTheme.neonGreen,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: PremiumStatCard(
-                title: 'field.my_bookings'.tr(),
-                value: "$bookingCount",
-                icon: Icons.event_available_rounded,
-                color: PremiumTheme.electricBlue,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        PremiumStatCard(
-          title: 'profile.total_revenue'.tr(),
-          value: "${(revenue / 1000).toStringAsFixed(1)}k ₸",
-          icon: Icons.payments_rounded,
-          color: Colors.amber,
-        ),
+        Expanded(child: _buildStatCard(title: 'profile.my_fields'.tr(), value: '$fieldCount', icon: Icons.stadium_rounded, color: PremiumTheme.neonGreen)),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStatCard(title: 'field.my_bookings'.tr(), value: '$bookingCount', icon: Icons.event_available_rounded, color: PremiumTheme.electricBlue)),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStatCard(title: 'profile.total_revenue'.tr(), value: "${(revenue / 1000).toStringAsFixed(1)}k ₸", icon: Icons.payments_rounded, color: Colors.amber)),
       ],
     );
   }
 
-  Widget _buildPricingControlsCard(ColorScheme cs, bool isDark) {
-    return PremiumCard(
+  Widget _buildStatCard({required String title, required String value, required IconData icon, required Color color}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8)],
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 12),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+          const SizedBox(height: 2),
+          Text(title, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPricingControlsCard(ColorScheme cs, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.07)),
+      ),
       child: Column(
         children: [
           _buildPricingToggleRow(
@@ -238,7 +252,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
               _showRuleUpdatedSnackbar('profile.prime_time_surcharge'.tr(), val);
             },
           ),
-          const Divider(height: 24, color: Colors.white10),
+          Divider(height: 24, color: cs.onSurface.withValues(alpha: 0.08)),
           _buildPricingToggleRow(
             icon: Icons.celebration_rounded,
             color: const Color(0xFF2196F3),
@@ -250,7 +264,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
               _showRuleUpdatedSnackbar('profile.weekend_surcharge'.tr(), val);
             },
           ),
-          const Divider(height: 24, color: Colors.white10),
+          Divider(height: 24, color: cs.onSurface.withValues(alpha: 0.08)),
           _buildPricingToggleRow(
             icon: Icons.nights_stay_rounded,
             color: const Color(0xFF9C27B0),
@@ -328,19 +342,28 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
         if (field.name.contains('DUMAN')) baseRate = 10000;
         if (field.name.contains('QAZAQSTAN')) baseRate = 20000;
 
+        final fieldCs = Theme.of(context).colorScheme;
+        final fieldIsDark = Theme.of(context).brightness == Brightness.dark;
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: PremiumCard(
+          child: Container(
             padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: fieldIsDark ? const Color(0xFF161B22) : fieldCs.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.22)),
+              boxShadow: [BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.06), blurRadius: 12, offset: const Offset(0, 4))],
+            ),
             child: Row(
               children: [
                 Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                    boxShadow: [BoxShadow(color: PremiumTheme.neonGreen.withValues(alpha: 0.2), blurRadius: 8)],
                   ),
                   child: const Icon(Icons.stadium_rounded, color: PremiumTheme.neonGreen, size: 24),
                 ),
@@ -352,7 +375,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       Text(
                         field.name.toUpperCase(),
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: fieldCs.onSurface,
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
                           letterSpacing: 0.3,
@@ -361,13 +384,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Icon(Icons.location_on_outlined, size: 12, color: fieldCs.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               field.location,
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                color: fieldCs.onSurfaceVariant.withValues(alpha: 0.7),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -388,9 +411,9 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                         color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        "ACTIVE",
-                        style: TextStyle(
+                      child: Text(
+                        'field.status_active'.tr().toUpperCase(),
+                        style: const TextStyle(
                           color: PremiumTheme.neonGreen,
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
@@ -400,8 +423,8 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Base: $baseRate ₸',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                      'field.base_rate_label'.tr(namedArgs: {'rate': '$baseRate'}),
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: fieldCs.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -437,8 +460,16 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
         final expiry = promo['expiry'] as String;
         final isActive = status == 'ACTIVE';
 
-        return PremiumCard(
-          padding: const EdgeInsets.all(10),
+        final promoIsDark = Theme.of(context).brightness == Brightness.dark;
+        final promoColor = isActive ? PremiumTheme.neonGreen : Colors.redAccent;
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: promoIsDark ? const Color(0xFF161B22) : cs.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: promoColor.withValues(alpha: 0.25)),
+            boxShadow: [BoxShadow(color: promoColor.withValues(alpha: 0.07), blurRadius: 10)],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -449,7 +480,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                      color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : Colors.white10,
+                      color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.2) : Colors.transparent),
                     ),
@@ -458,7 +489,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
-                        color: isActive ? PremiumTheme.neonGreen : Colors.white24,
+                        color: isActive ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
                       ),
                     ),
                   ),
@@ -469,7 +500,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      status,
+                      isActive ? 'field.status_active'.tr() : status,
                       style: TextStyle(
                         fontSize: 7,
                         fontWeight: FontWeight.bold,
@@ -481,7 +512,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Discount: $discount%',
+                'field.discount_percent_label'.tr(namedArgs: {'percent': '$discount'}),
                 style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 4),
@@ -489,11 +520,11 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Exp: $expiry',
+                    'field.expiry_label'.tr(namedArgs: {'date': expiry}),
                     style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 8),
                   ),
                   Text(
-                    'Uses: $uses',
+                    'field.uses_count'.tr(namedArgs: {'count': uses}),
                     style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -549,8 +580,14 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
           padding: const EdgeInsets.only(bottom: 10),
           child: GestureDetector(
             onTap: () => _showBookingDetailsDialog(context, booking, field, clientName, isCancelled),
-            child: PremiumCard(
+            child: Container(
               padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF161B22) : Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: statusColor.withValues(alpha: 0.22)),
+                boxShadow: [BoxShadow(color: statusColor.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 3))],
+              ),
               child: Row(
                 children: [
                   Container(
@@ -636,9 +673,16 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
   }
 
   Widget _buildEmptyCard(String message, IconData icon) {
-    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
-    return PremiumCard(
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = cs.onSurfaceVariant;
+    return Container(
       padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.07)),
+      ),
       child: Center(
         child: Column(
           children: [
@@ -703,26 +747,26 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    "REGISTER NEW FOOTBALL FIELD",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0),
+                  Text(
+                    'field.register_new_field'.tr().toUpperCase(),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0),
                   ),
                   const SizedBox(height: 16),
                   
                   // Name input
-                  _buildTextField("Field/Arena Name", nameController, "e.g. Turkestan Arena", TextInputType.text),
+                  _buildTextField('field.field_name_label'.tr(), nameController, "e.g. Turkestan Arena", TextInputType.text),
                   const SizedBox(height: 12),
 
                   // Location input
-                  _buildTextField("Location Address", addressController, "e.g. Turan Ave 10, Astana", TextInputType.text),
+                  _buildTextField('field.location_address'.tr(), addressController, "e.g. Turan Ave 10, Astana", TextInputType.text),
                   const SizedBox(height: 12),
 
                   // Price input
-                  _buildTextField("Base Hourly Rent Price (₸)", priceController, "e.g. 15000", TextInputType.number),
+                  _buildTextField('field.base_hourly_rent'.tr(), priceController, "e.g. 15000", TextInputType.number),
                   const SizedBox(height: 16),
 
                   // Field Size Chips
-                  const Text("FIELD SIZE / FORMAT", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Text('field.field_size_format'.tr().toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant)),
                   const SizedBox(height: 8),
                   Row(
                     children: ['5x5', '6x6', '7x7', '11x11'].map((size) {
@@ -733,13 +777,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                           margin: const EdgeInsets.only(right: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? PremiumTheme.neonGreen : Colors.white10,
+                            color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             size,
                             style: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
+                              color: isSelected ? Colors.black : cs.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 11,
                             ),
@@ -751,7 +795,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   const SizedBox(height: 16),
 
                   // Surface Type Chips
-                  const Text("SURFACE TYPE", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Text('field.surface_type_label'.tr().toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant)),
                   const SizedBox(height: 8),
                   Row(
                     children: ['Artificial Turf', 'Natural Grass', 'Hybrid Pro'].map((type) {
@@ -762,13 +806,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                           margin: const EdgeInsets.only(right: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? PremiumTheme.neonGreen : Colors.white10,
+                            color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             type,
                             style: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
+                              color: isSelected ? Colors.black : cs.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 11,
                             ),
@@ -781,7 +825,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
                   // Action Button
                   PremiumButton(
-                    text: "REGISTER FIELD",
+                    text: 'profile.register_field'.tr().toUpperCase(),
                     onPressed: () {
                       if (nameController.text.trim().isEmpty || 
                           addressController.text.trim().isEmpty || 
@@ -865,18 +909,18 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    "CREATE NEW PROMO CODE",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0),
+                  Text(
+                    'field.create_new_promo'.tr().toUpperCase(),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0),
                   ),
                   const SizedBox(height: 16),
 
-                  _buildTextField("Promo Code (UPPERCASE)", codeController, "e.g. CHAMP15", TextInputType.text),
+                  _buildTextField('field.promo_code_hint'.tr(), codeController, "e.g. CHAMP15", TextInputType.text),
                   const SizedBox(height: 16),
 
                   Text(
-                    "DISCOUNT PERCENTAGE: ${discountPercent.toInt()}%",
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+                    'field.discount_percentage'.tr(namedArgs: {'percent': '${discountPercent.toInt()}'}).toUpperCase(),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant),
                   ),
                   Slider(
                     value: discountPercent,
@@ -893,9 +937,9 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   ),
                   const SizedBox(height: 12),
 
-                  const Text(
-                    "MAX USAGE COUNT",
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+                  Text(
+                    'field.max_usage_count'.tr().toUpperCase(),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -907,13 +951,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                           margin: const EdgeInsets.only(right: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: isSelected ? PremiumTheme.neonGreen : Colors.white10,
+                            color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            '$uses uses',
+                            '$uses',
                             style: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
+                              color: isSelected ? Colors.black : cs.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 11,
                             ),
@@ -925,7 +969,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   const SizedBox(height: 28),
 
                   PremiumButton(
-                    text: "CREATE PROMO CODE",
+                    text: 'field.create_promo_code_btn'.tr().toUpperCase(),
                     onPressed: () {
                       if (codeController.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -1082,20 +1126,21 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller, String placeholder, TextInputType keyboardType) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+        Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant)),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
           keyboardType: keyboardType,
-          style: const TextStyle(fontSize: 12, color: Colors.white),
+          style: TextStyle(fontSize: 12, color: cs.onSurface),
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
+            hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontSize: 12),
             filled: true,
-            fillColor: Colors.white10,
+            fillColor: cs.onSurface.withValues(alpha: 0.06),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
           ),

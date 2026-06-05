@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/booking_provider.dart';
 import '../../../../core/theme/premium_theme.dart';
-import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/field_pricing_manager.dart';
 
 class FieldManagementScreen extends StatefulWidget {
@@ -101,40 +100,132 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
 
     return Row(
       children: [
-        Expanded(
-          child: PremiumStatCard(
-            title: 'field.today_revenue'.tr(),
-            value: revenueFormatted,
-            icon: Icons.payments_rounded,
-            color: Colors.green,
-          ),
-        ),
+        Expanded(child: _buildStatCard('field.today_revenue'.tr(), revenueFormatted, Icons.payments_rounded, Colors.green)),
         const SizedBox(width: 12),
-        Expanded(
-          child: PremiumStatCard(
-            title: 'field.occupancy'.tr(),
-            value: occupancyFormatted,
-            icon: Icons.bar_chart_rounded,
-            color: PremiumTheme.electricBlue,
-          ),
-        ),
+        Expanded(child: _buildStatCard('field.occupancy'.tr(), occupancyFormatted, Icons.bar_chart_rounded, PremiumTheme.electricBlue)),
       ],
     );
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(11),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.28),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: onSurface, letterSpacing: -0.5),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.8),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionCard(BuildContext context, String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
-    return PremiumCard(
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 14)),
-        subtitle: Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
-        trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF161B22) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: onSurface.withValues(alpha: 0.07)),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.09),
+                blurRadius: 14,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [color, color.withValues(alpha: 0.2)],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(icon, color: color, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(title, style: TextStyle(fontWeight: FontWeight.w900, color: onSurface, fontSize: 15)),
+                              const SizedBox(height: 3),
+                              Text(subtitle, style: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right_rounded, color: onSurface.withValues(alpha: 0.2)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
