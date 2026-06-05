@@ -74,7 +74,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
       
       manager.notify();
     } catch (e) {
-      print("Error loading real stats for field owner: $e");
+      debugPrint("Error loading real stats for field owner: $e");
     }
   }
 
