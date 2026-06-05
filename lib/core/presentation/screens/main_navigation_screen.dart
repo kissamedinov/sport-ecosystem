@@ -49,6 +49,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       return _buildParentNav(context);
     }
 
+    if (role == 'FIELD_OWNER') {
+      return _buildFieldOwnerNav(context);
+    }
+
     if (role == 'COACH') {
       return const RoleRouter();
     }
@@ -472,6 +476,77 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFieldOwnerNav(BuildContext context) {
+    final safeIndex = _selectedIndex.clamp(0, 4);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final fieldOwnerScreens = [
+      const RoleRouter(),
+      const OwnerCalendarScreen(),
+      const OwnerAnalyticsScreen(),
+      const FieldManagementScreen(),
+      const ProfileScreen(),
+    ];
+
+    return Scaffold(
+      extendBody: true,
+      body: IndexedStack(
+        index: safeIndex,
+        children: fieldOwnerScreens,
+      ),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.07),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: Container(
+                    color: isDark
+                        ? const Color(0xFF161B22).withValues(alpha: 0.62)
+                        : Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(1, Icons.calendar_month_outlined, Icons.calendar_month, 'nav.schedule'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(2, Icons.insights_outlined, Icons.insights, 'nav.analytics'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(3, Icons.business_outlined, Icons.business, 'nav.management'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
