@@ -540,13 +540,68 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 children: [
                   Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
                   Expanded(child: _buildChildNavItem(1, Icons.calendar_month_outlined, Icons.calendar_month, 'nav.schedule'.tr().toUpperCase())),
-                  Expanded(child: _buildChildNavItem(2, Icons.insights_outlined, Icons.insights, 'nav.analytics'.tr().toUpperCase())),
+                  _buildFieldOwnerAnalyticsFab(),
                   Expanded(child: _buildChildNavItem(3, Icons.business_outlined, Icons.business, 'nav.management'.tr().toUpperCase())),
                   Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFieldOwnerAnalyticsFab() {
+    final isSelected = _selectedIndex == 2;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accent = Color(0xFF00E676);
+    return Transform.translate(
+      offset: const Offset(0, -14),
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedIndex = 2),
+        child: Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isSelected
+                  ? [accent, const Color(0xFF00C853)]
+                  : isDark
+                      ? [const Color(0xFF1A3A1A), const Color(0xFF0F250F)]
+                      : [accent.withValues(alpha: 0.12), accent.withValues(alpha: 0.06)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: accent.withValues(alpha: isSelected ? 1.0 : 0.4),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: isSelected ? 0.55 : 0.15),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.insights_rounded, color: isSelected ? Colors.black : accent, size: 22),
+              const SizedBox(height: 2),
+              Text(
+                'nav.analytics'.tr().toUpperCase(),
+                style: TextStyle(
+                  color: isSelected ? Colors.black : accent,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

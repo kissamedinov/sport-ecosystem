@@ -468,9 +468,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'BOOKING REQUESTS',
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                            Text(
+                              'field.booking_requests'.tr().toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close_rounded),
@@ -483,7 +483,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: requests.isEmpty
                             ? Center(
                                 child: Text(
-                                  'No booking requests found.',
+                                  'field.no_booking_requests'.tr(),
                                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                                 ),
                               )
@@ -559,7 +559,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text('DATE & TIME', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                                Text('field.date_and_time'.tr().toUpperCase(), style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
                                                 const SizedBox(height: 2),
                                                 Text('$date, $time', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
                                               ],
@@ -567,7 +567,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
-                                                Text('REVENUE', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                                Text('field.revenue_label'.tr().toUpperCase(), style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
                                                 const SizedBox(height: 2),
                                                 Text(
                                                   '${price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ₸',
@@ -594,7 +594,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                                     side: const BorderSide(color: Colors.redAccent, width: 1),
                                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                                   ),
-                                                  child: const Text('REJECT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                  child: Text('admin.reject'.tr().toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                                 ),
                                               ),
                                               const SizedBox(width: 12),
@@ -613,7 +613,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                                     foregroundColor: Colors.black,
                                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                                   ),
-                                                  child: const Text('APPROVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                                  child: Text('admin.approve'.tr().toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                                 ),
                                               ),
                                             ],
@@ -703,9 +703,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'AVAILABILITY & PRICING',
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                            Text(
+                              'field.availability_pricing'.tr().toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close_rounded),
@@ -718,9 +718,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: ListView(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           children: [
-                            const Text(
-                              'DYNAMIC PRICING ADJUSTMENTS',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.dynamic_pricing_adjustments'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 12),
                             Container(
@@ -736,7 +736,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text('Prime-Time Rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      Text('field.prime_time_rate'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                       Text(
                                         '+$primePct%',
                                         style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w900, fontSize: 13),
@@ -762,7 +762,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text('Weekend Rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      Text('field.weekend_rate'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                       Text(
                                         '+$weekendPct%',
                                         style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w900, fontSize: 13),
@@ -788,7 +788,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text('Night-Owl Discount', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      Text('field.night_owl_rate'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                       Text(
                                         '-$nightPct%',
                                         style: const TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w900, fontSize: 13),
@@ -814,9 +814,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                             ),
                             const SizedBox(height: 24),
 
-                            const Text(
-                              'SELECT FIELD',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.select_field'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 8),
                             Container(
@@ -849,9 +849,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                             ),
                             const SizedBox(height: 20),
 
-                            const Text(
-                              'SELECT DATE',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.select_date'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
@@ -909,9 +909,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                             ),
                             const SizedBox(height: 20),
 
-                            const Text(
-                              'TIME SLOTS (TAP TO TOGGLE BLOCKED STATUS)',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.time_slots_toggle'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 8),
                             GridView.builder(
@@ -997,7 +997,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                             Icon(statusIcon, size: 10, color: statusColor),
                                             const SizedBox(width: 4),
                                             Text(
-                                              isBlocked ? 'BLOCKED' : 'OPEN',
+                                              isBlocked ? 'field.blocked'.tr().toUpperCase() : 'field.open_slot'.tr().toUpperCase(),
                                               style: TextStyle(
                                                 fontSize: 8,
                                                 fontWeight: FontWeight.w900,
@@ -1068,9 +1068,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'EARNINGS & ANALYTICS',
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                            Text(
+                              'field.earnings_analytics'.tr().toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close_rounded),
@@ -1092,9 +1092,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                               ),
                               child: Column(
                                 children: [
-                                  const Text(
-                                    'TOTAL BUSINESS REVENUE',
-                                    style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.5),
+                                  Text(
+                                    'field.total_business_revenue'.tr().toUpperCase(),
+                                    style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.5),
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
@@ -1108,7 +1108,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                       const Icon(Icons.show_chart_rounded, color: Colors.black87, size: 16),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Live occupancy at ${(manager.occupancy * 100).toInt()}%',
+                                        'field.live_occupancy'.tr(namedArgs: {'percent': '${(manager.occupancy * 100).toInt()}'}),
                                         style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 11),
                                       ),
                                     ],
@@ -1118,9 +1118,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                             ),
                             const SizedBox(height: 28),
 
-                            const Text(
-                              'COMPLETED BOOKINGS REVENUE',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.completed_bookings_revenue'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 10),
                             if (approvedBookings.isEmpty) ...[
@@ -1133,7 +1133,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'No completed bookings registered today.',
+                                    'field.no_completed_bookings'.tr(),
                                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                                   ),
                                 ),
@@ -1240,9 +1240,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'PROMOTIONS & COUPONS',
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                            Text(
+                              'field.promotions_coupons'.tr().toUpperCase(),
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close_rounded),
@@ -1265,13 +1265,13 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('CREATE PROMO CODE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5)),
+                                  Text('field.create_new_promo'.tr().toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5)),
                                   const SizedBox(height: 12),
                                   TextField(
                                     controller: codeController,
                                     decoration: InputDecoration(
                                       hintText: 'e.g. FLASH20',
-                                      labelText: 'Coupon Code String',
+                                      labelText: 'field.coupon_code_string'.tr(),
                                       labelStyle: TextStyle(color: cs.onSurfaceVariant),
                                     ),
                                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -1318,7 +1318,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                   ),
                                   const SizedBox(height: 16),
                                   PremiumButton(
-                                    text: 'CREATE COUPON',
+                                    text: 'field.create_coupon'.tr().toUpperCase(),
                                     onPressed: () {
                                       final rawCode = codeController.text.trim().toUpperCase();
                                       if (rawCode.isEmpty) {
@@ -1352,9 +1352,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                             ),
                             const SizedBox(height: 28),
 
-                            const Text(
-                              'ACTIVE COUPONS',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
+                            Text(
+                              'field.active_coupons'.tr().toUpperCase(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                             ),
                             const SizedBox(height: 10),
                             if (promoCodes.isEmpty) ...[
@@ -1421,7 +1421,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
-                                          'Uses: $uses',
+                                          'field.uses_count'.tr(namedArgs: {'count': uses}),
                                           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 9, fontWeight: FontWeight.bold),
                                         ),
                                         Text(
