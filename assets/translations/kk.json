@@ -19,7 +19,9 @@
     "invite_member": "Мүше шақыру",
     "add_player_profile": "Ойыншы профилін қосу",
     "create_team": "Команда жасау",
-    "add_academy": "Академия қосу"
+    "add_academy": "Академия қосу",
+    "schedule": "Кесте",
+    "analytics": "Аналитика"
   },
   "auth": {
     "welcome_back": "Қайта оралдыңыз",
@@ -242,7 +244,19 @@
     "career_history": "Мансап тарихы",
     "no_career_data": "Мансап деректері жоқ",
     "timeline": "Хронология",
-    "present": "Қазіргі уақытқа"
+    "present": "Қазіргі уақытқа",
+    "dynamic_pricing": "Динамикалық баға белгілеу",
+    "register_field": "Дала тіркеу",
+    "promo_codes": "Промокодтар",
+    "create_code": "Код жасау",
+    "prime_time_surcharge": "Прайм-тайм үстеме (+20%)",
+    "prime_time_surcharge_desc": "Бейсенбіден жұмаға дейін 17:00–23:00 брондауларына қолданылады.",
+    "weekend_surcharge": "Демалыс күні үстеме (+30%)",
+    "weekend_surcharge_desc": "Сенбі және жексенбідегі барлық слоттарға қолданылады.",
+    "night_owl_discount": "Түнгі жеңілдік (-35%)",
+    "night_owl_discount_desc": "Түнгі брондауларды ынталандырады (23:00–02:00).",
+    "no_promo_codes": "Промокодтар әлі жасалмаған.",
+    "no_recent_bookings": "Соңғы клиент брондаулары жоқ."
   },
   "club": {
     "dashboard": "Клуб тақтасы",
@@ -695,7 +709,15 @@
     "earnings_overview": "Табыс шолуы",
     "reviews": "Пікірлер",
     "customer_reviews": "Клиент пікірлері",
-    "promotions": "Акциялар"
+    "promotions": "Акциялар",
+    "field_owner_role": "Дала иесі",
+    "today_revenue": "Бүгінгі кіріс",
+    "occupancy": "Толтырылу",
+    "new_requests_waiting": "жаңа сұраныс",
+    "blocked": "Блокталған",
+    "open_for_reservation": "Брондауға ашық",
+    "maintenance_unavailable": "Жөндеу / Қол жетімсіз",
+    "regular_player": "Тұрақты ойыншы (жүйе)"
   },
   "notification": {
     "notifications": "ХАБАРЛАНДЫРУЛАР",
@@ -995,7 +1017,14 @@
     "total_bookings": "БАРЛЫҚ БРОНДАУЛАР",
     "revenue_by_arena": "АРЕНЯЛАР БОЙЫНША КІРІС",
     "peak_hours": "БРОНДАУДЫҢ ЖОЛ САҒАТТАРЫ",
-    "transaction_logs": "ТРАНЗАКЦИЯ ЖУРНАЛЫ"
+    "transaction_logs": "ТРАНЗАКЦИЯ ЖУРНАЛЫ",
+    "today": "Бүгін",
+    "seven_days": "7 күн",
+    "thirty_days": "30 күн",
+    "reservations": "Брондаулар",
+    "business_analytics": "Бизнес-аналитика",
+    "no_transactions": "Бүгін транзакциялар жоқ.",
+    "bookings_label": "брондау"
   },
   "payments": {
     "payments": "ТӨЛЕМДЕР",

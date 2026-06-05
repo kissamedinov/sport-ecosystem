@@ -97,37 +97,28 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
       (Match m) => '${m[1]},'
     );
     final revenueFormatted = '$rawRevenue ₸';
-    
     final occupancyFormatted = '${(manager.occupancy * 100).toInt()}%';
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 2,
+    return Row(
       children: [
-        _buildStatItem('Today Revenue', revenueFormatted, Colors.green),
-        _buildStatItem('Occupancy', occupancyFormatted, Colors.blue),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.today_revenue'.tr(),
+            value: revenueFormatted,
+            icon: Icons.payments_rounded,
+            color: Colors.green,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.occupancy'.tr(),
+            value: occupancyFormatted,
+            icon: Icons.bar_chart_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
+        ),
       ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
     );
   }
 

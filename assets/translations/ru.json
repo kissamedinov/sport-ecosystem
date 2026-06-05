@@ -19,7 +19,9 @@
     "invite_member": "Пригласить участника",
     "add_player_profile": "Добавить профиль игрока",
     "create_team": "Создать команду",
-    "add_academy": "Добавить академию"
+    "add_academy": "Добавить академию",
+    "schedule": "Расписание",
+    "analytics": "Аналитика"
   },
   "auth": {
     "welcome_back": "С возвращением",
@@ -242,7 +244,19 @@
     "career_history": "История карьеры",
     "no_career_data": "Данные о карьере недоступны",
     "timeline": "Хронология",
-    "present": "По наст. время"
+    "present": "По наст. время",
+    "dynamic_pricing": "Динамическое ценообразование",
+    "register_field": "Зарегистрировать поле",
+    "promo_codes": "Промокоды",
+    "create_code": "Создать код",
+    "prime_time_surcharge": "Надбавка прайм-тайм (+20%)",
+    "prime_time_surcharge_desc": "Применяется к бронированиям 17:00–23:00 в будни.",
+    "weekend_surcharge": "Надбавка за выходные (+30%)",
+    "weekend_surcharge_desc": "Применяется ко всем слотам в сб и вс.",
+    "night_owl_discount": "Ночная скидка (-35%)",
+    "night_owl_discount_desc": "Стимулирует ночные брони (23:00–02:00).",
+    "no_promo_codes": "Промокоды ещё не созданы.",
+    "no_recent_bookings": "Недавних бронирований клиентов нет."
   },
   "club": {
     "dashboard": "Панель клуба",
@@ -849,7 +863,15 @@
     "earnings_overview": "Обзор доходов",
     "reviews": "Отзывы",
     "customer_reviews": "Отзывы клиентов",
-    "promotions": "Акции"
+    "promotions": "Акции",
+    "field_owner_role": "Владелец поля",
+    "today_revenue": "Доход сегодня",
+    "occupancy": "Загруженность",
+    "new_requests_waiting": "новых запросов",
+    "blocked": "Заблокировано",
+    "open_for_reservation": "Открыто для брони",
+    "maintenance_unavailable": "Техобслуживание / Недоступно",
+    "regular_player": "Обычный игрок (система)"
   },
   "notification": {
     "notifications": "УВЕДОМЛЕНИЯ",
@@ -1149,7 +1171,14 @@
     "total_bookings": "ВСЕГО БРОНИРОВАНИЙ",
     "revenue_by_arena": "ДОХОД ПО АРЕНАМ",
     "peak_hours": "ПИКОВЫЕ ЧАСЫ БРОНИРОВАНИЯ",
-    "transaction_logs": "ЖУРНАЛ ТРАНЗАКЦИЙ"
+    "transaction_logs": "ЖУРНАЛ ТРАНЗАКЦИЙ",
+    "today": "Сегодня",
+    "seven_days": "7 дней",
+    "thirty_days": "30 дней",
+    "reservations": "Бронирований",
+    "business_analytics": "Бизнес-аналитика",
+    "no_transactions": "Транзакций за сегодня нет.",
+    "bookings_label": "броней"
   },
   "payments": {
     "payments": "ПЛАТЕЖИ",

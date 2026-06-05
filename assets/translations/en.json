@@ -19,7 +19,9 @@
     "invite_member": "Invite Member",
     "add_player_profile": "Add Player Profile",
     "create_team": "Create Team",
-    "add_academy": "Add Academy"
+    "add_academy": "Add Academy",
+    "schedule": "Schedule",
+    "analytics": "Analytics"
   },
   "auth": {
     "welcome_back": "Welcome back",
@@ -242,7 +244,19 @@
     "career_history": "Career History",
     "no_career_data": "No career data available",
     "timeline": "Timeline",
-    "present": "Present"
+    "present": "Present",
+    "dynamic_pricing": "Dynamic Pricing",
+    "register_field": "Register Field",
+    "promo_codes": "Promo Codes",
+    "create_code": "Create Code",
+    "prime_time_surcharge": "Prime-Time Evening Surcharge (+20%)",
+    "prime_time_surcharge_desc": "Applies to 17:00–23:00 bookings on weekdays.",
+    "weekend_surcharge": "Weekend Premium Surcharge (+30%)",
+    "weekend_surcharge_desc": "Applies to all slots on Saturdays and Sundays.",
+    "night_owl_discount": "Night-Owl Off-Peak Discount (-35%)",
+    "night_owl_discount_desc": "Encourages night bookings (23:00–02:00).",
+    "no_promo_codes": "No promo codes created yet.",
+    "no_recent_bookings": "No recent client bookings found."
   },
   "club": {
     "dashboard": "Club Dashboard",
@@ -849,7 +863,15 @@
     "earnings_overview": "Earnings Overview",
     "reviews": "Reviews",
     "customer_reviews": "Customer Reviews",
-    "promotions": "Promotions"
+    "promotions": "Promotions",
+    "field_owner_role": "Field Owner",
+    "today_revenue": "Today's Revenue",
+    "occupancy": "Occupancy",
+    "new_requests_waiting": "new requests",
+    "blocked": "Blocked",
+    "open_for_reservation": "Open for reservation",
+    "maintenance_unavailable": "Maintenance / Unavailable",
+    "regular_player": "Regular Player (System)"
   },
   "notification": {
     "notifications": "NOTIFICATIONS",
@@ -1149,7 +1171,14 @@
     "total_bookings": "TOTAL BOOKINGS",
     "revenue_by_arena": "REVENUE BY ARENA",
     "peak_hours": "PEAK BOOKING HOURS",
-    "transaction_logs": "TRANSACTION LOGS"
+    "transaction_logs": "TRANSACTION LOGS",
+    "today": "Today",
+    "seven_days": "7 Days",
+    "thirty_days": "30 Days",
+    "reservations": "Reservations",
+    "business_analytics": "Business Analytics",
+    "no_transactions": "No transactions recorded today.",
+    "bookings_label": "bookings"
   },
   "payments": {
     "payments": "PAYMENTS",

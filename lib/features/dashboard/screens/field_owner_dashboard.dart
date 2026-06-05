@@ -205,43 +205,26 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
     final revenueFormatted = '$rawRevenue ₸';
     final occupancyFormatted = '${(manager.occupancy * 100).toInt()}%';
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 2,
+    return Row(
       children: [
-        _buildStatItem('field.today_revenue'.tr(), revenueFormatted, Colors.green),
-        _buildStatItem('field.occupancy'.tr(), occupancyFormatted, Colors.blue),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
-          const SizedBox(height: 2),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              letterSpacing: 0.5,
-            ),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.today_revenue'.tr(),
+            value: revenueFormatted,
+            icon: Icons.payments_rounded,
+            color: Colors.green,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.occupancy'.tr(),
+            value: occupancyFormatted,
+            icon: Icons.bar_chart_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
+        ),
+      ],
     );
   }
 

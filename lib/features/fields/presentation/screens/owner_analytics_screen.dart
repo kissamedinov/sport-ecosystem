@@ -115,7 +115,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('BUSINESS ANALYTICS', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
+        title: Text('analytics.business_analytics'.tr().toUpperCase(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -127,11 +127,11 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             // Period selector choice chips
             Row(
               children: [
-                _buildPeriodChip('Today', 0),
+                _buildPeriodChip('analytics.today'.tr(), 0),
                 const SizedBox(width: 8),
-                _buildPeriodChip('7 Days', 1),
+                _buildPeriodChip('analytics.seven_days'.tr(), 1),
                 const SizedBox(width: 8),
-                _buildPeriodChip('30 Days', 2),
+                _buildPeriodChip('analytics.thirty_days'.tr(), 2),
               ],
             ),
             const SizedBox(height: 24),
@@ -161,7 +161,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 12),
             _buildMiniStat(
               'analytics.total_bookings'.tr(),
-              '$bookingsCount Reservations',
+              '$bookingsCount ${'analytics.reservations'.tr()}',
               Icons.calendar_today_outlined,
               Colors.orangeAccent,
               horizontal: true,
@@ -204,7 +204,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                               ),
                             ),
                             Text(
-                              '${rev.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸ ($count bookings)',
+                              '${rev.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸ ($count ${'analytics.bookings_label'.tr()})',
                               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -256,7 +256,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Text('No transactions recorded today.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  child: Text('analytics.no_transactions'.tr(), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                 ),
               ),
             ] else ...[
