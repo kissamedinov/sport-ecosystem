@@ -188,17 +188,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
   }
 
   Widget _buildStatsRow(int fieldCount, int bookingCount, double revenue) {
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(child: _buildStatCard(title: 'profile.my_fields'.tr(), value: '$fieldCount', icon: Icons.stadium_rounded, color: PremiumTheme.neonGreen)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildStatCard(title: 'field.my_bookings'.tr(), value: '$bookingCount', icon: Icons.event_available_rounded, color: PremiumTheme.electricBlue)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _buildStatCard(title: 'profile.total_revenue'.tr(), value: "${(revenue / 1000).toStringAsFixed(1)}k ₸", icon: Icons.payments_rounded, color: Colors.amber),
+        Expanded(child: _buildStatCard(title: 'profile.my_fields'.tr(), value: '$fieldCount', icon: Icons.stadium_rounded, color: PremiumTheme.neonGreen)),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStatCard(title: 'field.my_bookings'.tr(), value: '$bookingCount', icon: Icons.event_available_rounded, color: PremiumTheme.electricBlue)),
+        const SizedBox(width: 10),
+        Expanded(child: _buildStatCard(title: 'profile.total_revenue'.tr(), value: "${(revenue / 1000).toStringAsFixed(1)}k ₸", icon: Icons.payments_rounded, color: Colors.amber)),
       ],
     );
   }
@@ -227,9 +223,9 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 12),
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
           const SizedBox(height: 2),
-          Text(title, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w500)),
+          Text(title, style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

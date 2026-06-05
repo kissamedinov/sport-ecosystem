@@ -586,21 +586,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ],
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.insights_rounded, color: isSelected ? Colors.black : accent, size: 22),
-              const SizedBox(height: 2),
-              Text(
-                'nav.analytics'.tr().toUpperCase(),
-                style: TextStyle(
-                  color: isSelected ? Colors.black : accent,
-                  fontSize: 8,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
+          child: Center(
+            child: Icon(Icons.insights_rounded, color: isSelected ? Colors.black : accent, size: 26),
           ),
         ),
       ),
