@@ -53,6 +53,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       return _buildFieldOwnerNav(context);
     }
 
+    if (role == 'PLAYER_ADULT' || role == 'PLAYER_YOUTH') {
+      return _buildAdultPlayerNav(context);
+    }
+
     if (role == 'COACH') {
       return const RoleRouter();
     }
@@ -593,6 +597,123 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
     );
   }
+
+  Widget _buildAdultMatchFab() {
+  final isSelected = _selectedIndex == 2;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  const accent = Color(0xFF00E676);
+  return Transform.translate(
+    offset: const Offset(0, -14),
+    child: GestureDetector(
+      onTap: () => setState(() => _selectedIndex = 2),
+      child: Container(
+        width: 54,
+        height: 54,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isSelected
+                ? [accent, const Color(0xFF00C853)]
+                : isDark
+                    ? [const Color(0xFF1A3A1A), const Color(0xFF0F250F)]
+                    : [accent.withValues(alpha: 0.12), accent.withValues(alpha: 0.06)],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: accent.withValues(alpha: isSelected ? 1.0 : 0.4),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: isSelected ? 0.55 : 0.15),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Icon(
+            Icons.sports_soccer_rounded,
+            color: isSelected ? Colors.black : accent,
+            size: 26,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+  Widget _buildAdultPlayerNav(BuildContext context) {
+  final safeIndex = _selectedIndex.clamp(0, 4);
+  final bottomPadding = MediaQuery.of(context).padding.bottom;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
+  final adultScreens = [
+    const RoleRouter(),
+    const TournamentListScreen(),
+    const MatchListScreen(),
+    const BookingScreen(),
+    const ProfileScreen(),
+  ];
+
+  return Scaffold(
+    extendBody: true,
+    body: IndexedStack(
+      index: safeIndex,
+      children: adultScreens,
+    ),
+    bottomNavigationBar: Container(
+      margin: EdgeInsets.fromLTRB(16, 0, 16, 10 + bottomPadding),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.07),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  color: isDark
+                      ? const Color(0xFF161B22).withValues(alpha: 0.62)
+                      : Colors.white.withValues(alpha: 0.68),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
+                Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'nav.cup'.tr().toUpperCase())),
+                _buildAdultMatchFab(),
+                Expanded(child: _buildChildNavItem(3, Icons.stadium_outlined, Icons.stadium_rounded, 'nav.booking'.tr().toUpperCase())),
+                Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Widget _buildChildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final isSelected = _selectedIndex == index;
