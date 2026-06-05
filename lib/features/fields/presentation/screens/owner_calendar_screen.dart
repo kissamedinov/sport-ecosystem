@@ -287,8 +287,17 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                 for (final booking in _backendBookings) {
                   if (booking.status.toUpperCase() == 'CANCELLED') continue;
                   
-                  final bStart = DateTime.parse(booking.startTime).toLocal();
-                  final bEnd = DateTime.parse(booking.endTime).toLocal();
+                  // Parse date string as naive local time by stripping 'Z' or offset
+                  String startStr = booking.startTime;
+                  if (startStr.endsWith('Z')) startStr = startStr.substring(0, startStr.length - 1);
+                  if (startStr.contains('+')) startStr = startStr.split('+')[0];
+                  
+                  String endStr = booking.endTime;
+                  if (endStr.endsWith('Z')) endStr = endStr.substring(0, endStr.length - 1);
+                  if (endStr.contains('+')) endStr = endStr.split('+')[0];
+                  
+                  final bStart = DateTime.parse(startStr);
+                  final bEnd = DateTime.parse(endStr);
                   
                   // Overlap condition: slotStart < bEnd && bStart < slotEnd
                   if (slotStart.isBefore(bEnd) && bStart.isBefore(slotEnd)) {

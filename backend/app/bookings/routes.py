@@ -45,7 +45,7 @@ def get_user_payments(
     current_user: User = Depends(get_current_user)
 ):
     # Additional logic: check if current_user matches user_id or is admin
-    if current_user.id != user_id and current_user.role != Role.ADMIN:
+    if current_user.id != user_id and Role.ADMIN not in [ur.role for ur in current_user.roles]:
         raise HTTPException(status_code=403, detail="Not authorized to view these payments")
     return services.get_user_payments(db, user_id)
 
@@ -55,12 +55,13 @@ def get_field_bookings(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Check if user is owner of field or admin
+    # Check if user is owner of field or admin/field_owner
     from app.fields.models import Field
     field = db.query(Field).filter(Field.id == field_id).first()
     if not field:
         raise HTTPException(status_code=404, detail="Field not found")
-    if field.owner_id != current_user.id and current_user.role != Role.ADMIN:
+    user_roles = [ur.role for ur in current_user.roles]
+    if field.owner_id != current_user.id and Role.ADMIN not in user_roles and Role.FIELD_OWNER not in user_roles:
         raise HTTPException(status_code=403, detail="Not authorized to view these bookings")
     return services.get_field_bookings(db, field_id)
 
