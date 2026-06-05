@@ -157,9 +157,9 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.5,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 2.2,
       children: [
         _buildStatCard(
           icon: Icons.cake_rounded,
@@ -209,48 +209,50 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     required Color accent,
     VoidCallback? onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return OrleonCard(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-      radius: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      radius: 14,
       onTap: onTap,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          accent.withValues(alpha: 0.22),
-          accent.withValues(alpha: 0.10),
-        ],
-      ),
-      borderColor: accent.withValues(alpha: 0.35),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      background: isDark ? const Color(0xFF161B22) : cs.surface,
+      borderColor: accent.withValues(alpha: 0.28),
+      shadow: [BoxShadow(color: accent.withValues(alpha: isDark ? 0.10 : 0.05), blurRadius: 8, offset: const Offset(0, 3))],
+      child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(icon, size: 16, color: accent),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.45),
+                    fontSize: 8,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

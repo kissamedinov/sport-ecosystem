@@ -258,23 +258,22 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     required String label,
     required Color accent,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return OrleonCard(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
       radius: 16,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [accent.withValues(alpha: 0.22), accent.withValues(alpha: 0.10)],
-      ),
-      borderColor: accent.withValues(alpha: 0.35),
+      background: isDark ? const Color(0xFF161B22) : cs.surface,
+      borderColor: accent.withValues(alpha: 0.28),
+      shadow: [BoxShadow(color: accent.withValues(alpha: isDark ? 0.12 : 0.06), blurRadius: 12, offset: const Offset(0, 4))],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(icon, size: 16, color: accent),
           ),
@@ -282,7 +281,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
           Text(
             value,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: cs.onSurface,
               fontSize: 20,
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
@@ -292,7 +291,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
           Text(
             label.toUpperCase(),
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: cs.onSurface.withValues(alpha: 0.45),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -310,23 +309,22 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     required Color accent,
     required VoidCallback onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return OrleonCard(
       padding: const EdgeInsets.all(16),
       radius: 18,
       onTap: onTap,
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [accent.withValues(alpha: 0.16), accent.withValues(alpha: 0.07)],
-      ),
+      background: isDark ? const Color(0xFF161B22) : cs.surface,
       borderColor: accent.withValues(alpha: 0.28),
+      shadow: [BoxShadow(color: accent.withValues(alpha: isDark ? 0.12 : 0.06), blurRadius: 12, offset: const Offset(0, 4))],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.12),
+              color: accent.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: accent, size: 20),
@@ -335,7 +333,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
           Text(
             title,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: cs.onSurface,
               fontSize: 13,
               fontWeight: FontWeight.w900,
             ),
@@ -344,7 +342,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
           Text(
             subtitle,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: cs.onSurface.withValues(alpha: 0.5),
               fontSize: 10,
             ),
             maxLines: 1,
