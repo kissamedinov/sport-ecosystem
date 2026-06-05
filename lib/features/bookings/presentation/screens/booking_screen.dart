@@ -79,7 +79,7 @@ class _BookingScreenState extends State<BookingScreen> {
           _isLoadingFields = false;
         });
       }
-      print("Error loading fields from backend: $e");
+      debugPrint("Error loading fields from backend: $e");
     }
   }
 
@@ -202,7 +202,9 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
           children: [
             TileLayer(
-              urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', // Custom Premium Dark Mode Map
+              urlTemplate: isDark
+                  ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                  : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
               subdomains: const ['a', 'b', 'c', 'd'],
             ),
             MarkerLayer(
@@ -220,10 +222,14 @@ class _BookingScreenState extends State<BookingScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isSelected ? PremiumTheme.neonGreen : const Color(0xFF161B22),
+                        color: isSelected
+                            ? PremiumTheme.neonGreen
+                            : (isDark ? const Color(0xFF161B22) : Colors.white),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected ? Colors.white : PremiumTheme.neonGreen.withValues(alpha: 0.5),
+                          color: isSelected
+                              ? (isDark ? Colors.white : Colors.black)
+                              : PremiumTheme.neonGreen.withValues(alpha: 0.7),
                           width: 2,
                         ),
                         boxShadow: isSelected
@@ -295,7 +301,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: cs.onSurface.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -329,14 +335,23 @@ class _BookingScreenState extends State<BookingScreen> {
 
 
   Widget _buildArenaCard(Map<String, dynamic> arena) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const color = PremiumTheme.neonGreen;
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: isDark ? 0.10 : 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -346,10 +361,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                  color: color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.stadium_rounded, color: PremiumTheme.neonGreen, size: 28),
+                child: const Icon(Icons.stadium_rounded, color: color, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -358,12 +373,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   children: [
                     Text(
                       arena['name'],
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: onSurface, letterSpacing: -0.5),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: cs.onSurface, letterSpacing: -0.5),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       arena['type'],
-                      style: TextStyle(fontSize: 12, color: onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -371,25 +386,25 @@ class _BookingScreenState extends State<BookingScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${(arena['price'] as int).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ₸',
-                  style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 13),
+                  style: const TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildInfoChip(Icons.grass_rounded, arena['surface']),
+              const SizedBox(width: 8),
               _buildInfoChip(Icons.access_time_filled_rounded, arena['hours']),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           GestureDetector(
             onTap: () => _showCheckoutSheet(context, arena),
             child: Container(
@@ -418,13 +433,13 @@ class _BookingScreenState extends State<BookingScreen> {
     try {
       final repo = BookingRepository(ApiClient());
       final slots = await repo.getFieldSlots(fieldId);
-      print("DEBUG: Fetched ${slots.length} slots for field $fieldId");
+      debugPrint("DEBUG: Fetched ${slots.length} slots for field $fieldId");
       if (slots.isNotEmpty) {
-        print("DEBUG: First slot sample: id=${slots.first.id}, startTime=${slots.first.startTime}, hour=${slots.first.startTime.hour}, isUtc=${slots.first.startTime.isUtc}");
+        debugPrint("DEBUG: First slot sample: id=${slots.first.id}, startTime=${slots.first.startTime}, hour=${slots.first.startTime.hour}, isUtc=${slots.first.startTime.isUtc}");
       }
       return slots;
     } catch (e) {
-      print("Error loading slots: $e");
+      debugPrint("Error loading slots: $e");
       return [];
     }
   }
@@ -477,7 +492,7 @@ class _BookingScreenState extends State<BookingScreen> {
         FieldPricingManager().todayRevenue += currentRentPrice;
         FieldPricingManager().notify();
       } catch (e) {
-        print("Payment error: $e");
+        debugPrint("Payment error: $e");
         setModalState(() {
           isPaying = false;
           showQR = false;
@@ -585,7 +600,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.2),
+                                    color: cs.onSurface.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -1290,16 +1305,22 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold),
-        ),
-      ],
+  Widget _buildInfoChip(IconData icon, String label) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.onSurface.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: cs.onSurface.withValues(alpha: 0.5)),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w600)),
+        ],
+      ),
     );
   }
 
@@ -1332,7 +1353,7 @@ class _BookingScreenState extends State<BookingScreen> {
              (localStart.hour == 0 && DateUtils.isSameDay(localStart, localDate.add(const Duration(days: 1))));
     }).toList();
 
-    print("DEBUG: _generateSlots date=$date, daySlots count=${daySlots.length}, total slots=${backendSlots.length}");
+    debugPrint("DEBUG: _generateSlots date=$date, daySlots count=${daySlots.length}, total slots=${backendSlots.length}");
 
     return slotsConfig.map((config) {
       final time = config['time'] as String;
