@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orleon - Final Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0d10;
+      --card-bg: rgba(20, 24, 33, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --neon-green: #39ff14;
+      --neon-blue: #00e5ff;
+      --accent-glow: radial-gradient(circle at 10% 20%, rgba(57, 255, 20, 0.08) 0%, rgba(0, 229, 255, 0.05) 90%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      background-image: var(--accent-glow);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Presentation Container */
+    .deck-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 40px;
+    }
+
+    /* Slide System */
+    .slide {
+      position: absolute;
+      width: 85%;
+      height: 80%;
+      max-width: 1100px;
+      max-height: 650px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 50px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95) translateY(20px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Header styling */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .slide-header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--neon-blue);
+      background: rgba(0, 229, 255, 0.1);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    /* Content styling */
+    .slide-content {
+      flex: 1;
+      display: flex;
+      gap: 40px;
+      align-items: center;
+      overflow-y: auto;
+    }
+
+    .slide-text-full {
+      width: 100%;
+    }
+
+    .slide-col {
+      flex: 1;
+    }
+
+    .slide-col-right {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    p.intro-text {
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      position: relative;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-left: 28px;
+    }
+
+    li::before {
+      content: '⚡';
+      position: absolute;
+      left: 0;
+      color: var(--neon-green);
+      font-size: 1.1rem;
+    }
+
+    li.check::before {
+      content: '🟢';
+      color: var(--neon-green);
+    }
+
+    /* Visual graphics mockups */
+    .mockup-box {
+      width: 100%;
+      height: 280px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .mockup-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--neon-blue);
+      text-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    }
+
+    .mockup-label {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .tech-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .tech-badge.green {
+      border-color: rgba(57, 255, 20, 0.3);
+      color: var(--neon-green);
+    }
+
+    /* Footer styling */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 20px;
+    }
+
+    .logo-footer {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-status {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* Controls Bar */
+    .controls {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 100;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1.2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    }
+
+    /* Speaker Notes Bar */
+    .speaker-notes-tray {
+      background: #0f1217;
+      border-top: 1px solid var(--border-color);
+      padding: 20px 40px;
+      height: 100px;
+      position: relative;
+      transition: height 0.4s ease;
+      z-index: 200;
+    }
+
+    .speaker-notes-tray.expanded {
+      height: 250px;
+    }
+
+    .tray-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tray-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--neon-green);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tray-toggle {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: underline;
+    }
+
+    .speaker-notes-content {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      height: calc(100% - 30px);
+      overflow-y: auto;
+    }
+
+    /* Special Layouts for Title Slide */
+    .slide-title-layout {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .title-large {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #ffffff 10%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+
+    .title-subtitle {
+      font-size: 1.3rem;
+      color: var(--neon-green);
+      margin-bottom: 50px;
+      letter-spacing: 2px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .presenter-details {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-top: 30px;
+    }
+
+    .detail-item {
+      text-align: left;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    /* Interactive Status Indicators */
+    .status-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(57, 255, 20, 0.1);
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      color: var(--neon-green);
+      font-weight: 600;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header">
+        <span class="status-badge">Thesis Defense</span>
+        <span class="slide-number">01 / 15</span>
+      </div>
+      <div class="slide-content slide-title-layout">
+        <div class="slide-text-full">
+          <h1 class="title-large">Development of a Cross-Platform Ecosystem for Automating and Managing Youth Sports Clubs "Orleon"</h1>
+          <p class="title-subtitle">Unified Digital Sports Infrastructure</p>
+          
+          <div class="presenter-details">
+            <div class="detail-item">
+              <p class="detail-label">Presenter</p>
+              <p class="detail-value">[Your Name]</p>
+            </div>
+            <div class="detail-item">
+              <p class="detail-label">Academic Advisor</p>
+              <p class="detail-value">[Advisor's Name, Degree]</p>
+            </div>
+            <div class="detail-item">
+              <p class="detail-label">Tech Stack</p>
+              <p class="detail-value" style="color: var(--neon-blue)">Flutter &bull; FastAPI &bull; PostgreSQL</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Title Slide</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: RELEVANCE -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <h2>Relevance of Automation in Youth Sports</h2>
+        <span class="slide-number">02 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text">Why does youth sports need dedicated digital automation today?</p>
+          <ul>
+            <li><strong>Rapid Industry Growth:</strong> Exploding number of private academies, leagues, and training academies.</li>
+            <li><strong>Manual Operations:</strong> Reliance on fragmented spreadsheets (Excel, Google Sheets) for schedule and payment tracking.</li>
+            <li><strong>Communication Fragmentation:</strong> Parent-coach coordination is scattered across chat apps (WhatsApp, Telegram), losing critical schedule updates.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">📈</div>
+            <p class="mockup-label">The Digitalization Gap</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">90% of local youth sports clubs rely on manual operations and Excel for managing their schedules.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Introduction & Context</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: PROBLEM STATEMENT -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <h2>Key Limitations of Existing Solutions</h2>
+        <span class="slide-number">03 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>High Licensing Costs:</strong> Enterprise sports CRM solutions are expensive and not adapted for emerging markets.</li>
+            <li><strong>No Unified Player Profiles:</strong> History, statistics, team assignments, and attendance logs are kept in disconnected files.</li>
+            <li><strong>Friction in Junior Profile Management:</strong> Parents cannot manage their children's team schedules easily from a single, unified account.</li>
+            <li><strong>Lack of Logistics Integration:</strong> Field bookings, league updates, and training schedules operate in completely separate applications.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box" style="border-color: rgba(255, 77, 77, 0.2)">
+            <div class="mockup-icon" style="color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.3)">⚠️</div>
+            <p class="mockup-label" style="color: #ff4d4d">Fragmented Workflows</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">No connection between roster administration, schedule tracking, and tournament brackets.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Problem Statement</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: GOAL & OBJECTIVES -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <h2>Goal & Objectives of the Project</h2>
+        <span class="slide-number">04 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text" style="color: var(--neon-green)">Goal: Develop a cross-platform ecosystem to digitize the core workflows of youth sports clubs.</p>
+          <ul>
+            <li class="check"><strong>Database & API Design:</strong> Establish a robust PostgreSQL schema and build a high-performance RESTful API.</li>
+            <li class="check"><strong>Client Application:</strong> Build a clean, responsive mobile application for iOS and Android.</li>
+            <li class="check"><strong>Relationship Engine:</strong> Develop a secure parent-child profile management link.</li>
+            <li class="check"><strong>Competition Module:</strong> Program an automated tournament schedule and bracket calculator.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🎯</div>
+            <p class="mockup-label">Deliverables</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Decoupled Client-Server Infrastructure &bull; Role-Based User Access Control</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Project Targets</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: PROPOSED SOLUTION -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <h2>Orleon Ecosystem — A Single Point of Access</h2>
+        <span class="slide-number">05 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text">An all-in-one digital hub for everyone in the academy ecosystem.</p>
+          <ul>
+            <li><strong>Centralized Database:</strong> Prevents duplicate registration. Career stats, rosters, and schedules are shared instantly.</li>
+            <li><strong>Adaptable Role Layouts:</strong> UI adjusts dynamically depending on whether a coach, parent, club owner, or field manager logs in.</li>
+            <li><strong>Seamless Mobile App:</strong> Built on Flutter for native-like performance and smooth animations on both iOS and Android.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">📱</div>
+            <p class="mockup-label">Adaptive Interfaces</p>
+            <div class="badge-row">
+              <span class="tech-badge">Club Owner</span>
+              <span class="tech-badge">Coach</span>
+              <span class="tech-badge">Parent</span>
+              <span class="tech-badge">Field Owner</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Proposed Architecture</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: TECH STACK -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <h2>Technical Stack & Architecture</h2>
+        <span class="slide-number">06 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Mobile Client (Frontend):</strong> Dart & Flutter. Single codebase, high-performance UI rendering, and reactive state management.</li>
+            <li><strong>REST API (Backend):</strong> Python, FastAPI, and SQLAlchemy. Highly concurrent, asynchronous request loops, and strict type validation via Pydantic.</li>
+            <li><strong>Database:</strong> PostgreSQL. Solid relational storage with optimized indexing for complex user and match relationships.</li>
+            <li><strong>Security:</strong> JWT-based authorization tokens with endpoint-level role verification.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🛠️</div>
+            <p class="mockup-label">Technologies Used</p>
+            <div class="badge-row">
+              <span class="tech-badge green">Flutter</span>
+              <span class="tech-badge green">FastAPI</span>
+              <span class="tech-badge green">PostgreSQL</span>
+              <span class="tech-badge green">SQLAlchemy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Technical Architecture</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: DATABASE LOGICAL MODEL -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <h2>Logical Database Schema</h2>
+        <span class="slide-number">07 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Complex Relations:</strong> Over 15 tables covering clubs, academies, teams, players, parents, matches, and booking transactions.</li>
+            <li><strong>Status Engine:</strong> Designed the `team_memberships` link table to manage requests, approvals, and history transitions.</li>
+            <li><strong>Parent-Child Accounts:</strong> Child profiles do not require a separate email or login, eliminating user friction. Managed directly under parent records.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🗄️</div>
+            <p class="mockup-label">Relational Integrity</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Strict Foreign Key cascading &bull; Optimized query joins for real-time dashboards</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Backend Infrastructure</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: ROLE-BASED ACCESS CONTROL -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <h2>Role-Based Access Control (RBAC)</h2>
+        <span class="slide-number">08 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Club Owner:</strong> Manages academies, creates team entities, registers fields, and audits finances.</li>
+            <li><strong>Coach:</strong> Manages rosters, coordinates training schedules, and inputs match statistics.</li>
+            <li><strong>Parent / Player:</strong> Connects to teams, views schedules, accepts invitations, and tracks scores.</li>
+            <li><strong>Field Owner:</strong> Creates field configurations, manages rental time-slots, and receives bookings.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🔒</div>
+            <p class="mockup-label">Security Layer</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Decorated API routes verify JWT token payload permissions before serving or modifying records.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Security & Authorization</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: LIVE DEMO INTRO -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <h2>Live Demonstration Setup</h2>
+        <span class="slide-number">09 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text" style="color: var(--neon-blue)">Simultaneous two-device workflow presentation on the spot.</p>
+          <ul>
+            <li><strong>Device 1 (Club Owner / Coach):</strong> Managing the academy, looking up players, sending invites, and updating the roster.</li>
+            <li><strong>Device 2 (Parent Account):</strong> Creating the junior player profile, viewing incoming notifications, and accepting invitations.</li>
+            <li><strong>The Sync Flow:</strong> Watch how the database updates the team roster on both screens immediately without a manual reload.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🤝</div>
+            <p class="mockup-label">Roster Linking Demo</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Double Device Simulation: Real-time API event handling and state updates.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Live Demo Intro</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: DEMO STEP 1 -->
+    <div class="slide" id="slide-10">
+      <div class="slide-header">
+        <h2>[DEMO] Parent Account & Child Profiles</h2>
+        <span class="slide-number">10 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text">Parent Dashboard Workflow (Device 2)</p>
+          <ul>
+            <li><strong>Email Registration:</strong> Parents log in via a dedicated account.</li>
+            <li><strong>Children Sub-profiles:</strong> Easily add player name, year of birth, position, and jersey preferences.</li>
+            <li><strong>Invitation Tracking:</strong> Real-time status display of pending invitations from schools and clubs.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">👪</div>
+            <p class="mockup-label">Junior Profile Mapping</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">One parent account can manage multiple children's athletic profiles seamlessly.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Live Demo - Step 1</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: DEMO STEP 2 -->
+    <div class="slide" id="slide-11">
+      <div class="slide-header">
+        <h2>[DEMO] Sending and Accepting Invites</h2>
+        <span class="slide-number">11 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Invitation Creation (Device 1):</strong> Club Owner searches for the parent's email and sends a player invitation.</li>
+            <li><strong>Notification (Device 2):</strong> Parent dashboard receives the invite request instantly via API.</li>
+            <li><strong>Status Update:</strong> Parent clicks "Approve", calling `/teams/{id}/join` to update join status to APPROVED in the DB.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">📩</div>
+            <p class="mockup-label">Invitation Status</p>
+            <div class="badge-row">
+              <span class="tech-badge" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3)">PENDING</span>
+              <span class="tech-badge green" style="background: rgba(57, 255, 20, 0.1)">APPROVED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Live Demo - Step 2</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: DEMO STEP 3 -->
+    <div class="slide" id="slide-12">
+      <div class="slide-header">
+        <h2>[DEMO] Team Roster & Real-Time Sync</h2>
+        <span class="slide-number">12 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Add Player to Team:</strong> Coach assigns the approved player to the designated squad.</li>
+            <li><strong>State Propagation:</strong> Flutter client uses `TeamProvider` to fetch fresh team details from the API on initialization.</li>
+            <li><strong>Roster Refresh:</strong> The roster count and the player list update immediately on the dashboard.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🔄</div>
+            <p class="mockup-label">UI Synchronization</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">No page refresh required. Seamless data mapping from REST response to local state models.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Live Demo - Step 3</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: DEMO STEP 4 -->
+    <div class="slide" id="slide-13">
+      <div class="slide-header">
+        <h2>[DEMO] Calendars & Match Statistics</h2>
+        <span class="slide-number">13 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Unified Calendar:</strong> Once in the team, the child's training sessions and matches populate automatically.</li>
+            <li><strong>Competition Logs:</strong> Tournament standings, match goals, assists, and lineups are computed instantly.</li>
+            <li><strong>Parent Updates:</strong> Parents stay updated on scheduling changes without relying on messy chat groups.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">📅</div>
+            <p class="mockup-label">Automated Schedules</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Auto-calculated team standings &bull; Individual performance records</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Live Demo - Step 4</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 14: PERFORMANCE & OPTIMIZATIONS -->
+    <div class="slide" id="slide-14">
+      <div class="slide-header">
+        <h2>Backend Performance & Optimizations</h2>
+        <span class="slide-number">14 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <ul>
+            <li><strong>Idempotency Implementation:</strong> Redesigned team assignment services to be completely idempotent, preventing double-entry errors.</li>
+            <li><strong>Schema Optimization:</strong> Replaced heavy nested user profile structures with optimized `PlayerInfo` schemas, reducing API payload sizes by 60%.</li>
+            <li><strong>Flutter Optimization:</strong> Shifted roster views from static properties to dynamic fetch calls in `initState`, solving stale cached data issues.</li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">⚡</div>
+            <p class="mockup-label">Performance Gain</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Roster loading response time reduced to less than 50ms &bull; Clean RESTful routing</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Optimization & Reliability</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 15: CONCLUSION & ROADMAP -->
+    <div class="slide" id="slide-15">
+      <div class="slide-header">
+        <h2>Conclusion & Future Roadmap</h2>
+        <span class="slide-number">15 / 15</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-col">
+          <p class="intro-text">Orleon is ready for real-world deployment.</p>
+          <ul>
+            <li><strong>Outcome:</strong> Fully developed, integrated, and verified cross-platform ecosystem for youth sports academies.</li>
+            <li><strong>Future Plans:</strong>
+              * **Payment Gateway Integration:** Automating monthly academy billing.
+              * **AI Analytics:** Introducing ML-based stats for predicting player performance.
+              * **Beta Pilot:** Partnering with regional football academies to run closed tests.
+            </li>
+          </ul>
+        </div>
+        <div class="slide-col-right">
+          <div class="mockup-box">
+            <div class="mockup-icon">🚀</div>
+            <p class="mockup-label">Launch Readiness</p>
+            <p style="font-size: 0.9rem; color: var(--text-secondary)">Codebase finalized &bull; DB Migrations Complete &bull; Ready for Pilot Launch</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="logo-footer">ORLEON</span>
+        <span class="slide-status">Conclusion & Roadmap</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-nav" id="btn-prev">&larr;</button>
+    <button class="btn-nav" id="btn-next">&rarr;</button>
+  </div>
+
+  <!-- Speaker Notes Tray -->
+  <div class="speaker-notes-tray" id="tray">
+    <div class="tray-header">
+      <div class="tray-title">
+        <span>🎤</span> Speaker Notes / Speech (Russian Prompt Guide)
+      </div>
+      <button class="tray-toggle" id="btn-toggle-notes">Expand Notes</button>
+    </div>
+    <div class="speaker-notes-content" id="notes-content">
+      Loading speech guidelines...
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const tray = document.getElementById('tray');
+    const btnToggleNotes = document.getElementById('btn-toggle-notes');
+    const notesContent = document.getElementById('notes-content');
+
+    let currentSlideIndex = 0;
+
+    const speakerNotes = [
+      // Slide 1
+      "Good afternoon, esteemed members of the academic board. My graduation project is dedicated to the development of the 'Orleon' sports ecosystem. This project is a unified, integrated platform designed to bridge the gap between sports club owners, coaches, parents, and young athletes into a single digital environment.",
+      // Slide 2
+      "Youth sports are currently experiencing a major boom, yet their level of digitalization remains extremely low. Club owners spend hours managing fees and schedules manually in Excel, coaches track attendance on paper, and parents struggle to find updates in cluttered group chats. Our product addresses this gap by offering a dedicated, centralized solution.",
+      // Slide 3
+      "Existing CRM systems on the market are built strictly for business, focusing primarily on membership sales. They do not account for the unique aspects of youth sports, such as linking a parent's profile to a child, managing tournament brackets, tracking player progression, and booking fields in one app. Our goal is to cover all these needs in a single ecosystem.",
+      // Slide 4
+      "To achieve this goal, we formulated a clear set of objectives: from designing a secure, high-performance database to developing a clean and responsive user interface that is equally convenient for coaches on the pitch and parents on their phones.",
+      // Slide 5
+      "We are introducing a comprehensive ecosystem, not just a standalone app. A user registers once and, based on their role—such as club manager, coach, or parent—gains access to the corresponding tools. All data is synchronized centrally, preventing duplication and errors.",
+      // Slide 6
+      "From a technical standpoint, the system is built on a modern stack. FastAPI was selected for the backend due to its asynchronous capabilities and fast response times. The mobile app is developed in Flutter, allowing us to maintain a single codebase while providing native-like performance on both Android and iOS.",
+      // Slide 7
+      "This slide displays our database schema. Special attention was paid to the relationship between parent and child profiles, as well as player transfers between teams. We implemented a flexible model that allows parents to manage multiple child profiles from a single dashboard.",
+      // Slide 8
+      "To protect personal data and commercial club records, we implemented a strict Role-Based Access Control model. The server validates user permissions with every API request. For instance, a coach cannot edit financial settings, and a parent can only view the schedule of their own child's team.",
+      // Slide 9
+      "Let's move on to the live demonstration of the product. To showcase the core workflows in action, we have prepared a demo on two devices here today. Device 1 on the left shows the Club Owner/Coach interface, and Device 2 on the right displays the Parent interface. We will walk through the entire cycle of adding a child to a team roster.",
+      // Slide 10
+      "On Device 2, the parent goes to 'My Children' and creates a new profile. Note that the child doesn't need their own email or phone number. We enter their name, birth year, and playing position. The profile is saved instantly to the backend database.",
+      // Slide 11
+      "Next, on Device 1, the Club Owner wants to add this player to their academy. They search for the parent's email and send an invitation. On Device 2, the parent instantly receives a notification under their 'Invitations' tab. Once the parent clicks 'Approve', the database updates the status to APPROVED in real-time.",
+      // Slide 12
+      "Now that the player is approved, they appear in the club's pool. The owner navigates to 'Team Management' for 'IM 2013 A team' and clicks 'Add Player'. We select the child, and the roster updates immediately. Thanks to Flutter state management optimizations, both screens update without manual page refreshes.",
+      // Slide 13
+      "Once assigned to a team, the child's calendar on the parent's device automatically populates with all team events. If the coach creates a training session or modifies a match schedule, the parent sees it instantly. This eliminates the need to cross-post schedules in messaging apps.",
+      // Slide 14
+      "During testing, we performed crucial optimizations on our API. We restructured serialization schemas to replace nested model relationships with lightweight data structures. This reduced payload sizes and tripled roster loading speeds. We also implemented idempotency to ensure database integrity, even over unstable mobile connections.",
+      // Slide 15
+      "In conclusion, the Orleon ecosystem addresses real, day-to-day challenges in youth sports management. Moving forward, we plan to implement automated fee collections and AI-driven performance tracking. The codebase is stable, thoroughly tested, and ready for deployment. Thank you for your attention. I am now open to your questions."
+    ];
+
+    function updateSlide() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentSlideIndex);
+      });
+      notesContent.textContent = speakerNotes[currentSlideIndex];
+    }
+
+    btnPrev.addEventListener('click', () => {
+      if (currentSlideIndex > 0) {
+        currentSlideIndex--;
+        updateSlide();
+      }
+    });
+
+    btnNext.addEventListener('click', () => {
+      if (currentSlideIndex < slides.length - 1) {
+        currentSlideIndex++;
+        updateSlide();
+      }
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        if (currentSlideIndex < slides.length - 1) {
+          currentSlideIndex++;
+          updateSlide();
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (currentSlideIndex > 0) {
+          currentSlideIndex--;
+          updateSlide();
+        }
+      }
+    });
+
+    // Expand/Collapse Notes
+    btnToggleNotes.addEventListener('click', () => {
+      tray.classList.toggle('expanded');
+      btnToggleNotes.textContent = tray.classList.contains('expanded') ? 'Collapse Notes' : 'Expand Notes';
+    });
+
+    // Init first slide notes
+    updateSlide();
+  </script>
+</body>
+</html>

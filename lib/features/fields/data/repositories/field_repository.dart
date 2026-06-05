@@ -14,7 +14,7 @@ class FieldRepository {
   }
 
   Future<List<Booking>> getFieldBookings(String fieldId) async {
-    final response = await _apiClient.get('/fields/$fieldId/bookings');
+    final response = await _apiClient.get('/bookings/fields/$fieldId/bookings');
     final List<dynamic> data = response.data;
     return data.map((json) => Booking.fromJson(json)).toList();
   }

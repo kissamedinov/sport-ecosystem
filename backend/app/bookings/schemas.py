@@ -35,6 +35,7 @@ class FieldBookingResponse(FieldBookingBase):
     status: BookingStatus
     payment_status: PaymentStatus
     created_at: datetime
+    user_name: Optional[str] = None
 
     class Config:
         from_attributes = True

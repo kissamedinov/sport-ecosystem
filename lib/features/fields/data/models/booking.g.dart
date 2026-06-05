@@ -13,7 +13,8 @@ Booking _$BookingFromJson(Map<String, dynamic> json) => Booking(
   startTime: json['start_time'] as String,
   endTime: json['end_time'] as String,
   status: json['status'] as String,
-  totalPrice: (json['total_price'] as num).toDouble(),
+  totalPrice: (json['total_price'] as num?)?.toDouble() ?? 0.0,
+  userName: json['user_name'] as String?,
 );
 
 Map<String, dynamic> _$BookingToJson(Booking instance) => <String, dynamic>{
@@ -24,4 +25,5 @@ Map<String, dynamic> _$BookingToJson(Booking instance) => <String, dynamic>{
   'end_time': instance.endTime,
   'status': instance.status,
   'total_price': instance.totalPrice,
+  'user_name': instance.userName,
 };

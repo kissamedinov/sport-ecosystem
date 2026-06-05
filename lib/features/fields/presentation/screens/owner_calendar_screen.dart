@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import '../../data/field_pricing_manager.dart';
+import '../../../../core/api/api_client.dart';
+import '../../data/models/field.dart' as model_field;
+import '../../data/models/booking.dart' as model_booking;
+import '../../data/repositories/field_repository.dart';
 
 class OwnerCalendarScreen extends StatefulWidget {
   const OwnerCalendarScreen({super.key});
@@ -15,13 +19,11 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
   String selectedField = 'SAIRAN ARENA';
   int selectedDateIndex = 0;
 
-  final List<String> _fields = [
-    'SAIRAN ARENA',
-    'SPORT CITY PITCHES',
-    'ASTANA ARENA',
-    'DUMAN SPORT COMPLEX',
-    'QAZAQSTAN ATHLETIC COMPLEX',
-  ];
+  List<model_field.Field> _backendFields = [];
+  model_field.Field? _selectedBackendField;
+  List<model_booking.Booking> _backendBookings = [];
+  bool _isLoadingFields = true;
+  bool _isLoadingBookings = false;
 
   late final VoidCallback _managerListener;
 
@@ -34,12 +36,68 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
       }
     };
     FieldPricingManager().addListener(_managerListener);
+    _loadBackendFields();
   }
 
   @override
   void dispose() {
     FieldPricingManager().removeListener(_managerListener);
     super.dispose();
+  }
+
+  Future<void> _loadBackendFields() async {
+    try {
+      final repo = FieldRepository(ApiClient());
+      final fields = await repo.getFields();
+      if (mounted) {
+        setState(() {
+          _backendFields = fields;
+          if (_backendFields.isNotEmpty) {
+            final match = _backendFields.firstWhere(
+              (f) => f.name.toUpperCase() == selectedField.toUpperCase(),
+              orElse: () => _backendFields.first,
+            );
+            _selectedBackendField = match;
+            selectedField = match.name.toUpperCase();
+          }
+          _isLoadingFields = false;
+        });
+        if (_selectedBackendField != null) {
+          _loadBackendBookings();
+        }
+      }
+    } catch (e) {
+      print("Error loading backend fields: $e");
+      if (mounted) {
+        setState(() {
+          _isLoadingFields = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadBackendBookings() async {
+    if (_selectedBackendField == null) return;
+    setState(() {
+      _isLoadingBookings = true;
+    });
+    try {
+      final repo = FieldRepository(ApiClient());
+      final bookings = await repo.getFieldBookings(_selectedBackendField!.id);
+      if (mounted) {
+        setState(() {
+          _backendBookings = bookings;
+          _isLoadingBookings = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading backend bookings: $e");
+      if (mounted) {
+        setState(() {
+          _isLoadingBookings = false;
+        });
+      }
+    }
   }
 
   int _parseTimeToMinutes(String timeStr) {
@@ -104,69 +162,74 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Arena Selection Dropdown
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF161B22) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedField,
-                  isExpanded: true,
-                  dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface, fontSize: 14),
-                  items: _fields.map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        selectedField = val;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
-
-          // Date selection horizontal slider
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: SizedBox(
-              height: 64,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: 7,
-                itemBuilder: (context, idx) {
-                  final d = dates[idx];
-                  final isSel = idx == selectedDateIndex;
-                  final dayName = _getDayName(d.weekday);
-                  
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          selectedDateIndex = idx;
-                        });
-                      },
+      body: _isLoadingFields
+          ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
+          : Column(
+              children: [
+                // Arena Selection Dropdown
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF161B22) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: 56,
-                        decoration: BoxDecoration(
-                          color: isSel ? PremiumTheme.neonGreen : (isDark ? const Color(0xFF161B22) : Colors.white),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSel ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.06),
-                          ),
-                        ),
+                      border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedField,
+                        isExpanded: true,
+                        dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface, fontSize: 14),
+                        items: _backendFields.map((f) => DropdownMenuItem(value: f.name.toUpperCase(), child: Text(f.name.toUpperCase()))).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              selectedField = val;
+                              _selectedBackendField = _backendFields.firstWhere((f) => f.name.toUpperCase() == val.toUpperCase());
+                            });
+                            _loadBackendBookings();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Date selection horizontal slider
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: SizedBox(
+                    height: 64,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: 7,
+                      itemBuilder: (context, idx) {
+                        final d = dates[idx];
+                        final isSel = idx == selectedDateIndex;
+                        final dayName = _getDayName(d.weekday);
+                        
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedDateIndex = idx;
+                              });
+                              _loadBackendBookings();
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              width: 56,
+                              decoration: BoxDecoration(
+                                color: isSel ? PremiumTheme.neonGreen : (isDark ? const Color(0xFF161B22) : Colors.white),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSel ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.06),
+                                ),
+                              ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -201,17 +264,40 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
 
           // Schedule List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              itemCount: slotsConfig.length,
-              itemBuilder: (context, index) {
+            child: _isLoadingBookings
+                ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    itemCount: slotsConfig.length,
+                    itemBuilder: (context, index) {
                 final config = slotsConfig[index];
                 final slotTime = config['time'] as String;
                 final hour = config['hour'] as int;
 
                 final isBlockedByOwner = manager.isSlotBlocked(selectedField, currentDate.day, slotTime);
 
-                // Determine if there is an approved overlapping request
+                // Calculate local start and end DateTime for the slot
+                final DateTime slotStart = hour == 0
+                    ? DateTime(currentDate.year, currentDate.month, currentDate.day + 1, 0, 0)
+                    : DateTime(currentDate.year, currentDate.month, currentDate.day, hour, 0);
+                final DateTime slotEnd = slotStart.add(const Duration(minutes: 90));
+
+                // Find if there is a real DB booking that overlaps with this slot
+                model_booking.Booking? dbBooking;
+                for (final booking in _backendBookings) {
+                  if (booking.status.toUpperCase() == 'CANCELLED') continue;
+                  
+                  final bStart = DateTime.parse(booking.startTime).toLocal();
+                  final bEnd = DateTime.parse(booking.endTime).toLocal();
+                  
+                  // Overlap condition: slotStart < bEnd && bStart < slotEnd
+                  if (slotStart.isBefore(bEnd) && bStart.isBefore(slotEnd)) {
+                    dbBooking = booking;
+                    break;
+                  }
+                }
+
+                // Determine if there is an approved overlapping request (local manual bookings)
                 Map<String, dynamic>? overlappingBooking;
                 for (final req in manager.pendingRequests) {
                   if (req['field'] == selectedField && req['day'] == currentDate.day && req['status'] == 'APPROVED') {
@@ -222,13 +308,6 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                   }
                 }
 
-                // Check default mock booking rule if no overlapping approved requests or blocks exist
-                final isMockBooked = overlappingBooking == null && !isBlockedByOwner && (
-                  (hour == 18 && currentDate.day % 2 == 0) ||
-                  (hour == 20 && currentDate.day % 3 != 0) ||
-                  (hour == 12 && currentDate.day % 4 == 0)
-                );
-
                 String statusLabel = 'field.available'.tr();
                 Color statusColor = PremiumTheme.neonGreen;
                 String subtitle = 'field.open_for_reservation'.tr();
@@ -237,14 +316,16 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                   statusLabel = 'field.blocked'.tr();
                   statusColor = Colors.redAccent;
                   subtitle = 'field.maintenance_unavailable'.tr();
+                } else if (dbBooking != null) {
+                  statusLabel = 'field.booked'.tr();
+                  statusColor = PremiumTheme.electricBlue;
+                  subtitle = dbBooking.status.toUpperCase() == 'PENDING' 
+                      ? '${dbBooking.userName ?? 'Player'} (Pending)' 
+                      : (dbBooking.userName ?? 'Player');
                 } else if (overlappingBooking != null) {
                   statusLabel = 'field.booked'.tr();
                   statusColor = PremiumTheme.electricBlue;
-                  subtitle = '${overlappingBooking['clientName']} (Approved)';
-                } else if (isMockBooked) {
-                  statusLabel = 'field.booked'.tr();
-                  statusColor = PremiumTheme.electricBlue;
-                  subtitle = 'field.regular_player'.tr();
+                  subtitle = '${overlappingBooking['clientName']} (Walk-in)';
                 }
 
                 return Container(
@@ -338,7 +419,7 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                             );
                           },
                         ),
-                      ] else if (overlappingBooking != null || isMockBooked) ...[
+                      ] else if (overlappingBooking != null || dbBooking != null) ...[
                         const Icon(Icons.check_circle_outline, color: Colors.grey),
                       ] else ...[
                         Row(

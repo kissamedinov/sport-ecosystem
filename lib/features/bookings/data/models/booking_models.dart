@@ -21,7 +21,7 @@ class FieldSlot {
       fieldId: json['field_id'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
-      price: (json['price'] as num).toDouble(),
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
       isAvailable: json['is_available'] as bool? ?? true,
     );
   }
@@ -49,7 +49,7 @@ class Booking {
       id: json['id'] as String,
       fieldId: json['field_id'] as String,
       userId: json['user_id'] as String,
-      slotId: json['slot_id'] as String,
+      slotId: json['slot_id'] as String? ?? '',
       status: json['status'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
@@ -77,9 +77,9 @@ class Payment {
     return Payment(
       id: json['id'] as String,
       userId: json['user_id'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] as String,
-      method: json['method'] as String,
+      method: (json['method'] ?? json['payment_method'] ?? 'OTHER') as String,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }

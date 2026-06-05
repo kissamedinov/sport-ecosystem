@@ -58,6 +58,11 @@ class Booking(Base):
     field = relationship("Field")
     payments = relationship("Payment", back_populates="booking")
 
+    @property
+    def user_name(self):
+        return self.user.name if self.user else "Player"
+
+
 class Payment(Base):
     __tablename__ = "payments"
 

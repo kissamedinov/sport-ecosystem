@@ -16,6 +16,8 @@ class Booking {
   final String status;
   @JsonKey(name: 'total_price')
   final double totalPrice;
+  @JsonKey(name: 'user_name')
+  final String? userName;
 
   Booking({
     required this.id,
@@ -25,6 +27,7 @@ class Booking {
     required this.endTime,
     required this.status,
     required this.totalPrice,
+    this.userName,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);

@@ -20,23 +20,23 @@ class BookingRepository {
   }
 
   Future<List<Booking>> getFieldBookings(String fieldId) async {
-    final response = await _apiClient.get('/fields/$fieldId/bookings');
+    final response = await _apiClient.get('/bookings/fields/$fieldId/bookings');
     final List<dynamic> data = response.data;
     return data.map((json) => Booking.fromJson(json)).toList();
   }
 
   Future<Payment> createPayment(Map<String, dynamic> paymentData) async {
-    final response = await _apiClient.post('/payments', data: paymentData);
+    final response = await _apiClient.post('/bookings/payments', data: paymentData);
     return Payment.fromJson(response.data);
   }
 
   Future<List<Payment>> getUserPayments(String userId) async {
-    final response = await _apiClient.get('/users/$userId/payments');
+    final response = await _apiClient.get('/bookings/users/$userId/payments');
     final List<dynamic> data = response.data;
     return data.map((json) => Payment.fromJson(json)).toList();
   }
 
   Future<void> confirmPayment(String paymentId) async {
-    await _apiClient.post('/payments/$paymentId/confirm');
+    await _apiClient.post('/bookings/payments/$paymentId/confirm');
   }
 }
