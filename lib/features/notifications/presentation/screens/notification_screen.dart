@@ -201,13 +201,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 }
 
-class _NotificationCard extends StatelessWidget {
+class _NotificationCard extends StatefulWidget {
   final dynamic notification;
 
   const _NotificationCard({required this.notification});
 
   @override
+  State<_NotificationCard> createState() => _NotificationCardState();
+}
+
+class _NotificationCardState extends State<_NotificationCard> {
+  // null = not yet acted on; 'accepted' / 'declined' = done
+  String? _actionResult;
+
+  @override
   Widget build(BuildContext context) {
+    final notification = widget.notification;
     final cs = Theme.of(context).colorScheme;
     final isInvite = notification.type == 'TEAM_INVITE' || notification.type == 'PARENT_LINK_REQUEST';
     final isApprovalRequest = notification.title == 'Invitation Approval Required';
@@ -288,7 +297,9 @@ class _NotificationCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (isApprovalRequest)
+                  if (_actionResult != null)
+                    _ResultBadge(accepted: _actionResult == 'accepted')
+                  else if (isApprovalRequest)
                     _ActionButton(
                       label: 'notification.approve'.tr(),
                       color: PremiumTheme.neonGreen,
@@ -320,23 +331,6 @@ class _NotificationCard extends StatelessWidget {
     );
   }
 
-  (IconData, Color) _getTypeStyle(String type) {
-    return switch (type) {
-      'TEAM_INVITE' => (Icons.person_add_alt_1_rounded, Colors.amber),
-      'MATCH_SCHEDULED' => (Icons.event_rounded, Colors.blue),
-      'MATCH_RESULT' => (Icons.sports_soccer_rounded, PremiumTheme.neonGreen),
-      'PARENT_LINK_REQUEST' => (Icons.family_restroom_rounded, Colors.orangeAccent),
-      'PLAYER_SELECTED' => (Icons.star_rounded, Colors.orange),
-      'CLUB_REQUEST' => (Icons.business_center_rounded, Colors.purple),
-      'CLUB_APPROVED' => (Icons.check_circle_rounded, PremiumTheme.neonGreen),
-      'CLUB_REJECTED' => (Icons.cancel_rounded, Colors.red),
-      'JOIN_REQUEST_RECEIVED' => (Icons.person_add_rounded, Colors.blueAccent),
-      'JOIN_REQUEST_ACCEPTED' => (Icons.check_circle_rounded, PremiumTheme.neonGreen),
-      'JOIN_REQUEST_REJECTED' => (Icons.cancel_rounded, Colors.red),
-      _ => (Icons.notifications_rounded, Colors.grey),
-    };
-  }
-
   void _handleInvitation(BuildContext context, String? invitationId, bool accept,
       {bool isApproval = false}) async {
     if (invitationId == null) return;
@@ -344,7 +338,7 @@ class _NotificationCard extends StatelessWidget {
     final notificationProvider = context.read<NotificationProvider>();
     bool success = false;
 
-    if (notification.type == 'PARENT_LINK_REQUEST') {
+    if (widget.notification.type == 'PARENT_LINK_REQUEST') {
       final authProvider = context.read<import_auth.AuthProvider>();
       success = accept
           ? await authProvider.acceptRequest(invitationId)
@@ -361,18 +355,33 @@ class _NotificationCard extends StatelessWidget {
     }
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? (accept ? 'notification.invitation_accepted'.tr() : 'notification.invitation_declined'.tr())
-              : 'notification.action_failed'.tr()),
-        ),
-      );
       if (success) {
-        notificationProvider.markAsRead(notification.id);
+        setState(() => _actionResult = accept ? 'accepted' : 'declined');
+        notificationProvider.markAsRead(widget.notification.id);
         notificationProvider.fetchNotifications();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('notification.action_failed'.tr())),
+        );
       }
     }
+  }
+
+  (IconData, Color) _getTypeStyle(String type) {
+    return switch (type) {
+      'TEAM_INVITE' => (Icons.person_add_alt_1_rounded, Colors.amber),
+      'MATCH_SCHEDULED' => (Icons.event_rounded, Colors.blue),
+      'MATCH_RESULT' => (Icons.sports_soccer_rounded, PremiumTheme.neonGreen),
+      'PARENT_LINK_REQUEST' => (Icons.family_restroom_rounded, Colors.orangeAccent),
+      'PLAYER_SELECTED' => (Icons.star_rounded, Colors.orange),
+      'CLUB_REQUEST' => (Icons.business_center_rounded, Colors.purple),
+      'CLUB_APPROVED' => (Icons.check_circle_rounded, PremiumTheme.neonGreen),
+      'CLUB_REJECTED' => (Icons.cancel_rounded, Colors.red),
+      'JOIN_REQUEST_RECEIVED' => (Icons.person_add_rounded, Colors.blueAccent),
+      'JOIN_REQUEST_ACCEPTED' => (Icons.check_circle_rounded, PremiumTheme.neonGreen),
+      'JOIN_REQUEST_REJECTED' => (Icons.cancel_rounded, Colors.red),
+      _ => (Icons.notifications_rounded, Colors.grey),
+    };
   }
 }
 
@@ -411,6 +420,43 @@ class _ActionButton extends StatelessWidget {
             letterSpacing: 0.5,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ResultBadge extends StatelessWidget {
+  final bool accepted;
+
+  const _ResultBadge({required this.accepted});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = accepted ? PremiumTheme.neonGreen : Colors.redAccent;
+    final icon = accepted ? Icons.check_circle_rounded : Icons.cancel_rounded;
+    final label = accepted ? 'admin.approved'.tr() : 'admin.rejected'.tr();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }
