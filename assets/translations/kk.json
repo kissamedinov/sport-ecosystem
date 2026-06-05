@@ -620,7 +620,8 @@
     "registration_success": "Тіркелу сәтті!",
     "registration_failed": "Тіркелу сәтсіз",
     "apply_team": "Өтінім беру",
-    "apply_tournament": "Турнирге өтінім беру"
+    "apply_tournament": "Турнирге өтінім беру",
+    "go_to_registration": "Тіркеуге өту"
   },
   "match": {
     "live_matches": "ТІКЕЛЕЙ МАТЧТАР",
