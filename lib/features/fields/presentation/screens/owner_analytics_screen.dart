@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import '../../data/field_pricing_manager.dart';
 
@@ -51,11 +50,11 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     for (final req in approvedReqs) {
       final field = req['field'] as String;
       final price = (req['price'] as num).toDouble();
-      if (field == 'SAIRAN ARENA') sairanAdd += price;
-      else if (field == 'SPORT CITY PITCHES') sportCityAdd += price;
-      else if (field == 'ASTANA ARENA') astanaAdd += price;
-      else if (field == 'DUMAN SPORT COMPLEX') dumanAdd += price;
-      else if (field == 'QAZAQSTAN ATHLETIC COMPLEX') qazaqstanAdd += price;
+      if (field == 'SAIRAN ARENA') { sairanAdd += price; }
+      else if (field == 'SPORT CITY PITCHES') { sportCityAdd += price; }
+      else if (field == 'ASTANA ARENA') { astanaAdd += price; }
+      else if (field == 'DUMAN SPORT COMPLEX') { dumanAdd += price; }
+      else if (field == 'QAZAQSTAN ATHLETIC COMPLEX') { qazaqstanAdd += price; }
     }
 
     // Base statistics to simulate history
