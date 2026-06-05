@@ -256,7 +256,9 @@
     "night_owl_discount": "Түнгі жеңілдік (-35%)",
     "night_owl_discount_desc": "Түнгі брондауларды ынталандырады (23:00–02:00).",
     "no_promo_codes": "Промокодтар әлі жасалмаған.",
-    "no_recent_bookings": "Соңғы клиент брондаулары жоқ."
+    "no_recent_bookings": "Соңғы клиент брондаулары жоқ.",
+    "family_badge": "Отбасы",
+    "games_badge": "Ойындар"
   },
   "club": {
     "dashboard": "Клуб тақтасы",
@@ -616,7 +618,9 @@
     "played": "Ойнады",
     "team": "Команда",
     "registration_success": "Тіркелу сәтті!",
-    "registration_failed": "Тіркелу сәтсіз"
+    "registration_failed": "Тіркелу сәтсіз",
+    "apply_team": "Өтінім беру",
+    "apply_tournament": "Турнирге өтінім беру"
   },
   "match": {
     "live_matches": "ТІКЕЛЕЙ МАТЧТАР",

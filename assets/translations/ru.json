@@ -256,7 +256,9 @@
     "night_owl_discount": "Ночная скидка (-35%)",
     "night_owl_discount_desc": "Стимулирует ночные брони (23:00–02:00).",
     "no_promo_codes": "Промокоды ещё не созданы.",
-    "no_recent_bookings": "Недавних бронирований клиентов нет."
+    "no_recent_bookings": "Недавних бронирований клиентов нет.",
+    "family_badge": "Семья",
+    "games_badge": "Игры"
   },
   "club": {
     "dashboard": "Панель клуба",
@@ -703,6 +705,8 @@
     "error_rejecting": "Ошибка отклонения команды",
     "error_approving": "Ошибка подтверждения команды",
     "approve_btn": "ОДОБРИТЬ",
+    "apply_team": "Подать заявку",
+    "apply_tournament": "Заявиться на турнир",
     "apply_for_division": "ЗАЯВКА НА ГРУППУ",
     "select_your_team": "ВЫБРАТЬ КОМАНДУ",
     "no_teams_profile": "Команд в профиле не найдено.",

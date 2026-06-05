@@ -256,7 +256,9 @@
     "night_owl_discount": "Night-Owl Off-Peak Discount (-35%)",
     "night_owl_discount_desc": "Encourages night bookings (23:00–02:00).",
     "no_promo_codes": "No promo codes created yet.",
-    "no_recent_bookings": "No recent client bookings found."
+    "no_recent_bookings": "No recent client bookings found.",
+    "family_badge": "Family",
+    "games_badge": "Games"
   },
   "club": {
     "dashboard": "Club Dashboard",
@@ -703,6 +705,8 @@
     "error_rejecting": "Error rejecting team",
     "error_approving": "Error approving team",
     "approve_btn": "APPROVE",
+    "apply_team": "Apply Team",
+    "apply_tournament": "Apply for Tournament",
     "apply_for_division": "APPLY FOR DIVISION",
     "select_your_team": "SELECT YOUR TEAM",
     "no_teams_profile": "No teams found in your profile.",
