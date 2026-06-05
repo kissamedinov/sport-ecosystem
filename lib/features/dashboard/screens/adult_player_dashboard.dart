@@ -8,6 +8,7 @@ import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../matches/presentation/screens/match_list_screen.dart';
 import '../../bookings/presentation/screens/booking_screen.dart';
 import '../../clubs/presentation/screens/club_dashboard_screen.dart';
@@ -74,17 +75,17 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                       _buildDailyQuizBanner(),
                       const SizedBox(height: 28),
 
-                      _buildSectionLabel('player.your_next_challenge'.tr()),
+                      PremiumSectionLabel('player.your_next_challenge'.tr()),
                       const SizedBox(height: 12),
                       _buildMatchChallenge(nextMatch),
 
                       const SizedBox(height: 28),
-                      _buildSectionLabel('player.career_glance'.tr()),
+                      PremiumSectionLabel('player.career_glance'.tr()),
                       const SizedBox(height: 12),
                       _buildStatsRow(teamCount),
 
                       const SizedBox(height: 28),
-                      _buildSectionLabel('player.explore_services'.tr()),
+                      PremiumSectionLabel('player.explore_services'.tr()),
                       const SizedBox(height: 12),
                       _buildQuickActionsGrid(),
 
@@ -372,26 +373,4 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
     );
   }
 
-  Widget _buildSectionLabel(String text) {
-    return Row(
-      children: [
-        Container(width: 4, height: 14, decoration: BoxDecoration(color: PremiumTheme.neonGreen, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 10),
-        Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Colors.grey)),
-      ],
-    );
-  }
-}
-
-class TemporaryScreen extends StatelessWidget {
-  final String title;
-  const TemporaryScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('common.coming_soon_content'.tr(namedArgs: {'title': title}))),
-    );
-  }
 }
