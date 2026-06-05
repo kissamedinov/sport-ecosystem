@@ -79,6 +79,56 @@ def generate_field_slots(
     return {"message": f"Successfully generated {slots_created} slots."}
 
 def get_available_slots(db: Session, field_id: UUID, start_date: datetime = None):
+    from datetime import date, time
+    
+    # Dynamic Auto-Generation of Slots (Rolling 14-day window)
+    today = date.today()
+    
+    # 1. Determine price from latest slots of this field
+    last_slot = db.query(models.FieldSlot).filter(
+        models.FieldSlot.field_id == field_id
+    ).order_by(models.FieldSlot.start_time.desc()).first()
+    base_price = last_slot.price if last_slot else 15000.0
+    
+    # 2. Iterate through next 14 days and create missing slots
+    for day_offset in range(14):
+        slot_date = today + timedelta(days=day_offset)
+        
+        # Check if slots exist for this date
+        # Check for 08:00 slot to represent this date
+        check_time = datetime.combine(slot_date, time(hour=8, minute=0))
+        exists = db.query(models.FieldSlot).filter(
+            models.FieldSlot.field_id == field_id,
+            models.FieldSlot.start_time == check_time
+        ).first()
+        
+        if not exists:
+            # Generate slots config (08:00, 10:00, 12:00, 14:00, 16:00, 18:00, 20:00, 22:00, 00:00)
+            slot_times = [8, 10, 12, 14, 16, 18, 20, 22, 0]
+            for start_hour in slot_times:
+                slot_start = datetime.combine(slot_date, time(hour=start_hour, minute=0))
+                if start_hour == 0:
+                    slot_start = datetime.combine(slot_date + timedelta(days=1), time(hour=0, minute=0))
+                
+                slot_end = slot_start + timedelta(minutes=90)
+                
+                # Double check to prevent unique constraint crash
+                already_exists = db.query(models.FieldSlot).filter(
+                    models.FieldSlot.field_id == field_id,
+                    models.FieldSlot.start_time == slot_start
+                ).first()
+                
+                if not already_exists:
+                    new_slot = models.FieldSlot(
+                        field_id=field_id,
+                        start_time=slot_start,
+                        end_time=slot_end,
+                        price=base_price,
+                        is_available=True
+                    )
+                    db.add(new_slot)
+            db.commit()
+
     query = db.query(models.FieldSlot).filter(
         models.FieldSlot.field_id == field_id,
         models.FieldSlot.is_available == True
@@ -87,3 +137,6 @@ def get_available_slots(db: Session, field_id: UUID, start_date: datetime = None
         query = query.filter(models.FieldSlot.start_time >= start_date)
     
     return query.order_by(models.FieldSlot.start_time).all()
+
+def get_fields(db: Session):
+    return db.query(models.Field).all()
