@@ -417,7 +417,12 @@ class _BookingScreenState extends State<BookingScreen> {
     if (fieldId.isEmpty) return [];
     try {
       final repo = BookingRepository(ApiClient());
-      return await repo.getFieldSlots(fieldId);
+      final slots = await repo.getFieldSlots(fieldId);
+      print("DEBUG: Fetched ${slots.length} slots for field $fieldId");
+      if (slots.isNotEmpty) {
+        print("DEBUG: First slot sample: id=${slots.first.id}, startTime=${slots.first.startTime}, hour=${slots.first.startTime.hour}, isUtc=${slots.first.startTime.isUtc}");
+      }
+      return slots;
     } catch (e) {
       print("Error loading slots: $e");
       return [];
@@ -444,20 +449,25 @@ class _BookingScreenState extends State<BookingScreen> {
       });
       
       try {
-        final repo = BookingRepository(ApiClient());
+        final bookingRepo = BookingRepository(ApiClient());
+        final fieldRepo = FieldRepository(ApiClient());
         
-        // 1. Create booking
-        final booking = await repo.bookField(arena['id'] as String, selectedSlot!['id'] as String);
+        // 1. Create booking using start_time and end_time
+        final booking = await fieldRepo.createBooking(
+          arena['id'] as String,
+          (selectedSlot!['startTime'] as DateTime).toIso8601String(),
+          (selectedSlot!['endTime'] as DateTime).toIso8601String(),
+        );
         
         // 2. Create payment
-        final payment = await repo.createPayment({
+        final payment = await bookingRepo.createPayment({
           'booking_id': booking.id,
           'amount': currentTotal,
           'payment_method': method,
         });
         
         // 3. Confirm payment
-        await repo.confirmPayment(payment.id);
+        await bookingRepo.confirmPayment(payment.id);
         
         setModalState(() {
           isPaying = false;
@@ -1316,9 +1326,13 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // Filter backend slots for the selected day
     final daySlots = backendSlots.where((slot) {
-      return DateUtils.isSameDay(slot.startTime, date) || 
-             (slot.startTime.hour == 0 && DateUtils.isSameDay(slot.startTime, date.add(const Duration(days: 1))));
+      final localStart = slot.startTime.toLocal();
+      final localDate = date.toLocal();
+      return DateUtils.isSameDay(localStart, localDate) || 
+             (localStart.hour == 0 && DateUtils.isSameDay(localStart, localDate.add(const Duration(days: 1))));
     }).toList();
+
+    print("DEBUG: _generateSlots date=$date, daySlots count=${daySlots.length}, total slots=${backendSlots.length}");
 
     return slotsConfig.map((config) {
       final time = config['time'] as String;
@@ -1353,7 +1367,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
       // Find matching backend slot
       final matchingBackendSlot = daySlots.firstWhere(
-        (slot) => slot.startTime.hour == hour,
+        (slot) => slot.startTime.toLocal().hour == hour,
         orElse: () => FieldSlot(id: '', fieldId: '', startTime: DateTime.now(), endTime: DateTime.now(), price: 0, isAvailable: false),
       );
 
@@ -1366,6 +1380,8 @@ class _BookingScreenState extends State<BookingScreen> {
         'rateType': rateType,
         'rateLabel': rateLabel,
         'isAvailable': isAvailable,
+        'startTime': matchingBackendSlot.startTime,
+        'endTime': matchingBackendSlot.endTime,
       };
     }).toList();
   }

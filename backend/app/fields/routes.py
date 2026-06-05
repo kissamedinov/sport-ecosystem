@@ -46,3 +46,7 @@ def generate_slots(
 @router.get("/{id}/slots", response_model=List[schemas.FieldSlotResponse])
 def get_available_slots(id: UUID, db: Session = Depends(get_db)):
     return services.get_available_slots(db, id)
+
+@router.get("", response_model=List[schemas.FieldResponse])
+def get_fields(db: Session = Depends(get_db)):
+    return services.get_fields(db)

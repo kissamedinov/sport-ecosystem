@@ -21,6 +21,7 @@ class FieldRepository {
 
   Future<Booking> createBooking(String fieldId, String startTime, String endTime) async {
     final response = await _apiClient.post('/bookings/fields/$fieldId/book', data: {
+      'field_id': fieldId,
       'start_time': startTime,
       'end_time': endTime,
     });
