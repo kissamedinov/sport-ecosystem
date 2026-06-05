@@ -5,6 +5,12 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../../fields/data/field_pricing_manager.dart';
+import '../../../../core/api/api_client.dart';
+import '../../../fields/data/models/field.dart';
+import '../../../fields/data/repositories/field_repository.dart';
+import '../../data/repositories/booking_repository.dart';
+import '../../data/models/booking_models.dart' as model_bookings;
+import '../../data/models/booking_models.dart' show FieldSlot;
 
 // === INTEGRATION CONFIGURATION TEMPLATE ===
 // Fill in these credentials once you receive them from Kaspi Pay and Stripe.
@@ -30,6 +36,8 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   bool _showMap = false;
   Map<String, dynamic>? _selectedArena;
+  bool _isLoadingFields = true;
+  List<Field> _backendFields = [];
 
   late final VoidCallback _pricingListener;
 
@@ -42,6 +50,37 @@ class _BookingScreenState extends State<BookingScreen> {
       }
     };
     FieldPricingManager().addListener(_pricingListener);
+    _loadFieldsFromBackend();
+  }
+
+  Future<void> _loadFieldsFromBackend() async {
+    try {
+      final fields = await FieldRepository(ApiClient()).getFields();
+      if (mounted) {
+        setState(() {
+          _backendFields = fields;
+          
+          // Map backend IDs to local arenas based on name matching
+          for (var arena in _arenas) {
+            final match = _backendFields.firstWhere(
+              (f) => f.name.toUpperCase() == (arena['name'] as String).toUpperCase(),
+              orElse: () => Field(id: '', name: '', location: '', ownerId: ''),
+            );
+            if (match.id.isNotEmpty) {
+              arena['id'] = match.id;
+            }
+          }
+          _isLoadingFields = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingFields = false;
+        });
+      }
+      print("Error loading fields from backend: $e");
+    }
   }
 
   @override
@@ -374,6 +413,17 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
+  Future<List<FieldSlot>> _fetchAvailableSlots(String fieldId) async {
+    if (fieldId.isEmpty) return [];
+    try {
+      final repo = BookingRepository(ApiClient());
+      return await repo.getFieldSlots(fieldId);
+    } catch (e) {
+      print("Error loading slots: $e");
+      return [];
+    }
+  }
+
   void _showCheckoutSheet(BuildContext context, Map<String, dynamic> arena) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -387,6 +437,46 @@ class _BookingScreenState extends State<BookingScreen> {
     bool showQR = false;
     int selectedDateIndex = 0;
     Map<String, dynamic>? selectedSlot;
+
+    Future<void> handleBackendPayment(String method, StateSetter setModalState, double currentTotal, double currentRentPrice) async {
+      setModalState(() {
+        isPaying = true;
+      });
+      
+      try {
+        final repo = BookingRepository(ApiClient());
+        
+        // 1. Create booking
+        final booking = await repo.bookField(arena['id'] as String, selectedSlot!['id'] as String);
+        
+        // 2. Create payment
+        final payment = await repo.createPayment({
+          'booking_id': booking.id,
+          'amount': currentTotal,
+          'payment_method': method,
+        });
+        
+        // 3. Confirm payment
+        await repo.confirmPayment(payment.id);
+        
+        setModalState(() {
+          isPaying = false;
+          showQR = false;
+          isSuccess = true;
+        });
+        FieldPricingManager().todayRevenue += currentRentPrice;
+        FieldPricingManager().notify();
+      } catch (e) {
+        print("Payment error: $e");
+        setModalState(() {
+          isPaying = false;
+          showQR = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking failed: $e'))
+        );
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -570,10 +660,26 @@ class _BookingScreenState extends State<BookingScreen> {
                             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.0),
                           ),
                           const SizedBox(height: 8),
-                          Builder(
-                            builder: (context) {
+                          FutureBuilder<List<FieldSlot>>(
+                            future: _fetchAvailableSlots(arena['id'] ?? ''),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(24),
+                                    child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+                                  ),
+                                );
+                              }
+                              final backendSlots = snapshot.data ?? [];
                               final currentDate = DateTime.now().add(Duration(days: selectedDateIndex));
-                              final slots = _generateSlots(arena['name'], currentDate, rentPrice);
+                              final slots = _generateSlots(arena['name'], currentDate, rentPrice, backendSlots);
+
+                              if (slots.isEmpty) {
+                                return const Center(
+                                  child: Text("No slots generated", style: TextStyle(color: Colors.white24, fontSize: 12)),
+                                );
+                              }
 
                               return GridView.builder(
                                 shrinkWrap: true,
@@ -857,10 +963,10 @@ class _BookingScreenState extends State<BookingScreen> {
                           : PremiumButton(
                               text: selectedPayment == 'KASPI' ? 'PROCEED TO KASPI QR' : 'PROCEED TO STRIPE CHECKOUT',
                               onPressed: () {
-                                setModalState(() {
-                                  isPaying = true;
-                                });
                                 if (selectedPayment == 'KASPI') {
+                                  setModalState(() {
+                                    isPaying = true;
+                                  });
                                   Future.delayed(const Duration(milliseconds: 1500), () {
                                     setModalState(() {
                                       isPaying = false;
@@ -868,14 +974,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     });
                                   });
                                 } else {
-                                  Future.delayed(const Duration(seconds: 2), () {
-                                    setModalState(() {
-                                      isPaying = false;
-                                      isSuccess = true;
-                                    });
-                                    FieldPricingManager().todayRevenue += currentRentPrice;
-                                    FieldPricingManager().notify();
-                                  });
+                                  handleBackendPayment('CARD', setModalState, currentTotal, currentRentPrice);
                                 }
                               },
                             ),
@@ -1016,12 +1115,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             PremiumButton(
                               text: 'SIMULATE SUCCESSFUL PAYMENT',
                               onPressed: () {
-                                setModalState(() {
-                                  showQR = false;
-                                  isSuccess = true;
-                                });
-                                FieldPricingManager().todayRevenue += currentRentPrice;
-                                FieldPricingManager().notify();
+                                handleBackendPayment('WALLET', setModalState, currentTotal, currentRentPrice);
                               },
                             ),
                           ],
@@ -1199,7 +1293,12 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  List<Map<String, dynamic>> _generateSlots(String arenaName, DateTime date, double basePrice) {
+  List<Map<String, dynamic>> _generateSlots(
+    String arenaName, 
+    DateTime date, 
+    double basePrice,
+    List<FieldSlot> backendSlots,
+  ) {
     final isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
     final manager = FieldPricingManager();
     
@@ -1214,6 +1313,12 @@ class _BookingScreenState extends State<BookingScreen> {
       {'time': '22:00 - 23:30', 'hour': 22},
       {'time': '00:00 - 01:30', 'hour': 0},
     ];
+
+    // Filter backend slots for the selected day
+    final daySlots = backendSlots.where((slot) {
+      return DateUtils.isSameDay(slot.startTime, date) || 
+             (slot.startTime.hour == 0 && DateUtils.isSameDay(slot.startTime, date.add(const Duration(days: 1))));
+    }).toList();
 
     return slotsConfig.map((config) {
       final time = config['time'] as String;
@@ -1246,24 +1351,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
       price = (price / 100).round() * 100.0;
 
-      final isBlockedByOwner = manager.isSlotBlocked(arenaName, date.day, time);
-      final isOverlappingApprovedRequest = manager.pendingRequests.any((req) =>
-          req['field'] == arenaName &&
-          req['day'] == date.day &&
-          req['status'] == 'APPROVED' &&
-          _intervalsOverlap(time, req['time'] as String));
-      final isBooked = (hour == 18 && date.day % 2 == 0) || 
-                       (hour == 20 && date.day % 3 != 0) || 
-                       (hour == 12 && date.day % 4 == 0) ||
-                       isBlockedByOwner ||
-                       isOverlappingApprovedRequest;
+      // Find matching backend slot
+      final matchingBackendSlot = daySlots.firstWhere(
+        (slot) => slot.startTime.hour == hour,
+        orElse: () => FieldSlot(id: '', fieldId: '', startTime: DateTime.now(), endTime: DateTime.now(), price: 0, isAvailable: false),
+      );
+
+      final bool isAvailable = matchingBackendSlot.id.isNotEmpty && matchingBackendSlot.isAvailable;
 
       return {
+        'id': matchingBackendSlot.id, // Real database slot ID
         'time': time,
         'price': price,
         'rateType': rateType,
         'rateLabel': rateLabel,
-        'isAvailable': !isBooked,
+        'isAvailable': isAvailable,
       };
     }).toList();
   }
