@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 from app.bookings.models import Booking, Payment, PaymentStatus, BookingStatus, PaymentMethod
 from app.tournaments.models import TournamentRegistration, RegistrationStatus
+from app.fields.models import FieldSlot
 from app.notifications import service as notification_service
 from app.notifications.models import NotificationType, EntityType
 
@@ -34,6 +35,15 @@ def confirm_payment(db: Session, payment_id: UUID):
         if booking:
             booking.payment_status = PaymentStatus.SUCCESS
             booking.status = BookingStatus.CONFIRMED
+            
+            # Block the slots
+            slots = db.query(FieldSlot).filter(
+                FieldSlot.field_id == booking.field_id,
+                FieldSlot.start_time >= booking.start_time,
+                FieldSlot.end_time <= booking.end_time
+            ).all()
+            for slot in slots:
+                slot.is_available = False
             
     if payment.tournament_id:
         # Assuming payment.user_id is the person who registered
