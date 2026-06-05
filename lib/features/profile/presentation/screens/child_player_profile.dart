@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/profile/presentation/screens/edit_profile_screen.dart';
@@ -18,9 +19,9 @@ class ChildPlayerProfile extends StatelessWidget {
       backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(
+        title: Text(
+          'profile.title'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
             fontSize: 14,
@@ -88,14 +89,14 @@ class ChildPlayerProfile extends StatelessWidget {
                               color: Colors.redAccent.withValues(alpha: 0.1),
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
-                              SizedBox(width: 12),
+                              const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                              const SizedBox(width: 12),
                               Text(
-                                "LOGOUT / QUIT SESSION",
-                                style: TextStyle(
+                                'profile.logout_quit'.tr(),
+                                style: const TextStyle(
                                   color: Colors.redAccent,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 12,

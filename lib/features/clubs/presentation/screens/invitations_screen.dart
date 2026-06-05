@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/club_provider.dart';
@@ -29,7 +30,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
         elevation: 0,
         iconTheme: IconThemeData(color: cs.onSurfaceVariant),
         title: Text(
-          'INVITATIONS',
+          'club.invite'.tr(),
           style: TextStyle(
             color: cs.onSurface,
             fontWeight: FontWeight.w900,
@@ -55,7 +56,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                   Icon(Icons.mail_outline_rounded, size: 48, color: cs.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 16),
                   Text(
-                    'NO INVITATIONS',
+                    'club.no_invitations'.tr(),
                     style: TextStyle(
                       color: cs.onSurface.withValues(alpha: 0.15),
                       fontSize: 11,
@@ -125,12 +126,12 @@ class _InvitationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Club Invitation',
+                      'club.club_invitation'.tr(),
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: cs.onSurface),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Club ID: ${invitation.clubId.substring(0, 8)}...',
+                      'club.club_id_short'.tr(namedArgs: {'id': invitation.clubId.substring(0, 8)}),
                       style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha: 0.4)),
                     ),
                   ],
@@ -147,7 +148,7 @@ class _InvitationCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'Role: ${invitation.role.name.toUpperCase()}',
+              'club.role_label'.tr(namedArgs: {'role': invitation.role.name.toUpperCase()}),
               style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.55), fontWeight: FontWeight.w600),
             ),
           ),
@@ -164,7 +165,7 @@ class _InvitationCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                   ),
-                  child: const Text('DECLINE'),
+                  child: Text('club.decline'.tr()),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
@@ -175,7 +176,7 @@ class _InvitationCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                   ),
-                  child: const Text('ACCEPT'),
+                  child: Text('club.accept'.tr()),
                 ),
               ],
             ),
@@ -187,9 +188,9 @@ class _InvitationCard extends StatelessWidget {
 
   Widget _buildStatusBadge(InvitationStatus status) {
     final (Color color, String label) = switch (status) {
-      InvitationStatus.pending => (Colors.orange, 'PENDING'),
-      InvitationStatus.accepted => (Colors.green, 'ACCEPTED'),
-      InvitationStatus.declined => (Colors.red, 'DECLINED'),
+      InvitationStatus.pending => (Colors.orange, 'club.status_pending'.tr()),
+      InvitationStatus.accepted => (Colors.green, 'club.status_accepted'.tr()),
+      InvitationStatus.declined => (Colors.red, 'club.status_declined'.tr()),
     };
 
     return Container(

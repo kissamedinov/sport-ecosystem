@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -60,9 +61,9 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
         final currentlyStarting = _starters[childProfileId]!;
         if (!currentlyStarting && _startingCount >= 11) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('MAX 11 STARTING PLAYERS ALLOWED'),
-              duration: Duration(seconds: 1),
+            SnackBar(
+              content: Text('tournament.max_starters_error'.tr()),
+              duration: const Duration(seconds: 1),
             ),
           );
           return;
@@ -76,7 +77,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     HapticFeedback.heavyImpact();
     if (_starters.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one player.')),
+        SnackBar(content: Text('tournament.please_select_player'.tr())),
       );
       return;
     }
@@ -103,8 +104,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('LINEUP SUBMITTED SUCCESSFULLY'),
+          SnackBar(
+            content: Text('tournament.lineup_submitted'.tr()),
             backgroundColor: PremiumTheme.neonGreen,
             behavior: SnackBarBehavior.floating,
           ),
@@ -115,7 +116,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('tournament.error_message'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: PremiumTheme.danger,
             behavior: SnackBarBehavior.floating,
           ),
@@ -134,7 +135,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('MATCH LINEUP', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.match_lineup'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         actions: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -146,7 +147,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
             ),
             child: Center(
               child: Text(
-                '$_startingCount / 11 STARTING',
+                'tournament.starting_count'.tr(namedArgs: {'count': _startingCount.toString()}),
                 style: TextStyle(
                   color: _startingCount == 11 ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.55),
                   fontSize: 10,
@@ -165,7 +166,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           }
 
           if (provider.error != null) {
-            return Center(child: Text('Error: ${provider.error}', style: TextStyle(color: cs.onSurfaceVariant)));
+            return Center(child: Text('tournament.error_message'.tr(namedArgs: {'error': provider.error ?? ''}), style: TextStyle(color: cs.onSurfaceVariant)));
           }
 
           if (provider.squad.isEmpty) {
@@ -178,7 +179,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                     Icon(Icons.group_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.05)),
                     const SizedBox(height: 16),
                     Text(
-                      'NO SQUAD MEMBERS FOUND\nPlease add players to the tournament squad first.',
+                      'tournament.no_squad_members'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), height: 1.5),
                     ),
@@ -253,7 +254,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      isStarting ? 'STARTING XI' : isSelected ? 'SUBSTITUTE' : 'NOT SELECTED',
+                                      isStarting ? 'tournament.starting_xi_label'.tr() : isSelected ? 'tournament.substitute_label'.tr() : 'tournament.not_selected_label'.tr(),
                                       style: TextStyle(
                                         color: isStarting ? PremiumTheme.neonGreen : isSelected ? Colors.orange : cs.onSurface.withValues(alpha: 0.2),
                                         fontSize: 10,
@@ -348,10 +349,10 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
             painter: PitchPainter(),
           ),
           if (startingPlayers.isEmpty)
-            const Center(
+            Center(
               child: Text(
-                'TAP PLAYERS TO ADD TO STARTING XI',
-                style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                'tournament.please_select_player'.tr(),
+                style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
               ),
             )
           else
@@ -425,9 +426,9 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         children: [
-          _summaryChip('$_startingCount STARTING', PremiumTheme.neonGreen),
+          _summaryChip('tournament.starting_count'.tr(namedArgs: {'count': _startingCount.toString()}), PremiumTheme.neonGreen),
           const SizedBox(width: 12),
-          _summaryChip('$subCount SUBSTITUTES', Colors.orange),
+          _summaryChip('$subCount ${'match.substitutes_label'.tr()}', Colors.orange),
           const Spacer(),
           TextButton(
             onPressed: () {
@@ -436,7 +437,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                 _positions.clear();
               });
             },
-            child: Text('RESET', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold)),
+            child: Text('common.refresh'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -471,9 +472,9 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
              Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _legendItem(PremiumTheme.neonGreen, 'STARTING', cs),
-                _legendItem(Colors.orange, 'SUBSTITUTE', cs),
-                _legendItem(cs.onSurface.withValues(alpha: 0.2), 'OFF', cs),
+                _legendItem(PremiumTheme.neonGreen, 'tournament.starting_xi_label'.tr(), cs),
+                _legendItem(Colors.orange, 'tournament.substitute_label'.tr(), cs),
+                _legendItem(cs.onSurface.withValues(alpha: 0.2), 'tournament.not_selected_label'.tr(), cs),
               ],
             ),
             const SizedBox(height: 20),
@@ -492,10 +493,10 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                     ),
                   ],
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'SUBMIT LINEUP',
-                    style: TextStyle(
+                    'match.submit_lineup_btn'.tr(),
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 14,
                       fontWeight: FontWeight.w900,

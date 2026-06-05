@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('MANAGE SQUAD', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.manage_squad'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         centerTitle: true,
       ),
       body: Consumer2<TournamentSquadProvider, TeamProvider>(
@@ -61,7 +62,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                 children: [
                   Icon(Icons.person_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.1)),
                   const SizedBox(height: 16),
-                  Text('NO PLAYERS FOUND IN THIS TEAM', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, letterSpacing: 1)),
+                  Text('tournament.no_players_found'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, letterSpacing: 1)),
                 ],
               ),
             );
@@ -150,7 +151,7 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                                       ],
                                     )
                                   else
-                                    Text('NOT IN SQUAD', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                                    Text('tournament.not_in_squad'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.2), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
                                 ],
                               ),
                             ),
@@ -210,9 +211,9 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('SQUAD SIZE', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text('tournament.squad_size'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                 const SizedBox(height: 4),
-                Text('$count PLAYERS SELECTED', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w900)),
+                Text('$count ${'tournament.players_selected'.tr()}', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w900)),
               ],
             ),
           ),
@@ -272,25 +273,25 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'ADD TO SQUAD: ${playerName.toUpperCase()}',
+              'tournament.add_to_squad'.tr(namedArgs: {'name': playerName.toUpperCase()}),
               style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1),
             ),
             const SizedBox(height: 24),
             PremiumTextField(
               controller: numberController,
-              label: 'JERSEY NUMBER',
+              label: 'tournament.jersey_number'.tr(),
               keyboardType: TextInputType.number,
               icon: Icons.numbers,
             ),
             const SizedBox(height: 16),
             PremiumTextField(
               controller: positionController,
-              label: 'POSITION (GK, DF, MF, FW)',
+              label: 'tournament.position_hint'.tr(),
               icon: Icons.sports_soccer,
             ),
             const SizedBox(height: 32),
             PremiumButton(
-              text: 'CONFIRM ADDITION',
+              text: 'tournament.confirm_addition'.tr(),
               onPressed: () {
                 HapticFeedback.heavyImpact();
                 _addToSquad(childProfileId, numberController.text, positionController.text);

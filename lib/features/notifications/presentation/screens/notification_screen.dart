@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:easy_localization/easy_localization.dart';
 import '../../providers/notification_provider.dart';
 import '../../../clubs/providers/club_provider.dart';
 import '../../../auth/providers/auth_provider.dart' as import_auth;
@@ -37,9 +38,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
                 onPressed: () => Navigator.pop(context),
               ),
-        title: const Text(
-          'NOTIFICATIONS',
-          style: TextStyle(
+        title: Text(
+          'notification.notifications'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -78,7 +79,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       backgroundColor: PremiumTheme.neonGreen,
                       foregroundColor: PremiumTheme.surfaceBase(context),
                     ),
-                    child: const Text('Retry', style: TextStyle(fontWeight: FontWeight.w700)),
+                    child: Text('notification.retry'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
@@ -102,7 +103,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Inbox',
+                      'notification.inbox'.tr(),
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
@@ -113,14 +114,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        _buildFilterChip('all', 'ALL'),
+                        _buildFilterChip('all', 'notification.all'.tr()),
                         const SizedBox(width: 8),
                         _buildFilterChip(
                           'unread',
-                          unreadCount > 0 ? 'UNREAD · $unreadCount' : 'UNREAD',
+                          unreadCount > 0 ? 'notification.unread_count'.tr(namedArgs: {'count': unreadCount.toString()}) : 'notification.unread'.tr(),
                         ),
                         const SizedBox(width: 8),
-                        _buildFilterChip('matches', 'MATCHES'),
+                        _buildFilterChip('matches', 'notification.matches'.tr()),
                       ],
                     ),
                   ],
@@ -140,7 +141,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'NO NOTIFICATIONS',
+                              'notification.no_notifications'.tr(),
                               style: TextStyle(
                                 color: cs.onSurface.withValues(alpha: 0.3),
                                 fontSize: 11,
@@ -289,14 +290,14 @@ class _NotificationCard extends StatelessWidget {
                 children: [
                   if (isApprovalRequest)
                     _ActionButton(
-                      label: 'APPROVE',
+                      label: 'notification.approve'.tr(),
                       color: PremiumTheme.neonGreen,
                       textColor: Colors.black,
                       onPressed: () => _handleInvitation(context, notification.entityId, true, isApproval: true),
                     )
                   else ...[
                     _ActionButton(
-                      label: 'DECLINE',
+                      label: 'notification.decline'.tr(),
                       color: Colors.transparent,
                       textColor: Colors.redAccent,
                       border: Colors.redAccent,
@@ -304,7 +305,7 @@ class _NotificationCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     _ActionButton(
-                      label: 'ACCEPT',
+                      label: 'notification.accept'.tr(),
                       color: PremiumTheme.neonGreen,
                       textColor: Colors.black,
                       onPressed: () => _handleInvitation(context, notification.entityId, true),
@@ -363,8 +364,8 @@ class _NotificationCard extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-              ? (accept ? 'Invitation accepted!' : 'Invitation declined.')
-              : 'Action failed. Please try again.'),
+              ? (accept ? 'notification.invitation_accepted'.tr() : 'notification.invitation_declined'.tr())
+              : 'notification.action_failed'.tr()),
         ),
       );
       if (success) {

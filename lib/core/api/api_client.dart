@@ -124,7 +124,17 @@ class ApiClient {
       final data = error.response?.data;
       String message = 'Something went wrong';
       if (data is Map && data.containsKey('detail')) {
-        message = data['detail'];
+        final detail = data['detail'];
+        if (detail is String) {
+          message = detail;
+        } else if (detail is List && detail.isNotEmpty) {
+          final first = detail.first;
+          if (first is Map && first.containsKey('msg')) {
+            message = first['msg'].toString();
+          } else {
+            message = detail.map((e) => e.toString()).join(', ');
+          }
+        }
       }
       return ApiExceptions(message, error.response?.statusCode);
     }

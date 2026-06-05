@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/tournament_provider.dart';
@@ -30,7 +31,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('TOURNAMENT ANNOUNCEMENTS', style: TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.announcements_title'.tr(), style: const TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
       body: Consumer<TournamentProvider>(
         builder: (context, provider, _) {
@@ -41,7 +42,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
           final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
 
           if (announcements.isEmpty) {
-            return Center(child: Text('No new announcements', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
+            return Center(child: Text('tournament.no_announcements'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
           }
 
           return ListView.builder(
@@ -116,7 +117,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
                   );
                 },
                 icon: const Icon(Icons.info_outline, size: 16),
-                label: const Text('DETAILS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                label: Text('tournament.details'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
                 style: TextButton.styleFrom(foregroundColor: cs.onSurface.withValues(alpha: 0.55)),
               ),
               ElevatedButton(
@@ -127,7 +128,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('APPLY WITH TEAM', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                child: Text('tournament.apply_team'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
             ],
           ),
@@ -144,33 +145,33 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
         return AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('APPLY FOR TOURNAMENT', style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text('tournament.apply_tournament'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('To register your team, please contact the organizer or use the direct registration button below.',
+            Text('tournament.could_not_launch'.tr(),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             const SizedBox(height: 20),
             if (t.whatsapp != null || t.phone != null) ...[
-              Text('ORGANIZER CONTACTS', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              Text('tournament.organizer_contacts_section'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               const SizedBox(height: 12),
               if (t.whatsapp != null)
                 ListTile(
                   leading: const Icon(Icons.message, color: PremiumTheme.neonGreen),
                   title: Text(t.whatsapp!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                  subtitle: Text('WhatsApp', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                  subtitle: Text('tournament.whatsapp_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
               if (t.phone != null)
                 ListTile(
                   leading: const Icon(Icons.phone, color: PremiumTheme.neonGreen),
                   title: Text(t.phone!, style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                  subtitle: Text('Phone', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                  subtitle: Text('tournament.phone_label'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                 ),
             ],
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('CLOSE', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.close'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -180,7 +181,7 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
-            child: const Text('GO TO REGISTRATION'),
+            child: Text('tournament.go_to_registration'.tr()),
           ),
         ],
       );

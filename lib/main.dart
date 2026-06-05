@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'core/api/api_client.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
@@ -43,6 +44,7 @@ import 'features/quiz/providers/quiz_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final themeProvider = ThemeProvider(prefs);
 
@@ -64,33 +66,38 @@ Future<void> main() async {
   final quizRepository = QuizRepository(apiClient);
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
-        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
-        ChangeNotifierProvider(create: (_) => TournamentProvider(tournamentRepository)),
-        ChangeNotifierProvider(create: (_) => TeamProvider(teamRepository)),
-        ChangeNotifierProvider(create: (_) => ChildProvider(childRepository)),
-        ChangeNotifierProvider(create: (_) => MatchProvider(matchRepository)),
-        ChangeNotifierProvider(create: (_) => field_booking.BookingProvider(fieldRepository)),
-        ChangeNotifierProvider(create: (_) => TournamentSquadProvider(tournamentSquadRepository, tournamentRepository)),
-        Provider<PlayerRepository>(create: (_) => playerRepository),
-        ChangeNotifierProvider(create: (_) => SquadProvider()),
-        ChangeNotifierProvider(create: (_) => LineupProvider()),
-        ChangeNotifierProvider(create: (context) => MatchReportProvider()),
-        ChangeNotifierProxyProvider<MatchReportProvider, PlayerStatsProvider>(
-          create: (context) => PlayerStatsProvider(context.read<MatchReportProvider>()),
-          update: (context, matchReportProvider, previous) => PlayerStatsProvider(matchReportProvider),
-        ),
-        ChangeNotifierProvider(create: (_) => ClubProvider(clubRepository)),
-        ChangeNotifierProvider(create: (_) => NotificationProvider(notificationRepository, clubRepository)),
-        Provider<MediaRepository>(create: (_) => mediaRepository),
-        ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
-        ChangeNotifierProvider(create: (_) => AcademyProvider(academyRepository)),
-        ChangeNotifierProvider(create: (_) => general_booking.BookingProvider(bookingRepository)),
-        ChangeNotifierProvider(create: (_) => QuizProvider(quizRepository)),
-      ],
-      child: const SportsApp(),
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('ru'), Locale('kk')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
+          ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
+          ChangeNotifierProvider(create: (_) => TournamentProvider(tournamentRepository)),
+          ChangeNotifierProvider(create: (_) => TeamProvider(teamRepository)),
+          ChangeNotifierProvider(create: (_) => ChildProvider(childRepository)),
+          ChangeNotifierProvider(create: (_) => MatchProvider(matchRepository)),
+          ChangeNotifierProvider(create: (_) => field_booking.BookingProvider(fieldRepository)),
+          ChangeNotifierProvider(create: (_) => TournamentSquadProvider(tournamentSquadRepository, tournamentRepository)),
+          Provider<PlayerRepository>(create: (_) => playerRepository),
+          ChangeNotifierProvider(create: (_) => SquadProvider()),
+          ChangeNotifierProvider(create: (_) => LineupProvider()),
+          ChangeNotifierProvider(create: (context) => MatchReportProvider()),
+          ChangeNotifierProxyProvider<MatchReportProvider, PlayerStatsProvider>(
+            create: (context) => PlayerStatsProvider(context.read<MatchReportProvider>()),
+            update: (context, matchReportProvider, previous) => PlayerStatsProvider(matchReportProvider),
+          ),
+          ChangeNotifierProvider(create: (_) => ClubProvider(clubRepository)),
+          ChangeNotifierProvider(create: (_) => NotificationProvider(notificationRepository, clubRepository)),
+          Provider<MediaRepository>(create: (_) => mediaRepository),
+          ChangeNotifierProvider(create: (_) => AdminProvider(adminRepository)),
+          ChangeNotifierProvider(create: (_) => AcademyProvider(academyRepository)),
+          ChangeNotifierProvider(create: (_) => general_booking.BookingProvider(bookingRepository)),
+          ChangeNotifierProvider(create: (_) => QuizProvider(quizRepository)),
+        ],
+        child: const SportsApp(),
+      ),
     ),
   );
 }
@@ -107,6 +114,9 @@ class SportsApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),

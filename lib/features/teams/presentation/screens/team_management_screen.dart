@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/team_provider.dart';
@@ -23,7 +24,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MY TEAMS'),
+        title: Text('team.my_teams_title'.tr()),
       ),
       body: Consumer<TeamProvider>(
         builder: (context, provider, _) {
@@ -32,13 +33,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           }
 
           if (provider.myTeams.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.groups, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No teams found under your management'),
+                  const Icon(Icons.groups, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text('team.no_teams_management'.tr()),
                 ],
               ),
             );
@@ -77,7 +78,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Rating: ${team.rating}', style: const TextStyle(color: Colors.grey)),
+                      Text('team.rating_label'.tr(namedArgs: {'rating': team.rating.toString()}), style: const TextStyle(color: Colors.grey)),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -87,7 +88,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                 // Add Player functionality
                               },
                               icon: const Icon(Icons.person_add, size: 18),
-                              label: const Text('ADD PLAYER'),
+                              label: Text('team.add_player'.tr()),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue[700],
                                 foregroundColor: Colors.white,
@@ -100,7 +101,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               onPressed: () {
                                 // View Roster
                               },
-                              child: const Text('ROSTER'),
+                              child: Text('team.roster'.tr()),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -114,7 +115,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                   ),
                                 );
                               },
-                              child: const Text('DETAILS'),
+                              child: Text('team.details'.tr()),
                             ),
                           ),
                         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 import 'package:mobile/features/academies/data/models/academy_team.dart';
@@ -37,7 +38,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
               const Divider(),
               Expanded(
                 child: provider.teamPlayers.isEmpty
-                    ? const Center(child: Text('No players assigned to this team'))
+                    ? Center(child: Text('academy.no_players_yet'.tr()))
                     : ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: provider.teamPlayers.length,
@@ -47,11 +48,11 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                             margin: const EdgeInsets.only(bottom: 12),
                             child: ListTile(
                               leading: const CircleAvatar(child: Icon(Icons.person)),
-                              title: Text('Player: ${player.fullName ?? "No Name"}'),
+                              title: Text('academy.player_name'.tr(namedArgs: {'name': player.fullName ?? 'common.unknown'.tr()})),
                               subtitle: Text(
                                 player.position != null
                                     ? '${player.position} | #${player.jerseyNumber ?? '?'}'
-                                    : 'No position assigned',
+                                    : 'academy.no_position'.tr(),
                               ),
                               trailing: IconButton(
                                 icon: const Icon(Icons.info_outline),
@@ -94,8 +95,8 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                   widget.team.name,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Text('Age Group: ${widget.team.ageGroup}'),
-                Text('Coach ID: ${widget.team.coachId.isNotEmpty ? widget.team.coachId.substring(0, 8) : "N/A"}'),
+                Text('academy.age_group_header'.tr(namedArgs: {'age': widget.team.ageGroup})),
+                Text('academy.coach_id_header'.tr(namedArgs: {'id': widget.team.coachId.isNotEmpty ? widget.team.coachId.substring(0, 8) : "N/A"})),
               ],
             ),
           ),
@@ -112,27 +113,27 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Player to Team'),
+        title: Text('academy.add_player_to_team'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: profileIdController,
-              decoration: const InputDecoration(labelText: 'Player Profile ID'),
+              decoration: InputDecoration(labelText: 'academy.player_profile_id'.tr()),
             ),
             TextField(
               controller: positionController,
-              decoration: const InputDecoration(labelText: 'Position (e.g. ST, GK)'),
+              decoration: InputDecoration(labelText: 'academy.position_hint'.tr()),
             ),
             TextField(
               controller: jerseyController,
-              decoration: const InputDecoration(labelText: 'Jersey Number'),
+              decoration: InputDecoration(labelText: 'academy.jersey_number'.tr()),
               keyboardType: TextInputType.number,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               await context.read<AcademyProvider>().addPlayerToTeam(
@@ -143,7 +144,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
               );
               Navigator.pop(context);
             },
-            child: const Text('Add'),
+            child: Text('common.add'.tr()),
           ),
         ],
       ),

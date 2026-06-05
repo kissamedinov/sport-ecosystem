@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/data/models/user.dart';
 import '../../../player_stats/providers/player_stats_provider.dart';
@@ -21,7 +22,7 @@ class AdultPlayerProfile extends StatelessWidget {
           const SizedBox(height: 24),
           _buildStatsRow(context),
           const SizedBox(height: 24),
-          _buildTeamList(),
+          _buildTeamList(context),
           const SizedBox(height: 24),
           _buildLogoutCard(context),
         ],
@@ -33,7 +34,7 @@ class AdultPlayerProfile extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.logout, color: Colors.red),
-        title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+        title: Text('profile.logout'.tr(), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
         onTap: () async {
           await context.read<AuthProvider>().logout();
         },
@@ -46,10 +47,10 @@ class AdultPlayerProfile extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildStatItem('Matches', stats.matchesPlayed.toString()),
-        _buildStatItem('Goals', stats.totalGoals.toString()),
-        _buildStatItem('Assists', stats.totalAssists.toString()),
-        _buildStatItem('MVP', stats.totalMvpAwards.toString()),
+        _buildStatItem('player.matches_played'.tr(), stats.matchesPlayed.toString()),
+        _buildStatItem('player.goals'.tr(), stats.totalGoals.toString()),
+        _buildStatItem('player.assists'.tr(), stats.totalAssists.toString()),
+        _buildStatItem('profile.mvp_awards'.tr(), stats.totalMvpAwards.toString()),
       ],
     );
   }
@@ -63,16 +64,16 @@ class AdultPlayerProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildTeamList() {
+  Widget _buildTeamList(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('My Teams', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('player.my_team'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        ListTile(
-          leading: const Icon(Icons.group),
-          title: const Text('Sunday Warriors'),
-          subtitle: const Text('Position: Midfielder'),
+        const ListTile(
+          leading: Icon(Icons.group),
+          title: Text('Sunday Warriors'),
+          subtitle: Text('Position: Midfielder'),
         ),
       ],
     );

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -38,8 +39,8 @@ class _ParentPaymentsScreenState extends State<ParentPaymentsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('PAYMENTS',
-            style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 15)),
+        title: Text('payments.payments'.tr(),
+            style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 15)),
       ),
       body: Column(children: [
         _buildMonthPicker(cs),
@@ -202,13 +203,13 @@ class _ParentPaymentsScreenState extends State<ParentPaymentsScreen> {
         ]),
         const SizedBox(height: 16),
         Row(children: [
-          _buildMiniStat('SESSIONS', '$totalSessions', cs),
+          _buildMiniStat('payments.sessions'.tr(), '$totalSessions', cs),
           const SizedBox(width: 8),
-          _buildMiniStat('PRESENT', '$present', cs, color: PremiumTheme.neonGreen),
+          _buildMiniStat('payments.present'.tr(), '$present', cs, color: PremiumTheme.neonGreen),
           const SizedBox(width: 8),
-          _buildMiniStat('ABSENT', '$absent', cs, color: PremiumTheme.danger),
+          _buildMiniStat('payments.absent'.tr(), '$absent', cs, color: PremiumTheme.danger),
           const SizedBox(width: 8),
-          _buildMiniStat('BASE FEE', baseFee.toStringAsFixed(0), cs,
+          _buildMiniStat('payments.base_fee'.tr(), baseFee.toStringAsFixed(0), cs,
               color: const Color(0xFFB490D0)),
         ]),
         if (totalOwed > 0) ...[
@@ -228,8 +229,8 @@ class _ParentPaymentsScreenState extends State<ParentPaymentsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 elevation: 0,
               ),
-              child: const Text('PAY NOW',
-                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+              child: Text('payments.pay_now'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
             ),
           ),
         ],
@@ -264,7 +265,7 @@ class _ParentPaymentsScreenState extends State<ParentPaymentsScreen> {
         Icon(Icons.account_balance_wallet_outlined,
             size: 64, color: cs.onSurface.withValues(alpha: 0.12)),
         const SizedBox(height: 16),
-        Text('NO BILLING DATA',
+        Text('payments.no_billing_data'.tr(),
             style: TextStyle(color: cs.onSurfaceVariant,
                 fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13)),
         const SizedBox(height: 8),

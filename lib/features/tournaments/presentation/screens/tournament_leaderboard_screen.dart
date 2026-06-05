@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/api/stats_api_service.dart';
 import '../../data/models/top_scorer.dart';
@@ -39,7 +40,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('LEADERBOARD', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.leaderboard_title'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
       body: Column(
         children: [
@@ -48,7 +49,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const PremiumHeader(title: 'Golden', subtitle: 'Boot Race'),
+                PremiumHeader(title: 'tournament.golden_boot'.tr(), subtitle: 'tournament.boot_race'.tr()),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -68,11 +69,11 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
                   return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}", style: const TextStyle(color: PremiumTheme.danger)));
+                  return Center(child: Text('tournament.error_message'.tr(namedArgs: {'error': snapshot.error.toString()}), style: const TextStyle(color: PremiumTheme.danger)));
                 }
                 final leaderboard = snapshot.data ?? [];
                 if (leaderboard.isEmpty) {
-                  return Center(child: Text("No scorers recorded yet.", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))));
+                  return Center(child: Text('tournament.no_scorers'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))));
                 }
 
                 return ListView.builder(

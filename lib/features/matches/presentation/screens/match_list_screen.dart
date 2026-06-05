@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -1097,9 +1098,9 @@ class _MatchListScreenState extends State<MatchListScreen> {
                   color: PremiumTheme.neonGreen,
                   borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
                 ),
-                child: const Text(
-                  'MY TEAM',
-                  style: TextStyle(color: Colors.black, fontSize: 8, fontWeight: FontWeight.w900),
+                child: Text(
+                  'match.my_team'.tr(),
+                  style: const TextStyle(color: Colors.black, fontSize: 8, fontWeight: FontWeight.w900),
                 ),
               ),
             ),
@@ -1170,13 +1171,13 @@ class _MatchListScreenState extends State<MatchListScreen> {
   String _getTitleForRole(String role) {
     switch (role) {
       case 'PARENT':
-        return 'CHILDREN MATCHES';
+        return 'match.children_matches'.tr();
       case 'COACH':
-        return 'TEAM FIXTURES';
+        return 'match.team_fixtures'.tr();
       case 'FIELD_OWNER':
-        return 'FIELD SCHEDULE';
+        return 'match.field_schedule'.tr();
       default:
-        return 'MATCH LOBBY';
+        return 'match.live_matches'.tr();
     }
   }
 }

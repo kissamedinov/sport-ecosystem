@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/booking_provider.dart';
@@ -25,7 +26,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('MY BOOKINGS', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('field.my_bookings'.tr(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -42,7 +43,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 children: [
                   Icon(Icons.event_busy_outlined, size: 64, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 16),
-                  Text('No active bookings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+                  Text('field.no_bookings'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
                 ],
               ),
             );
@@ -98,8 +99,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     const SizedBox(height: 16),
                     Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                     const SizedBox(height: 16),
-                    _buildInfoRow(Icons.calendar_today, 'Date', booking.startTime.split('T').first),
-                    _buildInfoRow(Icons.access_time, 'Time', '${booking.startTime.split('T').last.substring(0, 5)} - ${booking.endTime.split('T').last.substring(0, 5)}'),
+                    _buildInfoRow(Icons.calendar_today, 'booking.date'.tr(), booking.startTime.split('T').first),
+                    _buildInfoRow(Icons.access_time, 'booking.time_slot'.tr(), '${booking.startTime.split('T').last.substring(0, 5)} - ${booking.endTime.split('T').last.substring(0, 5)}'),
                     if (!isCancelled) ...[
                       const SizedBox(height: 20),
                       SizedBox(
@@ -111,7 +112,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             foregroundColor: PremiumTheme.danger,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
-                          child: const Text('CANCEL BOOKING', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: Text('booking.cancel_booking'.tr(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],
@@ -147,20 +148,20 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceBase(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('CANCEL BOOKING?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text('booking.cancel_booking'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: Text('This action will release the time slot for others.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('KEEP IT')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('common.close'.tr())),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
               final success = await context.read<BookingProvider>().cancelBooking(bookingId);
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking cancelled successfully')));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('booking.booking_cancelled'.tr())));
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.danger),
-            child: const Text('YES, CANCEL'),
+            child: Text('common.cancel'.tr()),
           ),
         ],
       ),

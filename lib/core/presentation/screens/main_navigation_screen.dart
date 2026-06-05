@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -134,11 +135,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
-                  Expanded(child: _buildChildNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'MANAGE')),
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(1, Icons.business_center_outlined, Icons.business_center_rounded, 'nav.manage'.tr().toUpperCase())),
                   _buildClubAddFab(),
-                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
-                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'nav.inbox'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
                 ],
               ),
             ),
@@ -172,14 +173,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ],
           ),
-          child: const Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_rounded, color: Colors.black, size: 24),
-              SizedBox(height: 1),
+              const Icon(Icons.add_rounded, color: Colors.black, size: 24),
+              const SizedBox(height: 1),
               Text(
-                'ADD',
-                style: TextStyle(
+                'nav.add'.tr().toUpperCase(),
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 8,
                   fontWeight: FontWeight.w900,
@@ -281,11 +282,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
-                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'CUP')),
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'nav.cup'.tr().toUpperCase())),
                   _buildChildHubFab(),
-                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
-                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'nav.inbox'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
                 ],
               ),
             ),
@@ -335,7 +336,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               Icon(Icons.hub_rounded, color: isSelected ? Colors.black : accent, size: 22),
               const SizedBox(height: 2),
               Text(
-                'HUB',
+                'nav.hub'.tr().toUpperCase(),
                 style: TextStyle(
                   color: isSelected ? Colors.black : accent,
                   fontSize: 8,
@@ -407,11 +408,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'HOME')),
-                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'CUP')),
+                  Expanded(child: _buildChildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'nav.home'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(1, Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'nav.cup'.tr().toUpperCase())),
                   _buildParentFamilyFab(),
-                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'INBOX')),
-                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'PROFILE')),
+                  Expanded(child: _buildChildNavItem(3, Icons.notifications_outlined, Icons.notifications_rounded, 'nav.inbox'.tr().toUpperCase())),
+                  Expanded(child: _buildChildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'nav.profile'.tr().toUpperCase())),
                 ],
               ),
             ),
@@ -461,7 +462,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               Icon(Icons.family_restroom_rounded, color: isSelected ? Colors.black : accent, size: 22),
               const SizedBox(height: 2),
               Text(
-                'FAMILY',
+                'nav.family'.tr().toUpperCase(),
                 style: TextStyle(
                   color: isSelected ? Colors.black : accent,
                   fontSize: 7,
@@ -545,7 +546,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'QUICK ACTIONS',
+                  'nav.quick_actions'.tr().toUpperCase(),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -557,7 +558,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _buildQuickAction(
                   ctx,
                   Icons.group_add_outlined,
-                  'Invite Member',
+                  'nav.invite_member'.tr(),
                   PremiumTheme.electricBlue,
                   () {
                     Navigator.pop(ctx);
@@ -571,7 +572,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _buildQuickAction(
                   ctx,
                   Icons.sports_soccer_outlined,
-                  'Add Player Profile',
+                  'nav.add_player_profile'.tr(),
                   PremiumTheme.neonGreen,
                   () {
                     Navigator.pop(ctx);
@@ -585,7 +586,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _buildQuickAction(
                   ctx,
                   Icons.shield_outlined,
-                  'Create Team',
+                  'nav.create_team'.tr(),
                   Colors.tealAccent,
                   () {
                     Navigator.pop(ctx);
@@ -595,7 +596,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _buildQuickAction(
                   ctx,
                   Icons.account_balance_outlined,
-                  'Add Academy',
+                  'nav.add_academy'.tr(),
                   Colors.amber,
                   () {
                     Navigator.pop(ctx);
@@ -623,7 +624,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         builder: (dialogContext, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('Create New Team', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
+          title: Text('club.create_team_title'.tr(), style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -635,14 +636,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       color: Colors.amber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.warning_rounded, color: Colors.amber, size: 20),
-                        SizedBox(width: 10),
+                        const Icon(Icons.warning_rounded, color: Colors.amber, size: 20),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Create an academy first before adding teams',
-                            style: TextStyle(color: Colors.amber, fontSize: 12),
+                            'club.create_team_academy_warning'.tr(),
+                            style: const TextStyle(color: Colors.amber, fontSize: 12),
                           ),
                         ),
                       ],
@@ -653,7 +654,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     dropdownColor: PremiumTheme.surfaceCard(dialogContext),
                     style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                     decoration: InputDecoration(
-                      labelText: 'Academy *',
+                      labelText: 'club.academy_required'.tr(),
                       labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                     ),
                     items: academies.map((a) => DropdownMenuItem(
@@ -667,9 +668,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     controller: nameController,
                     style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                     decoration: InputDecoration(
-                      labelText: 'Team Name *',
+                      labelText: 'club.team_name_required'.tr(),
                       labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
-                      hintText: 'e.g. U-17 First Squad',
+                      hintText: 'club.team_name_hint'.tr(),
                       hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                     ),
                   ),
@@ -678,7 +679,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     controller: birthYearController,
                     style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                     decoration: InputDecoration(
-                      labelText: 'Birth Year',
+                      labelText: 'club.birth_year'.tr(),
                       labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
                       hintText: '2015',
                       hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
@@ -692,7 +693,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text('Cancel', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
+              child: Text('club.cancel'.tr(), style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
             ),
             ElevatedButton(
               onPressed: isLoading || academies.isEmpty
@@ -700,13 +701,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   : () async {
                       if (selectedAcademyId == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please select an academy')),
+                          SnackBar(content: Text('club.please_select_academy'.tr())),
                         );
                         return;
                       }
                       if (nameController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter a team name')),
+                          SnackBar(content: Text('club.please_enter_team_name'.tr())),
                         );
                         return;
                       }
@@ -728,7 +729,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Team "${nameController.text}" created!'),
+                              content: Text('club.team_created'.tr(namedArgs: {'name': nameController.text})),
                               backgroundColor: PremiumTheme.neonGreen,
                             ),
                           );
@@ -737,8 +738,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       } else {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to create team. Please try again.'),
+                            SnackBar(
+                              content: Text('club.team_create_failed'.tr()),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
@@ -755,7 +756,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(dialogContext).colorScheme.onPrimary),
                     )
-                  : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
+                  : Text('club.create'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ],
         ),
@@ -776,7 +777,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         builder: (dialogContext, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(dialogContext),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('Add New Academy', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
+          title: Text('club.add_academy_title'.tr(), style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface, fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -784,9 +785,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 controller: nameController,
                 style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'Name *',
+                  labelText: 'club.academy_name_required'.tr(),
                   labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
-                  hintText: 'e.g. Main Campus',
+                  hintText: 'club.academy_name_hint'.tr(),
                   hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
@@ -795,9 +796,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 controller: cityController,
                 style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'City *',
+                  labelText: 'club.city_required'.tr(),
                   labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
-                  hintText: 'e.g. Almaty',
+                  hintText: 'club.city_hint'.tr(),
                   hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
@@ -806,9 +807,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 controller: addressController,
                 style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'Address',
+                  labelText: 'club.address'.tr(),
                   labelStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant),
-                  hintText: 'e.g. Abay 100',
+                  hintText: 'club.address_hint'.tr(),
                   hintStyle: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
                 ),
               ),
@@ -817,7 +818,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text('Cancel', style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
+              child: Text('club.cancel'.tr(), style: TextStyle(color: Theme.of(dialogContext).colorScheme.onSurfaceVariant)),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -825,13 +826,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   : () async {
                       if (nameController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter academy name')),
+                          SnackBar(content: Text('club.please_enter_academy_name'.tr())),
                         );
                         return;
                       }
                       if (cityController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter city')),
+                          SnackBar(content: Text('club.please_enter_city'.tr())),
                         );
                         return;
                       }
@@ -850,7 +851,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Academy "${nameController.text}" created!'),
+                              content: Text('club.academy_created'.tr(namedArgs: {'name': nameController.text})),
                               backgroundColor: Colors.amber,
                             ),
                           );
@@ -859,8 +860,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       } else {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to create academy. Please try again.'),
+                            SnackBar(
+                              content: Text('club.academy_create_failed'.tr()),
                               backgroundColor: Colors.redAccent,
                             ),
                           );
@@ -877,7 +878,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                     )
-                  : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
+                  : Text('club.create'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ],
         ),
@@ -927,28 +928,28 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       screen: const RoleRouter(),
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
-      label: 'Home',
+      label: 'nav.home'.tr(),
     );
 
     final tournamentTab = _TabItem(
       screen: const TournamentListScreen(),
       icon: Icons.emoji_events_outlined,
       activeIcon: Icons.emoji_events,
-      label: 'Tournaments',
+      label: 'nav.tournaments'.tr(),
     );
 
     final matchTab = _TabItem(
       screen: const MatchListScreen(),
       icon: Icons.sports_soccer_outlined,
       activeIcon: Icons.sports_soccer,
-      label: 'Matches',
+      label: 'nav.matches'.tr(),
     );
 
     final profileTab = _TabItem(
       screen: const ProfileScreen(),
       icon: Icons.person_outline,
       activeIcon: Icons.person,
-      label: 'Profile',
+      label: 'nav.profile'.tr(),
     );
 
     _TabItem dynamicTab;
@@ -958,7 +959,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const FootballHubScreen(),
           icon: Icons.hub_outlined,
           activeIcon: Icons.hub,
-          label: 'Hub',
+          label: 'nav.hub'.tr(),
         );
         break;
       case 'COACH':
@@ -966,7 +967,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const TournamentAnnouncementsScreen(),
           icon: Icons.campaign_outlined,
           activeIcon: Icons.campaign,
-          label: 'Events',
+          label: 'nav.events'.tr(),
         );
         break;
       case 'PARENT':
@@ -974,7 +975,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const ChildrenActivityScreen(),
           icon: Icons.child_care_outlined,
           activeIcon: Icons.child_care,
-          label: 'Activity',
+          label: 'nav.activity'.tr(),
         );
         break;
       case 'FIELD_OWNER':
@@ -982,7 +983,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const FieldManagementScreen(),
           icon: Icons.business_outlined,
           activeIcon: Icons.business,
-          label: 'Management',
+          label: 'nav.management'.tr(),
         );
         break;
       case 'TOURNAMENT_ORGANIZER':
@@ -990,7 +991,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const OrganizerLogisticsScreen(),
           icon: Icons.inventory_2_outlined,
           activeIcon: Icons.inventory_2,
-          label: 'Logistics',
+          label: 'nav.logistics'.tr(),
         );
         break;
       default:
@@ -998,7 +999,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const BookingScreen(),
           icon: Icons.calendar_today_outlined,
           activeIcon: Icons.calendar_today,
-          label: 'Booking',
+          label: 'nav.booking'.tr(),
         );
     }
 
@@ -1009,13 +1010,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           screen: const OwnerCalendarScreen(),
           icon: Icons.calendar_month_outlined,
           activeIcon: Icons.calendar_month,
-          label: 'Schedule',
+          label: 'nav.schedule'.tr(),
         ),
         _TabItem(
           screen: const OwnerAnalyticsScreen(),
           icon: Icons.insights_outlined,
           activeIcon: Icons.insights,
-          label: 'Analytics',
+          label: 'nav.analytics'.tr(),
         ),
         dynamicTab,
         profileTab,

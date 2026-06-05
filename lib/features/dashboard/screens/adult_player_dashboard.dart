@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -29,7 +30,6 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
-    final onSurface = Theme.of(context).colorScheme.onSurface;
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
@@ -42,9 +42,9 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
             backgroundColor: PremiumTheme.surfaceBase(context),
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'FOOTBALL HUB',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 3),
+              title: Text(
+                'player.football_hub'.tr(),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 3),
               ),
               centerTitle: true,
             ),
@@ -58,7 +58,7 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
               builder: (context, teamProvider, matchProvider, _) {
                 final teamCount = teamProvider.myTeams.length;
                 final nextMatch = matchProvider.matches.isNotEmpty ? matchProvider.matches.first : null;
-                
+
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                   child: Column(
@@ -66,24 +66,24 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                     children: [
                       _buildHeader(user),
                       const SizedBox(height: 24),
-                      
+
                       _buildDailyQuizBanner(),
                       const SizedBox(height: 28),
 
-                      _buildSectionLabel("YOUR NEXT CHALLENGE"),
+                      _buildSectionLabel('player.your_next_challenge'.tr()),
                       const SizedBox(height: 12),
                       _buildMatchChallenge(nextMatch),
-                      
+
                       const SizedBox(height: 28),
-                      _buildSectionLabel("CAREER GLANCE"),
+                      _buildSectionLabel('player.career_glance'.tr()),
                       const SizedBox(height: 12),
                       _buildStatsRow(teamCount),
 
                       const SizedBox(height: 28),
-                      _buildSectionLabel("EXPLORE SERVICES"),
+                      _buildSectionLabel('player.explore_services'.tr()),
                       const SizedBox(height: 12),
                       _buildQuickActionsGrid(),
-                      
+
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -130,7 +130,7 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello, ${(user?.name ?? 'Player').split(' ').first}!',
+                'profile.hello'.tr(namedArgs: {'name': (user?.name ?? 'Player').split(' ').first}),
                 style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
               ),
               const SizedBox(height: 4),
@@ -142,9 +142,9 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
                       color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text(
-                      'ADULT PLAYER',
-                      style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                    child: Text(
+                      'player.adult_player'.tr(),
+                      style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                     ),
                   ),
                 ],
@@ -185,22 +185,22 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
             children: [
               const Icon(Icons.psychology_rounded, color: Colors.black, size: 28),
               const SizedBox(width: 12),
-              const Text(
-                "FOOTBALL IQ QUIZ",
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5),
+              Text(
+                'player.football_iq_quiz'.tr(),
+                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                child: const Text("DAILY", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 9)),
+                child: Text('player.daily'.tr(), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 9)),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            "Test your knowledge with today's advanced challenges and earn ranking points.",
-            style: TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w600, height: 1.3),
+          Text(
+            'player.quiz_desc'.tr(),
+            style: const TextStyle(color: Colors.black87, fontSize: 13, fontWeight: FontWeight.w600, height: 1.3),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -212,7 +212,7 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               minimumSize: const Size(double.infinity, 48),
             ),
-            child: const Text("START CHALLENGE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+            child: Text('player.start_challenge'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
           ),
         ],
       ),
@@ -241,11 +241,11 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  nextMatch != null ? 'Vs Unknown Team' : 'No matches found',
+                  nextMatch != null ? 'player.vs_unknown'.tr() : 'player.no_matches_found'.tr(),
                   style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
                 ),
                 Text(
-                  nextMatch != null ? nextMatch.scheduledAt : 'Check back later for updates',
+                  nextMatch != null ? nextMatch.scheduledAt : 'player.check_back_later'.tr(),
                   style: TextStyle(color: onSurface.withValues(alpha: 0.4), fontSize: 12),
                 ),
               ],
@@ -261,11 +261,11 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
     return Row(
       children: [
         Expanded(
-          child: _buildSmallStatCard("MY TEAMS", teamCount.toString(), Icons.groups_rounded, PremiumTheme.electricBlue),
+          child: _buildSmallStatCard('player.my_teams'.tr(), teamCount.toString(), Icons.groups_rounded, PremiumTheme.electricBlue),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildSmallStatCard("AVG RATING", "8.4", Icons.auto_graph_rounded, PremiumTheme.neonGreen),
+          child: _buildSmallStatCard('player.avg_rating'.tr(), '8.4', Icons.auto_graph_rounded, PremiumTheme.neonGreen),
         ),
       ],
     );
@@ -301,10 +301,10 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.5,
       children: [
-        _buildActionTile("Find Match", Icons.search_rounded, Colors.blue),
-        _buildActionTile("Book Field", Icons.stadium_outlined, Colors.orange),
-        _buildActionTile("Club Hub", Icons.shield_outlined, Colors.purple),
-        _buildActionTile("Tournaments", Icons.emoji_events_outlined, Colors.amber),
+        _buildActionTile('player.find_match'.tr(), Icons.search_rounded, Colors.blue),
+        _buildActionTile('player.book_field'.tr(), Icons.stadium_outlined, Colors.orange),
+        _buildActionTile('player.club_hub'.tr(), Icons.shield_outlined, Colors.purple),
+        _buildActionTile('nav.tournaments'.tr(), Icons.emoji_events_outlined, Colors.amber),
       ],
     );
   }
@@ -347,7 +347,7 @@ class TemporaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('Content for $title coming soon!')),
+      body: Center(child: Text('common.coming_soon_content'.tr(namedArgs: {'title': title}))),
     );
   }
 }

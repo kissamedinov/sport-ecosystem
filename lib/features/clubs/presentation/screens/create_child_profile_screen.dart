@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../../providers/club_provider.dart';
 
 class CreateChildProfileScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _CreateChildProfileScreenState extends State<CreateChildProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Child Profile')),
+      appBar: AppBar(title: Text('children.create_profile_title'.tr())),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -44,25 +44,25 @@ class _CreateChildProfileScreenState extends State<CreateChildProfileScreen> {
             children: [
               TextFormField(
                 controller: _firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
+                decoration: InputDecoration(labelText: 'children.first_name'.tr()),
+                validator: (v) => v!.isEmpty ? 'children.required'.tr() : null,
               ),
               TextFormField(
                 controller: _lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
+                decoration: InputDecoration(labelText: 'children.last_name'.tr()),
+                validator: (v) => v!.isEmpty ? 'children.required'.tr() : null,
               ),
               const SizedBox(height: 16),
               ListTile(
-                title: Text(_selectedDate == null 
-                  ? 'Select Date of Birth' 
-                  : 'DOB: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}'),
+                title: Text(_selectedDate == null
+                  ? 'children.select_dob'.tr()
+                  : 'children.dob_label'.tr(namedArgs: {'date': DateFormat('yyyy-MM-dd').format(_selectedDate!)})),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDate(context),
               ),
               TextFormField(
                 controller: _positionController,
-                decoration: const InputDecoration(labelText: 'Position (e.g. Forward)'),
+                decoration: InputDecoration(labelText: 'children.position_label'.tr()),
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -80,7 +80,7 @@ class _CreateChildProfileScreenState extends State<CreateChildProfileScreen> {
                       if (success && mounted) Navigator.pop(context);
                     }
                   },
-                  child: const Text('Create Profile'),
+                  child: Text('children.create_profile_btn'.tr()),
                 ),
               ),
             ],

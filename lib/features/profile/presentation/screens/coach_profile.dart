@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/profile/presentation/widgets/profile_header.dart';
@@ -41,14 +42,14 @@ class CoachProfile extends StatelessWidget {
                     color: Colors.redAccent.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                      const SizedBox(width: 12),
                       Text(
-                        'LOGOUT',
-                        style: TextStyle(
+                        'profile.logout_label'.tr(),
+                        style: const TextStyle(
                           color: Colors.redAccent,
                           fontWeight: FontWeight.w900,
                           fontSize: 12,

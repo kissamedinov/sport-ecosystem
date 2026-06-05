@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +48,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$label copied to clipboard'),
+        content: Text('club.copied_to_clipboard'.tr(namedArgs: {'label': label})),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
@@ -69,11 +70,11 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error: ${provider.error}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  Text('${'common.error'.tr()}: ${provider.error}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.fetchClubDashboard(),
-                    child: const Text('Retry'),
+                    child: Text('club.retry'.tr()),
                   ),
                 ],
               ),
@@ -96,8 +97,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     const SizedBox(height: 24),
                     Text(
                       isClubManager
-                          ? 'You are not assigned to a club yet.'
-                          : 'You don\'t have a club registered yet.',
+                          ? 'club.not_assigned'.tr()
+                          : 'club.no_club_registered'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
                     ),
@@ -112,7 +113,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                         onPressed: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const AdminHubScreen())),
                         icon: const Icon(Icons.admin_panel_settings),
-                        label: const Text('Admin: Moderation Panel'),
+                        label: Text('club.admin_moderation_panel'.tr()),
                       ),
                     ],
                   ],
@@ -179,9 +180,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        'CLUB · DASHBOARD',
-                        style: TextStyle(
+                      Text(
+                        'club.club_dashboard_label'.tr(),
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Colors.white54,
@@ -322,7 +323,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'OVERVIEW',
+                'profile.overview'.tr(),
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -337,7 +338,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: Row(
                   children: [
                     Text(
-                      'MANAGE HUB',
+                      'club.manage_hub'.tr(),
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -359,10 +360,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: _buildStatCard(
                   icon: Icons.account_balance_rounded,
                   iconColor: PremiumTheme.neonGreen,
-                  status: 'ACTIVE',
+                  status: 'club.status_active'.tr(),
                   statusColor: PremiumTheme.neonGreen,
                   value: '${dashboard.academies.length}',
-                  label: 'ACADEMIES',
+                  label: 'club.academies'.tr(),
                   bg: const Color(0xFF0A1F0D),
                   border: const Color(0xFF1A3320),
                 ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
@@ -372,10 +373,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: _buildStatCard(
                   icon: Icons.shield_rounded,
                   iconColor: PremiumTheme.electricBlue,
-                  status: 'COMPETING',
+                  status: 'club.status_competing'.tr(),
                   statusColor: PremiumTheme.electricBlue,
                   value: '${dashboard.teams.length}',
-                  label: 'TEAMS',
+                  label: 'club.teams'.tr(),
                   bg: const Color(0xFF0D1627),
                   border: const Color(0xFF1A2D4A),
                 ).animate().fadeIn(delay: 150.ms, duration: 400.ms).slideX(begin: 0.1, end: 0),
@@ -389,10 +390,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: _buildStatCard(
                   icon: Icons.sports_soccer_rounded,
                   iconColor: PremiumTheme.neonGreen,
-                  status: 'REGISTERED',
+                  status: 'club.status_registered'.tr(),
                   statusColor: PremiumTheme.neonGreen,
                   value: '$playerCount',
-                  label: 'PLAYERS',
+                  label: 'club.players'.tr(),
                   bg: const Color(0xFF0A1F0D),
                   border: const Color(0xFF1A3320),
                 ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
@@ -402,10 +403,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 child: _buildStatCard(
                   icon: Icons.key_rounded,
                   iconColor: PremiumTheme.electricBlue,
-                  status: 'ON STAFF',
+                  status: 'club.status_on_staff'.tr(),
                   statusColor: PremiumTheme.electricBlue,
                   value: '${dashboard.coachesCount}',
-                  label: 'COACHES',
+                  label: 'club.coaches'.tr(),
                   bg: const Color(0xFF0D1627),
                   border: const Color(0xFF1A2D4A),
                 ).animate().fadeIn(delay: 250.ms, duration: 400.ms).slideX(begin: 0.1, end: 0),
@@ -544,9 +545,9 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   .then()
                   .scale(begin: const Offset(1.3, 1.3), end: const Offset(1, 1), duration: 600.ms),
                 const SizedBox(width: 6),
-                const Text(
-                  'LIVE',
-                  style: TextStyle(
+                Text(
+                  'match.live'.tr(),
+                  style: const TextStyle(
                       color: Colors.redAccent,
                       fontWeight: FontWeight.w800,
                       fontSize: 11,
@@ -569,14 +570,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        homeTeamName ?? 'Home',
+                        homeTeamName ?? 'match.home'.tr(),
                         style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
                             color: Colors.white),
                       ),
-                      const Text('Home',
-                          style: TextStyle(fontSize: 11, color: Colors.white38)),
+                      Text('match.home'.tr(),
+                          style: const TextStyle(fontSize: 11, color: Colors.white38)),
                     ],
                   ),
                 ),
@@ -593,13 +594,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text('Away',
-                          style: TextStyle(
+                      Text('match.away'.tr(),
+                          style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
                               color: Colors.white)),
-                      const Text('Away',
-                          style: TextStyle(fontSize: 11, color: Colors.white38)),
+                      Text('match.away'.tr(),
+                          style: const TextStyle(fontSize: 11, color: Colors.white38)),
                     ],
                   ),
                 ),
@@ -622,7 +623,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'MONTHLY GROWTH · 30D',
+            'club.monthly_growth_30d'.tr(),
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -634,7 +635,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             children: [
               Expanded(
                 child: _buildGrowthCard(
-                  label: 'NEW PLAYERS',
+                  label: 'club.new_players'.tr(),
                   value: newPlayers >= 0 ? '+$newPlayers' : '$newPlayers',
                   color: PremiumTheme.neonGreen,
                   bg: const Color(0xFF0A1F0D),
@@ -645,7 +646,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               const SizedBox(width: 14),
               Expanded(
                 child: _buildGrowthCard(
-                  label: 'NEW COACHES',
+                  label: 'club.new_coaches'.tr(),
                   value: newCoaches >= 0 ? '+$newCoaches' : '$newCoaches',
                   color: Colors.amber,
                   bg: const Color(0xFF1F1A0A),
@@ -781,7 +782,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionLabel('CLUB INVITATIONS · $pendingCount PENDING', accentColor: Colors.redAccent),
+          _buildSectionLabel('club.club_invitations_pending'.tr(namedArgs: {'count': pendingCount.toString()}), accentColor: Colors.redAccent),
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () => Navigator.push(
@@ -818,7 +819,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Approvals waiting',
+                          'club.approvals_waiting'.tr(),
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
@@ -881,7 +882,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionLabel('UPCOMING FIXTURES', accentColor: Colors.amber),
+          _buildSectionLabel('club.upcoming_fixtures'.tr(), accentColor: Colors.amber),
           const SizedBox(height: 12),
           ...shown.map((f) {
             final cs = Theme.of(context).colorScheme;
@@ -1084,13 +1085,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   labelColor: Theme.of(context).colorScheme.onSurface,
                   unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-                  tabs: const [
-                    Tab(text: 'ACADEMIES'),
-                    Tab(text: 'TEAMS'),
-                    Tab(text: 'PLAYERS'),
-                    Tab(text: 'COACHES'),
-                    Tab(text: 'MEDIA'),
-                    Tab(text: 'PENDING'),
+                  tabs: [
+                    Tab(text: 'club.academies'.tr()),
+                    Tab(text: 'club.teams'.tr()),
+                    Tab(text: 'club.players'.tr()),
+                    Tab(text: 'club.coaches'.tr()),
+                    Tab(text: 'club.media'.tr()),
+                    Tab(text: 'club.pending'.tr()),
                   ],
                 ),
               ),
@@ -1125,7 +1126,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildSectionHeader('CLUB BRANCHES'),
+              _buildSectionHeader('club.club_branches'.tr()),
               IconButton(
                 onPressed: () => _showCreateAcademyDialog(context),
                 icon: const Icon(Icons.add_circle_outline, color: PremiumTheme.neonGreen),
@@ -1135,7 +1136,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         ),
         Expanded(
           child: dashboard.academies.isEmpty
-              ? _buildEmptyState(Icons.account_balance_rounded, 'NO ACADEMIES')
+              ? _buildEmptyState(Icons.account_balance_rounded, 'club.no_academies'.tr())
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: dashboard.academies.length,
@@ -1167,7 +1168,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
           child: Row(
             children: [
-              _buildSectionLabel('ACTIVE TEAMS · ${dashboard.teams.length}'),
+              _buildSectionLabel('club.active_teams_count'.tr(namedArgs: {'count': dashboard.teams.length.toString()})),
               const Spacer(),
               IconButton(
                 onPressed: () => _showCreateTeamDialog(context),
@@ -1178,7 +1179,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         ),
         Expanded(
           child: dashboard.teams.isEmpty
-              ? _buildEmptyState(Icons.shield_rounded, 'NO TEAMS')
+              ? _buildEmptyState(Icons.shield_rounded, 'club.no_teams'.tr())
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: dashboard.teams.length,
@@ -1286,12 +1287,12 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Team?', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('Are you sure you want to delete "${team.name}"? This action cannot be undone.'),
+        title: Text('club.delete_team_title'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text('club.delete_team_confirm'.tr(namedArgs: {'name': team.name.toString()})),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('CANCEL'),
+            child: Text('common.cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1301,7 +1302,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Team "${team.name}" deleted successfully'),
+                      content: Text('club.team_deleted'.tr(namedArgs: {'name': team.name.toString()})),
                       backgroundColor: PremiumTheme.neonGreen,
                     ),
                   );
@@ -1310,8 +1311,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               } else {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Failed to delete team. Please try again.'),
+                    SnackBar(
+                      content: Text('club.team_create_failed'.tr()),
                       backgroundColor: Colors.redAccent,
                     ),
                   );
@@ -1322,7 +1323,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
             ),
-            child: const Text('DELETE', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: Text('common.delete'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -1343,15 +1344,15 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _buildMiniStatBox('TOTAL', '${totalLinked + totalUnlinked}', PremiumTheme.electricBlue)),
+            Expanded(child: _buildMiniStatBox('organizer.total'.tr(), '${totalLinked + totalUnlinked}', PremiumTheme.electricBlue)),
             const SizedBox(width: 10),
-            Expanded(child: _buildMiniStatBox('LINKED', '$totalLinked', PremiumTheme.neonGreen)),
+            Expanded(child: _buildMiniStatBox('club.linked'.tr(), '$totalLinked', PremiumTheme.neonGreen)),
             const SizedBox(width: 10),
-            Expanded(child: _buildMiniStatBox('UNLINKED', '$totalUnlinked', Colors.amber)),
+            Expanded(child: _buildMiniStatBox('club.unlinked'.tr(), '$totalUnlinked', Colors.amber)),
           ],
         ),
         const SizedBox(height: 24),
-        _buildSectionLabel('LINKED PLAYERS'),
+        _buildSectionLabel('club.linked_players'.tr()),
         const SizedBox(height: 2),
         Container(
           height: 1,
@@ -1359,7 +1360,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           margin: const EdgeInsets.only(bottom: 12),
         ),
         if (totalLinked == 0)
-          _buildInlineEmpty('No linked players yet')
+          _buildInlineEmpty('club.no_linked_players'.tr())
         else
           ...dashboard.players.map<Widget>((player) => _buildListCard(
             leading: _buildNumberAvatar(player.jerseyNumber?.toString() ?? '?', PremiumTheme.neonGreen),
@@ -1368,7 +1369,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
             subtitleBadge: player.position,
           )),
         const SizedBox(height: 24),
-        _buildSectionLabel('UNLINKED PROFILES'),
+        _buildSectionLabel('club.unlinked_profiles'.tr()),
         const SizedBox(height: 2),
         Container(
           height: 1,
@@ -1376,7 +1377,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           margin: const EdgeInsets.only(bottom: 12),
         ),
         if (totalUnlinked == 0)
-          _buildInlineEmpty('No unlinked profiles')
+          _buildInlineEmpty('club.no_unlinked_profiles'.tr())
         else
           ...dashboard.childProfiles.map<Widget>((child) => Container(
             margin: const EdgeInsets.only(bottom: 12),
@@ -1422,8 +1423,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
                   ),
-                  child: const Text('INVITE',
-                      style: TextStyle(
+                  child: Text('club.invite'.tr(),
+                      style: const TextStyle(
                           color: PremiumTheme.neonGreen, fontSize: 11, fontWeight: FontWeight.w800)),
                 ),
               ],
@@ -1441,11 +1442,11 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
           child: Row(
             children: [
-              Expanded(child: _buildMiniStatBox('COACHES', '${dashboard.coaches.length}', PremiumTheme.electricBlue)),
+              Expanded(child: _buildMiniStatBox('club.coaches'.tr(), '${dashboard.coaches.length}', PremiumTheme.electricBlue)),
               const SizedBox(width: 10),
-              Expanded(child: _buildMiniStatBox('TEAMS', '${dashboard.teams.length}', PremiumTheme.neonGreen)),
+              Expanded(child: _buildMiniStatBox('club.teams'.tr(), '${dashboard.teams.length}', PremiumTheme.neonGreen)),
               const SizedBox(width: 10),
-              Expanded(child: _buildMiniStatBox('AVG RATING', '4.8', Colors.amber)),
+              Expanded(child: _buildMiniStatBox('club.avg_rating'.tr(), '4.8', Colors.amber)),
             ],
           ),
         ),
@@ -1454,7 +1455,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildSectionLabel('COACHING STAFF'),
+              _buildSectionLabel('club.coaching_staff'.tr()),
               GestureDetector(
                 onTap: () => _showInviteStaffDialog(context),
                 child: Container(
@@ -1464,13 +1465,13 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.person_add_alt_1_rounded, color: PremiumTheme.neonGreen, size: 14),
-                      SizedBox(width: 6),
-                      Text('ADD',
-                          style: TextStyle(
+                      const Icon(Icons.person_add_alt_1_rounded, color: PremiumTheme.neonGreen, size: 14),
+                      const SizedBox(width: 6),
+                      Text('common.add'.tr(),
+                          style: const TextStyle(
                               color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w800)),
                     ],
                   ),
@@ -1481,7 +1482,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
         ),
         Expanded(
           child: dashboard.coaches.isEmpty
-              ? _buildEmptyState(Icons.sports_rounded, 'NO COACHES')
+              ? _buildEmptyState(Icons.sports_rounded, 'club.no_coaches'.tr())
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: dashboard.coaches.length,
@@ -1602,7 +1603,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
 
   Widget _buildPendingInvitesList(dynamic dashboard) {
     if (dashboard.pendingInvitations.isEmpty) {
-      return _buildEmptyState(Icons.hourglass_empty_rounded, 'NO PENDING INVITES');
+      return _buildEmptyState(Icons.hourglass_empty_rounded, 'club.no_pending_invites'.tr());
     }
 
     final pending = (dashboard.pendingInvitations as List).where((i) => !i.isApproved).toList();
@@ -1611,7 +1612,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-          child: _buildSectionLabel('AWAITING ACTION · ${pending.length}'),
+          child: _buildSectionLabel('club.awaiting_action_count'.tr(namedArgs: {'count': pending.length.toString()})),
         ),
         Expanded(
           child: ListView.builder(
@@ -1691,8 +1692,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   color: PremiumTheme.neonGreen,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text('APPROVE',
-                    style: TextStyle(
+                child: Text('notification.approve'.tr(),
+                    style: const TextStyle(
                         color: Colors.black, fontSize: 11, fontWeight: FontWeight.w800)),
               ),
             )
@@ -1708,8 +1709,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 children: [
                   Icon(Icons.check_rounded, color: PremiumTheme.neonGreen, size: 14),
                   const SizedBox(width: 4),
-                  const Text('DONE',
-                      style: TextStyle(
+                  Text('common.done'.tr(),
+                      style: const TextStyle(
                           color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w800)),
                 ],
               ),
@@ -1920,7 +1921,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'You have been added as a club manager. Contact your club owner.',
+              'club.manager_no_club_message'.tr(),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
               textAlign: TextAlign.center,
             ),
@@ -1946,7 +1947,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           children: [
             Icon(Icons.send_rounded, color: PremiumTheme.neonGreen),
             const SizedBox(width: 12),
-            Text('Request to Create a Club',
+            Text('club.request_create_club'.tr(),
                 style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
           ],
         ),
@@ -1967,19 +1968,19 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(dialogContext),
-        title: const Text('Request Club Creation'),
+        title: Text('club.request_club_creation'.tr()),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Club Name')),
-              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-              TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
+              TextField(controller: nameController, decoration: InputDecoration(labelText: 'common.name'.tr())),
+              TextField(controller: cityController, decoration: InputDecoration(labelText: 'common.city'.tr())),
+              TextField(controller: addressController, decoration: InputDecoration(labelText: 'common.address'.tr())),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text('common.cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.isNotEmpty && cityController.text.isNotEmpty) {
@@ -1992,8 +1993,8 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   Navigator.pop(dialogContext); // Close dialog
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Запрос отправлен, отлично!'),
+                      SnackBar(
+                        content: Text('club.club_request_sent'.tr()),
                         backgroundColor: PremiumTheme.neonGreen,
                         behavior: SnackBarBehavior.floating,
                       ),
@@ -2005,7 +2006,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 }
               }
             },
-            child: const Text('Submit Request'),
+            child: Text('common.submit'.tr()),
           ),
         ],
       ),
@@ -2021,17 +2022,17 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: const Text('Add New Academy'),
+        title: Text('club.add_academy_title'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
-            TextField(controller: addressController, decoration: const InputDecoration(labelText: 'Address')),
+            TextField(controller: nameController, decoration: InputDecoration(labelText: 'common.name'.tr())),
+            TextField(controller: cityController, decoration: InputDecoration(labelText: 'common.city'.tr())),
+            TextField(controller: addressController, decoration: InputDecoration(labelText: 'common.address'.tr())),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               final clubId = context.read<ClubProvider>().dashboard?.club.id;
@@ -2042,7 +2043,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                 if (success && context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Create'),
+            child: Text('club.create'.tr()),
           ),
         ],
       ),
@@ -2061,25 +2062,25 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(context),
-          title: const Text('Create New Team'),
+          title: Text('club.create_team_title'.tr()),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
                   dropdownColor: PremiumTheme.surfaceCard(context),
-                  decoration: const InputDecoration(labelText: 'Academy'),
+                  decoration: InputDecoration(labelText: 'club.academy_required'.tr()),
                   items: academies.map((a) => DropdownMenuItem(value: a.id.toString(), child: Text(a.name))).toList(),
                   onChanged: (val) => setDialogState(() => selectedAcademyId = val),
                 ),
-                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Team Name')),
-                TextField(controller: birthYearController, decoration: const InputDecoration(labelText: 'Birth Year'), keyboardType: TextInputType.number),
-                TextField(controller: coachIdController, decoration: const InputDecoration(labelText: 'Coach User ID')),
+                TextField(controller: nameController, decoration: InputDecoration(labelText: 'team.team_name'.tr())),
+                TextField(controller: birthYearController, decoration: InputDecoration(labelText: 'team.birth_year'.tr()), keyboardType: TextInputType.number),
+                TextField(controller: coachIdController, decoration: InputDecoration(labelText: 'club.coach_user_id'.tr())),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
             ElevatedButton(
               onPressed: () async {
                 if (selectedAcademyId != null && nameController.text.isNotEmpty) {
@@ -2090,7 +2091,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
                   if (success && context.mounted) Navigator.pop(context);
                 }
               },
-              child: const Text('Create'),
+              child: Text('club.create'.tr()),
             ),
           ],
         ),

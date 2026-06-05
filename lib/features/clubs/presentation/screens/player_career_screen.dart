@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +23,7 @@ class _PlayerCareerScreenState extends State<PlayerCareerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Career History'),
+        title: Text('profile.career_history'.tr()),
       ),
       body: Consumer<ClubProvider>(
         builder: (context, provider, child) {
@@ -32,7 +33,7 @@ class _PlayerCareerScreenState extends State<PlayerCareerScreen> {
 
           final career = provider.playerCareer;
           if (career == null) {
-            return const Center(child: Text('No career data available'));
+            return Center(child: Text('profile.no_career_data'.tr()));
           }
 
           return CustomScrollView(
@@ -56,21 +57,21 @@ class _PlayerCareerScreenState extends State<PlayerCareerScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildStatBadge('Goals', career.totalGoals.toString(), Colors.orange),
+                          _buildStatBadge('player.goals'.tr(), career.totalGoals.toString(), Colors.orange),
                           const SizedBox(width: 16),
-                          _buildStatBadge('Assists', career.totalAssists.toString(), Colors.blue),
+                          _buildStatBadge('player.assists'.tr(), career.totalAssists.toString(), Colors.blue),
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Text(
-                    'Timeline',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    'profile.timeline'.tr(),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -116,7 +117,7 @@ class _PlayerCareerScreenState extends State<PlayerCareerScreen> {
                                         const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
                                         const SizedBox(width: 4),
                                         Text(
-                                          '${DateFormat('MMM yyyy').format(record.joinedAt)} - ${record.leftAt != null ? DateFormat('MMM yyyy').format(record.leftAt!) : 'Present'}',
+                                          '${DateFormat('MMM yyyy').format(record.joinedAt)} - ${record.leftAt != null ? DateFormat('MMM yyyy').format(record.leftAt!) : 'profile.present'.tr()}',
                                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                                         ),
                                       ],

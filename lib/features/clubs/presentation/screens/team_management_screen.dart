@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/club_provider.dart';
@@ -92,7 +93,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${widget.team.academyName ?? 'No Academy'} • ${widget.team.ageCategory ?? 'N/A'}',
+                        '${widget.team.academyName ?? 'academy.no_academy'.tr()} • ${widget.team.ageCategory ?? 'common.unknown'.tr()}',
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12),
                       ),
                     ],
@@ -107,22 +108,22 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildMiniStat('RATING', widget.team.rating.toString(), Colors.amber),
+                child: _buildMiniStat('player.rating'.tr().toUpperCase(), widget.team.rating.toString(), Colors.amber),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildMiniStat('WINS', widget.team.wins.toString(), Colors.green),
+                child: _buildMiniStat('team.wins'.tr().toUpperCase(), widget.team.wins.toString(), Colors.green),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildMiniStat('LOSSES', widget.team.losses.toString(), Colors.redAccent),
+                child: _buildMiniStat('team.losses'.tr().toUpperCase(), widget.team.losses.toString(), Colors.redAccent),
               ),
             ],
           ),
           const SizedBox(height: 28),
 
           // Coach assignment section
-          _buildSectionHeader('ASSIGNED COACH', Icons.sports_rounded),
+          _buildSectionHeader('club.assigned_coach'.tr(), Icons.sports_rounded),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
@@ -138,13 +139,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               final isValueValid = uniqueCoaches.containsKey(_selectedCoachId);
 
               return DropdownButtonFormField<String?>(
-                value: isValueValid ? _selectedCoachId : null,
+                initialValue: isValueValid ? _selectedCoachId : null,
                 dropdownColor: PremiumTheme.surfaceCard(context),
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                 icon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.person_search_rounded, color: PremiumTheme.neonGreen, size: 20),
-                  labelText: 'Select Coach',
+                  labelText: 'club.select_coach'.tr(),
                   labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12),
                   filled: true,
                   fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
@@ -176,7 +177,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           const SizedBox(height: 28),
 
           // Roster section
-          _buildSectionHeader('ROSTER (${widget.team.players.length})', Icons.people_rounded),
+          _buildSectionHeader('club.roster_count'.tr(namedArgs: {'count': widget.team.players.length.toString()}), Icons.people_rounded),
           const SizedBox(height: 12),
 
           if (widget.team.players.isEmpty)
@@ -188,7 +189,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   Icon(Icons.person_off_rounded, size: 40, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
                   const SizedBox(height: 12),
                   Text(
-                    'NO PLAYERS YET',
+                    'club.no_players_yet'.tr(),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                       fontSize: 11,
@@ -206,7 +207,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
 
           // Add player button
           PremiumButton(
-            text: 'ADD PLAYER',
+            text: 'club.add_player'.tr(),
             icon: Icons.person_add_rounded,
             onPressed: () => _showAddPlayerModal(context),
           ),
@@ -255,7 +256,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   }
 
   Widget _buildPlayerCard(PlayerTeam pt) {
-    final name = pt.player?.name ?? 'Unknown Player';
+    final name = pt.player?.name ?? 'common.unknown'.tr();
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -279,7 +280,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 Text(name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 2),
                 Text(
-                  'Player',
+                  'club.player_role_label'.tr(),
                   style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35)),
                 ),
               ],
@@ -288,7 +289,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           IconButton(
             icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Removing player...')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.removing_player'.tr())));
             },
           ),
         ],
@@ -325,31 +326,31 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             const SizedBox(height: 12),
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 20),
-            Text('ADD PLAYER', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 2)),
+            Text('club.add_player_title'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 2)),
             const SizedBox(height: 24),
             
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
-                  _buildSectionHeader('CLUB PLAYERS', Icons.people_rounded),
+                  _buildSectionHeader('club.club_players'.tr(), Icons.people_rounded),
                   const SizedBox(height: 12),
                   if (availablePlayers.isEmpty)
-                    _buildEmptyState('No other players in club')
+                    _buildEmptyState('club.no_other_players'.tr())
                   else
                     ...availablePlayers.map((p) => _buildAddPlayerTile(context, p.name, p.userId, false)),
-                  
+
                   const SizedBox(height: 28),
-                  _buildSectionHeader('CHILD PROFILES', Icons.child_care_rounded),
+                  _buildSectionHeader('club.child_profiles'.tr(), Icons.child_care_rounded),
                   const SizedBox(height: 12),
                   if (availableChildren.isEmpty)
-                    _buildEmptyState('No unassigned child profiles')
+                    _buildEmptyState('club.no_unassigned_children'.tr())
                   else
                     ...availableChildren.map((cp) => _buildAddPlayerTile(context, cp.fullName, cp.id, true)),
                   
                   const SizedBox(height: 40),
                   PremiumButton(
-                    text: 'INVITE NEW PERSON',
+                    text: 'club.invite_new_person'.tr(),
                     icon: Icons.mail_rounded,
                     onPressed: () {
                       Navigator.pop(context);
@@ -417,18 +418,18 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     // For now we use the same addPlayerToTeam but we might need to handle child profiles differently
     // In this backend version, we mostly use user_id
     
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adding player to team...')));
-    
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.adding_player'.tr())));
+
     final success = await clubProvider.addPlayerToTeam(widget.team.id, id, null);
-    
+
     if (success && context.mounted) {
       Navigator.pop(context); // Close modal
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Player added successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.player_added'.tr())));
       // Refresh dashboard to show new player in roster
       clubProvider.fetchClubDashboard();
       Navigator.pop(context); // Go back to refresh screen or we could just update local state
     } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${clubProvider.error ?? "Unknown error"}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${'common.error'.tr()}: ${clubProvider.error ?? 'common.unknown'.tr()}')));
     }
   }
 
@@ -444,16 +445,16 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     }
     
     final clubProvider = context.read<ClubProvider>();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Updating coach...')));
-    
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.updating_coach'.tr())));
+
     final success = await clubProvider.reassignTeamCoach(widget.team.id, _selectedCoachId!);
-    
+
     if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coach updated successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.coach_updated'.tr())));
       clubProvider.fetchClubDashboard();
       Navigator.pop(context);
     } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${clubProvider.error ?? "Unknown error"}')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${'common.error'.tr()}: ${clubProvider.error ?? 'common.unknown'.tr()}')));
     }
   }
 }

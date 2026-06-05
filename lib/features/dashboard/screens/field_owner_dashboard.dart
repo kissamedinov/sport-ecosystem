@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -45,9 +46,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text(
-          'PARTNER HUB',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
+        title: Text(
+          'field.partner_hub'.tr().toUpperCase(),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 2),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -66,12 +67,12 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
             const SizedBox(height: 24),
             _buildStatGrid(manager),
             const SizedBox(height: 32),
-            _buildSectionLabel('OPERATIONS'),
+            _buildSectionLabel('field.operations'.tr().toUpperCase()),
             const SizedBox(height: 12),
             _buildActionCard(
               context,
-              'Booking Requests',
-              '$pendingCount new requests waiting for approval',
+              'field.booking_requests'.tr(),
+              '$pendingCount ${'field.new_requests_waiting'.tr()}',
               Icons.book_online_rounded,
               PremiumTheme.neonGreen,
               () => _showBookingRequestsSheet(context),
@@ -79,14 +80,14 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
             const SizedBox(height: 16),
             _buildActionCard(
               context,
-              'My Fields',
-              'Manage availability and pricing',
+              'profile.my_fields'.tr(),
+              'field.manage_availability_pricing'.tr(),
               Icons.stadium_rounded,
               PremiumTheme.electricBlue,
               () => _showManualAvailabilitySheet(context),
             ),
             const SizedBox(height: 32),
-            _buildSectionLabel('MANAGEMENT TOOLS'),
+            _buildSectionLabel('field.management_tools'.tr().toUpperCase()),
             const SizedBox(height: 12),
             GridView.count(
               shrinkWrap: true,
@@ -97,13 +98,13 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
               childAspectRatio: 1.45,
               children: [
                 _buildGridActionTile(
-                  'Earnings',
+                  'field.earnings'.tr(),
                   Icons.analytics_rounded,
                   Colors.orangeAccent,
                   () => _showEarningsSheet(context),
                 ),
                 _buildGridActionTile(
-                  'Promotions',
+                  'field.promotions'.tr(),
                   Icons.local_offer_rounded,
                   Colors.purpleAccent,
                   () => _showPromotionsSheet(context),
@@ -151,7 +152,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome, ${user?.name ?? 'Partner'}!',
+                'field.welcome_partner'.tr(namedArgs: {'name': user?.name ?? 'field.partner'.tr()}),
                 style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
               ),
               const SizedBox(height: 4),
@@ -163,9 +164,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                       color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text(
-                      'FIELD OWNER',
-                      style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                    child: Text(
+                      'field.field_owner_role'.tr().toUpperCase(),
+                      style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                     ),
                   ),
                 ],
@@ -204,43 +205,26 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
     final revenueFormatted = '$rawRevenue ₸';
     final occupancyFormatted = '${(manager.occupancy * 100).toInt()}%';
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 2,
+    return Row(
       children: [
-        _buildStatItem('Today Revenue', revenueFormatted, Colors.green),
-        _buildStatItem('Occupancy', occupancyFormatted, Colors.blue),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
-          const SizedBox(height: 2),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              letterSpacing: 0.5,
-            ),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.today_revenue'.tr(),
+            value: revenueFormatted,
+            icon: Icons.payments_rounded,
+            color: Colors.green,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.occupancy'.tr(),
+            value: occupancyFormatted,
+            icon: Icons.bar_chart_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
+        ),
+      ],
     );
   }
 

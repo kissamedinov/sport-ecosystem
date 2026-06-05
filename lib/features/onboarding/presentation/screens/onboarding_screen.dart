@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/api/onboarding_api_service.dart';
@@ -108,14 +109,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Step ${_currentStep + 1} of 3', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
+                      Text('onboarding.step_of'.tr(namedArgs: {'current': '${_currentStep + 1}', 'total': '3'}), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
                       if (_currentStep > 0)
                         TextButton(
                           onPressed: () {
                              _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                              setState(() => _currentStep--);
                           },
-                          child: const Text('Back', style: TextStyle(color: Color(0xFF00E676))),
+                          child: Text('common.back'.tr(), style: const TextStyle(color: Color(0xFF00E676))),
                         ),
                     ],
                   ),

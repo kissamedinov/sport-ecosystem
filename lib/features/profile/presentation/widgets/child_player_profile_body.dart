@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
@@ -74,7 +75,9 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success ? 'Birthday updated!' : 'Failed: ${authProvider.error}'),
+            content: Text(success
+                ? 'profile.birthday_updated'.tr()
+                : 'profile.birthday_failed'.tr(namedArgs: {'error': authProvider.error ?? ''})),
             behavior: SnackBarBehavior.floating,
             backgroundColor: success ? PremiumTheme.surfaceCard(context) : Colors.redAccent.withValues(alpha: 0.8),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -92,19 +95,19 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          _buildSectionLabel("CAREER STATS"),
+          _buildSectionLabel('profile.career_stats'.tr()),
           const SizedBox(height: 12),
           _buildCareerStats(context),
           const SizedBox(height: 28),
-          _buildSectionLabel("DAILY CHALLENGE"),
+          _buildSectionLabel('profile.daily_challenge'.tr()),
           const SizedBox(height: 12),
           _buildDailyChallenge(context),
           const SizedBox(height: 28),
-          _buildSectionLabel("MY TEAM"),
+          _buildSectionLabel('player.my_team'.tr()),
           const SizedBox(height: 12),
           _buildMyTeamsSection(context),
           const SizedBox(height: 28),
-          _buildSectionLabel("MY FAMILY"),
+          _buildSectionLabel('profile.my_family'.tr()),
           const SizedBox(height: 12),
           _buildMyFamilySection(context),
           const SizedBox(height: 40),
@@ -161,38 +164,38 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
         _buildStatCard(
           icon: Icons.cake_rounded,
           value: showSet ? 'SET' : '$age',
-          label: showSet ? 'AGE • TAP' : 'AGE',
+          label: showSet ? 'profile.age_tap'.tr() : 'profile.age_label'.tr(),
           accent: const Color(0xFFCE93D8),
           onTap: () => _selectBirthday(context),
         ),
         _buildStatCard(
           icon: Icons.shield_rounded,
           value: '${teams.length}',
-          label: 'TEAMS',
+          label: 'profile.teams_label'.tr(),
           accent: PremiumTheme.electricBlue,
         ),
         _buildStatCard(
           icon: Icons.sports_soccer_rounded,
           value: '${stats.totalGoals}',
-          label: 'GOALS',
+          label: 'profile.goals_label'.tr(),
           accent: PremiumTheme.neonGreen,
         ),
         _buildStatCard(
           icon: Icons.stadium_rounded,
           value: '${stats.matchesPlayed}',
-          label: 'MATCHES',
+          label: 'profile.matches_label'.tr(),
           accent: Colors.amber,
         ),
         _buildStatCard(
           icon: Icons.handshake_rounded,
           value: '${stats.totalAssists}',
-          label: 'ASSISTS',
+          label: 'profile.assists_label'.tr(),
           accent: PremiumTheme.neonGreen,
         ),
         _buildStatCard(
           icon: Icons.emoji_events_rounded,
           value: '${stats.totalMvpAwards}',
-          label: 'MVP AWARDS',
+          label: 'profile.mvp_awards'.tr(),
           accent: Colors.amber,
         ),
       ],
@@ -290,7 +293,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "FOOTBALL KICK-OFF",
+                    'profile.football_kickoff'.tr(),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
@@ -300,7 +303,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Win 7 points today to keep your streak!",
+                    'profile.kickoff_desc'.tr(),
                     style: TextStyle(
                       fontSize: 11,
                       color: cs.onSurfaceVariant,
@@ -320,7 +323,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     final teams = context.watch<TeamProvider>().myTeams;
 
     if (teams.isEmpty) {
-      return _buildEmptyCard("Not assigned to a team yet", Icons.group_off_rounded);
+      return _buildEmptyCard('profile.not_in_team'.tr(), Icons.group_off_rounded);
     }
 
     return Column(
@@ -362,9 +365,9 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
                 children: [
                   Icon(Icons.fiber_manual_record, size: 8, color: PremiumTheme.neonGreen.withValues(alpha: 0.8)),
                   const SizedBox(width: 4),
-                  const Text(
-                    "ACTIVE ROSTER",
-                    style: TextStyle(
+                  Text(
+                    'profile.active_roster'.tr(),
+                    style: const TextStyle(
                       color: PremiumTheme.neonGreen,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -402,7 +405,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
     }
 
     if (parents.isEmpty) {
-      return _buildEmptyCard("No parents linked yet", Icons.person_off_rounded);
+      return _buildEmptyCard('profile.no_parents'.tr(), Icons.person_off_rounded);
     }
 
     return Column(
@@ -451,7 +454,7 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                "PARENT / GUARDIAN",
+                'profile.parent_guardian_tag'.tr(),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 10,

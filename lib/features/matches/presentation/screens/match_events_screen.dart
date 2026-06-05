@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import '../../../../core/api/stats_api_service.dart';
@@ -32,9 +33,9 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'MATCH REPORT',
-          style: TextStyle(
+        title: Text(
+          'match.match_report_title'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 13,
             letterSpacing: 2,
@@ -50,7 +51,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
             const SizedBox(height: 8),
             _buildAwardsSection(),
             const SizedBox(height: 24),
-            _buildSectionHeader("MATCH TIMELINE", Icons.timeline_rounded),
+            _buildSectionHeader('match.match_timeline'.tr(), Icons.timeline_rounded),
             const SizedBox(height: 16),
             _buildTimelineSection(),
             const SizedBox(height: 40),
@@ -103,7 +104,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader("MATCH AWARDS", Icons.emoji_events_rounded),
+            _buildSectionHeader('match.match_awards'.tr(), Icons.emoji_events_rounded),
             const SizedBox(height: 16),
             SizedBox(
               height: 130,
@@ -143,7 +144,7 @@ class _MatchEventsScreenState extends State<MatchEventsScreen> {
                   Icon(Icons.sports_soccer_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 36),
                   const SizedBox(height: 12),
                   Text(
-                    'NO EVENTS RECORDED',
+                    'match.no_events_recorded'.tr(),
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1),
                   ),
                 ],

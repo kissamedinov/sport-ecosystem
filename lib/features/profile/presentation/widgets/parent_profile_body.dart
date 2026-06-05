@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -62,7 +63,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("PLEASE ENTER A VALID EMAIL"), backgroundColor: Colors.redAccent),
+        SnackBar(content: Text('profile.valid_email_required'.tr()), backgroundColor: Colors.redAccent),
       );
       return;
     }
@@ -76,7 +77,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
         context.read<ChildProvider>().fetchChildren();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? "LINK REQUEST SENT"),
+            content: Text(result['message'] ?? 'profile.link_request_sent'.tr()),
             backgroundColor: PremiumTheme.neonGreen,
           ),
         );
@@ -84,7 +85,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("ERROR: ${e.toString()}"), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text('profile.error_prefix'.tr(namedArgs: {'error': e.toString()})), backgroundColor: Colors.redAccent),
         );
       }
     }
@@ -108,25 +109,25 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           children: [
             Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 24),
-            const Text(
-              "LINK TO CHILD ACCOUNT",
-              style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
+            Text(
+              'profile.link_child_title'.tr(),
+              style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
             ),
             const SizedBox(height: 12),
             Text(
-              "Enter your child's registered email to send a link request.",
+              'profile.link_child_desc'.tr(),
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
             ),
             const SizedBox(height: 24),
             PremiumTextField(
               controller: _emailController,
-              label: "CHILD'S EMAIL",
+              label: 'profile.child_email'.tr(),
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 32),
             PremiumButton(
-              text: "SEND LINK REQUEST",
+              text: 'profile.send_link'.tr(),
               onPressed: _handleLinkChild,
             ),
           ],
@@ -161,7 +162,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   _buildStatsRow(children.length, matches.length),
                   const SizedBox(height: 24),
                   
-                  _buildSectionLabel("MY CHILDREN"),
+                  _buildSectionLabel('profile.my_children'.tr()),
                   const SizedBox(height: 12),
                   _buildChildrenList(children),
                   const SizedBox(height: 12),
@@ -169,13 +170,13 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   const SizedBox(height: 32),
 
                   if (matches.isNotEmpty) ...[
-                    _buildSectionLabel("NEXT HIGHLIGHTS"),
+                    _buildSectionLabel('profile.next_highlights'.tr()),
                     const SizedBox(height: 12),
                     _buildMatchHighlight(matches.first),
                     const SizedBox(height: 12),
                   ],
 
-                  _buildSectionLabel("UPCOMING SCHEDULE"),
+                  _buildSectionLabel('profile.upcoming_schedule'.tr()),
                   const SizedBox(height: 12),
                   _buildUpcomingMatches(matches),
                   const SizedBox(height: 40),
@@ -214,12 +215,12 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "LINK NEW CHILD",
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
+                  Text(
+                    'profile.link_new_child'.tr(),
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                   ),
                   Text(
-                    "Connect via registered email",
+                    'profile.connect_email'.tr(),
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
                   ),
                 ],
@@ -250,9 +251,9 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   color: Colors.redAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  "NEXT MATCH",
-                  style: TextStyle(color: Colors.redAccent, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1),
+                child: Text(
+                  'profile.next_match'.tr(),
+                  style: const TextStyle(color: Colors.redAccent, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1),
                 ),
               ),
               const Spacer(),
@@ -266,13 +267,13 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(child: Text("HOME", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+              Expanded(child: Text('profile.home_tag'.tr(), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(8)),
-                child: const Text("VS", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 12)),
+                child: Text('match.vs'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 12)),
               ),
-              Expanded(child: Text("AWAY", textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
+              Expanded(child: Text('profile.away_tag'.tr(), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
             ],
           ),
           const SizedBox(height: 16),
@@ -280,7 +281,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           const SizedBox(height: 8),
           Center(
             child: Text(
-              "Venue: Central Field • 18:30",
+              'profile.venue_info'.tr(),
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
             ),
           ),
@@ -329,16 +330,16 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
         Expanded(child: _buildStatCard(
           icon: Icons.child_care_rounded,
           value: '$childCount',
-          label: 'LINKED KIDS',
-          badge: 'FAMILY',
+          label: 'profile.linked_kids'.tr(),
+          badge: 'profile.family_badge'.tr(),
           accent: PremiumTheme.neonGreen,
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildStatCard(
           icon: Icons.sports_soccer_rounded,
           value: '$matchCount',
-          label: 'THIS WEEK',
-          badge: 'GAMES',
+          label: 'profile.this_week'.tr(),
+          badge: 'profile.games_badge'.tr(),
           accent: PremiumTheme.electricBlue,
         )),
       ],
@@ -479,7 +480,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
           Icon(Icons.event_busy_rounded,
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), size: 36),
           const SizedBox(height: 12),
-          Text('NO UPCOMING SCHEDULE',
+          Text('profile.no_upcoming'.tr(),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25),
                   fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
@@ -516,12 +517,12 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 ),
                 const SizedBox(width: 14),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Match vs Academy B',
+                  Text('profile.match_vs_b'.tr(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w700, fontSize: 13)),
                   const SizedBox(height: 3),
-                  Text('Upcoming fixture',
+                  Text('profile.upcoming_fixture'.tr(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 11)),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -67,17 +68,17 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               _buildCoachQuickActions(data, teams, perf, topPerformers),
               const SizedBox(height: 32),
 
-              _buildSectionHeader("PERFORMANCE OVERVIEW", Icons.analytics_rounded),
+              _buildSectionHeader('profile.performance_overview'.tr(), Icons.analytics_rounded),
               const SizedBox(height: 16),
               _buildPerformanceStats(perf),
               const SizedBox(height: 32),
 
-              _buildSectionHeader("UPCOMING MATCHES", Icons.event_available_rounded),
+              _buildSectionHeader('profile.upcoming_matches'.tr(), Icons.event_available_rounded),
               const SizedBox(height: 16),
               _buildUpcomingMatches(matches),
               const SizedBox(height: 32),
 
-              _buildSectionHeader("TEAMS COACHED  •  ${teams.length}", Icons.groups_rounded),
+              _buildSectionHeader('${'profile.teams_coached'.tr()}  •  ${teams.length}', Icons.groups_rounded),
               const SizedBox(height: 16),
               _buildTeamsList(teams),
               const SizedBox(height: 48),
@@ -97,13 +98,13 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
             const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
             const SizedBox(height: 20),
             Text(
-              "SYNCING DATA...", 
+              'profile.syncing'.tr(),
               style: TextStyle(
-                color: PremiumTheme.neonGreen.withValues(alpha: 0.5), 
-                fontSize: 10, 
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
+                fontSize: 10,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2
-              )
+                letterSpacing: 2,
+              ),
             ),
           ],
         ),
@@ -121,20 +122,20 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
               const SizedBox(height: 16),
               Text(
-                "SYSTEM ERROR",
+                'profile.system_error'.tr(),
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
               Text(
                 error,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
-                textAlign: TextAlign.center
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               TextButton.icon(
                 onPressed: _refresh,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text("RETRY CONNECTION"),
+                label: Text('profile.retry_connection'.tr()),
                 style: TextButton.styleFrom(foregroundColor: PremiumTheme.neonGreen),
               ),
             ],
@@ -181,7 +182,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
       children: [
         Expanded(
           child: OrleonStatCard(
-            label: 'Win Rate',
+            label: 'profile.win_rate'.tr(),
             value: '$winRate%',
             icon: Icons.auto_graph_rounded,
             accent: PremiumTheme.neonGreen,
@@ -190,7 +191,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: OrleonStatCard(
-            label: 'Goals',
+            label: 'profile.goals_scored'.tr(),
             value: '${perf['goals_scored'] ?? 0}',
             icon: Icons.sports_soccer_rounded,
             accent: PremiumTheme.electricBlue,
@@ -199,7 +200,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: OrleonStatCard(
-            label: 'Clean',
+            label: 'profile.clean_sheets_label'.tr(),
             value: '${perf['clean_sheets'] ?? 0}',
             icon: Icons.shield_rounded,
             accent: PremiumTheme.amber,
@@ -211,7 +212,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
   Widget _buildUpcomingMatches(List matches) {
     if (matches.isEmpty) {
-      return _buildEmptyCard("No upcoming matches scheduled", Icons.event_busy_rounded);
+      return _buildEmptyCard('profile.no_upcoming_matches'.tr(), Icons.event_busy_rounded);
     }
     return Column(
       children: matches.map((match) => Padding(
@@ -243,7 +244,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                         Icon(Icons.emoji_events_rounded, size: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          (match['tournament_name'] ?? "REGULAR MATCH").toString().toUpperCase(),
+                          (match['tournament_name'] ?? 'profile.regular_match'.tr()).toString().toUpperCase(),
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                         ),
                       ],
@@ -257,7 +258,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   Text(
                     match['scheduled_at'] != null
                       ? match['scheduled_at'].toString().split('T').first
-                      : "TBD",
+                      : 'profile.tbd'.tr(),
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700, fontSize: 12),
                   ),
                   const SizedBox(height: 6),
@@ -270,8 +271,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                           builder: (_) => LiveMatchScreen(
                             matchId: match['id'].toString(),
                             teamId: homeId,
-                            homeTeamName: match['home_team_name']?.toString() ?? 'Home',
-                            awayTeamName: match['away_team_name']?.toString() ?? 'Away',
+                            homeTeamName: match['home_team_name']?.toString() ?? 'profile.home_tag'.tr(),
+                            awayTeamName: match['away_team_name']?.toString() ?? 'profile.away_tag'.tr(),
                           ),
                         ),
                       );
@@ -283,12 +284,12 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.circle, color: Colors.redAccent, size: 6),
-                          SizedBox(width: 4),
-                          Text('LIVE', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1)),
+                          const Icon(Icons.circle, color: Colors.redAccent, size: 6),
+                          const SizedBox(width: 4),
+                          Text('match.live'.tr(), style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1)),
                         ],
                       ),
                     ),
@@ -304,7 +305,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
   Widget _buildTeamsList(List teams) {
     if (teams.isEmpty) {
-      return _buildEmptyCard("No teams currently assigned", Icons.group_off_rounded);
+      return _buildEmptyCard('profile.no_teams_assigned'.tr(), Icons.group_off_rounded);
     }
     return Column(
       children: teams.map((team) => Padding(
@@ -342,7 +343,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                         Icon(Icons.person_outline_rounded, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          "${(team['players'] as List).length} ACTIVE PLAYERS",
+                          'profile.active_players'.tr(namedArgs: {'count': '${(team['players'] as List).length}'}),
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
                         ),
                       ],
@@ -377,8 +378,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   child: _quickActionCard(
                     icon: Icons.how_to_reg_rounded,
                     color: PremiumTheme.neonGreen,
-                    title: 'ATTENDANCE',
-                    subtitle: 'Track Training',
+                    title: 'coach.attendance'.tr(),
+                    subtitle: 'profile.track_training'.tr(),
                     onTap: () {
                       HapticFeedback.heavyImpact();
                       Navigator.push(
@@ -393,8 +394,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   child: _quickActionCard(
                     icon: Icons.architecture_rounded,
                     color: PremiumTheme.electricBlue,
-                    title: 'TACTICS',
-                    subtitle: 'Formations',
+                    title: 'coach.tactics'.tr(),
+                    subtitle: 'profile.formations'.tr(),
                     onTap: () {
                       HapticFeedback.heavyImpact();
                       Navigator.push(
@@ -413,8 +414,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   child: _quickActionCard(
                     icon: Icons.calendar_month_rounded,
                     color: Colors.amber,
-                    title: 'PLANNER',
-                    subtitle: 'Daily Agenda',
+                    title: 'coach.planner'.tr(),
+                    subtitle: 'profile.daily_agenda'.tr(),
                     onTap: () {
                       HapticFeedback.heavyImpact();
                       Navigator.push(
@@ -429,8 +430,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   child: _quickActionCard(
                     icon: Icons.dashboard_rounded,
                     color: Colors.purpleAccent,
-                    title: 'DASHBOARD',
-                    subtitle: 'Stats & Fixtures',
+                    title: 'coach.coach_dashboard'.tr(),
+                    subtitle: 'profile.stats_fixtures'.tr(),
                     onTap: () {
                       HapticFeedback.mediumImpact();
                       Navigator.push(
@@ -513,14 +514,14 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               Icon(Icons.info_outline_rounded, size: 14, color: PremiumTheme.neonGreen.withOpacity(0.5)),
               const SizedBox(width: 8),
               Text(
-                "ABOUT ME",
+                'profile.about_me'.tr(),
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            user.bio?.isNotEmpty == true ? user.bio! : "No biography provided yet. Tap 'Edit' to add one.",
+            user.bio?.isNotEmpty == true ? user.bio! : 'profile.no_bio'.tr(),
             style: TextStyle(
               color: user.bio?.isNotEmpty == true
                   ? Theme.of(context).colorScheme.onSurface
@@ -551,7 +552,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     final user = context.watch<AuthProvider>().user;
     final academy = context.watch<AcademyProvider>().myAcademy;
     final String code = user?.uniqueCode ?? "ID-PENDING";
-    final String clubName = academy?.name ?? "NO CLUB ASSIGNED";
+    final String clubName = academy?.name ?? 'profile.no_club_assigned'.tr();
 
     return Column(
       children: [
@@ -585,9 +586,9 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "UNIQUE COACH ID",
-                      style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
+                    Text(
+                      'profile.unique_coach_id'.tr(),
+                      style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -596,7 +597,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "Use this ID to be invited to a team",
+                      'profile.coach_id_desc'.tr(),
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -608,10 +609,10 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
                   Clipboard.setData(ClipboardData(text: code));
                   HapticFeedback.heavyImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("ID COPIED TO CLIPBOARD"),
+                    SnackBar(
+                      content: Text('profile.id_copied'.tr()),
                       backgroundColor: PremiumTheme.neonGreen,
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },
@@ -633,7 +634,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               const Icon(Icons.business_rounded, color: PremiumTheme.electricBlue, size: 16),
               const SizedBox(width: 12),
               Text(
-                "CLUB: ",
+                'profile.club_label'.tr(),
                 style: TextStyle(color: PremiumTheme.electricBlue.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
               ),
               Expanded(

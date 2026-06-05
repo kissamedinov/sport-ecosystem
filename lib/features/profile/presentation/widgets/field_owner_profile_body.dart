@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
@@ -72,22 +73,22 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              
+
               // Stats Cards
               _buildStatsRow(allFields.length, activeBookings.length, revenue),
               const SizedBox(height: 28),
 
               // Dynamic Pricing panel
-              _buildSectionHeader("DYNAMIC PRICING CONTROLS", null),
+              _buildSectionHeader('profile.dynamic_pricing'.tr().toUpperCase(), null),
               const SizedBox(height: 12),
               _buildPricingControlsCard(cs, isDark),
               const SizedBox(height: 28),
 
               // Fields panel
               _buildSectionHeader(
-                "MY MANAGED FIELDS",
+                'profile.my_fields'.tr(),
                 () => _showRegisterFieldSheet(context, userId),
-                actionLabel: "+ REGISTER FIELD",
+                actionLabel: '+ ${'profile.register_field'.tr().toUpperCase()}',
               ),
               const SizedBox(height: 12),
               _buildFieldsList(allFields),
@@ -95,16 +96,16 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
               // Promo codes panel
               _buildSectionHeader(
-                "PROMO CODES",
+                'profile.promo_codes'.tr().toUpperCase(),
                 () => _showCreatePromoSheet(context),
-                actionLabel: "+ CREATE CODE",
+                actionLabel: '+ ${'profile.create_code'.tr().toUpperCase()}',
               ),
               const SizedBox(height: 12),
               _buildPromoCodesList(cs, isDark),
               const SizedBox(height: 28),
 
               // Bookings panel
-              _buildSectionHeader("RECENT PITCH BOOKINGS", null),
+              _buildSectionHeader('profile.recent_bookings'.tr().toUpperCase(), null),
               const SizedBox(height: 12),
               _buildBookingsList(myBookings, allFields, cs, isDark),
               const SizedBox(height: 40),
@@ -124,7 +125,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
             const SizedBox(height: 20),
             Text(
-              "SYNCING DASHBOARD...",
+              'profile.syncing'.tr(),
               style: TextStyle(
                 color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
                 fontSize: 10,
@@ -193,7 +194,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
           children: [
             Expanded(
               child: PremiumStatCard(
-                title: "ACTIVE FIELDS",
+                title: 'profile.my_fields'.tr(),
                 value: "$fieldCount",
                 icon: Icons.stadium_rounded,
                 color: PremiumTheme.neonGreen,
@@ -202,7 +203,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
             const SizedBox(width: 12),
             Expanded(
               child: PremiumStatCard(
-                title: "ACTIVE BOOKINGS",
+                title: 'field.my_bookings'.tr(),
                 value: "$bookingCount",
                 icon: Icons.event_available_rounded,
                 color: PremiumTheme.electricBlue,
@@ -212,7 +213,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
         ),
         const SizedBox(height: 12),
         PremiumStatCard(
-          title: "TOTAL REVENUE",
+          title: 'profile.total_revenue'.tr(),
           value: "${(revenue / 1000).toStringAsFixed(1)}k ₸",
           icon: Icons.payments_rounded,
           color: Colors.amber,
@@ -229,36 +230,36 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
           _buildPricingToggleRow(
             icon: Icons.whatshot_rounded,
             color: const Color(0xFFFF9800),
-            title: "Prime-Time Evening Surcharge (+20%)",
-            subtitle: "Applies to 17:00 - 23:00 bookings on weekdays.",
+            title: 'profile.prime_time_surcharge'.tr(),
+            subtitle: 'profile.prime_time_surcharge_desc'.tr(),
             value: _primeTimeSurcharge,
             onChanged: (val) {
               setState(() => _primeTimeSurcharge = val);
-              _showRuleUpdatedSnackbar("Prime-Time Surcharge", val);
+              _showRuleUpdatedSnackbar('profile.prime_time_surcharge'.tr(), val);
             },
           ),
           const Divider(height: 24, color: Colors.white10),
           _buildPricingToggleRow(
             icon: Icons.celebration_rounded,
             color: const Color(0xFF2196F3),
-            title: "Weekend Premium Surcharge (+30%)",
-            subtitle: "Applies to all slots on Saturdays and Sundays.",
+            title: 'profile.weekend_surcharge'.tr(),
+            subtitle: 'profile.weekend_surcharge_desc'.tr(),
             value: _weekendSurcharge,
             onChanged: (val) {
               setState(() => _weekendSurcharge = val);
-              _showRuleUpdatedSnackbar("Weekend Surcharge", val);
+              _showRuleUpdatedSnackbar('profile.weekend_surcharge'.tr(), val);
             },
           ),
           const Divider(height: 24, color: Colors.white10),
           _buildPricingToggleRow(
             icon: Icons.nights_stay_rounded,
             color: const Color(0xFF9C27B0),
-            title: "Night-Owl Off-Peak Discount (-35%)",
-            subtitle: "Encourages night bookings (23:00 - 02:00).",
+            title: 'profile.night_owl_discount'.tr(),
+            subtitle: 'profile.night_owl_discount_desc'.tr(),
             value: _nightOwlDiscount,
             onChanged: (val) {
               setState(() => _nightOwlDiscount = val);
-              _showRuleUpdatedSnackbar("Night-Owl Discount", val);
+              _showRuleUpdatedSnackbar('profile.night_owl_discount'.tr(), val);
             },
           ),
         ],
@@ -315,7 +316,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
   Widget _buildFieldsList(List<Field> fields) {
     if (fields.isEmpty) {
-      return _buildEmptyCard("No managed fields registered yet.", Icons.stadium_outlined);
+      return _buildEmptyCard('profile.no_fields'.tr(), Icons.stadium_outlined);
     }
 
     return Column(
@@ -414,7 +415,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
   Widget _buildPromoCodesList(ColorScheme cs, bool isDark) {
     if (_promoCodes.isEmpty) {
-      return _buildEmptyCard("No promo codes created yet.", Icons.discount_rounded);
+      return _buildEmptyCard('profile.no_promo_codes'.tr(), Icons.discount_rounded);
     }
 
     return GridView.builder(
@@ -506,7 +507,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
   Widget _buildBookingsList(List<Booking> bookings, List<Field> allFields, ColorScheme cs, bool isDark) {
     if (bookings.isEmpty) {
-      return _buildEmptyCard("No recent client bookings found.", Icons.event_busy_rounded);
+      return _buildEmptyCard('profile.no_recent_bookings'.tr(), Icons.event_busy_rounded);
     }
 
     final onSurface = Theme.of(context).colorScheme.onSurface;

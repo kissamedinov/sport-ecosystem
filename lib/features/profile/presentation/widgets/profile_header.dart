@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/auth/data/models/user.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
@@ -28,15 +29,15 @@ class ProfileHeader extends StatelessWidget {
   }
 
   String _roleLabel(List<String>? roles) {
-    if (roles == null || roles.isEmpty) return 'Member';
+    if (roles == null || roles.isEmpty) return 'profile.member'.tr();
     final r = roles.first;
-    if (r == 'FIELD_OWNER') return 'Field Owner';
-    if (r.contains('OWNER')) return 'Club Owner';
-    if (r.contains('MANAGER')) return 'Club Manager';
-    if (r.contains('COACH')) return 'Coach';
-    if (r.contains('ADMIN')) return 'Administrator';
-    if (r.contains('PLAYER')) return 'Player';
-    if (r.contains('PARENT')) return 'Parent';
+    if (r == 'FIELD_OWNER') return 'profile.role_owner'.tr();
+    if (r.contains('OWNER')) return 'profile.role_owner'.tr();
+    if (r.contains('MANAGER')) return 'profile.role_manager'.tr();
+    if (r.contains('COACH')) return 'profile.role_coach'.tr();
+    if (r.contains('ADMIN')) return 'profile.role_admin'.tr();
+    if (r.contains('PLAYER')) return 'profile.role_player'.tr();
+    if (r.contains('PARENT')) return 'profile.role_parent'.tr();
     return r.replaceAll('_', ' ');
   }
 
@@ -100,7 +101,7 @@ class ProfileHeader extends StatelessWidget {
                 const SizedBox(width: 40),
               Expanded(
                 child: Text(
-                  'MY PROFILE',
+                  'profile.my_profile'.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: PremiumTheme.accent(context),
@@ -197,7 +198,7 @@ class ProfileHeader extends StatelessWidget {
                     if (age != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        '$age YEARS OLD',
+                        'profile.years_old'.tr(namedArgs: {'age': '$age'}),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -213,15 +214,15 @@ class ProfileHeader extends StatelessWidget {
                       children: [
                         _tag(roleLabel.toUpperCase(), PremiumTheme.accent(context)),
                         if (isVerified)
-                          _tag('VERIFIED', PremiumTheme.electricBlue,
+                          _tag('profile.verified_tag'.tr(), PremiumTheme.electricBlue,
                               icon: Icons.verified_rounded),
                         if (isBirthdayToday)
-                          _tag('ITS MY BIRTHDAY!', Colors.pinkAccent,
+                          _tag('profile.birthday_tag'.tr(), Colors.pinkAccent,
                               icon: Icons.cake_rounded),
                         if (onEdit != null)
                           GestureDetector(
                             onTap: onEdit,
-                            child: _tag('EDIT', onSurfaceMuted,
+                            child: _tag('profile.edit_tag'.tr(), onSurfaceMuted,
                                 icon: Icons.edit_rounded),
                           ),
                       ],

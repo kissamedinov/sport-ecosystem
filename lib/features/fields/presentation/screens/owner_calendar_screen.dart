@@ -1,7 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../data/field_pricing_manager.dart';
 
 class OwnerCalendarScreen extends StatefulWidget {
@@ -100,7 +100,7 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('RESERVATIONS CALENDAR', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
+        title: Text('field.reservations_calendar'.tr().toUpperCase(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -229,22 +229,22 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                   (hour == 12 && currentDate.day % 4 == 0)
                 );
 
-                String statusLabel = 'Available';
+                String statusLabel = 'field.available'.tr();
                 Color statusColor = PremiumTheme.neonGreen;
-                String subtitle = 'Open for reservation';
+                String subtitle = 'field.open_for_reservation'.tr();
 
                 if (isBlockedByOwner) {
-                  statusLabel = 'Blocked';
+                  statusLabel = 'field.blocked'.tr();
                   statusColor = Colors.redAccent;
-                  subtitle = 'Maintenance / Unavailable';
+                  subtitle = 'field.maintenance_unavailable'.tr();
                 } else if (overlappingBooking != null) {
-                  statusLabel = 'Booked';
+                  statusLabel = 'field.booked'.tr();
                   statusColor = PremiumTheme.electricBlue;
                   subtitle = '${overlappingBooking['clientName']} (Approved)';
                 } else if (isMockBooked) {
-                  statusLabel = 'Booked';
+                  statusLabel = 'field.booked'.tr();
                   statusColor = PremiumTheme.electricBlue;
-                  subtitle = 'Regular Player (System)';
+                  subtitle = 'field.regular_player'.tr();
                 }
 
                 return Container(

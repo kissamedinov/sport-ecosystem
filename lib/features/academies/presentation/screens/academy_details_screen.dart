@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
 import 'package:mobile/features/academies/data/models/academy.dart';
@@ -40,10 +41,10 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
         title: Text(widget.academy.name),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Teams', icon: Icon(Icons.group)),
-            Tab(text: 'Players', icon: Icon(Icons.person)),
-            Tab(text: 'Sessions', icon: Icon(Icons.event)),
+          tabs: [
+            Tab(text: 'academy.teams'.tr(), icon: const Icon(Icons.group)),
+            Tab(text: 'academy.players'.tr(), icon: const Icon(Icons.person)),
+            Tab(text: 'academy.sessions'.tr(), icon: const Icon(Icons.event)),
           ],
         ),
       ),
@@ -76,7 +77,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
     return Consumer<AcademyProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-        if (provider.teams.isEmpty) return const Center(child: Text('No teams yet'));
+        if (provider.teams.isEmpty) return Center(child: Text('academy.no_teams_added'.tr()));
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -87,7 +88,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 title: Text(team.name),
-                subtitle: Text('Age Group: ${team.ageGroup}'),
+                subtitle: Text('academy.age_group_label'.tr(namedArgs: {'age': team.ageGroup})),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.push(
@@ -109,7 +110,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
     return Consumer<AcademyProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-        if (provider.players.isEmpty) return const Center(child: Text('No players yet'));
+        if (provider.players.isEmpty) return Center(child: Text('academy.no_players_yet'.tr()));
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -131,7 +132,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
     return Consumer<AcademyProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) return const Center(child: CircularProgressIndicator());
-        if (provider.sessions.isEmpty) return const Center(child: Text('No scheduled sessions'));
+        if (provider.sessions.isEmpty) return Center(child: Text('academy.no_sessions_scheduled'.tr()));
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -141,7 +142,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
             return Card(
               child: ListTile(
                 leading: const Icon(Icons.calendar_today),
-                title: Text(session.topic ?? 'Training session'),
+                title: Text(session.topic ?? 'academy.training_session'.tr()),
                 subtitle: Text(session.scheduledAt),
               ),
             );
@@ -158,7 +159,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('New Team'),
+        title: Text('academy.new_team'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -167,7 +168,7 @@ class _AcademyDetailsScreenState extends State<AcademyDetailsScreen> with Single
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               await context.read<AcademyProvider>().createTeam(

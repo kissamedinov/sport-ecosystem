@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -75,7 +76,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           ),
         ),
         title: Text(
-          'INVITE',
+          'club.invite'.tr(),
           style: TextStyle(
             color: cs.onSurface,
             fontWeight: FontWeight.w900,
@@ -101,7 +102,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 const Icon(Icons.verified_user_rounded, color: PremiumTheme.electricBlue, size: 18),
                 const SizedBox(width: 10),
                 Text(
-                  'Inviting as ${userRole.name.toUpperCase()}',
+                  'club.inviting_as'.tr(namedArgs: {'role': userRole.name.toUpperCase()}),
                   style: const TextStyle(color: PremiumTheme.electricBlue, fontWeight: FontWeight.w700, fontSize: 12),
                 ),
               ],
@@ -109,7 +110,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Add a person',
+            'club.add_a_person'.tr(),
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
@@ -119,7 +120,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'They\'ll get a notification to join $clubName.',
+            'club.join_notification'.tr(namedArgs: {'club': clubName}),
             style: TextStyle(
               fontSize: 14,
               color: cs.onSurfaceVariant,
@@ -128,7 +129,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           const SizedBox(height: 28),
 
           // Role Selection
-          _buildSectionLabel(context, 'SELECT ROLE', accentColor: PremiumTheme.electricBlue),
+          _buildSectionLabel(context, 'club.select_role'.tr(), accentColor: PremiumTheme.electricBlue),
           const SizedBox(height: 14),
 
           Wrap(
@@ -142,8 +143,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     context: context,
                     role: ClubRole.coach,
                     icon: Icons.sports_rounded,
-                    title: 'Coach',
-                    subtitle: 'Can manage teams',
+                    title: 'club.coach_role_title'.tr(),
+                    subtitle: 'club.coach_role_subtitle'.tr(),
                     color: PremiumTheme.electricBlue,
                   ),
                 ),
@@ -154,8 +155,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     context: context,
                     role: ClubRole.player,
                     icon: Icons.location_on_rounded,
-                    title: 'Player',
-                    subtitle: 'Linked to roster',
+                    title: 'club.player_role_title'.tr(),
+                    subtitle: 'club.player_role_subtitle'.tr(),
                     color: PremiumTheme.neonGreen,
                   ),
                 ),
@@ -166,8 +167,8 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     context: context,
                     role: ClubRole.manager,
                     icon: Icons.people_alt_rounded,
-                    title: 'Manager',
-                    subtitle: 'Club management',
+                    title: 'club.manager_role_title'.tr(),
+                    subtitle: 'club.manager_role_subtitle'.tr(),
                     color: Colors.amber,
                   ),
                 ),
@@ -177,7 +178,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
           // Team Selection (integrated)
           if (_selectedRole == ClubRole.player || _selectedRole == ClubRole.coach) ...[
-            _buildSectionLabel(context, 'ASSIGN TO TEAM', accentColor: PremiumTheme.electricBlue),
+            _buildSectionLabel(context, 'club.assign_to_team'.tr(), accentColor: PremiumTheme.electricBlue),
             const SizedBox(height: 14),
             Container(
               decoration: BoxDecoration(
@@ -195,7 +196,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                   border: InputBorder.none,
                 ),
                 items: [
-                  DropdownMenuItem<String>(value: null, child: Text('No Team', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55)))),
+                  DropdownMenuItem<String>(value: null, child: Text('club.no_team'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55)))),
                   ...teams.map((t) => DropdownMenuItem(value: t.id.toString(), child: Text(t.name))),
                 ],
                 onChanged: (val) => setState(() => _selectedTeamId = val),
@@ -205,7 +206,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           ],
 
           // Contact Section
-          _buildSectionLabel(context, 'CONTACT', accentColor: PremiumTheme.neonGreen),
+          _buildSectionLabel(context, 'club.contact_section'.tr(), accentColor: PremiumTheme.neonGreen),
           const SizedBox(height: 14),
 
           Container(
@@ -219,7 +220,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'EMAIL OR PHONE',
+                  'club.email_or_phone'.tr(),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -232,7 +233,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                   controller: _contactController,
                   style: TextStyle(color: cs.onSurface, fontSize: 15),
                   decoration: InputDecoration(
-                    hintText: 'Enter email or phone...',
+                    hintText: 'club.email_phone_hint'.tr(),
                     hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.25)),
                     border: InputBorder.none,
                     isDense: true,
@@ -258,28 +259,16 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     color: PremiumTheme.electricBlue.withValues(alpha: 0.6), size: 18),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-                      children: [
-                        const TextSpan(text: 'Or share the club invite code '),
-                        TextSpan(
-                          text: clubCode,
-                          style: const TextStyle(
-                            color: PremiumTheme.electricBlue,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const TextSpan(text: ' — they\'ll join from the app.'),
-                      ],
-                    ),
+                  child: Text(
+                    'club.invite_code_full'.tr(namedArgs: {'code': clubCode}),
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: clubCode));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Invite code copied!')),
+                      SnackBar(content: Text('club.invite_code_copied'.tr())),
                     );
                   },
                   child: Icon(Icons.copy_rounded,
@@ -292,7 +281,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
           // Send Button
           PremiumButton(
-            text: 'SEND INVITATION',
+            text: 'club.send_invitation'.tr(),
             icon: Icons.send_rounded,
             onPressed: () => _sendInvitation(),
           ),
@@ -411,7 +400,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
     if (success && mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invitation sent!')),
+        SnackBar(content: Text('club.invitation_sent'.tr())),
       );
     }
   }

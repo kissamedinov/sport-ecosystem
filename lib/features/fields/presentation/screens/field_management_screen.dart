@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/booking_provider.dart';
@@ -37,7 +38,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('FIELD MANAGEMENT', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('field.field_management'.tr(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 14)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -48,30 +49,30 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           children: [
             _buildStatGrid(),
             const SizedBox(height: 32),
-            _buildSectionTitle('OPERATIONS'),
+            _buildSectionTitle('field.operations'.tr()),
             const SizedBox(height: 12),
             _buildActionCard(
-              context, 
-              'Booking Requests', 
-              'Review and approve pending reservations', 
+              context,
+              'field.booking_requests'.tr(),
+              'field.booking_requests_desc'.tr(),
               Icons.book_online,
               PremiumTheme.neonGreen,
               () => _showBookingRequestsSheet(context),
             ),
             const SizedBox(height: 16),
             _buildActionCard(
-              context, 
-              'Batch Slot Generation', 
-              'Automatically create time slots for a day', 
+              context,
+              'field.batch_slot_generation'.tr(),
+              'field.batch_slot_desc'.tr(),
               Icons.auto_awesome,
               PremiumTheme.electricBlue,
               () => _showGenerateSlotsDialog(context),
             ),
             const SizedBox(height: 16),
             _buildActionCard(
-              context, 
-              'Manual Availability', 
-              'Block specific hours or adjust pricing', 
+              context,
+              'field.manual_availability'.tr(),
+              'field.manual_availability_desc'.tr(),
               Icons.timer_outlined,
               Colors.orange,
               () => _showManualAvailabilitySheet(context),
@@ -96,37 +97,28 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
       (Match m) => '${m[1]},'
     );
     final revenueFormatted = '$rawRevenue ₸';
-    
     final occupancyFormatted = '${(manager.occupancy * 100).toInt()}%';
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 2,
+    return Row(
       children: [
-        _buildStatItem('Today Revenue', revenueFormatted, Colors.green),
-        _buildStatItem('Occupancy', occupancyFormatted, Colors.blue),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.today_revenue'.tr(),
+            value: revenueFormatted,
+            icon: Icons.payments_rounded,
+            color: Colors.green,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PremiumStatCard(
+            title: 'field.occupancy'.tr(),
+            value: occupancyFormatted,
+            icon: Icons.bar_chart_rounded,
+            color: PremiumTheme.electricBlue,
+          ),
+        ),
       ],
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
     );
   }
 
@@ -749,7 +741,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           borderRadius: BorderRadius.circular(24), 
           side: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
         ),
-        title: Text('GENERATE SLOTS', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text('field.batch_slot_generation'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -773,15 +765,12 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)))),
           ElevatedButton(
             onPressed: () async {
               final provider = context.read<BookingProvider>();
               const dummyFieldId = '00000000-0000-0000-0000-000000000000'; 
               
-              final navigator = Navigator.of(context);
-              final scaffoldMessenger = ScaffoldMessenger.of(context);
-
               final success = await provider.generateFieldSlots(dummyFieldId, {
                 'date': selectedDate.toIso8601String(),
                 'start_hour': int.parse(startHourController.text),
@@ -790,13 +779,13 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                 'slot_duration_minutes': 60,
               });
 
-              if (success) {
-                navigator.pop();
-                scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Slots generated successfully!')));
+              if (success && mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('field.booking_confirmed'.tr())));
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
-            child: const Text('GENERATE'),
+            child: Text('field.batch_slot_generation'.tr()),
           ),
         ],
       ),

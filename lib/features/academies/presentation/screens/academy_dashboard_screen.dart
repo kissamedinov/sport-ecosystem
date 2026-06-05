@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/crm_models.dart';
 import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
-import 'package:intl/intl.dart';
 import '../../../../features/clubs/providers/club_provider.dart';
 
 // ── Design tokens ──────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
         onPressed: () => Navigator.maybePop(context),
       ),
-      title: Text('Academy Dashboard',
+      title: Text('academy.academy_dashboard'.tr(),
           style: _outfit(17, FontWeight.w800, Colors.white, ls: 0.3)),
       bottom: hasAcademy
           ? PreferredSize(
@@ -112,11 +112,11 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                   unselectedLabelColor: Colors.white.withValues(alpha: 0.45),
                   labelStyle: _outfit(13, FontWeight.w700, _kGreen),
                   unselectedLabelStyle: _outfit(13, FontWeight.w500, Colors.white),
-                  tabs: const [
-                    Tab(text: 'Overview'),
-                    Tab(text: 'Teams'),
-                    Tab(text: 'Schedules'),
-                    Tab(text: 'Billing'),
+                  tabs: [
+                    Tab(text: 'academy.overview'.tr()),
+                    Tab(text: 'academy.teams'.tr()),
+                    Tab(text: 'academy.schedules'.tr()),
+                    Tab(text: 'academy.billing'.tr()),
                   ],
                 ),
               ),
@@ -140,12 +140,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             child: const Icon(Icons.school_rounded, size: 56, color: _kGreen),
           ),
           const SizedBox(height: 20),
-          Text("No academy yet", style: _outfit(18, FontWeight.w700, Colors.white)),
+          Text('academy.no_academy_yet'.tr(), style: _outfit(18, FontWeight.w700, Colors.white)),
           const SizedBox(height: 8),
-          Text("Register your academy to get started",
+          Text('academy.register_academy_hint'.tr(),
               style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.5))),
           const SizedBox(height: 28),
-          _PrimaryBtn(label: 'Register Academy', onPressed: () {}),
+          _PrimaryBtn(label: 'academy.register_academy'.tr(), onPressed: () {}),
         ],
       ),
     );
@@ -212,7 +212,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: _kGreen.withValues(alpha: 0.3)),
             ),
-            child: Text('Active', style: _outfit(10, FontWeight.w700, _kGreen, ls: 0.5)),
+            child: Text('academy.active'.tr(), style: _outfit(10, FontWeight.w700, _kGreen, ls: 0.5)),
           ),
         ],
       ),
@@ -221,10 +221,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
   Widget _buildStatGrid(AcademyProvider provider) {
     final stats = [
-      _StatData('Teams',    provider.teams.length.toString(),   Icons.group_rounded,    _kGreen),
-      _StatData('Players',  provider.players.length.toString(), Icons.person_rounded,   _kBlue),
-      _StatData('Sessions', provider.sessions.length.toString(),Icons.event_rounded,    _kGold),
-      _StatData('Ranking',  '#5',                               Icons.emoji_events_rounded, _kPurple),
+      _StatData('academy.teams'.tr(),    provider.teams.length.toString(),   Icons.group_rounded,    _kGreen),
+      _StatData('academy.players'.tr(),  provider.players.length.toString(), Icons.person_rounded,   _kBlue),
+      _StatData('academy.sessions'.tr(), provider.sessions.length.toString(),Icons.event_rounded,    _kGold),
+      _StatData('player.rating'.tr(),    '#5',                               Icons.emoji_events_rounded, _kPurple),
     ];
     return GridView.count(
       crossAxisCount: 2,
@@ -278,7 +278,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Recent Sessions', style: _outfit(15, FontWeight.w800, Colors.white)),
+            Text('academy.recent_sessions'.tr(), style: _outfit(15, FontWeight.w800, Colors.white)),
             if (provider.sessions.isNotEmpty)
               Text('${provider.sessions.length} total',
                   style: _outfit(11, FontWeight.w600, Colors.white.withValues(alpha: 0.4))),
@@ -286,7 +286,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         ),
         const SizedBox(height: 10),
         if (provider.sessions.isEmpty)
-          _emptyState(Icons.event_note_rounded, 'No training sessions yet')
+          _emptyState(Icons.event_note_rounded, 'academy.no_training_sessions'.tr())
         else
           ...provider.sessions.take(5).mapIndexed((i, s) => _buildSessionRow(s, i)),
       ],
@@ -320,7 +320,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               children: [
                 Text(s.scheduledAt,
                     style: _outfit(13, FontWeight.w600, Colors.white)),
-                Text(s.topic ?? 'Training Session',
+                Text(s.topic ?? 'academy.training_session'.tr(),
                     style: _outfit(11, FontWeight.w400,
                         Colors.white.withValues(alpha: 0.45))),
               ],
@@ -332,7 +332,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               color: _kGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Text('Scheduled',
+            child: Text('academy.active'.tr(),
                 style: _outfit(9, FontWeight.w700, _kGreen, ls: 0.3)),
           ),
         ],
@@ -353,7 +353,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             children: [
               Row(
                 children: [
-                  Text('My Teams', style: _outfit(16, FontWeight.w800, Colors.white)),
+                  Text('academy.my_teams'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -379,7 +379,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     children: [
                       const Icon(Icons.link_rounded, size: 14, color: _kBlue),
                       const SizedBox(width: 5),
-                      Text('Add Existing', style: _outfit(11, FontWeight.w700, _kBlue)),
+                      Text('academy.add_existing'.tr(), style: _outfit(11, FontWeight.w700, _kBlue)),
                     ],
                   ),
                 ),
@@ -397,7 +397,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.5,
-                      child: _emptyState(Icons.group_rounded, 'No teams added yet'),
+                      child: _emptyState(Icons.group_rounded, 'academy.no_teams_added'.tr()),
                     ),
                   )
                 : ListView.builder(
@@ -461,7 +461,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                       Icon(Icons.schedule_rounded, size: 11,
                           color: Colors.white.withValues(alpha: 0.35)),
                       const SizedBox(width: 4),
-                      Text('Next Session: Tomorrow 4:00 PM',
+                      Text('academy.next_session'.tr(),
                           style: _outfit(11, FontWeight.w400,
                               Colors.white.withValues(alpha: 0.4))),
                     ],
@@ -496,8 +496,8 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           child: schedules.isEmpty
               ? _emptyState(Icons.calendar_month_rounded,
                   provider.schedules.isEmpty
-                      ? 'No schedules configured'
-                      : 'No schedules match filters')
+                      ? 'academy.no_schedules'.tr()
+                      : 'academy.no_schedules_filter'.tr())
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
                   itemCount: schedules.length,
@@ -515,7 +515,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       child: Row(
         children: [
           _FilterChip(
-            label: _filterDay?.toShortString() ?? 'All Days',
+            label: _filterDay?.toShortString() ?? 'academy.all_days'.tr(),
             icon: Icons.today_rounded,
             active: _filterDay != null,
             onTap: _selectFilterDay,
@@ -526,7 +526,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 ? provider.teams
                     .firstWhere((t) => t.id == _filterTeamId)
                     .name
-                : 'All Teams',
+                : 'academy.all_teams'.tr(),
             icon: Icons.group_rounded,
             active: _filterTeamId != null,
             onTap: () => _selectFilterTeam(provider),
@@ -563,7 +563,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 children: [
                   const Icon(Icons.bolt_rounded, size: 14, color: _kGold),
                   const SizedBox(width: 4),
-                  Text('Generate', style: _outfit(11, FontWeight.w700, _kGold)),
+                  Text('academy.generate'.tr(), style: _outfit(11, FontWeight.w700, _kGold)),
                 ],
               ),
             ),
@@ -581,7 +581,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         .toList();
     final teamsLabel = scheduleTeams.isNotEmpty
         ? scheduleTeams.map((e) => e.name).join(', ')
-        : 'No teams assigned';
+        : 'academy.no_teams_assigned'.tr();
     final branch = schedule.branchId != null
         ? provider.branches.firstWhere(
             (b) => b.id == schedule.branchId,
@@ -655,7 +655,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                               Icon(Icons.place_rounded, size: 12,
                                   color: Colors.white.withValues(alpha: 0.3)),
                               const SizedBox(width: 4),
-                              Text(schedule.location ?? 'Main Field',
+                              Text(schedule.location ?? 'academy.main_field'.tr(),
                                   style: _outfit(11, FontWeight.w400,
                                       Colors.white.withValues(alpha: 0.4))),
                             ]),
@@ -686,13 +686,13 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Delete Schedule', style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: Text('Are you sure you want to delete this schedule?',
+        title: Text('academy.delete_schedule'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
+        content: Text('academy.delete_schedule_confirm'.tr(),
             style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.7))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: _kRed),
@@ -701,12 +701,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               final ok = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(ok ? 'Schedule deleted' : 'Failed to delete'),
+                  content: Text(ok ? 'academy.schedule_deleted'.tr() : 'academy.failed_delete'.tr()),
                   backgroundColor: ok ? _kGreen : _kRed,
                 ));
               }
             },
-            child: Text('Delete', style: _outfit(13, FontWeight.w700, _kRed)),
+            child: Text('common.delete'.tr(), style: _outfit(13, FontWeight.w700, _kRed)),
           ),
         ],
       ),
@@ -732,14 +732,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                   size: 52, color: _kGold),
             ),
             const SizedBox(height: 20),
-            Text('Billing not configured',
+            Text('academy.billing_not_configured'.tr(),
                 style: _outfit(18, FontWeight.w700, Colors.white)),
             const SizedBox(height: 8),
-            Text('Set up your monthly subscription fee',
+            Text('academy.setup_billing_hint'.tr(),
                 style: _outfit(13, FontWeight.w400,
                     Colors.white.withValues(alpha: 0.45))),
             const SizedBox(height: 28),
-            _PrimaryBtn(label: 'Configure Billing', onPressed: _showBillingConfigDialog),
+            _PrimaryBtn(label: 'academy.configure_billing'.tr(), onPressed: _showBillingConfigDialog),
           ],
         ),
       );
@@ -781,7 +781,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Monthly Fee', style: _outfit(11, FontWeight.w600,
+                    Text('academy.monthly_fee'.tr(), style: _outfit(11, FontWeight.w600,
                         Colors.white.withValues(alpha: 0.5), ls: 0.5)),
                     Text('$fee $currency / month',
                         style: _outfit(16, FontWeight.w800, Colors.white)),
@@ -797,7 +797,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: _kGreen.withValues(alpha: 0.3)),
                   ),
-                  child: Text('Edit', style: _outfit(11, FontWeight.w700, _kGreen)),
+                  child: Text('common.edit'.tr(), style: _outfit(11, FontWeight.w700, _kGreen)),
                 ),
               ),
             ],
@@ -807,7 +807,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Row(
             children: [
-              Text('Player Billing', style: _outfit(15, FontWeight.w800, Colors.white)),
+              Text('academy.player_billing'.tr(), style: _outfit(15, FontWeight.w800, Colors.white)),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -823,7 +823,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         ),
         Expanded(
           child: provider.players.isEmpty
-              ? _emptyState(Icons.people_rounded, 'No players enrolled')
+              ? _emptyState(Icons.people_rounded, 'academy.no_players_enrolled'.tr())
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                   itemCount: provider.players.length,
@@ -875,7 +875,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Player #${index + 1}',
+                  Text('academy.player_num'.tr(namedArgs: {'num': (index + 1).toString()}),
                       style: _outfit(13, FontWeight.w700, Colors.white)),
                   Text('ID: $shortId',
                       style: _outfit(11, FontWeight.w500,
@@ -890,7 +890,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: accent.withValues(alpha: 0.25)),
               ),
-              child: Text('Report',
+              child: Text('academy.report'.tr(),
                   style: _outfit(10, FontWeight.w700, accent, ls: 0.3)),
             ),
           ],
@@ -960,7 +960,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Filter by Day', style: _outfit(16, FontWeight.w800, Colors.white)),
+        title: Text('academy.filter_by_day'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: DayOfWeek.values
@@ -982,7 +982,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Filter by Team', style: _outfit(16, FontWeight.w800, Colors.white)),
+        title: Text('academy.filter_by_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -1014,22 +1014,22 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('New Team', style: _outfit(16, FontWeight.w800, Colors.white)),
+        title: Text('academy.new_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _dialogField(nameCtrl, 'Team Name'),
+            _dialogField(nameCtrl, 'academy.team_name'.tr()),
             const SizedBox(height: 12),
-            _dialogField(ageCtrl, 'Age Groups', hint: 'e.g. 2013, 2014 or U15'),
+            _dialogField(ageCtrl, 'academy.age_groups'.tr(), hint: 'academy.age_groups_hint'.tr()),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
           ),
           _DialogBtn(
-            label: 'Add',
+            label: 'academy.add_team'.tr(),
             onPressed: () {
               final p = context.read<AcademyProvider>();
               final id = p.myAcademy?.id;
@@ -1055,9 +1055,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Link Existing Team', style: _outfit(16, FontWeight.w800, Colors.white)),
+        title: Text('academy.link_existing_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
         content: available.isEmpty
-            ? Text('All your teams are already linked.',
+            ? Text('academy.all_teams_linked'.tr(),
                 style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)))
             : SizedBox(
                 width: double.maxFinite,
@@ -1071,7 +1071,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                         backgroundColor: _accentAt(i).withValues(alpha: 0.2),
                         child: const Icon(Icons.groups_rounded, size: 18),
                       ),
-                      title: Text(team['name'] ?? 'Unnamed',
+                      title: Text(team['name'] ?? 'common.unknown'.tr(),
                           style: _outfit(13, FontWeight.w600, Colors.white)),
                       subtitle: Text(team['age_group'] ?? '',
                           style: _outfit(11, FontWeight.w400,
@@ -1083,7 +1083,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                           if (mounted) {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(ok ? 'Team linked' : 'Failed to link team'),
+                              content: Text(ok ? 'academy.team_linked'.tr() : 'academy.failed_link_team'.tr()),
                               backgroundColor: ok ? _kGreen : _kRed,
                             ));
                           }
@@ -1096,7 +1096,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
+            child: Text('common.close'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
           ),
         ],
       ),
@@ -1120,38 +1120,38 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           title: Row(children: [
             const Icon(Icons.bolt_rounded, color: _kGold, size: 22),
             const SizedBox(width: 10),
-            Text('Generate Sessions', style: _outfit(16, FontWeight.w800, Colors.white)),
+            Text('academy.generate_sessions'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
           ]),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Creates training entries for your teams based on the weekly schedule.',
+                'academy.generate_sessions_desc'.tr(),
                 style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 20),
-              Text('Date Range', style: _outfit(11, FontWeight.w700,
+              Text('academy.date_range'.tr(), style: _outfit(11, FontWeight.w700,
                   Colors.white.withValues(alpha: 0.5), ls: 1)),
               const SizedBox(height: 10),
-              _buildDateRow('Start', startDate,
+              _buildDateRow('academy.start'.tr(), startDate,
                   (d) { if (d != null) setModal(() => startDate = d); }),
               const SizedBox(height: 8),
-              _buildDateRow('End', endDate,
+              _buildDateRow('academy.end'.tr(), endDate,
                   (d) { if (d != null) setModal(() => endDate = d); }),
               const SizedBox(height: 12),
-              Text('Sessions can be cancelled individually afterwards.',
+              Text('academy.sessions_can_cancel'.tr(),
                   style: _outfit(11, FontWeight.w400, Colors.white.withValues(alpha: 0.35))),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: _outfit(13, FontWeight.w600,
+              child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600,
                   Colors.white.withValues(alpha: 0.5))),
             ),
             _DialogBtn(
-              label: 'Generate',
+              label: 'academy.generate'.tr(),
               color: _kGold,
               textColor: Colors.black,
               onPressed: () async {
@@ -1159,7 +1159,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 final ok = await provider.triggerGenerateSessions(academyId, startDate, endDate);
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(ok ? 'Sessions generated!' : 'Failed to generate'),
+                    content: Text(ok ? 'academy.sessions_generated'.tr() : 'academy.failed_generate'.tr()),
                     backgroundColor: ok ? _kGreen : _kRed,
                   ));
                 }
@@ -1218,7 +1218,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     if (academyId == null) return;
     if (provider.teams.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please add a team first')));
+          SnackBar(content: Text('academy.no_teams_please_add'.tr())));
       return;
     }
     provider.fetchBranches(academyId);
@@ -1262,9 +1262,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('Add Schedule', style: _outfit(20, FontWeight.w800, Colors.white)),
+                  Text('academy.add_schedule'.tr(), style: _outfit(20, FontWeight.w800, Colors.white)),
                   const SizedBox(height: 20),
-                  Text('TEAMS', style: _outfit(10, FontWeight.w800,
+                  Text('academy.teams_label'.tr(), style: _outfit(10, FontWeight.w800,
                       Colors.white.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   Wrap(
@@ -1288,18 +1288,18 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     }).toList(),
                   ),
                   const SizedBox(height: 20),
-                  Text('LOCATION', style: _outfit(10, FontWeight.w800,
+                  Text('academy.location_label'.tr(), style: _outfit(10, FontWeight.w800,
                       Colors.white.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     dropdownColor: _kCard,
                     initialValue: selectedBranchId,
-                    hint: Text('Select Branch', style: _outfit(13, FontWeight.w400,
+                    hint: Text('academy.select_branch'.tr(), style: _outfit(13, FontWeight.w400,
                         Colors.white.withValues(alpha: 0.4))),
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text('No Branch', style: _outfit(13, FontWeight.w500, Colors.white)),
+                        child: Text('academy.no_branch'.tr(), style: _outfit(13, FontWeight.w500, Colors.white)),
                       ),
                       ...provider.branches.map((b) => DropdownMenuItem(
                         value: b.id,
@@ -1325,7 +1325,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     controller: locationCtrl,
                     style: _outfit(14, FontWeight.w500, Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'Field name / room',
+                      hintText: 'academy.field_name'.tr(),
                       hintStyle: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.35)),
                       filled: true,
                       fillColor: Colors.white.withValues(alpha: 0.05),
@@ -1340,7 +1340,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('TRAINING DAYS', style: _outfit(10, FontWeight.w800,
+                  Text('academy.training_days'.tr(), style: _outfit(10, FontWeight.w800,
                       Colors.white.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   ...slots.asMap().entries.map((e) {
@@ -1403,7 +1403,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                       'end_time': const TimeOfDay(hour: 19, minute: 30),
                     })),
                     icon: const Icon(Icons.add_rounded, color: _kGreen, size: 16),
-                    label: Text('Add Day', style: _outfit(12, FontWeight.w600, _kGreen)),
+                    label: Text('academy.add_day'.tr(), style: _outfit(12, FontWeight.w600, _kGreen)),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -1437,7 +1437,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                           final ok = await provider.createSchedule(academyId, {'schedules': finalSlots});
                           if (ok) Navigator.pop(context);
                         },
-                        child: Text('Save Schedules',
+                        child: Text('academy.save_schedules'.tr(),
                             style: _outfit(14, FontWeight.w900, Colors.black, ls: 0.5)),
                       ),
                     ),
@@ -1460,17 +1460,17 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context) => AlertDialog(
         backgroundColor: _kCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Billing Configuration', style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: _dialogField(feeCtrl, 'Monthly Fee (KZT)',
+        title: Text('academy.billing_configuration'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
+        content: _dialogField(feeCtrl, 'academy.monthly_fee_kzt'.tr(),
             keyboardType: TextInputType.number),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: _outfit(13, FontWeight.w600,
+            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600,
                 Colors.white.withValues(alpha: 0.5))),
           ),
           _DialogBtn(
-            label: 'Save',
+            label: 'common.save'.tr(),
             onPressed: () async {
               final id = provider.myAcademy?.id;
               if (id == null) return;
@@ -1506,7 +1506,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               ? const Center(child: CircularProgressIndicator(color: _kGreen))
               : p.currentBillingReport == null
                   ? Center(
-                      child: Text('No data for this month',
+                      child: Text('academy.no_data_month'.tr(),
                           style: _outfit(14, FontWeight.w500,
                               Colors.white.withValues(alpha: 0.5))))
                   : Padding(
@@ -1530,17 +1530,17 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                           Text(p.currentBillingReport!.playerName,
                               style: _outfit(14, FontWeight.w600, _kBlue)),
                           const SizedBox(height: 20),
-                          _reportSection('Attendance', [
-                            _billingRow('Total Sessions', p.currentBillingReport!.attendance.totalSessions.toString()),
-                            _billingRow('Present', p.currentBillingReport!.attendance.present.toString(), _kGreen),
-                            _billingRow('Absent', p.currentBillingReport!.attendance.absent.toString(), _kRed),
-                            _billingRow('Late', p.currentBillingReport!.attendance.late.toString(), _kOrange),
+                          _reportSection('academy.attendance_section'.tr(), [
+                            _billingRow('academy.total_sessions'.tr(), p.currentBillingReport!.attendance.totalSessions.toString()),
+                            _billingRow('academy.present'.tr(), p.currentBillingReport!.attendance.present.toString(), _kGreen),
+                            _billingRow('academy.absent'.tr(), p.currentBillingReport!.attendance.absent.toString(), _kRed),
+                            _billingRow('academy.late'.tr(), p.currentBillingReport!.attendance.late.toString(), _kOrange),
                           ]),
                           const SizedBox(height: 16),
-                          _reportSection('Fees', [
-                            _billingRow('Base Monthly', '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
-                            _billingRow('Additional', '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
-                            _billingRow('TOTAL OWED', '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
+                          _reportSection('academy.fees_section'.tr(), [
+                            _billingRow('academy.base_monthly'.tr(), '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
+                            _billingRow('academy.additional'.tr(), '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
+                            _billingRow('academy.total_owed'.tr(), '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
                                 _kGold, true),
                           ]),
                           const Spacer(),
@@ -1559,7 +1559,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Close', style: _outfit(14, FontWeight.w800, Colors.black)),
+                                child: Text('common.close'.tr(), style: _outfit(14, FontWeight.w800, Colors.black)),
                               ),
                             ),
                           ),

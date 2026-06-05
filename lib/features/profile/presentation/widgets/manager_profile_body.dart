@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
@@ -60,19 +61,19 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildSectionLabel("OVERVIEW"),
+                  _buildSectionLabel('profile.overview'.tr()),
                   const SizedBox(height: 12),
                   _buildStatsRow(teams.length, matches.length),
                   const SizedBox(height: 28),
-                  _buildSectionLabel("OPERATIONAL TEAMS  •  ${teams.length}"),
+                  _buildSectionLabel('${'profile.operational_teams'.tr()}  •  ${teams.length}'),
                   const SizedBox(height: 12),
                   _buildTeamsList(teams),
                   const SizedBox(height: 28),
-                  _buildSectionLabel("RECENT MATCH LOGS"),
+                  _buildSectionLabel('profile.recent_match_logs'.tr()),
                   const SizedBox(height: 12),
                   _buildMatchesList(matches),
                   const SizedBox(height: 28),
-                  _buildSectionLabel("QUICK ACTIONS"),
+                  _buildSectionLabel('profile.quick_actions'.tr()),
                   const SizedBox(height: 12),
                   _buildActions(),
                   const SizedBox(height: 40),
@@ -94,7 +95,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
             const CircularProgressIndicator(color: PremiumTheme.neonGreen, strokeWidth: 2),
             const SizedBox(height: 16),
             Text(
-              "SYNCING DATA...",
+              'profile.syncing'.tr(),
               style: TextStyle(
                 color: PremiumTheme.neonGreen.withValues(alpha: 0.5),
                 fontSize: 10,
@@ -125,7 +126,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
             TextButton.icon(
               onPressed: _refresh,
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text("RETRY"),
+              label: Text('common.retry'.tr()),
               style: TextButton.styleFrom(foregroundColor: PremiumTheme.neonGreen),
             ),
           ],
@@ -164,7 +165,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
       children: [
         Expanded(
           child: PremiumStatCard(
-            title: "MANAGED",
+            title: 'profile.managed'.tr(),
             value: "$teamCount",
             icon: Icons.shield_rounded,
             color: PremiumTheme.electricBlue,
@@ -173,7 +174,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
         const SizedBox(width: 12),
         Expanded(
           child: PremiumStatCard(
-            title: "RECENT",
+            title: 'profile.recent'.tr(),
             value: "$matchCount",
             icon: Icons.sports_soccer_rounded,
             color: PremiumTheme.neonGreen,
@@ -185,7 +186,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
 
   Widget _buildTeamsList(List<Team> teams) {
     if (teams.isEmpty) {
-      return _buildEmptyState("No teams under management", Icons.shield_outlined);
+      return _buildEmptyState('profile.no_teams_management'.tr(), Icons.shield_outlined);
     }
 
     return SizedBox(
@@ -246,7 +247,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
 
   Widget _buildMatchesList(List<MatchModel> matches) {
     if (matches.isEmpty) {
-      return _buildEmptyState("No recent match activity", Icons.history_rounded);
+      return _buildEmptyState('profile.no_match_activity'.tr(), Icons.history_rounded);
     }
 
     final displayMatches = matches.length > 3 ? matches.take(3).toList() : matches;
@@ -319,19 +320,19 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
   Widget _buildActions() {
     return Column(
       children: [
-        _buildActionButton("Academy CRM Management", Icons.school_rounded, PremiumTheme.electricBlue, () {
+        _buildActionButton('profile.academy_crm'.tr(), Icons.school_rounded, PremiumTheme.electricBlue, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()));
         }),
         const SizedBox(height: 10),
-        _buildActionButton("Register for Tournament", Icons.emoji_events_rounded, Colors.amber, () {
+        _buildActionButton('profile.register_tournament'.tr(), Icons.emoji_events_rounded, Colors.amber, () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Tournament registration coming soon")),
+            SnackBar(content: Text('profile.coming_soon_tournament'.tr())),
           );
         }),
         const SizedBox(height: 10),
-        _buildActionButton("Coordinate Field Schedules", Icons.stadium_rounded, PremiumTheme.neonGreen, () {
+        _buildActionButton('profile.coordinate_fields'.tr(), Icons.stadium_rounded, PremiumTheme.neonGreen, () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Field scheduling coming soon")),
+            SnackBar(content: Text('profile.coming_soon_fields'.tr())),
           );
         }),
       ],

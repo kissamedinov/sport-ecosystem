@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../auth/data/models/user.dart';
@@ -17,9 +18,9 @@ class FieldOwnerProfile extends StatelessWidget {
       backgroundColor: PremiumTheme.surfaceBase(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(
+        title: Text(
+          'profile.profile_title'.tr().toUpperCase(),
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 2,
             fontSize: 16,

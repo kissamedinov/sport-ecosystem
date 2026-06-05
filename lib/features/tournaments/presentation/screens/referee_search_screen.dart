@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -95,7 +96,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('REFEREE HUB', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text('tournament.referee_search_title'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -150,7 +151,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                 _fetchReferees();
               },
               style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, foregroundColor: Colors.black),
-              child: const Text('RETRY'),
+              child: Text('common.retry'.tr()),
             ),
           ],
         ),
@@ -167,7 +168,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
             children: [
               Icon(Icons.search_off_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), size: 64),
               const SizedBox(height: 16),
-              Text("No referees found for \"$_activeFilter\"", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13)),
+              Text('${'tournament.no_referees'.tr()} "$_activeFilter"', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13)),
             ],
           ),
         ),
@@ -194,7 +195,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                   controller: _searchController,
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: "Search by name...",
+                    hintText: 'tournament.search_referee'.tr(),
                     hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), fontSize: 13),
                     prefixIcon: Icon(Icons.search_rounded, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), size: 20),
                     suffixIcon: _searchController.text.isNotEmpty 
@@ -304,9 +305,9 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildStatCol("RATING", "⭐ ${ref["rating"]}"),
-                    _buildStatCol("MATCHES", ref["matches"].toString()),
-                    _buildStatCol("EXP", ref["experience"]),
+                    _buildStatCol('tournament.rating_label'.tr(), "⭐ ${ref["rating"]}"),
+                    _buildStatCol('tournament.matches_tab'.tr(), ref["matches"].toString()),
+                    _buildStatCol('tournament.experience_label'.tr(), ref["experience"]),
                     _buildQuickActions(ref["phone"].toString()),
                   ],
                 ),
@@ -341,7 +342,7 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        available ? "READY" : "BUSY",
+        available ? 'tournament.referee_available'.tr() : 'tournament.referee_busy'.tr(),
         style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5),
       ),
     );
@@ -411,23 +412,23 @@ class _RefereeSearchScreenState extends State<RefereeSearchScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("SEND ASSIGNMENT", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2)),
+                    Text('tournament.assign_referee'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2)),
                     Text(ref["name"], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 32),
-            _buildActionInput("SELECT MATCH", "Champions League Final", Icons.sports_soccer_rounded),
+            _buildActionInput('tournament.matches_tab'.tr(), "Champions League Final", Icons.sports_soccer_rounded),
             const SizedBox(height: 12),
-            _buildActionInput("DATE & TIME", "Tomorrow, 18:00", Icons.access_time_filled_rounded),
+            _buildActionInput('tournament.schedule_label'.tr(), "Tomorrow, 18:00", Icons.access_time_filled_rounded),
             const SizedBox(height: 40),
             PremiumButton(
-              text: "SEND OFFICIAL INVITE",
+              text: 'tournament.assign_referee'.tr(),
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("INVITATION DISPATCHED"), backgroundColor: PremiumTheme.neonGreen),
+                  SnackBar(content: Text('tournament.save_assignments'.tr()), backgroundColor: PremiumTheme.neonGreen),
                 );
               },
             ),

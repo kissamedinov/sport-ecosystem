@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/features/media/data/repositories/media_repository.dart';
@@ -72,7 +73,7 @@ class _UploadMediaScreenState extends State<UploadMediaScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('UPLOAD MEDIA', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
+        title: Text('media.upload_media'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(

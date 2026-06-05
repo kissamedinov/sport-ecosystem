@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -114,7 +115,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        title: const Text('BUSINESS ANALYTICS', style: TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
+        title: Text('analytics.business_analytics'.tr().toUpperCase(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -126,11 +127,11 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             // Period selector choice chips
             Row(
               children: [
-                _buildPeriodChip('Today', 0),
+                _buildPeriodChip('analytics.today'.tr(), 0),
                 const SizedBox(width: 8),
-                _buildPeriodChip('7 Days', 1),
+                _buildPeriodChip('analytics.seven_days'.tr(), 1),
                 const SizedBox(width: 8),
-                _buildPeriodChip('30 Days', 2),
+                _buildPeriodChip('analytics.thirty_days'.tr(), 2),
               ],
             ),
             const SizedBox(height: 24),
@@ -140,7 +141,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               children: [
                 Expanded(
                   child: _buildMiniStat(
-                    'TOTAL REVENUE',
+                    'analytics.total_revenue'.tr(),
                     '${totalRevenue.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸',
                     Icons.payments_outlined,
                     PremiumTheme.neonGreen,
@@ -149,7 +150,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildMiniStat(
-                    'OCCUPANCY RATE',
+                    'analytics.occupancy_rate'.tr(),
                     '${(occupancy * 100).toInt()}%',
                     Icons.trending_up,
                     PremiumTheme.electricBlue,
@@ -159,8 +160,8 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             ),
             const SizedBox(height: 12),
             _buildMiniStat(
-              'TOTAL BOOKINGS',
-              '$bookingsCount Reservations',
+              'analytics.total_bookings'.tr(),
+              '$bookingsCount ${'analytics.reservations'.tr()}',
               Icons.calendar_today_outlined,
               Colors.orangeAccent,
               horizontal: true,
@@ -168,7 +169,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Revenue breakdown by field
-            _buildSectionHeader('REVENUE BY ARENA'),
+            _buildSectionHeader('analytics.revenue_by_arena'.tr()),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(20),
@@ -203,7 +204,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
                               ),
                             ),
                             Text(
-                              '${rev.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸ ($count bookings)',
+                              '${rev.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")} ₸ ($count ${'analytics.bookings_label'.tr()})',
                               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -227,7 +228,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Peak Booking Times
-            _buildSectionHeader('PEAK BOOKING HOURS'),
+            _buildSectionHeader('analytics.peak_hours'.tr()),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(20),
@@ -249,13 +250,13 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             const SizedBox(height: 32),
 
             // Recent Transaction Logs
-            _buildSectionHeader('TRANSACTION LOGS'),
+            _buildSectionHeader('analytics.transaction_logs'.tr()),
             const SizedBox(height: 12),
             if (approvedReqs.isEmpty) ...[
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Text('No transactions recorded today.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  child: Text('analytics.no_transactions'.tr(), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                 ),
               ),
             ] else ...[

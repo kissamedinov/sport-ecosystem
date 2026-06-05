@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
-    final firstName = (user?.name ?? 'Parent').split(' ').first;
+    final firstName = (user?.name ?? 'auth.role_parent'.tr()).split(' ').first;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -48,7 +49,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
               SliverToBoxAdapter(child: _buildHeader(firstName, isDark, context)),
               SliverToBoxAdapter(child: _buildStatsRow(kids, matches)),
               SliverToBoxAdapter(child: _buildManageCard(context)),
-              SliverToBoxAdapter(child: _buildSectionLabel('PARENT TOOLS')),
+              SliverToBoxAdapter(child: _buildSectionLabel('profile.parent_tools'.tr())),
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(20, 12, 20,
                     MediaQuery.of(context).padding.bottom + 90),
@@ -63,8 +64,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
                     _buildToolCard(
                       context: context,
                       icon: Icons.chat_bubble_outline_rounded,
-                      action: 'READ',
-                      label: 'Coach Notes',
+                      action: 'parent.read'.tr(),
+                      label: 'profile.coach_notes'.tr(),
                       tag: 'MSG',
                       color: PremiumTheme.electricBlue,
                       onTap: () => Navigator.push(context,
@@ -73,8 +74,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
                     _buildToolCard(
                       context: context,
                       icon: Icons.school_outlined,
-                      action: 'VIEW',
-                      label: 'Academy Info',
+                      action: 'parent.view'.tr(),
+                      label: 'profile.academy_info'.tr(),
                       tag: 'INFO',
                       color: const Color(0xFFFFC107),
                       onTap: () => Navigator.push(context,
@@ -83,8 +84,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
                     _buildToolCard(
                       context: context,
                       icon: Icons.playlist_add_check_rounded,
-                      action: 'CHECK',
-                      label: 'Attendance',
+                      action: 'parent.check'.tr(),
+                      label: 'profile.attendance'.tr(),
                       tag: 'TRACK',
                       color: PremiumTheme.neonGreen,
                       onTap: () => Navigator.push(context,
@@ -93,8 +94,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
                     _buildToolCard(
                       context: context,
                       icon: Icons.account_balance_wallet_outlined,
-                      action: 'PAY',
-                      label: 'Payments',
+                      action: 'parent.pay'.tr(),
+                      label: 'profile.payments'.tr(),
                       tag: 'WALLET',
                       color: const Color(0xFFB490D0),
                       onTap: () => Navigator.push(context,
@@ -134,7 +135,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hello, $name!',
+                      'profile.hello'.tr(namedArgs: {'name': name}),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 26,
@@ -154,7 +155,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'PARENT · GUARDIAN',
+                        'profile.parent_guardian'.tr(),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 11,
@@ -212,16 +213,16 @@ class _ParentDashboardState extends State<ParentDashboard> {
         Expanded(child: _buildStatCard(
           icon: Icons.child_care_rounded,
           value: '$kids',
-          label: 'LINKED KIDS',
-          tag: 'FAMILY',
+          label: 'profile.linked_kids'.tr(),
+          tag: 'nav.family'.tr(),
           accent: PremiumTheme.neonGreen,
         )),
         const SizedBox(width: 12),
         Expanded(child: _buildStatCard(
           icon: Icons.sports_soccer_rounded,
           value: '$matches',
-          label: 'THIS WEEK',
-          tag: 'MATCHES',
+          label: 'profile.this_week'.tr(),
+          tag: 'nav.matches'.tr(),
           accent: PremiumTheme.electricBlue,
         )),
       ]),
@@ -307,12 +308,12 @@ class _ParentDashboardState extends State<ParentDashboard> {
             ),
             const SizedBox(width: 16),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('MANAGE CHILDREN',
-                  style: TextStyle(
+              Text('parent.manage_children'.tr(),
+                  style: const TextStyle(
                       color: PremiumTheme.neonGreen,
                       fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5)),
               const SizedBox(height: 3),
-              Text('View profiles, stats & activity',
+              Text('parent.manage_children_desc'.tr(),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 11)),
@@ -437,7 +438,7 @@ class TemporaryScreen extends StatelessWidget {
         title: Text(title, style: const TextStyle(letterSpacing: 1.5, fontSize: 14, fontWeight: FontWeight.w900)),
       ),
       body: Center(
-        child: Text('Coming soon',
+        child: Text('parent.coming_soon'.tr(),
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ),
     );
