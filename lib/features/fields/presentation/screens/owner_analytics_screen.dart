@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
-import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../data/field_pricing_manager.dart';
 
 class OwnerAnalyticsScreen extends StatefulWidget {
@@ -321,14 +320,27 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
-      ),
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 14,
+          decoration: BoxDecoration(
+            color: PremiumTheme.neonGreen,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45),
+          ),
+        ),
+      ],
     );
   }
 
@@ -368,19 +380,38 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
 
+    final iconWidget = Container(
+      padding: const EdgeInsets.all(9),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(11),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.28),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+
     Widget content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(height: 12),
-        Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: color)),
-        const SizedBox(height: 2),
+        iconWidget,
+        const SizedBox(height: 14),
         Text(
-          label,
+          value,
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: cs.onSurface, letterSpacing: -0.5),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label.toUpperCase(),
           style: TextStyle(
             fontSize: 8,
-            fontWeight: FontWeight.bold,
-            color: cs.onSurface.withValues(alpha: 0.3),
+            fontWeight: FontWeight.w800,
+            color: cs.onSurface.withValues(alpha: 0.35),
             letterSpacing: 1.0,
           ),
         ),
@@ -390,22 +421,25 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
     if (horizontal) {
       content = Row(
         children: [
-          Icon(icon, color: color, size: 22),
+          iconWidget,
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                label,
+                label.toUpperCase(),
                 style: TextStyle(
                   fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface.withValues(alpha: 0.3),
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface.withValues(alpha: 0.35),
                   letterSpacing: 1.0,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: color)),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: cs.onSurface, letterSpacing: -0.5),
+              ),
             ],
           ),
         ],
@@ -414,11 +448,18 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.10),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: content,
     );
@@ -427,7 +468,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
   Widget _buildPeakBar(String label, double ratio, Color color) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: 14.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -435,18 +476,49 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-              Text('${(ratio * 100).toInt()}% occupancy', style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${(ratio * 100).toInt()}% occupancy',
+                  style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w800),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: ratio,
-              minHeight: 6,
-              backgroundColor: cs.onSurface.withValues(alpha: 0.05),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
+          const SizedBox(height: 8),
+          Stack(
+            children: [
+              Container(
+                height: 7,
+                decoration: BoxDecoration(
+                  color: cs.onSurface.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: ratio,
+                child: Container(
+                  height: 7,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color, color.withValues(alpha: 0.6)],
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
