@@ -318,16 +318,21 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     required List<Color> gradient,
     required Color accentColor,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient),
+        color: isDark ? null : cs.surface,
+        gradient: isDark
+            ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient)
+            : null,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withValues(alpha: 0.1)),
+        border: Border.all(color: accentColor.withValues(alpha: isDark ? 0.18 : 0.30), width: 1),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: accentColor.withValues(alpha: isDark ? 0.08 : 0.06),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -335,15 +340,22 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: accentColor.withValues(alpha: 0.6), size: 18),
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: accentColor, size: 16),
+          ),
           const SizedBox(height: 12),
           Text(
             value,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: accentColor, letterSpacing: -1),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: isDark ? accentColor : cs.onSurface, letterSpacing: -1),
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white24, letterSpacing: 1),
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 1),
           ),
         ],
       ),
@@ -351,25 +363,37 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
   }
 
   Widget _buildSecondaryStatCard({required String label, required String value, required IconData icon, required Color color}) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: onSurface.withValues(alpha: 0.08)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: isDark ? 0.10 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: onSurface),
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 16),
           ),
+          const SizedBox(height: 8),
+          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: cs.onSurface)),
           Text(
             label,
-            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
           ),
         ],
       ),
@@ -508,39 +532,56 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: onSurface.withValues(alpha: 0.04),
+          color: isDark ? const Color(0xFF161B22) : cs.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: onSurface.withValues(alpha: 0.07)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
+          boxShadow: [
+            BoxShadow(color: color.withValues(alpha: isDark ? 0.10 : 0.05), blurRadius: 10, offset: const Offset(0, 3)),
+          ],
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 18, color: color),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Row(
+            children: [
+              Container(
+                width: 3,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [color, color.withValues(alpha: 0.3)],
+                  ),
                 ),
               ),
-            ),
-            Icon(Icons.chevron_right_rounded, size: 18, color: onSurface.withValues(alpha: 0.3)),
-          ],
+              const SizedBox(width: 14),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: color),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurface.withValues(alpha: 0.3)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -619,27 +660,33 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
   }
 
   Widget _buildPhysicalCard({required String label, required String value, required IconData icon}) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const color = PremiumTheme.neonGreen;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: onSurface.withValues(alpha: 0.05)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 14, color: PremiumTheme.neonGreen.withValues(alpha: 0.7)),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Icon(icon, size: 12, color: color),
+          ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: onSurface),
-          ),
+          Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: cs.onSurface)),
         ],
       ),
     );
