@@ -8,6 +8,10 @@ import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import '../../matches/presentation/screens/match_list_screen.dart';
+import '../../bookings/presentation/screens/booking_screen.dart';
+import '../../clubs/presentation/screens/club_dashboard_screen.dart';
+import '../../tournaments/presentation/screens/tournament_list_screen.dart';
 
 class AdultPlayerDashboard extends StatefulWidget {
   const AdultPlayerDashboard({super.key});
@@ -272,21 +276,39 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
   }
 
   Widget _buildSmallStatCard(String label, String value, IconData icon, Color color) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF161B22) : cs.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
+        border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: isDark ? 0.12 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 20),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
           const SizedBox(height: 12),
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-          Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: onSurface.withValues(alpha: 0.4), letterSpacing: 0.5)),
+          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: cs.onSurface)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+          ),
         ],
       ),
     );
@@ -301,29 +323,51 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.5,
       children: [
-        _buildActionTile('player.find_match'.tr(), Icons.search_rounded, Colors.blue),
-        _buildActionTile('player.book_field'.tr(), Icons.stadium_outlined, Colors.orange),
-        _buildActionTile('player.club_hub'.tr(), Icons.shield_outlined, Colors.purple),
-        _buildActionTile('nav.tournaments'.tr(), Icons.emoji_events_outlined, Colors.amber),
+        _buildActionTile('player.find_match'.tr(), Icons.search_rounded, Colors.blue,
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchListScreen()))),
+        _buildActionTile('player.book_field'.tr(), Icons.stadium_outlined, Colors.orange,
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingScreen()))),
+        _buildActionTile('player.club_hub'.tr(), Icons.shield_outlined, Colors.purple,
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ClubDashboardScreen(isHome: true)))),
+        _buildActionTile('nav.tournaments'.tr(), Icons.emoji_events_outlined, Colors.amber,
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen()))),
       ],
     );
   }
 
-  Widget _buildActionTile(String label, IconData icon, Color color) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    return Container(
-      decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: onSurface.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-        ],
+  Widget _buildActionTile(String label, IconData icon, Color color, VoidCallback onTap) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF161B22) : cs.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.28), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: isDark ? 0.12 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
     );
   }
