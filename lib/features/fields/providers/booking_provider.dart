@@ -7,6 +7,7 @@ class BookingProvider extends ChangeNotifier {
   final FieldRepository _repository;
   List<Field> _fields = [];
   final List<Booking> _myBookings = [];
+  final List<Booking> _ownerBookings = [];
   bool _isLoading = false;
   String? _error;
 
@@ -14,6 +15,7 @@ class BookingProvider extends ChangeNotifier {
 
   List<Field> get fields => _fields;
   List<Booking> get myBookings => _myBookings;
+  List<Booking> get ownerBookings => _ownerBookings;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -36,6 +38,33 @@ class BookingProvider extends ChangeNotifier {
       final bookings = await _repository.getMyBookings();
       _myBookings.clear();
       _myBookings.addAll(bookings);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> fetchOwnerBookings(String userId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final List<Booking> allBookings = [];
+      var ownerFields = _fields.where((f) => f.ownerId == userId).toList();
+      if (ownerFields.isEmpty) {
+        ownerFields = _fields;
+      }
+      for (final field in ownerFields) {
+        if (field.id.startsWith('field-')) continue;
+        try {
+          final bookings = await _repository.getFieldBookings(field.id);
+          allBookings.addAll(bookings);
+        } catch (e) {
+          // ignore or log
+        }
+      }
+      _ownerBookings.clear();
+      _ownerBookings.addAll(allBookings);
     } catch (e) {
       _error = e.toString();
     } finally {

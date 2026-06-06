@@ -32,10 +32,13 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<BookingProvider>();
-      provider.fetchFields();
-      provider.fetchMyBookings();
+      await provider.fetchFields();
+      if (mounted) {
+        final userId = context.read<AuthProvider>().user?.id ?? '';
+        provider.fetchOwnerBookings(userId);
+      }
     });
   }
 
@@ -46,71 +49,119 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
 
     return Consumer<BookingProvider>(
       builder: (context, provider, _) {
-        if (provider.isLoading && provider.fields.isEmpty) {
-          return _buildLoadingState();
-        }
+        return AnimatedBuilder(
+          animation: FieldPricingManager(),
+          builder: (context, _) {
+            if (provider.isLoading && provider.fields.isEmpty) {
+              return _buildLoadingState();
+            }
 
-        final userId = context.read<AuthProvider>().user?.id ?? '';
-        final myFields = provider.fields.where((f) => f.ownerId == userId).toList();
-        
-        // Combine loaded fields with newly registered fields
-        final List<Field> allFields = [...myFields, ..._newFields];
-        final fieldIds = allFields.map((f) => f.id).toSet();
+            final userId = context.read<AuthProvider>().user?.id ?? '';
+            var myFields = provider.fields.where((f) => f.ownerId == userId).toList();
+            if (myFields.isEmpty) {
+              myFields = provider.fields;
+            }
+            
+            // Combine loaded fields with newly registered fields
+            final List<Field> allFields = [...myFields, ..._newFields];
+            final fieldIds = allFields.map((f) => f.id).toSet();
 
-        // Get bookings matching owner's fields
-        final myBookings = provider.myBookings.where((b) => fieldIds.contains(b.fieldId)).toList();
-        
-        // Filter out canceled bookings
-        final activeBookings = myBookings
-            .where((b) => b.status != 'CANCELLED' && !_canceledBookingIds.contains(b.id))
-            .toList();
+            // Get bookings matching owner's fields
+            final myBookings = provider.ownerBookings.where((b) => fieldIds.contains(b.fieldId)).toList();
 
-        final revenue = activeBookings.fold(0.0, (sum, b) => sum + b.totalPrice);
+            // Map manual/walk-in bookings from FieldPricingManager to Booking models
+            final manager = FieldPricingManager();
+            // Filter out online bookings with status PENDING
+            final List<Booking> mergedBookings = [
+              ...myBookings.where((b) => b.status.toUpperCase() != 'PENDING')
+            ];
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
+            for (final req in manager.pendingRequests) {
+              // Filter out manual bookings with status PENDING
+              if (req['status'].toString().toUpperCase() == 'PENDING') {
+                continue;
+              }
 
-              // Stats Cards
-              _buildStatsRow(allFields.length, activeBookings.length, revenue),
-              const SizedBox(height: 28),
+              // Find matching field by name
+              final matchingField = allFields.firstWhere(
+                (f) => f.name.toUpperCase() == req['field'].toString().toUpperCase(),
+                orElse: () => Field(id: '', name: req['field'] ?? 'Unknown Arena', location: '', ownerId: ''),
+              );
 
-              // Dynamic Pricing panel
-              _buildSectionHeader('profile.dynamic_pricing'.tr().toUpperCase(), null),
-              const SizedBox(height: 12),
-              _buildPricingControlsCard(cs, isDark),
-              const SizedBox(height: 28),
+              final day = req['day'] as int? ?? 1;
+              final timeStr = req['time'] as String? ?? '00:00 - 00:00';
+              final times = timeStr.split(' - ');
+              final startTime = times.isNotEmpty ? times[0].trim() : '00:00';
+              final endTime = times.length > 1 ? times[1].trim() : '00:00';
 
-              // Fields panel
-              _buildSectionHeader(
-                'profile.my_fields'.tr(),
-                () => _showRegisterFieldSheet(context, userId),
-                actionLabel: '+ ${'profile.register_field'.tr().toUpperCase()}',
+              final startIso = '2026-06-${day.toString().padLeft(2, '0')}T$startTime:00';
+              final endIso = '2026-06-${day.toString().padLeft(2, '0')}T$endTime:00';
+
+              mergedBookings.add(Booking(
+                id: req['id'] as String? ?? 'manual-${DateTime.now().millisecondsSinceEpoch}',
+                fieldId: matchingField.id.isNotEmpty ? matchingField.id : (req['field'] as String? ?? 'Unknown Arena'),
+                userId: 'manual-user',
+                startTime: startIso,
+                endTime: endIso,
+                status: req['status'] as String? ?? 'APPROVED',
+                totalPrice: (req['price'] as num?)?.toDouble() ?? 0.0,
+                userName: req['clientName'] as String? ?? 'Walk-in Client',
+              ));
+            }
+            
+            // Filter out canceled and pending bookings
+            final activeBookings = mergedBookings
+                .where((b) => b.status != 'CANCELLED' && b.status.toUpperCase() != 'PENDING' && !_canceledBookingIds.contains(b.id))
+                .toList();
+
+            final revenue = activeBookings.fold(0.0, (sum, b) => sum + b.totalPrice);
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+
+                  // Stats Cards
+                  _buildStatsRow(allFields.length, activeBookings.length, revenue),
+                  const SizedBox(height: 28),
+
+                  // Dynamic Pricing panel
+                  _buildSectionHeader('profile.dynamic_pricing'.tr().toUpperCase(), null),
+                  const SizedBox(height: 12),
+                  _buildPricingControlsCard(cs, isDark),
+                  const SizedBox(height: 28),
+
+                  // Fields panel
+                  _buildSectionHeader(
+                    'profile.my_fields'.tr(),
+                    () => _showRegisterFieldSheet(context, userId),
+                    actionLabel: '+ ${'profile.register_field'.tr().toUpperCase()}',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFieldsList(allFields),
+                  const SizedBox(height: 28),
+
+                  // Promo codes panel
+                  _buildSectionHeader(
+                    'profile.promo_codes'.tr().toUpperCase(),
+                    () => _showCreatePromoSheet(context),
+                    actionLabel: '+ ${'profile.create_code'.tr().toUpperCase()}',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildPromoCodesList(cs, isDark),
+                  const SizedBox(height: 28),
+
+                  // Bookings panel
+                  _buildSectionHeader('profile.recent_bookings'.tr().toUpperCase(), null),
+                  const SizedBox(height: 12),
+                  _buildBookingsList(mergedBookings, allFields, cs, isDark),
+                  const SizedBox(height: 40),
+                ],
               ),
-              const SizedBox(height: 12),
-              _buildFieldsList(allFields),
-              const SizedBox(height: 28),
-
-              // Promo codes panel
-              _buildSectionHeader(
-                'profile.promo_codes'.tr().toUpperCase(),
-                () => _showCreatePromoSheet(context),
-                actionLabel: '+ ${'profile.create_code'.tr().toUpperCase()}',
-              ),
-              const SizedBox(height: 12),
-              _buildPromoCodesList(cs, isDark),
-              const SizedBox(height: 28),
-
-              // Bookings panel
-              _buildSectionHeader('profile.recent_bookings'.tr().toUpperCase(), null),
-              const SizedBox(height: 12),
-              _buildBookingsList(myBookings, allFields, cs, isDark),
-              const SizedBox(height: 40),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -570,11 +621,15 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
         final endH = booking.endTime.length >= 16 ? booking.endTime.substring(11, 16) : '';
 
         // Find associated field
-        final field = allFields.firstWhere((f) => f.id == booking.fieldId, 
-            orElse: () => Field(id: '', name: 'Unknown Arena', location: '', ownerId: ''));
+        final field = allFields.firstWhere(
+          (f) => f.id == booking.fieldId, 
+          orElse: () => Field(id: '', name: booking.fieldId, location: '', ownerId: ''),
+        );
 
-        // Client mock details
-        final clientName = _getMockClientName(booking.id);
+        // Client details (use the user's name if available, otherwise fallback to mock details)
+        final clientName = (booking.userName != null && booking.userName!.isNotEmpty)
+            ? booking.userName!
+            : _getMockClientName(booking.id);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
@@ -1019,6 +1074,9 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
     bool isCancelled,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shortId = booking.id.length >= 8 
+        ? booking.id.toUpperCase().substring(0, 8) 
+        : booking.id.toUpperCase();
     
     showDialog(
       context: context,
@@ -1048,7 +1106,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                   ],
                 ),
                 const Divider(height: 20, color: Colors.white10),
-                _buildDialogRow('Invoice ID', 'TX-${booking.id.toUpperCase().substring(0, 8)}'),
+                _buildDialogRow('Invoice ID', 'TX-$shortId'),
                 _buildDialogRow('Client Name', clientName),
                 _buildDialogRow('Field Arena', field.name),
                 _buildDialogRow('Start Time', booking.startTime.replaceAll('T', ' ')),
@@ -1074,17 +1132,50 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _canceledBookingIds.add(booking.id);
-                            });
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.redAccent,
-                                content: Text("Booking for '$clientName' canceled and refunded successfully."),
-                              ),
-                            );
+                          onPressed: () async {
+                            final isManual = booking.id.startsWith('manual-') || booking.id.startsWith('req-');
+                            if (isManual) {
+                              setState(() {
+                                _canceledBookingIds.add(booking.id);
+                                // Sync status back to FieldPricingManager for manual bookings
+                                final manager = FieldPricingManager();
+                                for (var req in manager.pendingRequests) {
+                                  if (req['id'] == booking.id) {
+                                    req['status'] = 'CANCELLED';
+                                    break;
+                                  }
+                                }
+                                manager.notify();
+                              });
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.redAccent,
+                                    content: Text("Booking for '$clientName' canceled and refunded successfully."),
+                                  ),
+                                );
+                              }
+                            } else {
+                              // Capture context elements before async gap
+                              final scaffoldMessenger = ScaffoldMessenger.of(context);
+                              final navigator = Navigator.of(context);
+                              final authProvider = context.read<AuthProvider>();
+                              final provider = context.read<BookingProvider>();
+                              final userId = authProvider.user?.id ?? '';
+
+                              final success = await provider.cancelBooking(booking.id);
+                              if (success && mounted) {
+                                await provider.fetchOwnerBookings(userId);
+                              }
+                              navigator.pop();
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.redAccent,
+                                  content: Text("Booking for '$clientName' canceled and refunded successfully."),
+                                ),
+                              );
+                            }
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.redAccent.withValues(alpha: 0.15),

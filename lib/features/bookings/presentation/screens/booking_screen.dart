@@ -183,7 +183,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Widget _buildListView() {
     return ListView.builder(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
       itemCount: _arenas.length,
       itemBuilder: (context, index) {
         return _buildArenaCard(_arenas[index]);
@@ -254,7 +254,7 @@ class _BookingScreenState extends State<BookingScreen> {
         // Floating info card of selected field
         if (_selectedArena != null)
           Positioned(
-            bottom: 20,
+            bottom: 100,
             left: 20,
             right: 20,
             child: Container(
@@ -698,7 +698,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               }
                               final backendSlots = snapshot.data ?? [];
                               final currentDate = DateTime.now().add(Duration(days: selectedDateIndex));
-                              final slots = _generateSlots(arena['name'], currentDate, rentPrice, backendSlots);
+                              final slots = _generateSlots(arena['name'], currentDate.toLocal(), rentPrice, backendSlots);
 
                               if (slots.isEmpty) {
                                 return Center(
@@ -731,15 +731,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                   Color badgeTextColor = cs.onSurface.withValues(alpha: 0.5);
                                   IconData badgeIcon = Icons.access_time_rounded;
 
-                                  if (isSelected) {
-                                    cardColor = PremiumTheme.neonGreen.withValues(alpha: 0.1);
-                                    borderColor = PremiumTheme.neonGreen;
-                                    textColor = cs.onSurface;
-                                  } else if (!isAvailable) {
-                                    borderColor = cs.onSurface.withValues(alpha: 0.03);
-                                    textColor = cs.onSurface.withValues(alpha: 0.15);
-                                  }
-
                                   switch (rateType) {
                                     case 'PRIME':
                                       badgeColor = const Color(0xFFFF9800).withValues(alpha: 0.15);
@@ -762,6 +753,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                       badgeTextColor = const Color(0xFF81C784);
                                       badgeIcon = Icons.wb_sunny_rounded;
                                       break;
+                                  }
+
+                                  if (isSelected) {
+                                    cardColor = PremiumTheme.neonGreen.withValues(alpha: 0.1);
+                                    borderColor = PremiumTheme.neonGreen;
+                                    textColor = cs.onSurface;
+                                  } else if (!isAvailable) {
+                                    borderColor = cs.onSurface.withValues(alpha: 0.03);
+                                    textColor = cs.onSurface.withValues(alpha: 0.15);
+                                    badgeColor = cs.onSurface.withValues(alpha: 0.03);
+                                    badgeTextColor = cs.onSurface.withValues(alpha: 0.15);
                                   }
 
                                   return GestureDetector(
@@ -1392,7 +1394,28 @@ class _BookingScreenState extends State<BookingScreen> {
         orElse: () => FieldSlot(id: '', fieldId: '', startTime: DateTime.now(), endTime: DateTime.now(), price: 0, isAvailable: false),
       );
 
-      final bool isAvailable = matchingBackendSlot.id.isNotEmpty && matchingBackendSlot.isAvailable;
+      final isBlockedByOwner = manager.isSlotBlocked(arenaName, date.toLocal(), time);
+
+      bool isBookedManually = false;
+      for (final req in manager.pendingRequests) {
+        final reqDateStr = req['dateStr'] ?? '';
+        final isSameDate = reqDateStr.isNotEmpty 
+            ? reqDateStr == date.toLocal().toIso8601String().split('T')[0]
+            : req['day'] == date.toLocal().day;
+        if (req['field'].toString().trim().toUpperCase() == arenaName.trim().toUpperCase() && 
+            isSameDate && 
+            req['status'] == 'APPROVED') {
+          if (_intervalsOverlap(time, req['time'] as String)) {
+            isBookedManually = true;
+            break;
+          }
+        }
+      }
+
+      final bool isAvailable = matchingBackendSlot.id.isNotEmpty && 
+                              matchingBackendSlot.isAvailable && 
+                              !isBlockedByOwner && 
+                              !isBookedManually;
 
       return {
         'id': matchingBackendSlot.id, // Real database slot ID

@@ -973,7 +973,7 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                               itemCount: slotsConfig.length,
                               itemBuilder: (context, index) {
                                 final time = slotsConfig[index];
-                                final isBlocked = manager.isSlotBlocked(selectedField, selectedDate.day, time);
+                                final isBlocked = manager.isSlotBlocked(selectedField, selectedDate, time);
 
                                 Color cardColor = Colors.transparent;
                                 Color borderColor = cs.onSurface.withValues(alpha: 0.08);
@@ -999,9 +999,9 @@ class _FieldOwnerDashboardState extends State<FieldOwnerDashboard> {
                                   onTap: () {
                                     setModalState(() {
                                       if (isBlocked) {
-                                        manager.unblockSlot(selectedField, selectedDate.day, time);
+                                        manager.unblockSlot(selectedField, selectedDate, time);
                                       } else {
-                                        manager.blockSlot(selectedField, selectedDate.day, time);
+                                        manager.blockSlot(selectedField, selectedDate, time);
                                       }
                                     });
                                     manager.notify();

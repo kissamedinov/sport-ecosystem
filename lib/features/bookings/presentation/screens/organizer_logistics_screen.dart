@@ -5,6 +5,10 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/tournaments/presentation/screens/referee_search_screen.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../../fields/data/field_pricing_manager.dart';
+import '../../../fields/data/repositories/field_repository.dart';
+import '../../../fields/data/models/field.dart';
+import '../../../fields/data/models/booking.dart' as model_booking;
+import '../../../../core/api/api_client.dart';
 
 class OrganizerLogisticsScreen extends StatefulWidget {
   const OrganizerLogisticsScreen({super.key});
@@ -16,11 +20,45 @@ class OrganizerLogisticsScreen extends StatefulWidget {
 class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
+  List<Field> _backendFields = [];
+  final Map<String, List<model_booking.Booking>> _fieldBookingsMap = {};
+  bool _isLoadingVenuesData = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadVenuesData();
+  }
+
+  Future<void> _loadVenuesData() async {
+    try {
+      final repo = FieldRepository(ApiClient());
+      final fields = await repo.getFields();
+      _backendFields = fields;
+      
+      for (final field in fields) {
+        try {
+          final bookings = await repo.getFieldBookings(field.id);
+          _fieldBookingsMap[field.name.toUpperCase()] = bookings;
+        } catch (e) {
+          debugPrint("Error loading bookings for field ${field.name}: $e");
+        }
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isLoadingVenuesData = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading fields: $e");
+      if (mounted) {
+        setState(() {
+          _isLoadingVenuesData = false;
+        });
+      }
+    }
   }
 
   @override
@@ -383,25 +421,69 @@ class _OrganizerLogisticsScreenState extends State<OrganizerLogisticsScreen> wit
       {'time': '00:00 - 01:30', 'hour': 0},
     ];
 
+    // 1. Check local owner-blocked slots
     for (final config in slotsConfig) {
       final slotTime = config['time'] as String;
-      final hour = config['hour'] as int;
-
       if (_intervalsOverlap(blockTime, slotTime)) {
-        final isBlockedByOwner = manager.isSlotBlocked(fieldName, date.day, slotTime);
-        final isBooked = (hour == 18 && date.day % 2 == 0) || 
-                         (hour == 20 && date.day % 3 != 0) || 
-                         (hour == 12 && date.day % 4 == 0) ||
-                         isBlockedByOwner;
-        if (isBooked) {
+        final isBlockedByOwner = manager.isSlotBlocked(fieldName, date.toLocal(), slotTime);
+        if (isBlockedByOwner) {
           return true;
         }
       }
     }
 
+    // 2. Check local manual bookings
     for (final req in manager.pendingRequests) {
-      if (req['field'] == fieldName && req['day'] == date.day && req['status'] == 'APPROVED') {
+      final reqDateStr = req['dateStr'] ?? '';
+      final isSameDate = reqDateStr.isNotEmpty 
+          ? reqDateStr == date.toLocal().toIso8601String().split('T')[0]
+          : req['day'] == date.toLocal().day;
+      if (req['field'].toString().trim().toUpperCase() == fieldName.trim().toUpperCase() && 
+          isSameDate && 
+          req['status'] == 'APPROVED') {
         if (_intervalsOverlap(blockTime, req['time'] as String)) {
+          return true;
+        }
+      }
+    }
+
+    // 3. Check real backend bookings from the database
+    final backendBookings = _fieldBookingsMap[fieldName.toUpperCase()] ?? [];
+    for (final booking in backendBookings) {
+      if (booking.status.toUpperCase() == 'CANCELLED') continue;
+
+      // Parse start and end times
+      String startStr = booking.startTime;
+      if (startStr.endsWith('Z')) startStr = startStr.substring(0, startStr.length - 1);
+      if (startStr.contains('+')) startStr = startStr.split('+')[0];
+      
+      String endStr = booking.endTime;
+      if (endStr.endsWith('Z')) endStr = endStr.substring(0, endStr.length - 1);
+      if (endStr.contains('+')) endStr = endStr.split('+')[0];
+      
+      final bStart = DateTime.parse(startStr).toLocal();
+      final bEnd = DateTime.parse(endStr).toLocal();
+
+      // Check if the booking is on the same day as selected date
+      if (DateUtils.isSameDay(bStart, date.toLocal())) {
+        // Format booking times as range "HH:mm - HH:mm"
+        final String bookingTimeRange = "${bStart.hour.toString().padLeft(2, '0')}:${bStart.minute.toString().padLeft(2, '0')} - ${bEnd.hour.toString().padLeft(2, '0')}:${bEnd.minute.toString().padLeft(2, '0')}";
+        if (_intervalsOverlap(blockTime, bookingTimeRange)) {
+          return true;
+        }
+      }
+    }
+
+    // 4. Fallback/legacy mock bookings for demo purposes
+    for (final config in slotsConfig) {
+      final slotTime = config['time'] as String;
+      final hour = config['hour'] as int;
+
+      if (_intervalsOverlap(blockTime, slotTime)) {
+        final isBooked = (hour == 18 && date.day % 2 == 0) || 
+                         (hour == 20 && date.day % 3 != 0) || 
+                         (hour == 12 && date.day % 4 == 0);
+        if (isBooked) {
           return true;
         }
       }

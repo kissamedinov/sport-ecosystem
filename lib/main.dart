@@ -41,12 +41,14 @@ import 'features/bookings/data/repositories/booking_repository.dart';
 import 'features/bookings/providers/booking_provider.dart' as general_booking;
 import 'features/quiz/data/repositories/quiz_repository.dart';
 import 'features/quiz/providers/quiz_provider.dart';
+import 'features/fields/data/field_pricing_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final themeProvider = ThemeProvider(prefs);
+  await FieldPricingManager().init();
 
   final apiClient = ApiClient();
   final authRepository = AuthRepository(apiClient);

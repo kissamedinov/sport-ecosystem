@@ -7,11 +7,11 @@ import '../../matches/providers/match_provider.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../quiz/presentation/screens/daily_quiz_screen.dart';
+import '../../quiz/presentation/screens/quiz_leaderboard_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../matches/presentation/screens/match_list_screen.dart';
 import '../../bookings/presentation/screens/booking_screen.dart';
-import '../../clubs/presentation/screens/club_dashboard_screen.dart';
 import '../../tournaments/presentation/screens/tournament_list_screen.dart';
 
 class AdultPlayerDashboard extends StatefulWidget {
@@ -328,8 +328,8 @@ class _AdultPlayerDashboardState extends State<AdultPlayerDashboard> {
             () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MatchListScreen()))),
         _buildActionTile('player.book_field'.tr(), Icons.stadium_outlined, Colors.orange,
             () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingScreen()))),
-        _buildActionTile('player.club_hub'.tr(), Icons.shield_outlined, Colors.purple,
-            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ClubDashboardScreen(isHome: true)))),
+        _buildActionTile('player.tops'.tr(), Icons.leaderboard_rounded, Colors.purple,
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizLeaderboardScreen()))),
         _buildActionTile('nav.tournaments'.tr(), Icons.emoji_events_outlined, Colors.amber,
             () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TournamentListScreen()))),
       ],

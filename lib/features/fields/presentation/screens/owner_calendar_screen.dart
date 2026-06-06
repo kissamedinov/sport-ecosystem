@@ -274,7 +274,7 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                 final slotTime = config['time'] as String;
                 final hour = config['hour'] as int;
 
-                final isBlockedByOwner = manager.isSlotBlocked(selectedField, currentDate.day, slotTime);
+                final isBlockedByOwner = manager.isSlotBlocked(selectedField, currentDate, slotTime);
 
                 // Calculate local start and end DateTime for the slot
                 final DateTime slotStart = hour == 0
@@ -309,7 +309,13 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                 // Determine if there is an approved overlapping request (local manual bookings)
                 Map<String, dynamic>? overlappingBooking;
                 for (final req in manager.pendingRequests) {
-                  if (req['field'] == selectedField && req['day'] == currentDate.day && req['status'] == 'APPROVED') {
+                  final reqDateStr = req['dateStr'] ?? '';
+                  final isSameDate = reqDateStr.isNotEmpty 
+                      ? reqDateStr == currentDate.toIso8601String().split('T')[0]
+                      : req['day'] == currentDate.day;
+                  if (req['field'].toString().trim().toUpperCase() == selectedField.trim().toUpperCase() && 
+                      isSameDate && 
+                      req['status'] == 'APPROVED') {
                     if (_intervalsOverlap(slotTime, req['time'] as String)) {
                       overlappingBooking = req;
                       break;
@@ -417,12 +423,12 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                       ),
 
                       // Quick actions
-                      if (isBlockedByOwner) ...[
+                       if (isBlockedByOwner) ...[
                         IconButton(
                           icon: const Icon(Icons.lock_open, color: Colors.green),
                           onPressed: () {
                             HapticFeedback.lightImpact();
-                            manager.unblockSlot(selectedField, currentDate.day, slotTime);
+                            manager.unblockSlot(selectedField, currentDate, slotTime);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Slot $slotTime unblocked!')),
                             );
@@ -437,7 +443,7 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                               icon: const Icon(Icons.block, color: Colors.redAccent, size: 20),
                               onPressed: () {
                                 HapticFeedback.lightImpact();
-                                manager.blockSlot(selectedField, currentDate.day, slotTime);
+                                manager.blockSlot(selectedField, currentDate, slotTime);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Slot $slotTime blocked by owner!')),
                                 );
@@ -531,6 +537,7 @@ class _OwnerCalendarScreenState extends State<OwnerCalendarScreen> {
                 'field': selectedField,
                 'date': '${_getDayName(currentDate.weekday)}, ${currentDate.day} June',
                 'day': currentDate.day,
+                'dateStr': currentDate.toIso8601String().split('T')[0],
                 'time': slotTime,
                 'price': priceVal,
                 'status': 'APPROVED',

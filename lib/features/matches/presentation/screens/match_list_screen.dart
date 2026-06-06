@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +53,34 @@ class LobbyMatch {
       isPlus: isPlus,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'organizerName': organizerName,
+    'organizerAvatar': organizerAvatar,
+    'location': location,
+    'time': time,
+    'date': date,
+    'price': price,
+    'format': format,
+    'maxPlayers': maxPlayers,
+    'joinedPlayers': joinedPlayers,
+    'isPlus': isPlus,
+  };
+
+  factory LobbyMatch.fromJson(Map<String, dynamic> json) => LobbyMatch(
+    id: json['id'] as String,
+    organizerName: json['organizerName'] as String,
+    organizerAvatar: json['organizerAvatar'] as String,
+    location: json['location'] as String,
+    time: json['time'] as String,
+    date: json['date'] as String,
+    price: (json['price'] as num).toDouble(),
+    format: json['format'] as String,
+    maxPlayers: json['maxPlayers'] as int,
+    joinedPlayers: List<String>.from(json['joinedPlayers'] as List),
+    isPlus: json['isPlus'] as bool? ?? false,
+  );
 }
 
 class PlayerMiniStats {
@@ -267,7 +297,12 @@ class _MatchListScreenState extends State<MatchListScreen> {
   @override
   void initState() {
     super.initState();
-    _lobbies = [
+    _lobbies = [];
+    _loadLobbies();
+  }
+
+  List<LobbyMatch> _getDefaultLobbies() {
+    return [
       LobbyMatch(
         id: 'lobby_1',
         organizerName: 'Medina Club',
@@ -347,6 +382,38 @@ class _MatchListScreenState extends State<MatchListScreen> {
     ];
   }
 
+  Future<void> _loadLobbies() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final List<String>? saved = prefs.getStringList('lobby_matches');
+      if (saved != null && saved.isNotEmpty) {
+        setState(() {
+          _lobbies = saved.map((s) => LobbyMatch.fromJson(jsonDecode(s))).toList();
+        });
+      } else {
+        setState(() {
+          _lobbies = _getDefaultLobbies();
+        });
+        await _saveLobbies();
+      }
+    } catch (e) {
+      debugPrint("Error loading lobbies: $e");
+      setState(() {
+        _lobbies = _getDefaultLobbies();
+      });
+    }
+  }
+
+  Future<void> _saveLobbies() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final List<String> encoded = _lobbies.map((l) => jsonEncode(l.toJson())).toList();
+      await prefs.setStringList('lobby_matches', encoded);
+    } catch (e) {
+      debugPrint("Error saving lobbies: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
@@ -382,7 +449,51 @@ class _MatchListScreenState extends State<MatchListScreen> {
                 return _buildMatchCard(context, index, isLive, isMyTeam);
               },
             ),
+      floatingActionButton: isAdultPlayer
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 100.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: PremiumTheme.neonShadow(color: PremiumTheme.neonGreen, opacity: 0.4),
+                ),
+                child: FloatingActionButton(
+                  backgroundColor: PremiumTheme.neonGreen,
+                  foregroundColor: Colors.black,
+                  shape: const CircleBorder(),
+                  onPressed: () => _showCreateLobbySheet(context),
+                  child: const Icon(Icons.add_rounded, size: 28),
+                ),
+              ),
+            )
+          : null,
     );
+  }
+
+  String _getSurfaceForLocation(String location) {
+    final loc = location.toUpperCase();
+    if (loc.contains('DUMAN')) {
+      return 'Futsal (Rubber)';
+    } else if (loc.contains('SAIRAN')) {
+      return 'Artificial Turf';
+    } else if (loc.contains('SPORT CITY')) {
+      return 'Artificial Turf';
+    } else if (loc.contains('ASTANA')) {
+      return 'Hybrid Pro';
+    } else if (loc.contains('QAZAQSTAN')) {
+      return 'Natural Grass';
+    } else if (loc.contains('MEDINA')) {
+      return 'Artificial Turf';
+    } else if (loc.contains('GAGARINA')) {
+      return 'Artificial Turf';
+    } else if (loc.contains('JARYS')) {
+      return 'Artificial Turf';
+    } else if (loc.contains('ALMATY')) {
+      return 'Hybrid Pro';
+    } else if (loc.contains('HEYLEBERY')) {
+      return 'Natural Grass';
+    }
+    return 'Artificial Turf'; // Default
   }
 
   Widget _buildLobbyCard(BuildContext context, LobbyMatch lobby) {
@@ -516,6 +627,22 @@ class _MatchListScreenState extends State<MatchListScreen> {
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                     color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _getSurfaceForLocation(lobby.location).toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: PremiumTheme.electricBlue,
                                   ),
                                 ),
                               ),
@@ -669,6 +796,8 @@ class _MatchListScreenState extends State<MatchListScreen> {
                               const Divider(height: 20, color: Colors.white10),
                               _buildDetailRow(Icons.location_on_rounded, 'Location', lobby.location),
                               const Divider(height: 20, color: Colors.white10),
+                              _buildDetailRow(Icons.grass_rounded, 'Surface', _getSurfaceForLocation(lobby.location)),
+                              const Divider(height: 20, color: Colors.white10),
                               _buildDetailRow(Icons.sports_soccer_rounded, 'Format', lobby.format),
                               const Divider(height: 20, color: Colors.white10),
                               _buildDetailRow(Icons.payments_rounded, 'Price', '${lobby.price.toInt()} KZT'),
@@ -799,6 +928,7 @@ class _MatchListScreenState extends State<MatchListScreen> {
                                   lobby.joinedPlayers.add(currentUserName);
                                 }
                               });
+                              _saveLobbies();
                               setModalState(() {});
                             },
                           ),
@@ -812,6 +942,437 @@ class _MatchListScreenState extends State<MatchListScreen> {
           },
         );
       },
+    );
+  }
+
+  void _showCreateLobbySheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final currentUser = context.read<AuthProvider>().user;
+    final String currentUserName = currentUser?.name ?? 'Me';
+    final String currentUserAvatar = currentUser?.fullAvatarUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop';
+
+    final arenas = [
+      'SAIRAN ARENA',
+      'SPORT CITY PITCHES',
+      'ASTANA ARENA',
+      'DUMAN SPORT COMPLEX',
+      'QAZAQSTAN ATHLETIC COMPLEX',
+    ];
+
+    final formats = [
+      '5 vs 5',
+      '6 vs 6',
+      '7 vs 7',
+      '11 vs 11',
+    ];
+
+    // Generate next 7 days list
+    final today = DateTime.now().toLocal();
+    final dates = List.generate(7, (i) {
+      final date = today.add(Duration(days: i));
+      return DateFormat('E, MMM d').format(date);
+    });
+
+    final timeSlots = [
+      '08:00 - 09:30',
+      '09:30 - 11:00',
+      '11:00 - 12:30',
+      '12:30 - 14:00',
+      '14:00 - 15:30',
+      '15:30 - 17:00',
+      '17:00 - 18:30',
+      '18:00 - 20:00',
+      '19:00 - 20:30',
+      '19:00 - 21:00',
+      '19:45 - 22:00',
+      '20:00 - 21:30',
+      '20:00 - 22:00',
+      '21:00 - 22:30',
+      '21:00 - 23:00',
+      '21:30 - 23:00',
+      '21:30 - 23:30',
+      '21:45 - 23:45',
+      '22:00 - 23:30',
+      '22:00 - 00:00',
+    ];
+
+    String selectedArena = arenas[0];
+    String selectedFormat = formats[0];
+    String selectedDate = dates[0];
+    String selectedTimeSlot = timeSlots[9]; // default to 19:00 - 21:00
+    final priceController = TextEditingController(text: '2000');
+    int maxPlayers = 15; // default for 5 vs 5
+    bool isPlus = false;
+    final formKey = GlobalKey<FormState>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: cs.onSurface.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'CREATE PICKUP LOBBY'.toUpperCase(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                                letterSpacing: 0.5,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Arena selection
+                        _buildSectionLabel('Location', cs),
+                        const SizedBox(height: 8),
+                        _buildModalDropdown(
+                          value: selectedArena,
+                          items: arenas,
+                          onChanged: (val) {
+                            if (val != null) {
+                              setModalState(() {
+                                selectedArena = val;
+                              });
+                            }
+                          },
+                          context: context,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Format & Date Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Format', cs),
+                                  const SizedBox(height: 8),
+                                  _buildModalDropdown(
+                                    value: selectedFormat,
+                                    items: formats,
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        setModalState(() {
+                                          selectedFormat = val;
+                                          // Update default max players based on format
+                                          if (val == '5 vs 5') {
+                                            maxPlayers = 15;
+                                          } else if (val == '6 vs 6') {
+                                            maxPlayers = 18;
+                                          } else if (val == '7 vs 7') {
+                                            maxPlayers = 21;
+                                          } else if (val == '11 vs 11') {
+                                            maxPlayers = 22;
+                                          }
+                                        });
+                                      }
+                                    },
+                                    context: context,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Date', cs),
+                                  const SizedBox(height: 8),
+                                  _buildModalDropdown(
+                                    value: selectedDate,
+                                    items: dates,
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        setModalState(() {
+                                          selectedDate = val;
+                                        });
+                                      }
+                                    },
+                                    context: context,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Time Slot & Price
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Time Slot', cs),
+                                  const SizedBox(height: 8),
+                                  _buildModalDropdown(
+                                    value: selectedTimeSlot,
+                                    items: timeSlots,
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        setModalState(() {
+                                          selectedTimeSlot = val;
+                                        });
+                                      }
+                                    },
+                                    context: context,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionLabel('Price (KZT)', cs),
+                                  const SizedBox(height: 8),
+                                  PremiumTextField(
+                                    controller: priceController,
+                                    label: 'Price per spot',
+                                    keyboardType: TextInputType.number,
+                                    validator: (val) {
+                                      if (val == null || val.trim().isEmpty) {
+                                        return 'Required';
+                                      }
+                                      final price = double.tryParse(val);
+                                      if (price == null || price <= 0) {
+                                        return 'Invalid price';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Max Players & Is Plus
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionLabel('Max Players', cs),
+                                const SizedBox(height: 6),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: cs.onSurface.withValues(alpha: 0.04),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: cs.onSurface.withValues(alpha: 0.12)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove_circle_outline_rounded, color: PremiumTheme.neonGreen),
+                                        onPressed: () {
+                                          if (maxPlayers > 2) {
+                                            setModalState(() {
+                                              maxPlayers--;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text(
+                                          '$maxPlayers',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w900,
+                                            color: cs.onSurface,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add_circle_outline_rounded, color: PremiumTheme.neonGreen),
+                                        onPressed: () {
+                                          if (maxPlayers < 100) {
+                                            setModalState(() {
+                                              maxPlayers++;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildSectionLabel('Plus Match', cs),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'PLUS ONLY',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.purpleAccent,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Switch(
+                                      value: isPlus,
+                                      activeThumbColor: PremiumTheme.neonGreen,
+                                      activeTrackColor: PremiumTheme.neonGreen.withValues(alpha: 0.3),
+                                      inactiveThumbColor: Colors.grey,
+                                      inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
+                                      onChanged: (val) {
+                                        setModalState(() {
+                                          isPlus = val;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Create Button
+                        PremiumButton(
+                          text: 'CREATE LOBBY',
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              final newLobby = LobbyMatch(
+                                id: 'lobby_${DateTime.now().millisecondsSinceEpoch}',
+                                organizerName: currentUserName,
+                                organizerAvatar: currentUserAvatar,
+                                location: selectedArena,
+                                time: selectedTimeSlot,
+                                date: selectedDate,
+                                price: double.parse(priceController.text),
+                                format: selectedFormat,
+                                maxPlayers: maxPlayers,
+                                joinedPlayers: [currentUserName], // Creator is automatically added
+                                isPlus: isPlus,
+                              );
+                              setState(() {
+                                _lobbies.add(newLobby);
+                              });
+                              _saveLobbies();
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Lobby created successfully!'),
+                                  backgroundColor: PremiumTheme.neonGreen,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildModalDropdown({
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required BuildContext context,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+      style: TextStyle(
+        color: cs.onSurface,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: cs.onSurface.withValues(alpha: 0.04),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: cs.onSurface.withValues(alpha: 0.12)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: PremiumTheme.accent(context), width: 1.5),
+        ),
+      ),
+      items: items.map((s) {
+        return DropdownMenuItem<String>(
+          value: s,
+          child: Text(s),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildSectionLabel(String label, ColorScheme cs) {
+    return Text(
+      label.toUpperCase(),
+      style: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+        color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+        letterSpacing: 1.0,
+      ),
     );
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FieldPricingManager extends ChangeNotifier {
   static final FieldPricingManager _instance = FieldPricingManager._internal();
@@ -86,21 +88,125 @@ class FieldPricingManager extends ChangeNotifier {
     },
   ];
 
-  void notify() {
+  Future<void> init() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // 1. Load blocked slots
+      final savedBlocked = prefs.getStringList('blocked_slots');
+      debugPrint("FieldPricingManager: Loading blocked slots from SharedPreferences: $savedBlocked");
+      if (savedBlocked != null) {
+        blockedSlots.clear();
+        blockedSlots.addAll(savedBlocked);
+      }
+
+      // 2. Load pending/manual bookings list
+      final savedRequests = prefs.getString('pending_requests');
+      debugPrint("FieldPricingManager: Loading pending requests from SharedPreferences: $savedRequests");
+      if (savedRequests != null) {
+        final List<dynamic> decoded = jsonDecode(savedRequests);
+        pendingRequests.clear();
+        for (final item in decoded) {
+          if (item is Map<String, dynamic>) {
+            pendingRequests.add(item);
+          }
+        }
+      }
+
+      // 3. Load promo codes
+      final savedPromo = prefs.getString('promo_codes');
+      if (savedPromo != null) {
+        final List<dynamic> decoded = jsonDecode(savedPromo);
+        promoCodes.clear();
+        for (final item in decoded) {
+          if (item is Map<String, dynamic>) {
+            promoCodes.add(item);
+          }
+        }
+      }
+
+      // 4. Load stats
+      todayRevenue = prefs.getDouble('today_revenue') ?? todayRevenue;
+      occupancy = prefs.getDouble('occupancy') ?? occupancy;
+      debugPrint("FieldPricingManager: Load completed. blockedSlots count: ${blockedSlots.length}, pendingRequests count: ${pendingRequests.length}");
+    } catch (e) {
+      debugPrint("Error initializing FieldPricingManager: $e");
+    }
     notifyListeners();
   }
 
-  void blockSlot(String fieldName, int day, String time) {
-    blockedSlots.add('${fieldName}_${day}_$time');
+  Future<void> saveToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      debugPrint("FieldPricingManager: Saving blocked slots to SharedPreferences: ${blockedSlots.toList()}");
+      await prefs.setStringList('blocked_slots', blockedSlots.toList());
+      debugPrint("FieldPricingManager: Saving pending requests to SharedPreferences: ${jsonEncode(pendingRequests)}");
+      await prefs.setString('pending_requests', jsonEncode(pendingRequests));
+      await prefs.setString('promo_codes', jsonEncode(promoCodes));
+      await prefs.setDouble('today_revenue', todayRevenue);
+      await prefs.setDouble('occupancy', occupancy);
+    } catch (e) {
+      debugPrint("Error saving FieldPricingManager state: $e");
+    }
+  }
+
+  void notify() {
+    saveToPrefs();
+    notifyListeners();
+  }
+
+  void blockSlot(String fieldName, dynamic dateVal, String time) {
+    final String dateStr = dateVal is DateTime 
+        ? dateVal.toLocal().toIso8601String().split('T')[0] 
+        : dateVal.toString();
+    final String key = '${fieldName.trim().toUpperCase()}_${dateStr.trim()}_$time';
+    blockedSlots.add(key);
+    debugPrint("FieldPricingManager: Blocking slot: $key. Total blocked slots: ${blockedSlots.toList()}");
     notify();
   }
 
-  void unblockSlot(String fieldName, int day, String time) {
-    blockedSlots.remove('${fieldName}_${day}_$time');
+  void unblockSlot(String fieldName, dynamic dateVal, String time) {
+    final String dateStr = dateVal is DateTime 
+        ? dateVal.toLocal().toIso8601String().split('T')[0] 
+        : dateVal.toString();
+    final String key = '${fieldName.trim().toUpperCase()}_${dateStr.trim()}_$time';
+    blockedSlots.remove(key);
+    debugPrint("FieldPricingManager: Unblocking slot: $key. Total blocked slots: ${blockedSlots.toList()}");
     notify();
   }
 
-  bool isSlotBlocked(String fieldName, int day, String time) {
-    return blockedSlots.contains('${fieldName}_${day}_$time');
+  bool isSlotBlocked(String fieldName, dynamic dateVal, String time) {
+    final String dateStr = dateVal is DateTime 
+        ? dateVal.toLocal().toIso8601String().split('T')[0] 
+        : dateVal.toString();
+    
+    final String queryKey = '${fieldName.trim().toUpperCase()}_${dateStr.trim()}_$time';
+    debugPrint("FieldPricingManager: Checking if slot is blocked. Query key: $queryKey. All blocked: ${blockedSlots.toList()}");
+
+    // Check with the formatted dateStr (e.g. SAIRAN ARENA_2026-06-06_12:00 - 13:30)
+    if (blockedSlots.contains(queryKey)) {
+      debugPrint("FieldPricingManager: Slot IS blocked (found by standard key)!");
+      return true;
+    }
+    
+    // Fallback if dateVal is day int (for legacy keys if any, e.g. SAIRAN ARENA_6_12:00 - 13:30)
+    if (dateVal is int) {
+      final String fallbackKey1 = '${fieldName.trim().toUpperCase()}_${dateVal}_$time';
+      if (blockedSlots.contains(fallbackKey1)) {
+        debugPrint("FieldPricingManager: Slot IS blocked (found by fallback key 1: $fallbackKey1)!");
+        return true;
+      }
+    } else {
+      // If dateVal is a DateTime, we can also check the day number fallback for legacy keys
+      if (dateVal is DateTime) {
+        final String fallbackKey2 = '${fieldName.trim().toUpperCase()}_${dateVal.day}_$time';
+        if (blockedSlots.contains(fallbackKey2)) {
+          debugPrint("FieldPricingManager: Slot IS blocked (found by fallback key 2: $fallbackKey2)!");
+          return true;
+        }
+      }
+    }
+    
+    return false;
   }
 }
