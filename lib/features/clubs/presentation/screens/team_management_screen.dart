@@ -13,11 +13,13 @@ import 'invite_member_screen.dart';
 class TeamManagementScreen extends StatefulWidget {
   final Team team;
   final List<PlayerInfo> availableCoaches;
+  final bool isReadOnly;
 
   const TeamManagementScreen({
     super.key,
     required this.team,
     required this.availableCoaches,
+    this.isReadOnly = false,
   });
 
   @override
@@ -50,7 +52,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: widget.isReadOnly ? [] : [
           IconButton(
             icon: const Icon(Icons.save_rounded, color: PremiumTheme.neonGreen),
             onPressed: () => _saveTeamChanges(context),
@@ -129,6 +131,22 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             padding: const EdgeInsets.all(16),
             decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: () {
+              if (widget.isReadOnly) {
+                final coachName = widget.team.coachName ?? 'Unassigned / No Coach';
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_outline_rounded, color: PremiumTheme.neonGreen, size: 22),
+                      const SizedBox(width: 12),
+                      Text(
+                        coachName,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                );
+              }
               final uniqueCoaches = <String, PlayerInfo>{};
               for (var c in widget.availableCoaches) {
                 if (c.userId.isNotEmpty) {
@@ -205,13 +223,15 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
 
           const SizedBox(height: 20),
 
-          // Add player button
-          PremiumButton(
-            text: 'club.add_player'.tr(),
-            icon: Icons.person_add_rounded,
-            onPressed: () => _showAddPlayerModal(context),
-          ),
-          const SizedBox(height: 40),
+          if (!widget.isReadOnly) ...[
+            // Add player button
+            PremiumButton(
+              text: 'club.add_player'.tr(),
+              icon: Icons.person_add_rounded,
+              onPressed: () => _showAddPlayerModal(context),
+            ),
+            const SizedBox(height: 40),
+          ],
         ],
       ),
     );
@@ -286,12 +306,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.removing_player'.tr())));
-            },
-          ),
+          if (!widget.isReadOnly)
+            IconButton(
+              icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.removing_player'.tr())));
+              },
+            ),
         ],
       ),
     );

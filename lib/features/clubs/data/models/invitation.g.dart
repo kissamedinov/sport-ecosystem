@@ -12,15 +12,16 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
   teamId: json['team_id'] as String?,
   invitedUserId: json['invited_user_id'] as String,
   invitedBy: json['invited_by'] as String,
+  invitedName: json['invited_name'] as String?,
   childProfileId: json['child_profile_id'] as String?,
   role: $enumDecode(_$ClubRoleEnumMap, json['role']),
   status: $enumDecode(_$InvitationStatusEnumMap, json['status']),
   isApproved: json['is_approved'] as bool,
   createdAt: DateTime.parse(json['created_at'] as String),
-  expiresAt: json['expires_at'] == null
-      ? null
-      : DateTime.parse(json['expires_at'] as String),
-  invitedName: json['invited_name'] as String?,
+  expiresAt:
+      json['expires_at'] == null
+          ? null
+          : DateTime.parse(json['expires_at'] as String),
 );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
@@ -35,8 +36,8 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
       'status': _$InvitationStatusEnumMap[instance.status]!,
       'is_approved': instance.isApproved,
       'created_at': instance.createdAt.toIso8601String(),
-      'expires_at': instance.expiresAt?.toIso8601String(),
       'invited_name': instance.invitedName,
+      'expires_at': instance.expiresAt?.toIso8601String(),
     };
 
 const _$ClubRoleEnumMap = {

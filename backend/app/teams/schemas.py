@@ -33,6 +33,7 @@ class TeamResponse(TeamBase):
     losses: int = 0
     city: str = "Astana"
     academy_name: Optional[str] = None
+    coach_name: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -16,6 +16,7 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
   ageCategory: json['age_category'] as String,
   status: json['status'] as String,
   logoUrl: json['logo_url'] as String?,
+  fieldIds: json['field_ids'] as String?,
   teamsCount: (json['teams_count'] as num?)?.toInt(),
   surfaceType: json['surface_type'] as String?,
   seriesName: json['series_name'] as String?,
@@ -36,6 +37,10 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
   season: json['season'] as String?,
   startTime: json['start_time'] as String?,
   endTime: json['end_time'] as String?,
+  minimumRestSlots: (json['minimum_rest_slots'] as num?)?.toInt() ?? 1,
+  pointsForWin: (json['points_for_win'] as num?)?.toInt() ?? 3,
+  pointsForDraw: (json['points_for_draw'] as num?)?.toInt() ?? 1,
+  pointsForLoss: (json['points_for_loss'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
@@ -48,6 +53,7 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'format': instance.format,
       'age_category': instance.ageCategory,
       'logo_url': instance.logoUrl,
+      'field_ids': instance.fieldIds,
       'teams_count': instance.teamsCount,
       'status': instance.status,
       'surface_type': instance.surfaceType,
@@ -68,4 +74,8 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'season': instance.season,
       'start_time': instance.startTime,
       'end_time': instance.endTime,
+      'minimum_rest_slots': instance.minimumRestSlots,
+      'points_for_win': instance.pointsForWin,
+      'points_for_draw': instance.pointsForDraw,
+      'points_for_loss': instance.pointsForLoss,
     };

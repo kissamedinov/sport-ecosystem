@@ -55,6 +55,12 @@ class Team(Base):
             return self.academy.name
         return None
 
+    @property
+    def coach_name(self):
+        if self.coach:
+            return self.coach.name
+        return None
+
 
 class TeamRatingHistory(Base):
     __tablename__ = "team_rating_history"

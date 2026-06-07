@@ -11,21 +11,20 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
   name: json['name'] as String,
   email: json['email'] as String,
   roles: (json['roles'] as List<dynamic>?)?.map((e) => e as String).toList(),
-  childIds: (json['child_ids'] as List<dynamic>?)
-      ?.map((e) => e as String)
-      .toList(),
+  childIds:
+      (json['child_ids'] as List<dynamic>?)?.map((e) => e as String).toList(),
   playerProfileId: json['player_profile_id'] as String?,
   onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
-  dateOfBirth: json['date_of_birth'] == null
-      ? null
-      : DateTime.parse(json['date_of_birth'] as String),
+  dateOfBirth:
+      json['date_of_birth'] == null
+          ? null
+          : DateTime.parse(json['date_of_birth'] as String),
   phone: json['phone'] as String?,
   bio: json['bio'] as String?,
   avatarUrl: json['avatar_url'] as String?,
   uniqueCode: json['unique_code'] as String?,
   clubName: json['club_name'] as String?,
 );
-
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'id': instance.id,
@@ -42,4 +41,3 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'unique_code': instance.uniqueCode,
   'club_name': instance.clubName,
 };
-

@@ -11,6 +11,7 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
   name: json['name'] as String,
   city: json['city'] as String,
   coachId: json['coach_id'] as String?,
+  coachName: json['coach_name'] as String?,
   rating: (json['rating'] as num).toInt(),
   matchesPlayed: (json['matches_played'] as num).toInt(),
   wins: (json['wins'] as num).toInt(),
@@ -31,6 +32,8 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
           ?.map((e) => PlayerTeam.fromJson(e as Map<String, dynamic>))
           .toList() ??
       [],
+  whatsapp: json['whatsapp'] as String?,
+  instagram: json['instagram'] as String?,
 );
 
 Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
@@ -38,6 +41,7 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'name': instance.name,
   'city': instance.city,
   'coach_id': instance.coachId,
+  'coach_name': instance.coachName,
   'rating': instance.rating,
   'matches_played': instance.matchesPlayed,
   'wins': instance.wins,
@@ -49,4 +53,6 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'recent_matches': instance.recentMatches,
   'form': instance.form,
   'players': instance.players,
+  'whatsapp': instance.whatsapp,
+  'instagram': instance.instagram,
 };

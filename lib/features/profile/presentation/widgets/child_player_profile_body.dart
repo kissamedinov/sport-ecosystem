@@ -6,6 +6,7 @@ import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:mobile/features/quiz/presentation/screens/daily_quiz_screen.dart';
 import 'package:mobile/features/player_stats/providers/player_stats_provider.dart';
 import 'package:mobile/features/teams/providers/team_provider.dart';
+import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import 'package:mobile/core/presentation/widgets/orleon_widgets.dart';
@@ -387,6 +388,18 @@ class _ChildPlayerProfileBodyState extends State<ChildPlayerProfileBody> {
               ),
               child: const Icon(Icons.chevron_right_rounded, color: PremiumTheme.neonGreen, size: 20),
             ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamManagementScreen(
+                    team: team,
+                    availableCoaches: const [],
+                    isReadOnly: true,
+                  ),
+                ),
+              );
+            },
           ),
         ),
       )).toList(),

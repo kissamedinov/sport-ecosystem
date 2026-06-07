@@ -14,9 +14,10 @@ ClubMembership _$ClubMembershipFromJson(Map<String, dynamic> json) =>
       role: json['role'] as String,
       status: json['status'] as String,
       joinedAt: DateTime.parse(json['joined_at'] as String),
-      leftAt: json['left_at'] == null
-          ? null
-          : DateTime.parse(json['left_at'] as String),
+      leftAt:
+          json['left_at'] == null
+              ? null
+              : DateTime.parse(json['left_at'] as String),
     );
 
 Map<String, dynamic> _$ClubMembershipToJson(ClubMembership instance) =>

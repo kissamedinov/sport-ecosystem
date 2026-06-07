@@ -11,6 +11,8 @@ class Team {
   final String city;
   @JsonKey(name: 'coach_id')
   final String? coachId;
+  @JsonKey(name: 'coach_name')
+  final String? coachName;
   final int rating;
   @JsonKey(name: 'matches_played')
   final int matchesPlayed;
@@ -37,8 +39,8 @@ class Team {
     required this.name,
     required this.city,
     this.coachId,
+    this.coachName,
     required this.rating,
-    @JsonKey(name: 'matches_played')
     required this.matchesPlayed,
     required this.wins,
     required this.draws,

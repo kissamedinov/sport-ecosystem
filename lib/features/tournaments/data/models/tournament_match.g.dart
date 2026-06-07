@@ -15,9 +15,10 @@ TournamentMatch _$TournamentMatchFromJson(Map<String, dynamic> json) =>
       awayTeamId: json['away_team_id'] as String,
       fieldId: json['field_id'] as String?,
       fieldName: json['field_name'] as String?,
-      matchDate: json['match_date'] == null
-          ? null
-          : DateTime.parse(json['match_date'] as String),
+      matchDate:
+          json['match_date'] == null
+              ? null
+              : DateTime.parse(json['match_date'] as String),
       status: json['status'] as String,
       homeScore: (json['home_score'] as num).toInt(),
       awayScore: (json['away_score'] as num).toInt(),

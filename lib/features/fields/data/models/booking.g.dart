@@ -13,7 +13,7 @@ Booking _$BookingFromJson(Map<String, dynamic> json) => Booking(
   startTime: json['start_time'] as String,
   endTime: json['end_time'] as String,
   status: json['status'] as String,
-  totalPrice: (json['total_price'] as num?)?.toDouble() ?? 0.0,
+  totalPrice: (json['total_price'] as num).toDouble(),
   userName: json['user_name'] as String?,
 );
 

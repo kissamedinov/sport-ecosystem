@@ -10,9 +10,10 @@ CareerRecord _$CareerRecordFromJson(Map<String, dynamic> json) => CareerRecord(
   clubName: json['club_name'] as String,
   teamName: json['team_name'] as String,
   joinedAt: DateTime.parse(json['joined_at'] as String),
-  leftAt: json['left_at'] == null
-      ? null
-      : DateTime.parse(json['left_at'] as String),
+  leftAt:
+      json['left_at'] == null
+          ? null
+          : DateTime.parse(json['left_at'] as String),
   status: json['status'] as String,
 );
 
@@ -27,9 +28,10 @@ Map<String, dynamic> _$CareerRecordToJson(CareerRecord instance) =>
 
 PlayerCareer _$PlayerCareerFromJson(Map<String, dynamic> json) => PlayerCareer(
   playerName: json['player_name'] as String,
-  careerHistory: (json['career_history'] as List<dynamic>)
-      .map((e) => CareerRecord.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  careerHistory:
+      (json['career_history'] as List<dynamic>)
+          .map((e) => CareerRecord.fromJson(e as Map<String, dynamic>))
+          .toList(),
   totalGoals: (json['total_goals'] as num).toInt(),
   totalAssists: (json['total_assists'] as num).toInt(),
   awards: (json['awards'] as List<dynamic>).map((e) => e as String).toList(),
