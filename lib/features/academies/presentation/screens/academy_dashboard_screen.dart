@@ -27,7 +27,8 @@ Color _accentAt(int i) => _avatarPalette[i % _avatarPalette.length];
 
 // ── Screen ─────────────────────────────────────────────────────────────────
 class AcademyDashboardScreen extends StatefulWidget {
-  const AcademyDashboardScreen({super.key});
+  final String? academyId;
+  const AcademyDashboardScreen({super.key, this.academyId});
 
   @override
   State<AcademyDashboardScreen> createState() => _AcademyDashboardScreenState();
@@ -45,7 +46,11 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AcademyProvider>().fetchMyAcademy();
+      if (widget.academyId != null) {
+        context.read<AcademyProvider>().fetchAcademyById(widget.academyId!);
+      } else {
+        context.read<AcademyProvider>().fetchMyAcademy();
+      }
     });
   }
 
@@ -391,7 +396,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           child: RefreshIndicator(
             color: _kGreen,
             backgroundColor: _kCard,
-            onRefresh: () => provider.fetchMyAcademy(),
+            onRefresh: () => widget.academyId != null
+                ? provider.fetchAcademyById(widget.academyId!)
+                : provider.fetchMyAcademy(),
             child: provider.teams.isEmpty
                 ? SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),

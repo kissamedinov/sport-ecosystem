@@ -193,6 +193,16 @@ def get_team_members(
 ):
     return services.get_team_members(db=db, team_id=id)
 
+@router.patch("/{id}/players/{playerId}", response_model=schemas.PlayerTeamResponse)
+def update_team_player(
+    id: UUID,
+    playerId: UUID,
+    update_in: schemas.PlayerTeamUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.update_team_player(db=db, team_id=id, player_id=playerId, update_in=update_in)
+
 @router.patch("/{id}", response_model=schemas.TeamResponse)
 def update_team(
     id: UUID,

@@ -130,6 +130,30 @@ class TeamProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateTeamPlayerPosition(
+    String teamId,
+    String playerId, {
+    String? position,
+    int? jerseyNumber,
+  }) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.updateTeamPlayer(
+        teamId,
+        playerId,
+        position: position,
+        jerseyNumber: jerseyNumber,
+      );
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

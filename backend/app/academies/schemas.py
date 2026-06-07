@@ -64,7 +64,7 @@ class AcademyTeamCreate(AcademyTeamBase):
 class AcademyTeamResponse(AcademyTeamBase):
     id: UUID
     academy_id: UUID
-    coach_id: UUID
+    coach_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
 

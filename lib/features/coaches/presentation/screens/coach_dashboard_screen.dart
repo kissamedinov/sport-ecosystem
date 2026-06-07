@@ -8,6 +8,9 @@ import 'package:mobile/features/auth/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'coach_teams_screen.dart';
 import 'coach_attendance_screen.dart';
+import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
+import 'package:mobile/features/teams/data/models/team.dart';
+
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -890,97 +893,127 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final wins = team['wins'] ?? 0;
     final draws = team['draws'] ?? 0;
     final losses = team['losses'] ?? 0;
+    final teamId = team['id']?.toString() ?? '';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+      child: GestureDetector(
+        onTap: () {
+          if (teamId.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TeamManagementScreen(
+                  team: Team(
+                    id: teamId,
+                    name: name,
+                    city: team['city']?.toString() ?? '',
+                    rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
+                    matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
+                    wins: wins,
+                    draws: draws,
+                    losses: losses,
+                    academyName: team['academy_name']?.toString(),
+                    ageCategory: ageGroup.isNotEmpty ? ageGroup : (team['category']?.toString() ?? team['age_category']?.toString()),
+                    coachId: team['coach_id']?.toString(),
+                    coachName: team['coach_name']?.toString(),
+                  ),
+                  availableCoaches: const [],
+                  isReadOnly: false,
+                ),
+              ),
+            );
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.shield_rounded,
+                      color: PremiumTheme.neonGreen,
+                      size: 20,
                     ),
                   ),
-                  child: const Icon(
-                    Icons.shield_rounded,
-                    color: PremiumTheme.neonGreen,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          if (ageGroup.isNotEmpty) ...[
-                            const SizedBox(width: 8),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
                             Text(
-                              'U$ageGroup',
-                              style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                              name,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
+                            if (ageGroup.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                'U$ageGroup',
+                                style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                            if (isLive) ...[
+                              const SizedBox(width: 8),
+                              _buildLiveBadge(),
+                            ],
                           ],
-                          if (isLive) ...[
-                            const SizedBox(width: 8),
-                            _buildLiveBadge(),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 2),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$players players · $wins W - $draws D - $losses L',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
                       Text(
-                        '$players players · $wins W - $draws D - $losses L',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
+                        elo,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w900),
                       ),
+                      const Text('ELO', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 8, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      elo,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w900),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  ...form.take(7).map((r) => _buildFormChip(r)),
+                  const Spacer(),
+                  Text(
+                    '${wins}W ${draws}D ${losses}L',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const Text('ELO', style: TextStyle(color: PremiumTheme.neonGreen, fontSize: 8, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                ...form.take(7).map((r) => _buildFormChip(r)),
-                const Spacer(),
-                Text(
-                  '${wins}W ${draws}D ${losses}L',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

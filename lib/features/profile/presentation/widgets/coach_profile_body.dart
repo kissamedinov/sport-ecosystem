@@ -12,6 +12,8 @@ import 'package:mobile/features/coaches/presentation/screens/coach_attendance_sc
 import 'package:mobile/features/coaches/presentation/screens/coach_tactics_screen.dart';
 import 'package:mobile/features/coaches/presentation/screens/coach_planner_screen.dart';
 import 'package:mobile/features/academies/providers/academy_provider.dart';
+import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
+import 'package:mobile/features/teams/data/models/team.dart';
 
 class CoachProfileBody extends StatefulWidget {
   final String coachId;
@@ -70,7 +72,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
 
               _buildSectionHeader('profile.performance_overview'.tr(), Icons.analytics_rounded),
               const SizedBox(height: 16),
-              _buildPerformanceStats(perf),
+              _buildPerformanceStats(perf, teams.length),
               const SizedBox(height: 32),
 
               _buildSectionHeader('profile.upcoming_matches'.tr(), Icons.event_available_rounded),
@@ -173,7 +175,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     );
   }
 
-  Widget _buildPerformanceStats(Map<String, dynamic> perf) {
+  Widget _buildPerformanceStats(Map<String, dynamic> perf, int teamsCount) {
     final wins = perf['wins'] ?? 0;
     final total = perf['matches_played'] ?? 0;
     final winRate = total > 0 ? (wins / total * 100).toStringAsFixed(1) : "0";
@@ -191,8 +193,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: OrleonStatCard(
-            label: 'profile.goals_scored'.tr(),
-            value: '${perf['goals_scored'] ?? 0}',
+            label: 'profile.matches_label'.tr(),
+            value: '${perf['matches_played'] ?? 0}',
             icon: Icons.sports_soccer_rounded,
             accent: PremiumTheme.electricBlue,
           ),
@@ -200,8 +202,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
         const SizedBox(width: 10),
         Expanded(
           child: OrleonStatCard(
-            label: 'profile.clean_sheets_label'.tr(),
-            value: '${perf['clean_sheets'] ?? 0}',
+            label: 'profile.teams_label'.tr(),
+            value: '$teamsCount',
             icon: Icons.shield_rounded,
             accent: PremiumTheme.amber,
           ),
@@ -308,54 +310,86 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
       return _buildEmptyCard('profile.no_teams_assigned'.tr(), Icons.group_off_rounded);
     }
     return Column(
-      children: teams.map((team) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: OrleonCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 48, height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      PremiumTheme.neonGreen.withValues(alpha: 0.18),
-                      PremiumTheme.neonGreen.withValues(alpha: 0.05),
-                    ],
-                    begin: Alignment.topLeft, end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(Icons.shield_rounded, color: PremiumTheme.neonGreen, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      team['name'].toString().toUpperCase(),
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+      children: teams.map((team) {
+        final teamId = team['id']?.toString() ?? '';
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: GestureDetector(
+            onTap: () {
+              if (teamId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TeamManagementScreen(
+                      team: Team(
+                        id: teamId,
+                        name: team['name']?.toString() ?? 'Team',
+                        city: team['city']?.toString() ?? '',
+                        rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
+                        matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
+                        wins: team['wins'] != null ? int.tryParse(team['wins'].toString()) ?? 0 : 0,
+                        draws: team['draws'] != null ? int.tryParse(team['draws'].toString()) ?? 0 : 0,
+                        losses: team['losses'] != null ? int.tryParse(team['losses'].toString()) ?? 0 : 0,
+                        academyName: team['academy_name']?.toString(),
+                        ageCategory: team['category']?.toString() ?? team['age_category']?.toString(),
+                        coachId: team['coach_id']?.toString(),
+                        coachName: team['coach_name']?.toString(),
+                      ),
+                      availableCoaches: const [],
+                      isReadOnly: false,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
+                  ),
+                );
+              }
+            },
+            child: OrleonCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48, height: 48,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          PremiumTheme.neonGreen.withValues(alpha: 0.18),
+                          PremiumTheme.neonGreen.withValues(alpha: 0.05),
+                        ],
+                        begin: Alignment.topLeft, end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.shield_rounded, color: PremiumTheme.neonGreen, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.person_outline_rounded, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 4),
                         Text(
-                          'profile.active_players'.tr(namedArgs: {'count': '${(team['players'] as List).length}'}),
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
+                          team['name'].toString().toUpperCase(),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.person_outline_rounded, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(
+                              'profile.active_players'.tr(namedArgs: {'count': '${(team['players'] as List).length}'}),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
+                ],
               ),
-              Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
-            ],
+            ),
           ),
-        ),
-      )).toList(),
+        );
+      }).toList(),
     );
   }
 
@@ -552,7 +586,7 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
     final user = context.watch<AuthProvider>().user;
     final academy = context.watch<AcademyProvider>().myAcademy;
     final String code = user?.uniqueCode ?? "ID-PENDING";
-    final String clubName = academy?.name ?? 'profile.no_club_assigned'.tr();
+    final String clubName = academy?.name ?? user?.clubName ?? 'profile.no_club_assigned'.tr();
 
     return Column(
       children: [

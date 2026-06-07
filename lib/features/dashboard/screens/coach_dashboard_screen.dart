@@ -14,6 +14,8 @@ import '../../stats/presentation/screens/performance_screen.dart';
 import '../../lineups/presentation/screens/lineup_screen.dart';
 import '../../tournaments/presentation/screens/tournament_announcements_screen.dart';
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
+import '../../clubs/presentation/screens/team_management_screen.dart';
+import '../../teams/data/models/team.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -139,6 +141,7 @@ class _HomeTab extends StatelessWidget {
                   name: _coachName(user),
                   specialty: (data['specialty'] ?? 'FOOTBALL TACTICS').toString(),
                   rating: _toDouble(data['coach_rating'] ?? data['rating'] ?? 4.8),
+                  teamsCount: teams.length,
                 ),
               ),
               if (liveMatch != null)
@@ -223,6 +226,7 @@ class _HeroBlock extends StatelessWidget {
   final String name;
   final String specialty;
   final double rating;
+  final int teamsCount;
 
   const _HeroBlock({
     required this.user,
@@ -231,6 +235,7 @@ class _HeroBlock extends StatelessWidget {
     required this.name,
     required this.specialty,
     required this.rating,
+    required this.teamsCount,
   });
 
   String get _initials {
@@ -500,9 +505,9 @@ class _HeroBlock extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OrleonStatCard(
-                  icon: Icons.sports_soccer,
-                  label: 'profile.goals_scored'.tr(),
-                  value: (perf['goals_scored'] ?? perf['goals'] ?? 0).toString(),
+                  icon: Icons.emoji_events_rounded,
+                  label: 'team.wins'.tr(),
+                  value: (perf['wins'] ?? 0).toString(),
                   accent: PremiumTheme.electricBlue,
                 ),
               ),
@@ -510,8 +515,8 @@ class _HeroBlock extends StatelessWidget {
               Expanded(
                 child: OrleonStatCard(
                   icon: Icons.shield_rounded,
-                  label: 'profile.clean_sheets_label'.tr(),
-                  value: (perf['clean_sheets'] ?? 0).toString(),
+                  label: 'profile.teams_label'.tr(),
+                  value: teamsCount.toString(),
                   accent: PremiumTheme.amber,
                 ),
               ),
@@ -672,95 +677,125 @@ class _TeamsList extends StatelessWidget {
           final team = (t as Map).cast<String, dynamic>();
           final form = (team['form'] as List?)?.cast<dynamic>() ?? const [];
           final isLive = team['is_live'] == true;
+          final teamId = team['id']?.toString() ?? '';
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: OrleonCard(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: PremiumTheme.electricBlue.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: PremiumTheme.electricBlue.withValues(alpha: 0.4),
+            child: GestureDetector(
+              onTap: () {
+                if (teamId.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TeamManagementScreen(
+                        team: Team(
+                          id: teamId,
+                          name: team['name']?.toString() ?? 'Team',
+                          city: team['city']?.toString() ?? '',
+                          rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
+                          matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
+                          wins: team['wins'] != null ? int.tryParse(team['wins'].toString()) ?? 0 : 0,
+                          draws: team['draws'] != null ? int.tryParse(team['draws'].toString()) ?? 0 : 0,
+                          losses: team['losses'] != null ? int.tryParse(team['losses'].toString()) ?? 0 : 0,
+                          academyName: team['academy_name']?.toString(),
+                          ageCategory: team['category']?.toString() ?? team['age_category']?.toString(),
+                          coachId: team['coach_id']?.toString(),
+                          coachName: team['coach_name']?.toString(),
+                        ),
+                        availableCoaches: const [],
+                        isReadOnly: false,
                       ),
                     ),
-                    child: const Icon(Icons.shield,
-                        color: PremiumTheme.electricBlue, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                (team['name'] ?? 'Team').toString(),
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                            if (isLive) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: PremiumTheme.danger.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    OrleonPulseDot(size: 5),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'LIVE',
-                                      style: TextStyle(
-                                        color: PremiumTheme.danger,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.8,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
+                  );
+                }
+              },
+              child: OrleonCard(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: PremiumTheme.electricBlue.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: PremiumTheme.electricBlue.withValues(alpha: 0.4),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${team['category'] ?? 'U-18'} · ${team['players_count'] ?? 0} players',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                      ),
+                      child: const Icon(Icons.shield,
+                          color: PremiumTheme.electricBlue, size: 20),
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: form
-                        .take(5)
-                        .map((f) => Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: OrleonFormChip(f.toString()),
-                            ))
-                        .toList(),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  (team['name'] ?? 'Team').toString(),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                              if (isLive) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: PremiumTheme.danger.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      OrleonPulseDot(size: 5),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'LIVE',
+                                        style: TextStyle(
+                                          color: PremiumTheme.danger,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${team['category'] ?? 'U-18'} · ${team['players_count'] ?? 0} players',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: form
+                          .take(5)
+                          .map((f) => Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: OrleonFormChip(f.toString()),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

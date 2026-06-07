@@ -57,11 +57,16 @@ class PlayerTeamResponse(BaseModel):
     join_status: Optional[str] = "APPROVED"
     child_profile_id: Optional[UUID] = None
     jersey_number: Optional[int] = None
+    position: Optional[str] = None
     player: Optional[PlayerInfo] = None
 
     class Config:
         orm_mode = True
         from_attributes = True
+
+class PlayerTeamUpdate(BaseModel):
+    position: Optional[str] = None
+    jersey_number: Optional[int] = None
 
 class TeamMatchResponse(BaseModel):
     id: UUID

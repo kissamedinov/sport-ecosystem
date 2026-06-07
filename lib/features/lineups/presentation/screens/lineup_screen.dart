@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/premium_theme.dart';
+import 'package:mobile/features/teams/data/models/player_team.dart';
 
 class LineupScreen extends StatefulWidget {
   final String? teamName;
   final String? opponent;
   final DateTime? matchDate;
+  final List<PlayerTeam> players;
 
   const LineupScreen({
     super.key,
     this.teamName,
     this.opponent,
     this.matchDate,
+    this.players = const [],
   });
 
   @override
@@ -21,19 +24,13 @@ class LineupScreen extends StatefulWidget {
 class _LineupScreenState extends State<LineupScreen>
     with SingleTickerProviderStateMixin {
   String _formation = '4-3-3';
-  final Set<int> _selected = <int>{};
+  final Set<String> _selected = <String>{};
   late AnimationController _progressCtrl;
   late Animation<double> _progressAnim;
 
   static const _formations = ['4-3-3', '4-4-2', '4-2-3-1', '3-5-2'];
 
-  final List<_PlayerVM> _roster = List.generate(22, (i) => _PlayerVM(
-    id: i + 1,
-    number: i + 1,
-    name: _names[i % _names.length],
-    position: _positions[i % _positions.length],
-    rating: 7.0 + (i % 5) * 0.3,
-  ));
+  late final List<_PlayerVM> _roster;
 
   static const _names = [
     'Oliver', 'Liam', 'Noah', 'Elias', 'Luca', 'Hugo', 'Arthur', 'Jules',
@@ -47,6 +44,27 @@ class _LineupScreenState extends State<LineupScreen>
   @override
   void initState() {
     super.initState();
+    if (widget.players.isNotEmpty) {
+      _roster = widget.players.asMap().entries.map((entry) {
+        final i = entry.key;
+        final p = entry.value;
+        return _PlayerVM(
+          id: p.playerId,
+          number: p.jerseyNumber ?? (i + 1),
+          name: p.player?.name ?? 'Player ${i + 1}',
+          position: p.position ?? 'MID',
+          rating: 7.0 + (i % 5) * 0.3,
+        );
+      }).toList();
+    } else {
+      _roster = List.generate(22, (i) => _PlayerVM(
+        id: 'mock_${i + 1}',
+        number: i + 1,
+        name: _names[i % _names.length],
+        position: _positions[i % _positions.length],
+        rating: 7.0 + (i % 5) * 0.3,
+      ));
+    }
     _progressCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _progressAnim = Tween<double>(begin: 0, end: 0).animate(
       CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut),
@@ -484,11 +502,6 @@ class _LineupScreenState extends State<LineupScreen>
                       style: TextStyle(color: posColor,
                           fontSize: 10, fontWeight: FontWeight.w800)),
                   ),
-                  const SizedBox(width: 8),
-                  Text('★ ${p.rating.toStringAsFixed(1)}',
-                    style: TextStyle(
-                      color: const Color(0xFFFFC107).withValues(alpha: 0.9),
-                      fontSize: 11, fontWeight: FontWeight.w700)),
                 ]),
               ],
             )),
@@ -635,7 +648,7 @@ class _LineupScreenState extends State<LineupScreen>
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 
 class _PlayerVM {
-  final int id;
+  final String id;
   final int number;
   final String name;
   final String position;

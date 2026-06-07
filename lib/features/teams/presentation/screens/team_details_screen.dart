@@ -38,7 +38,20 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     
     if (mounted && team != null) {
       final currentUserId = authProvider.user?.id;
-      final membership = team.players.where((p) => p.playerId == currentUserId).firstOrNull;
+      final userRoles = authProvider.user?.roles ?? [];
+      final isParent = userRoles.contains('PARENT');
+      
+      PlayerTeam? membership = team.players.where((p) => p.playerId == currentUserId).firstOrNull;
+      
+      if (membership == null && isParent) {
+        try {
+          final children = await authProvider.fetchMyChildren();
+          final childIds = children.map((c) => c['id']?.toString()).toSet();
+          membership = team.players.where((p) => childIds.contains(p.childProfileId)).firstOrNull;
+        } catch (e) {
+          debugPrint('Error loading children: $e');
+        }
+      }
       
       setState(() {
         _team = team;
@@ -144,6 +157,11 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
 
     final isApproved = _myMembership?.joinStatus == 'APPROVED';
     final isPending = _myMembership?.joinStatus == 'PENDING';
+    
+    final userRoles = authProvider.user?.roles ?? [];
+    final isCoach = team.coachId == authProvider.user?.id;
+    final isClubStaff = userRoles.contains('CLUB_OWNER') || userRoles.contains('CLUB_MANAGER') || userRoles.contains('ADMIN');
+    final isRosterAccessible = isApproved || isCoach || isClubStaff;
 
     return Scaffold(
       body: CustomScrollView(
@@ -155,9 +173,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (team.coachId == authProvider.user?.id)
-                    _buildCoachActions(team),
-                  _buildTrialAction(isApproved, isPending),
+                  _buildTrialAction(isApproved, isPending, isCoach, isClubStaff),
                   const SizedBox(height: 24),
                   _buildSectionTitle('team.team_performance'.tr()),
                   const SizedBox(height: 12),
@@ -176,7 +192,7 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
                   const SizedBox(height: 24),
                   _buildSectionTitle('team.roster'.tr()),
                   const SizedBox(height: 12),
-                  _buildRosterSection(team, isApproved),
+                  _buildRosterSection(team, isRosterAccessible),
                   const SizedBox(height: 80), // Space for button
                 ],
               ),
@@ -244,120 +260,13 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     );
   }
 
-  Widget _buildCoachActions(Team team) {
-    final pendingCount = team.players.where((p) => p.joinStatus == 'PENDING').length;
-    
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[900],
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.admin_panel_settings, color: Colors.white),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('team.coach_dashboard'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text('team.pending_requests'.tr(namedArgs: {'count': pendingCount.toString()}), style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to management screen (to be created)
-              _showRequestsModal(team);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.blue[900],
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-              minimumSize: const Size(0, 32),
-            ),
-            child: Text('team.view_all'.tr()),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showRequestsModal(Team team) {
-    final pendingRequests = team.players.where((p) => p.joinStatus == 'PENDING').toList();
-    
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('team.pending_trials'.tr(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              if (pendingRequests.isEmpty)
-                Expanded(child: Center(child: Text('team.no_pending'.tr())))
-              else
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: pendingRequests.length,
-                    itemBuilder: (context, index) {
-                      final req = pendingRequests[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          title: Text(req.player?.name ?? 'Candidate ${index + 1}'),
-                          subtitle: Text(req.childProfileId != null ? 'team.apply_by_parent'.tr() : 'team.apply_by_player'.tr()),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.check_circle, color: Colors.green),
-                                onPressed: () async {
-                                  final success = await context.read<TeamProvider>().approveRequest(team.id, req.id);
-                                  if (success && mounted) {
-                                    Navigator.pop(context);
-                                    _loadTeam();
-                                  }
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.cancel, color: Colors.red),
-                                onPressed: () async {
-                                  final success = await context.read<TeamProvider>().rejectRequest(team.id, req.id);
-                                  if (success && mounted) {
-                                    Navigator.pop(context);
-                                    _loadTeam();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTrialAction(bool isApproved, bool isPending) {
+  Widget _buildTrialAction(bool isApproved, bool isPending, bool isCoach, bool isClubStaff) {
+    if (isCoach || isClubStaff) {
+      return const SizedBox.shrink();
+    }
+
     if (isApproved) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -480,8 +389,8 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     );
   }
 
-  Widget _buildRosterSection(Team team, bool isApproved) {
-    if (!isApproved) {
+  Widget _buildRosterSection(Team team, bool isRosterAccessible) {
+    if (!isRosterAccessible) {
       return Container(
         height: 120,
         width: double.infinity,
@@ -507,11 +416,17 @@ class _TeamDetailsScreenState extends State<TeamDetailsScreen> {
     }
 
     return Column(
-      children: team.players.map((p) => ListTile(
-        leading: CircleAvatar(child: Text(p.player?.name.substring(0, 1) ?? '?')),
-        title: Text(p.player?.name ?? 'common.unknown'.tr()),
-        subtitle: Text(p.joinStatus ?? 'profile.member'.tr()),
-      )).toList(),
+      children: team.players.map((p) {
+        String initials = '?';
+        if (p.player?.name != null && p.player!.name.isNotEmpty) {
+          initials = p.player!.name.substring(0, 1).toUpperCase();
+        }
+        return ListTile(
+          leading: CircleAvatar(child: Text(initials)),
+          title: Text(p.player?.name ?? 'common.unknown'.tr()),
+          subtitle: Text(p.joinStatus ?? 'profile.member'.tr()),
+        );
+      }).toList(),
     );
   }
 

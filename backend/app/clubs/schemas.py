@@ -177,6 +177,8 @@ class CoachTeamResponse(BaseModel):
     id: UUID
     name: str
     birth_year: Optional[int] = None
+    category: Optional[str] = None
+    players_count: int = 0
     players: List[CoachPlayerResponse]
     wins: int = 0
     draws: int = 0

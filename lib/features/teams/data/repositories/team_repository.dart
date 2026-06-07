@@ -56,6 +56,22 @@ class TeamRepository {
     return Team.fromJson(response.data);
   }
 
+  Future<PlayerTeam> updateTeamPlayer(
+    String teamId,
+    String playerId, {
+    String? position,
+    int? jerseyNumber,
+  }) async {
+    final response = await _apiClient.patch(
+      '/teams/$teamId/players/$playerId',
+      data: {
+        if (position != null) 'position': position,
+        if (jerseyNumber != null) 'jersey_number': jerseyNumber,
+      },
+    );
+    return PlayerTeam.fromJson(response.data);
+  }
+
   Future<void> deleteTeam(String teamId) async {
     await _apiClient.delete('/teams/$teamId');
   }

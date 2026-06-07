@@ -845,6 +845,8 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                     id=t.id,
                     name=t.name,
                     birth_year=t.birth_year,
+                    category=t.age_category,
+                    players_count=len(players),
                     players=players,
                     wins=team_wins,
                     draws=team_draws,

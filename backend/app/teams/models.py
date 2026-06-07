@@ -99,3 +99,11 @@ class TeamMembership(Base):
         if self.player_profile:
             return f"{self.player_profile.first_name} {self.player_profile.last_name}"
         return ""
+
+    @property
+    def position(self):
+        if self.child_profile and self.child_profile.position:
+            return self.child_profile.position
+        if self.player_profile and self.player_profile.preferred_position:
+            return self.player_profile.preferred_position
+        return None

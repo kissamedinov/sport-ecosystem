@@ -461,7 +461,11 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AcademyDashboardScreen()),
+                MaterialPageRoute(
+                  builder: (_) => AcademyDashboardScreen(
+                    academyId: academy.id,
+                  ),
+                ),
               );
             },
             child: Container(

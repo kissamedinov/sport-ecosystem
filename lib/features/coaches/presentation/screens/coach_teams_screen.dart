@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/features/clubs/providers/club_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
+import 'package:mobile/features/teams/data/models/team.dart';
+
 
 class CoachTeamsScreen extends StatefulWidget {
   final List? teams;
@@ -316,9 +320,67 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
               if (nextMatch != null)
                 _buildNextMatchRow(nextMatch),
               const SizedBox(height: 8),
+              _buildViewDetailsButton(team),
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildViewDetailsButton(Map<String, dynamic> team) {
+    final teamId = team['id']?.toString() ?? '';
+    final wins = team['wins'] ?? 0;
+    final draws = team['draws'] ?? 0;
+    final losses = team['losses'] ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () {
+              if (teamId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TeamManagementScreen(
+                      team: Team(
+                        id: teamId,
+                        name: team['name']?.toString() ?? 'Team',
+                        city: team['city']?.toString() ?? '',
+                        rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
+                        matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
+                        wins: wins,
+                        draws: draws,
+                        losses: losses,
+                        academyName: team['academy_name']?.toString(),
+                        ageCategory: team['category']?.toString() ?? team['age_category']?.toString(),
+                        coachId: team['coach_id']?.toString(),
+                        coachName: team['coach_name']?.toString(),
+                      ),
+                      availableCoaches: const [],
+                      isReadOnly: false,
+                    ),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.black),
+            label: Text(
+              'club.manage_btn'.tr().toUpperCase(),
+              style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PremiumTheme.neonGreen,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ],
       ),
     );
   }

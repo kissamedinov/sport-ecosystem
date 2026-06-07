@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.teams.models import Team, TeamMembership, MembershipRole, MembershipStatus, JoinStatus
 from app.matches.models import Match, MatchStatus
-from app.teams.schemas import TeamCreate
+from app.teams.schemas import TeamCreate, PlayerTeamUpdate
 from app.users.models import User, Role, ParentChildRelation, PlayerProfile
 from app.clubs.models import ChildProfile
 from uuid import UUID
@@ -420,3 +420,35 @@ def delete_team(db: Session, team_id: UUID, current_user: User):
     db.delete(team)
     db.commit()
     return {"message": "Team deleted successfully"}
+
+def update_team_player(db: Session, team_id: UUID, player_id: UUID, update_in: PlayerTeamUpdate):
+    from sqlalchemy import or_
+    membership = db.query(TeamMembership).filter(
+        TeamMembership.team_id == team_id,
+        TeamMembership.status == MembershipStatus.ACTIVE,
+        or_(
+            TeamMembership.id == player_id,
+            TeamMembership.player_id == player_id,
+            TeamMembership.child_profile_id == player_id
+        )
+    ).first()
+    
+    if not membership:
+        raise HTTPException(status_code=404, detail="Player membership not found in this team")
+        
+    if update_in.jersey_number is not None:
+        membership.jersey_number = update_in.jersey_number
+        
+    if update_in.position is not None:
+        if membership.child_profile_id:
+            child = db.query(ChildProfile).filter(ChildProfile.id == membership.child_profile_id).first()
+            if child:
+                child.position = update_in.position
+        if membership.player_profile_id:
+            pp = db.query(PlayerProfile).filter(PlayerProfile.id == membership.player_profile_id).first()
+            if pp:
+                pp.preferred_position = update_in.position
+                
+    db.commit()
+    db.refresh(membership)
+    return membership
