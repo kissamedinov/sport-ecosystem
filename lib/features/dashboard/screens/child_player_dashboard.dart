@@ -427,10 +427,12 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
 
   void _handleDashboardInvitation(BuildContext context, PendingRequestItem invite, bool accept) async {
     final notificationProvider = context.read<NotificationProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final teamProvider = context.read<TeamProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     bool success = false;
 
     if (invite.isParentRequest) {
-      final authProvider = context.read<AuthProvider>();
       if (accept) {
         success = await authProvider.acceptRequest(invite.entityId);
       } else {
@@ -447,15 +449,19 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(content: Text(accept ? 'notification.invitation_accepted'.tr() : 'notification.invitation_declined'.tr())),
         );
         if (!invite.isParentRequest) {
           notificationProvider.markAsRead(invite.id);
           notificationProvider.fetchNotifications();
+          teamProvider.fetchMyTeams();
+        } else {
+          authProvider.fetchMyParents();
+          authProvider.checkAuthStatus();
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('notification.action_failed'.tr())),
         );
       }

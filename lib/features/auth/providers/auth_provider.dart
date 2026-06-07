@@ -238,6 +238,12 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _repository.acceptParentRequest(requestId);
       _parentRequests.removeWhere((req) => req['id'] == requestId);
+      try {
+        _myParents = await _repository.getMyParents();
+        _user = await _repository.getCurrentUser();
+      } catch (e) {
+        // ignore errors in nested calls
+      }
       notifyListeners();
       return true;
     } catch (e) {
@@ -253,6 +259,11 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _repository.rejectParentRequest(requestId);
       _parentRequests.removeWhere((req) => req['id'] == requestId);
+      try {
+        _myParents = await _repository.getMyParents();
+      } catch (e) {
+        // ignore errors
+      }
       notifyListeners();
       return true;
     } catch (e) {

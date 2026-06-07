@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../providers/notification_provider.dart';
 import '../../../clubs/providers/club_provider.dart';
 import '../../../auth/providers/auth_provider.dart' as import_auth;
+import '../../../teams/providers/team_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -211,9 +212,6 @@ class _NotificationCard extends StatefulWidget {
 }
 
 class _NotificationCardState extends State<_NotificationCard> {
-  // null = not yet acted on; 'accepted' / 'declined' = done
-  String? _actionResult;
-
   @override
   Widget build(BuildContext context) {
     final notification = widget.notification;
@@ -222,6 +220,9 @@ class _NotificationCardState extends State<_NotificationCard> {
     final isApprovalRequest = notification.title == 'Invitation Approval Required';
     final isUnread = !notification.isRead;
     final (iconData, iconColor) = _getTypeStyle(notification.type);
+
+    final provider = context.watch<NotificationProvider>();
+    final resolvedStatus = provider.getResolvedStatus(notification.id);
 
     return GestureDetector(
       onTap: () {
@@ -297,8 +298,8 @@ class _NotificationCardState extends State<_NotificationCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (_actionResult != null)
-                    _ResultBadge(accepted: _actionResult == 'accepted')
+                  if (resolvedStatus != null)
+                    _ResultBadge(accepted: resolvedStatus == 'accepted')
                   else if (isApprovalRequest)
                     _ActionButton(
                       label: 'notification.approve'.tr(),
@@ -356,8 +357,20 @@ class _NotificationCardState extends State<_NotificationCard> {
 
     if (context.mounted) {
       if (success) {
-        setState(() => _actionResult = accept ? 'accepted' : 'declined');
+        final authProvider = context.read<import_auth.AuthProvider>();
+        final teamProvider = context.read<TeamProvider>();
+
+        await notificationProvider.setResolvedStatus(widget.notification.id, accept ? 'accepted' : 'declined');
         notificationProvider.markAsRead(widget.notification.id);
+        
+        // Refresh appropriate provider data instantly
+        if (widget.notification.type == 'PARENT_LINK_REQUEST') {
+          authProvider.fetchMyParents();
+          authProvider.checkAuthStatus();
+        } else if (widget.notification.type == 'TEAM_INVITE') {
+          teamProvider.fetchMyTeams();
+        }
+
         notificationProvider.fetchNotifications();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

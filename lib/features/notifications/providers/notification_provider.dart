@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile/features/auth/providers/auth_provider.dart';
 import '../data/repositories/notification_repository.dart';
 import '../../clubs/data/repositories/club_repository.dart';
@@ -11,9 +13,11 @@ class NotificationProvider extends ChangeNotifier {
   int _unreadCount = 0;
   bool _isLoading = false;
   String? _error;
+  Map<String, String> _resolvedNotifications = {};
 
   NotificationProvider(this._repository, this._clubRepository) {
     AuthProvider.onLogoutCallbacks.add(clear);
+    loadResolvedNotifications();
   }
 
   List<NotificationModel> get notifications => _notifications;
@@ -106,6 +110,36 @@ class NotificationProvider extends ChangeNotifier {
     _notifications = [];
     _unreadCount = 0;
     _error = null;
+    _resolvedNotifications = {};
     notifyListeners();
+  }
+
+  Future<void> loadResolvedNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString('resolved_notifications');
+      if (saved != null) {
+        final Map<String, dynamic> decoded = jsonDecode(saved);
+        _resolvedNotifications = decoded.map((key, value) => MapEntry(key, value.toString()));
+        notifyListeners();
+      }
+    } catch (e) {
+      // ignore errors
+    }
+  }
+
+  Future<void> setResolvedStatus(String id, String status) async {
+    _resolvedNotifications[id] = status;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('resolved_notifications', jsonEncode(_resolvedNotifications));
+    } catch (e) {
+      // ignore errors
+    }
+  }
+
+  String? getResolvedStatus(String id) {
+    return _resolvedNotifications[id];
   }
 }

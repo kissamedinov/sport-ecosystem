@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/club_provider.dart';
+import '../../../teams/providers/team_provider.dart';
 import '../../data/models/invitation.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
@@ -169,7 +170,12 @@ class _InvitationCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: () => provider.acceptInvitation(invitation.id),
+                  onPressed: () async {
+                    final success = await provider.acceptInvitation(invitation.id);
+                    if (success && context.mounted) {
+                      context.read<TeamProvider>().fetchMyTeams();
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PremiumTheme.neonGreen,
                     foregroundColor: PremiumTheme.surfaceBase(context),
