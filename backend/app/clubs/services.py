@@ -137,6 +137,20 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
 
         academy_responses = []
         for a in academies:
+            from app.teams.models import TeamMembership, MembershipStatus
+            t_ids = [t.id for t in a.teams]
+            if t_ids:
+                distinct_players_count = db.query(TeamMembership.player_profile_id).filter(
+                    TeamMembership.team_id.in_(t_ids),
+                    TeamMembership.status == MembershipStatus.ACTIVE
+                ).distinct().count()
+            else:
+                distinct_players_count = 0
+            
+            # Fallback to len(a.players) if no team memberships exist
+            if distinct_players_count == 0:
+                distinct_players_count = len(a.players)
+
             academy_responses.append(schemas.AcademyResponse(
                 id=a.id,
                 name=a.name,
@@ -146,7 +160,7 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
                 owner_id=a.owner_id or club.owner_id,
                 logo_url=None,
                 teams_count=len(a.teams),
-                players_count=len(a.players),
+                players_count=distinct_players_count,
                 created_at=a.created_at
             ))
 
@@ -558,6 +572,24 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
                         child_profile_id=child_profile_id,
                         status=MembershipStatus.ACTIVE
                     ))
+                
+                # Add to AcademyPlayer for the academy
+                from app.teams.models import Team
+                team = db.query(Team).filter(Team.id == invite.team_id).first()
+                if team and team.academy_id:
+                    from app.academies.models import AcademyPlayer, AcademyPlayerStatus
+                    existing_academy_player = db.query(AcademyPlayer).filter(
+                        AcademyPlayer.academy_id == team.academy_id,
+                        AcademyPlayer.player_profile_id == profile.id
+                    ).first()
+                    if not existing_academy_player:
+                        db.add(AcademyPlayer(
+                            academy_id=team.academy_id,
+                            player_profile_id=profile.id,
+                            player_id=target_user_id,
+                            status=AcademyPlayerStatus.ACTIVE
+                        ))
+
                 detail += " and joined team"
         elif invite.role == ClubRole.COACH:
             if invite.team_id:
