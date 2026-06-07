@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../clubs/providers/club_provider.dart';
+import '../../clubs/data/models/invitation.dart';
 import '../../teams/providers/team_provider.dart';
 import '../../matches/providers/match_provider.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
@@ -429,21 +430,35 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
     final notificationProvider = context.read<NotificationProvider>();
     final authProvider = context.read<AuthProvider>();
     final teamProvider = context.read<TeamProvider>();
+    final clubProvider = context.read<ClubProvider>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     bool success = false;
 
+    String finalEntityId = invite.entityId;
+    if (!invite.isParentRequest) {
+      try {
+        await clubProvider.fetchMyInvitations();
+        final matchingInvite = clubProvider.myInvitations.firstWhere(
+          (i) => i.status == InvitationStatus.pending && 
+                 (i.clubId == invite.entityId || i.teamId == invite.entityId),
+        );
+        finalEntityId = matchingInvite.id;
+      } catch (e) {
+        // fallback
+      }
+    }
+
     if (invite.isParentRequest) {
       if (accept) {
-        success = await authProvider.acceptRequest(invite.entityId);
+        success = await authProvider.acceptRequest(finalEntityId);
       } else {
-        success = await authProvider.rejectRequest(invite.entityId);
+        success = await authProvider.rejectRequest(finalEntityId);
       }
     } else {
-      final clubProvider = context.read<ClubProvider>();
       if (accept) {
-        success = await clubProvider.acceptInvitation(invite.entityId);
+        success = await clubProvider.acceptInvitation(finalEntityId);
       } else {
-        success = await clubProvider.declineInvitation(invite.entityId);
+        success = await clubProvider.declineInvitation(finalEntityId);
       }
     }
 

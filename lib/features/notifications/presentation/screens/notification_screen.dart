@@ -4,6 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:easy_localization/easy_localization.dart';
 import '../../providers/notification_provider.dart';
 import '../../../clubs/providers/club_provider.dart';
+import '../../../clubs/data/models/invitation.dart';
 import '../../../auth/providers/auth_provider.dart' as import_auth;
 import '../../../teams/providers/team_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -337,21 +338,35 @@ class _NotificationCardState extends State<_NotificationCard> {
     if (invitationId == null) return;
 
     final notificationProvider = context.read<NotificationProvider>();
+    final authProvider = context.read<import_auth.AuthProvider>();
+    final clubProvider = context.read<ClubProvider>();
     bool success = false;
 
+    String finalInvitationId = invitationId;
+    if (widget.notification.type == 'TEAM_INVITE') {
+      try {
+        await clubProvider.fetchMyInvitations();
+        final matchingInvite = clubProvider.myInvitations.firstWhere(
+          (invite) => invite.status == InvitationStatus.pending && 
+                      (invite.clubId == invitationId || invite.teamId == invitationId),
+        );
+        finalInvitationId = matchingInvite.id;
+      } catch (e) {
+        // fallback
+      }
+    }
+
     if (widget.notification.type == 'PARENT_LINK_REQUEST') {
-      final authProvider = context.read<import_auth.AuthProvider>();
       success = accept
-          ? await authProvider.acceptRequest(invitationId)
-          : await authProvider.rejectRequest(invitationId);
+          ? await authProvider.acceptRequest(finalInvitationId)
+          : await authProvider.rejectRequest(finalInvitationId);
     } else {
-      final clubProvider = context.read<ClubProvider>();
       if (isApproval) {
-        success = await clubProvider.approveInvitation(invitationId);
+        success = await clubProvider.approveInvitation(finalInvitationId);
       } else if (accept) {
-        success = await clubProvider.acceptInvitation(invitationId);
+        success = await clubProvider.acceptInvitation(finalInvitationId);
       } else {
-        success = await clubProvider.declineInvitation(invitationId);
+        success = await clubProvider.declineInvitation(finalInvitationId);
       }
     }
 
