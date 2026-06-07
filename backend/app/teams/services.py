@@ -274,9 +274,18 @@ def create_join_request(db: Session, team_id: UUID, current_user: User, child_pr
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Join request already pending")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already actively in this team")
 
+    player_id = None
+    if child_profile_id:
+        child = db.query(ChildProfile).filter(ChildProfile.id == child_profile_id).first()
+        if child and child.linked_user_id:
+            player_id = child.linked_user_id
+    else:
+        player_id = current_user.id
+
     new_member = TeamMembership(
         team_id=team_id,
         player_profile_id=target_profile_id,
+        player_id=player_id,
         child_profile_id=child_profile_id,
         role=MembershipRole.PLAYER,
         status=MembershipStatus.ACTIVE,

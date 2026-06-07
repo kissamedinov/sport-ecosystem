@@ -152,6 +152,12 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
 
         teams_responses = []
         for t in teams:
+            from app.teams.models import TeamMembership, MembershipStatus
+            team_memberships = db.query(TeamMembership).filter(
+                TeamMembership.team_id == t.id,
+                TeamMembership.status == MembershipStatus.ACTIVE
+            ).all()
+            
             teams_responses.append(schemas.TeamResponseSimplified(
                 id=t.id,
                 name=t.name,
@@ -165,7 +171,8 @@ def get_club_dashboard(db: Session, club_id: UUID) -> schemas.ClubDashboardRespo
                 draws=0,
                 losses=0,
                 birth_year=t.birth_year,
-                age_category=t.age_category
+                age_category=t.age_category,
+                players=team_memberships
             ))
 
         # Get active players with their profile info
@@ -507,6 +514,13 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
                 if cp:
                     cp.linked_user_id = target_user_id
                     detail += f". Linked to child profile {cp.first_name}"
+                    
+                    # Backfill player_id in TeamMembership for this child profile
+                    from app.teams.models import TeamMembership
+                    db.query(TeamMembership).filter(
+                        TeamMembership.child_profile_id == cp.id,
+                        TeamMembership.player_id.is_(None)
+                    ).update({TeamMembership.player_id: target_user_id}, synchronize_session=False)
             
             # PlayerProfile (for the child)
             from app.users.models import PlayerProfile
@@ -517,7 +531,33 @@ def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
                 
             if invite.team_id:
                 from app.teams.models import TeamMembership, MembershipStatus
-                db.add(TeamMembership(team_id=invite.team_id, player_profile_id=profile.id, status=MembershipStatus.ACTIVE))
+                
+                # Check for existing child profile matching this user
+                child_profile_id = invite.child_profile_id
+                if not child_profile_id:
+                    cp = db.query(models.ChildProfile).filter(models.ChildProfile.linked_user_id == target_user_id).first()
+                    if cp:
+                        child_profile_id = cp.id
+                
+                # Check if they are already in the team
+                existing_team_membership = db.query(TeamMembership).filter(
+                    TeamMembership.team_id == invite.team_id,
+                    TeamMembership.player_profile_id == profile.id
+                ).first()
+                
+                if existing_team_membership:
+                    existing_team_membership.status = MembershipStatus.ACTIVE
+                    existing_team_membership.player_id = target_user_id
+                    if child_profile_id:
+                        existing_team_membership.child_profile_id = child_profile_id
+                else:
+                    db.add(TeamMembership(
+                        team_id=invite.team_id,
+                        player_profile_id=profile.id,
+                        player_id=target_user_id,
+                        child_profile_id=child_profile_id,
+                        status=MembershipStatus.ACTIVE
+                    ))
                 detail += " and joined team"
         elif invite.role == ClubRole.COACH:
             if invite.team_id:

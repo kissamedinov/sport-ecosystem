@@ -147,6 +147,8 @@ class TeamCreateInAcademy(BaseModel):
             return None
         return v
 
+from app.teams.schemas import PlayerTeamResponse
+
 class TeamResponseSimplified(BaseModel):
     id: UUID
     name: str
@@ -161,6 +163,7 @@ class TeamResponseSimplified(BaseModel):
     losses: int = 0
     birth_year: Optional[int] = None
     age_category: Optional[str] = None
+    players: List[PlayerTeamResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
 class CoachPlayerResponse(BaseModel):

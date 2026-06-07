@@ -415,9 +415,11 @@ def move_player_between_teams(db: Session, player_profile_id: UUID, target_team_
     db.query(TeamMembership).filter(TeamMembership.player_profile_id == player_profile_id).update(dict(status=MembershipStatus.LEFT))
     
     # Add to new team
+    profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_profile_id).first()
     new_team_player = TeamMembership(
         team_id=target_team_id,
-        player_profile_id=player_profile_id
+        player_profile_id=player_profile_id,
+        player_id=profile.user_id if profile else None
     )
     db.add(new_team_player)
     db.commit()
