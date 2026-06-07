@@ -169,9 +169,56 @@ def get_my_child_profiles(
         ParentChildRelation.status == ParentChildStatus.ACCEPTED
     ).all()
     child_user_ids = [r[0] for r in child_user_ids]
-    return db.query(models.ChildProfile).filter(
+    
+    # 1. Get existing ChildProfiles linked to these children
+    profiles = db.query(models.ChildProfile).filter(
         models.ChildProfile.linked_user_id.in_(child_user_ids)
     ).all()
+    
+    profiles_list = list(profiles)
+    
+    # 2. Find which child user IDs do not have a ChildProfile
+    linked_child_user_ids = {p.linked_user_id for p in profiles_list if p.linked_user_id}
+    missing_child_user_ids = [cid for cid in child_user_ids if cid not in linked_child_user_ids]
+    
+    if missing_child_user_ids:
+        # 3. Fetch user info and player profiles for these missing children
+        from app.users.models import User as DBUser, PlayerProfile as DBPlayerProfile
+        missing_users = db.query(DBUser).filter(DBUser.id.in_(missing_child_user_ids)).all()
+        
+        for u in missing_users:
+            pp = db.query(DBPlayerProfile).filter(DBPlayerProfile.user_id == u.id).first()
+            
+            # Split name into first and last
+            parts = u.name.split(' ', 1)
+            first_name = parts[0] if parts else "Child"
+            last_name = parts[1] if len(parts) > 1 else ""
+            
+            from datetime import date, datetime
+            dob = u.date_of_birth if u.date_of_birth else date(2010, 1, 1)
+            if isinstance(dob, date) and not isinstance(dob, datetime):
+                dob = datetime.combine(dob, datetime.min.time())
+                
+            position = pp.preferred_position if (pp and hasattr(pp, 'preferred_position')) else None
+            
+            # Create a mock ChildProfile
+            from uuid import UUID
+            dummy_club_id = UUID('00000000-0000-0000-0000-000000000000')
+            
+            synthesized_profile = models.ChildProfile(
+                id=u.id,
+                first_name=first_name,
+                last_name=last_name,
+                date_of_birth=dob,
+                position=position,
+                created_by=current_user.id,
+                club_id=dummy_club_id,
+                linked_user_id=u.id,
+                created_at=u.created_at if (hasattr(u, 'created_at') and u.created_at) else datetime.now()
+            )
+            profiles_list.append(synthesized_profile)
+            
+    return profiles_list
 
 # --- Original & Management Routes ---
 
