@@ -470,7 +470,11 @@ def create_invitation(db: Session, invite_in: schemas.InvitationCreate, inviter_
 def accept_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
     try:
         invite = db.query(models.Invitation).filter(models.Invitation.id == invitation_id).first()
-        if not invite or invite.status != models.InvitationStatus.PENDING:
+        if not invite:
+            raise HTTPException(status_code=400, detail="Invalid invitation")
+        if invite.status == models.InvitationStatus.ACCEPTED:
+            return {"status": "success", "detail": "Invitation already accepted"}
+        if invite.status != models.InvitationStatus.PENDING:
             raise HTTPException(status_code=400, detail="Invalid invitation")
         
         # Check if user is the invited user OR a parent of the invited user
@@ -610,7 +614,11 @@ def approve_invitation(db: Session, invitation_id: UUID, current_user_id: UUID) 
 def decline_invitation(db: Session, invitation_id: UUID, user_id: UUID) -> dict:
     try:
         invite = db.query(models.Invitation).filter(models.Invitation.id == invitation_id).first()
-        if not invite or invite.status != models.InvitationStatus.PENDING:
+        if not invite:
+            raise HTTPException(status_code=400, detail="Invalid invitation")
+        if invite.status == models.InvitationStatus.REJECTED:
+            return {"status": "success", "detail": "Invitation already declined"}
+        if invite.status != models.InvitationStatus.PENDING:
             raise HTTPException(status_code=400, detail="Invalid invitation")
         
         # Check if user is the invited user OR a parent of the invited user

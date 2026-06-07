@@ -95,7 +95,20 @@ def mark_as_read(db: Session, notification_id: uuid.UUID, user_id: uuid.UUID):
         import datetime
         target.read_at = datetime.datetime.now()
         db.commit()
-    return target
+        
+        notification = db.query(Notification).filter(Notification.id == notification_id).first()
+        if notification:
+            return {
+                "id": notification.id,
+                "type": notification.type,
+                "title": notification.title,
+                "message": notification.message,
+                "entity_type": notification.entity_type,
+                "entity_id": notification.entity_id,
+                "is_read": True,
+                "created_at": notification.created_at
+            }
+    return None
 
 def get_unread_count(db: Session, user_id: uuid.UUID):
     return db.query(NotificationTarget).filter(
