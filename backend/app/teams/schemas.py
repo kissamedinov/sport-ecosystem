@@ -26,6 +26,13 @@ class TeamUpdate(BaseModel):
 class TeamResponse(TeamBase):
     id: UUID
     coach_id: Optional[UUID] = None
+    rating: int = 1000
+    matches_played: int = 0
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    city: str = "Astana"
+    academy_name: Optional[str] = None
     created_at: datetime
 
     class Config:

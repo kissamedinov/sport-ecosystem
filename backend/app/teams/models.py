@@ -30,6 +30,11 @@ class Team(Base):
     division = Column(String, nullable=True, default="Group A") # A/B composition
     is_active = Column(Boolean, default=True)
     coach_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    rating = Column(Integer, default=1000)
+    matches_played = Column(Integer, default=0)
+    wins = Column(Integer, default=0)
+    draws = Column(Integer, default=0)
+    losses = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
@@ -37,6 +42,19 @@ class Team(Base):
     coach = relationship("User", foreign_keys=[coach_id])
     memberships = relationship("TeamMembership", back_populates="team", cascade="all, delete-orphan")
     rating_history = relationship("TeamRatingHistory", back_populates="team", cascade="all, delete-orphan")
+
+    @property
+    def city(self):
+        if self.academy:
+            return self.academy.city
+        return "Astana"
+
+    @property
+    def academy_name(self):
+        if self.academy:
+            return self.academy.name
+        return None
+
 
 class TeamRatingHistory(Base):
     __tablename__ = "team_rating_history"
