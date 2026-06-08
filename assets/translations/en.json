@@ -261,6 +261,8 @@
     "games_badge": "Games"
   },
   "club": {
+    "unassigned_no_coach": "Unassigned / No Coach",
+    "select_coach_error": "Please select a coach first.",
     "dashboard": "Club Dashboard",
     "manage": "Manage",
     "members": "Members",
@@ -394,7 +396,8 @@
     "removing_player": "Removing player...",
     "player_role_label": "Player",
     "roster_count": "ROSTER ({count})",
-    "invite_code_full": "Or share the club invite code {code} — they'll join from the app."
+    "invite_code_full": "Or share the club invite code {code} — they'll join from the app.",
+    "manage_btn": "Manage"
   },
   "team": {
     "my_team": "MY TEAM",
@@ -447,7 +450,42 @@
     "wins": "Wins",
     "losses": "Losses",
     "vs_rival": "vs Rival",
-    "at_rival": "at Rival"
+    "at_rival": "at Rival",
+    "edit_player_info": "Edit Player Info",
+    "position": "Position",
+    "jersey_number": "Jersey Number",
+    "jersey_number_hint": "Jersey Number (e.g. 10)",
+    "invalid_jersey": "Invalid jersey number",
+    "player_updated": "Player info updated successfully.",
+    "player_update_failed": "Failed to update player info.",
+    "teams_label": "Teams",
+    "players_label": "Players",
+    "player_col": "Player",
+    "pos_col": "Pos",
+    "goals_col": "G",
+    "assists_col": "A",
+    "live_label": "Live",
+    "vs_label": "VS",
+    "lineup_label": "Lineup",
+    "selected_suffix": "selected",
+    "clear_btn": "Clear",
+    "lineup_submitted_msg": "Lineup submitted!",
+    "submit_lineup_btn": "Submit Lineup",
+    "select_more_players_btn": "Select {count} more players",
+    "trial_approved": "Trial request approved.",
+    "trial_approve_failed": "Failed to approve request.",
+    "trial_rejecting": "Rejecting trial...",
+    "trial_rejected": "Trial request rejected.",
+    "trial_reject_failed": "Failed to reject request.",
+    "select_11": "Select 11",
+    "failed_to_load_players": "Failed to load players: {error}",
+    "at_least_one_starter": "At least 1 starting player is required",
+    "assign_positions_all_starters": "Please assign positions for all starting players",
+    "lineup_management": "Lineup Management",
+    "starting_players_count": "{count} Starting Players",
+    "starting_lineup": "Starting Lineup",
+    "substitute": "Substitute",
+    "position_on_field": "Position on Field:"
   },
   "academy": {
     "my_academy": "My Academy",
@@ -991,7 +1029,8 @@
     "error_generic": "Something went wrong. Please try again.",
     "no_internet": "No internet connection.",
     "session_expired": "Session expired. Please log in again.",
-    "coming_soon_content": "Content for {title} coming soon!"
+    "coming_soon_content": "Content for {title} coming soon!",
+    "select": "Select"
   },
   "settings": {
     "settings": "Settings",
@@ -1212,7 +1251,18 @@
     "day_streak": "DAY STREAK",
     "total_pts": "TOTAL PTS",
     "world_rank": "WORLD RANK",
-    "see_full_leaderboard": "SEE FULL LEADERBOARD"
+    "see_full_leaderboard": "SEE FULL LEADERBOARD",
+    "daily_challenge_desc": "Answer 5 questions, beat your streak and climb the global leaderboard today!",
+    "start_challenge": "START TODAY'S CHALLENGE",
+    "shooting": "SHOOTING",
+    "dribbling": "DRIBBLING",
+    "passing": "PASSING",
+    "defending": "DEFENDING",
+    "power": "POWER",
+    "agility": "AGILITY",
+    "vision": "VISION",
+    "strength": "STRENGTH",
+    "no_teams_assigned": "NO TEAMS ASSIGNED"
   },
   "analytics": {
     "total_revenue": "TOTAL REVENUE",

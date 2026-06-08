@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../models/player_lineup_model.dart';
 
@@ -27,7 +28,7 @@ class PlayerCard extends StatelessWidget {
           : BorderSide.none,
       ),
       color: player.isStarting 
-        ? Theme.of(context).primaryColor.withOpacity(0.05)
+        ? Theme.of(context).primaryColor.withValues(alpha: 0.05)
         : null,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -58,7 +59,7 @@ class PlayerCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        player.isStarting ? 'Starting Lineup' : 'Substitute',
+                        player.isStarting ? 'team.starting_lineup'.tr() : 'team.substitute'.tr(),
                         style: TextStyle(
                           fontSize: 12,
                           color: player.isStarting 
@@ -81,9 +82,9 @@ class PlayerCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Position on Field:',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  Text(
+                    'team.position_on_field'.tr(),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -94,7 +95,7 @@ class PlayerCard extends StatelessWidget {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: player.position,
-                        hint: const Text('Select'),
+                        hint: Text('common.select'.tr()),
                         items: positions.map((String pos) {
                           return DropdownMenuItem<String>(
                             value: pos,

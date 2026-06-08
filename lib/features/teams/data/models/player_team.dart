@@ -40,6 +40,30 @@ class PlayerTeam {
     );
   }
 
+  PlayerTeam copyWith({
+    String? id,
+    String? teamId,
+    String? playerId,
+    DateTime? joinedAt,
+    User? player,
+    String? joinStatus,
+    String? childProfileId,
+    String? position,
+    int? jerseyNumber,
+  }) {
+    return PlayerTeam(
+      id: id ?? this.id,
+      teamId: teamId ?? this.teamId,
+      playerId: playerId ?? this.playerId,
+      joinedAt: joinedAt ?? this.joinedAt,
+      player: player ?? this.player,
+      joinStatus: joinStatus ?? this.joinStatus,
+      childProfileId: childProfileId ?? this.childProfileId,
+      position: position ?? this.position,
+      jerseyNumber: jerseyNumber ?? this.jerseyNumber,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'team_id': teamId,

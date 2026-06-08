@@ -194,7 +194,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
                       ),
                     ),
                     Text(
-                      'Football Kick-Off',
+                      'profile.football_kickoff'.tr(),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
@@ -225,7 +225,7 @@ class _FootballHubScreenState extends State<FootballHubScreen>
           ),
           const SizedBox(height: 14),
           Text(
-            'Answer 5 questions, beat your streak and\nclimb the global leaderboard today!',
+            'hub.daily_challenge_desc'.tr(),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 12,
@@ -240,13 +240,13 @@ class _FootballHubScreenState extends State<FootballHubScreen>
               color: const Color(0xFF00E676),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.play_arrow_rounded, color: Colors.black, size: 20),
-                SizedBox(width: 6),
+                const Icon(Icons.play_arrow_rounded, color: Colors.black, size: 20),
+                const SizedBox(width: 6),
                 Text(
-                  "START TODAY'S CHALLENGE",
+                  'hub.start_challenge'.tr(),
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w900,
@@ -340,14 +340,14 @@ class _FootballHubScreenState extends State<FootballHubScreen>
 
   Widget _buildSkillsGrid(BuildContext context) {
     final skills = [
-      _SkillItem('SHOOTING', Icons.sports_soccer_rounded,
-          const Color(0xFF42A5F5), const Color(0xFF0D1B2A), 'POWER', 0.72),
-      _SkillItem('DRIBBLING', Icons.directions_run_rounded,
-          const Color(0xFF00E676), const Color(0xFF0A1F0A), 'AGILITY', 0.58),
-      _SkillItem('PASSING', Icons.swap_horiz_rounded,
-          const Color(0xFFFFA726), const Color(0xFF1A1200), 'VISION', 0.85),
-      _SkillItem('DEFENDING', Icons.shield_rounded,
-          const Color(0xFFCE93D8), const Color(0xFF1A001A), 'STRENGTH', 0.44),
+      _SkillItem('hub.shooting'.tr(), Icons.sports_soccer_rounded,
+          const Color(0xFF42A5F5), const Color(0xFF0D1B2A), 'hub.power'.tr(), 0.72),
+      _SkillItem('hub.dribbling'.tr(), Icons.directions_run_rounded,
+          const Color(0xFF00E676), const Color(0xFF0A1F0A), 'hub.agility'.tr(), 0.58),
+      _SkillItem('hub.passing'.tr(), Icons.swap_horiz_rounded,
+          const Color(0xFFFFA726), const Color(0xFF1A1200), 'hub.vision'.tr(), 0.85),
+      _SkillItem('hub.defending'.tr(), Icons.shield_rounded,
+          const Color(0xFFCE93D8), const Color(0xFF1A001A), 'hub.strength'.tr(), 0.44),
     ];
 
     return GridView.count(

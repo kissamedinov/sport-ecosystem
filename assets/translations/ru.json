@@ -261,6 +261,8 @@
     "games_badge": "Игры"
   },
   "club": {
+    "unassigned_no_coach": "Не назначен / Без тренера",
+    "select_coach_error": "Пожалуйста, сначала выберите тренера.",
     "dashboard": "Панель клуба",
     "manage": "Управление",
     "members": "Участники",
@@ -394,7 +396,8 @@
     "removing_player": "Удаление игрока...",
     "player_role_label": "Игрок",
     "roster_count": "СОСТАВ ({count})",
-    "invite_code_full": "Или поделитесь кодом приглашения {code} — они присоединятся через приложение."
+    "invite_code_full": "Или поделитесь кодом приглашения {code} — они присоединятся через приложение.",
+    "manage_btn": "Управление"
   },
   "team": {
     "my_team": "МОЯ КОМАНДА",
@@ -447,7 +450,42 @@
     "wins": "Победы",
     "losses": "Поражения",
     "vs_rival": "vs Соперник",
-    "at_rival": "в гостях"
+    "at_rival": "в гостях",
+    "edit_player_info": "Редактировать профиль игрока",
+    "position": "Позиция",
+    "jersey_number": "Номер футболки",
+    "jersey_number_hint": "Номер футболки (например, 10)",
+    "invalid_jersey": "Неверный номер футболки",
+    "player_updated": "Информация об игроке успешно обновлена.",
+    "player_update_failed": "Не удалось обновить информацию об игроке.",
+    "teams_label": "Команды",
+    "players_label": "Игроки",
+    "player_col": "Игрок",
+    "pos_col": "Поз",
+    "goals_col": "Г",
+    "assists_col": "П",
+    "live_label": "Live",
+    "vs_label": "VS",
+    "lineup_label": "Состав",
+    "selected_suffix": "выбрано",
+    "clear_btn": "Очистить",
+    "lineup_submitted_msg": "Состав отправлен!",
+    "submit_lineup_btn": "Отправить состав",
+    "select_more_players_btn": "Выберите еще {count} игроков",
+    "trial_approved": "Заявка на пробную тренировку одобрена.",
+    "trial_approve_failed": "Не удалось одобрить заявку.",
+    "trial_rejecting": "Отклонение заявки на пробную тренировку...",
+    "trial_rejected": "Заявка на пробную тренировку отклонена.",
+    "trial_reject_failed": "Не удалось отклонить заявку.",
+    "select_11": "Выберите 11",
+    "failed_to_load_players": "Не удалось загрузить игроков: {error}",
+    "at_least_one_starter": "Требуется как минимум 1 стартовый игрок",
+    "assign_positions_all_starters": "Пожалуйста, назначьте позиции для всех стартовых игроков",
+    "lineup_management": "Управление составом",
+    "starting_players_count": "{count} стартовых игроков",
+    "starting_lineup": "Стартовый состав",
+    "substitute": "Запасной",
+    "position_on_field": "Позиция на поле:"
   },
   "academy": {
     "my_academy": "Моя академия",
@@ -991,7 +1029,8 @@
     "error_generic": "Что-то пошло не так. Попробуйте снова.",
     "no_internet": "Нет подключения к интернету.",
     "session_expired": "Сессия истекла. Пожалуйста, войдите снова.",
-    "coming_soon_content": "Содержимое для {title} скоро появится!"
+    "coming_soon_content": "Содержимое для {title} скоро появится!",
+    "select": "Выбрать"
   },
   "settings": {
     "settings": "Настройки",
@@ -1212,7 +1251,18 @@
     "day_streak": "СЕРИЯ ДНЕЙ",
     "total_pts": "ВСЕГО ОЧКОВ",
     "world_rank": "МИРОВОЙ РЕЙТИНГ",
-    "see_full_leaderboard": "ПОЛНАЯ ТАБЛИЦА ЛИДЕРОВ"
+    "see_full_leaderboard": "ПОЛНАЯ ТАБЛИЦА ЛИДЕРОВ",
+    "daily_challenge_desc": "Ответьте на 5 вопросов, побейте свою серию и поднимитесь в таблице лидеров!",
+    "start_challenge": "НАЧАТЬ СЕГОДНЯШНИЙ ЧЕЛЛЕНДЖ",
+    "shooting": "УДАР",
+    "dribbling": "ДРИБЛИНГ",
+    "passing": "ПАС",
+    "defending": "ЗАЩИТА",
+    "power": "МОЩЬ",
+    "agility": "ЛОВКОСТЬ",
+    "vision": "ВИДЕНИЕ",
+    "strength": "СИЛА",
+    "no_teams_assigned": "НЕТ НАЗНАЧЕННЫХ КОМАНД"
   },
   "analytics": {
     "total_revenue": "ОБЩИЙ ДОХОД",

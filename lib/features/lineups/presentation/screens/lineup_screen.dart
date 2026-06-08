@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/theme/premium_theme.dart';
 import 'package:mobile/features/teams/data/models/player_team.dart';
 
@@ -23,12 +24,11 @@ class LineupScreen extends StatefulWidget {
 
 class _LineupScreenState extends State<LineupScreen>
     with SingleTickerProviderStateMixin {
+  String _format = '11v11';
   String _formation = '4-3-3';
   final Set<String> _selected = <String>{};
   late AnimationController _progressCtrl;
   late Animation<double> _progressAnim;
-
-  static const _formations = ['4-3-3', '4-4-2', '4-2-3-1', '3-5-2'];
 
   late final List<_PlayerVM> _roster;
 
@@ -40,6 +40,158 @@ class _LineupScreenState extends State<LineupScreen>
   static const _positions = [
     'GK', 'DEF', 'DEF', 'DEF', 'MID', 'MID', 'MID', 'FWD', 'FWD',
   ];
+
+  static const _formationsByFormat = <String, List<_LineupFormation>>{
+    '11v11': [
+      _LineupFormation('4-3-3', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('CM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.8, 0.52)],
+        [_LineupPos('LW', 0.15, 0.26), _LineupPos('ST', 0.5, 0.22), _LineupPos('RW', 0.85, 0.26)],
+      ]),
+      _LineupFormation('4-4-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('LM', 0.1, 0.52), _LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52), _LineupPos('RM', 0.9, 0.52)],
+        [_LineupPos('ST', 0.35, 0.24), _LineupPos('ST', 0.65, 0.24)],
+      ]),
+      _LineupFormation('4-2-3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('DM', 0.35, 0.60), _LineupPos('DM', 0.65, 0.60)],
+        [_LineupPos('LW', 0.15, 0.42), _LineupPos('CAM', 0.5, 0.40), _LineupPos('RW', 0.85, 0.42)],
+        [_LineupPos('ST', 0.5, 0.20)],
+      ]),
+      _LineupFormation('3-5-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('LWB', 0.05, 0.54), _LineupPos('CM', 0.28, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.72, 0.52), _LineupPos('RWB', 0.95, 0.54)],
+        [_LineupPos('ST', 0.35, 0.24), _LineupPos('ST', 0.65, 0.24)],
+      ]),
+      _LineupFormation('4-1-4-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('DM', 0.5, 0.62)],
+        [_LineupPos('LM', 0.1, 0.48), _LineupPos('CM', 0.35, 0.48), _LineupPos('CM', 0.65, 0.48), _LineupPos('RM', 0.9, 0.48)],
+        [_LineupPos('ST', 0.5, 0.20)],
+      ]),
+      _LineupFormation('3-4-3', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('LM', 0.1, 0.52), _LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52), _LineupPos('RM', 0.9, 0.52)],
+        [_LineupPos('LW', 0.15, 0.26), _LineupPos('ST', 0.5, 0.22), _LineupPos('RW', 0.85, 0.26)],
+      ]),
+      _LineupFormation('4-3-2-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('CM', 0.2, 0.56), _LineupPos('CM', 0.5, 0.56), _LineupPos('CM', 0.8, 0.56)],
+        [_LineupPos('AM', 0.32, 0.36), _LineupPos('AM', 0.68, 0.36)],
+        [_LineupPos('ST', 0.5, 0.20)],
+      ]),
+      _LineupFormation('4-5-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('LM', 0.05, 0.50), _LineupPos('CM', 0.27, 0.50), _LineupPos('CM', 0.5, 0.50), _LineupPos('CM', 0.73, 0.50), _LineupPos('RM', 0.95, 0.50)],
+        [_LineupPos('ST', 0.5, 0.22)],
+      ]),
+      _LineupFormation('5-3-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LWB', 0.05, 0.72), _LineupPos('CB', 0.25, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.75, 0.74), _LineupPos('RWB', 0.95, 0.72)],
+        [_LineupPos('CM', 0.25, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.75, 0.52)],
+        [_LineupPos('ST', 0.35, 0.24), _LineupPos('ST', 0.65, 0.24)],
+      ]),
+    ],
+    '9v9': [
+      _LineupFormation('3-3-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('CM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.8, 0.52)],
+        [_LineupPos('ST', 0.35, 0.26), _LineupPos('ST', 0.65, 0.26)],
+      ]),
+      _LineupFormation('3-2-3', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52)],
+        [_LineupPos('LW', 0.15, 0.26), _LineupPos('ST', 0.5, 0.22), _LineupPos('RW', 0.85, 0.26)],
+      ]),
+      _LineupFormation('4-3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.37, 0.74), _LineupPos('CB', 0.63, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('CM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.8, 0.52)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('2-4-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.3, 0.74), _LineupPos('CB', 0.7, 0.74)],
+        [_LineupPos('LM', 0.1, 0.52), _LineupPos('CM', 0.37, 0.52), _LineupPos('CM', 0.63, 0.52), _LineupPos('RM', 0.9, 0.52)],
+        [_LineupPos('ST', 0.35, 0.26), _LineupPos('ST', 0.65, 0.26)],
+      ]),
+      _LineupFormation('3-4-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('LM', 0.1, 0.52), _LineupPos('CM', 0.37, 0.52), _LineupPos('CM', 0.63, 0.52), _LineupPos('RM', 0.9, 0.52)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('4-2-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('LB', 0.1, 0.74), _LineupPos('CB', 0.37, 0.74), _LineupPos('CB', 0.63, 0.74), _LineupPos('RB', 0.9, 0.74)],
+        [_LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52)],
+        [_LineupPos('ST', 0.35, 0.26), _LineupPos('ST', 0.65, 0.26)],
+      ]),
+      _LineupFormation('2-3-3', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.3, 0.74), _LineupPos('CB', 0.7, 0.74)],
+        [_LineupPos('CM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.8, 0.52)],
+        [_LineupPos('LW', 0.15, 0.26), _LineupPos('ST', 0.5, 0.22), _LineupPos('RW', 0.85, 0.26)],
+      ]),
+    ],
+    '6v6': [
+      _LineupFormation('2-2-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.3, 0.72), _LineupPos('CB', 0.7, 0.72)],
+        [_LineupPos('CM', 0.3, 0.48), _LineupPos('CM', 0.7, 0.48)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('1-3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.5, 0.74)],
+        [_LineupPos('LM', 0.2, 0.50), _LineupPos('CM', 0.5, 0.50), _LineupPos('RM', 0.8, 0.50)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('2-1-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.3, 0.72), _LineupPos('CB', 0.7, 0.72)],
+        [_LineupPos('CM', 0.5, 0.50)],
+        [_LineupPos('LW', 0.25, 0.26), _LineupPos('RW', 0.75, 0.26)],
+      ]),
+    ],
+    '5v5': [
+      _LineupFormation('2-1-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.3, 0.72), _LineupPos('CB', 0.7, 0.72)],
+        [_LineupPos('CM', 0.5, 0.50)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('1-2-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.5, 0.74)],
+        [_LineupPos('CM', 0.3, 0.50), _LineupPos('CM', 0.7, 0.50)],
+        [_LineupPos('ST', 0.5, 0.24)],
+      ]),
+      _LineupFormation('3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.72), _LineupPos('CB', 0.5, 0.72), _LineupPos('CB', 0.8, 0.72)],
+        [_LineupPos('ST', 0.5, 0.28)],
+      ]),
+    ],
+  };
+
+  int get _targetPlayerCount {
+    if (_format == '9v9') return 9;
+    if (_format == '6v6') return 6;
+    if (_format == '5v5') return 5;
+    return 11;
+  }
 
   @override
   void initState() {
@@ -78,7 +230,7 @@ class _LineupScreenState extends State<LineupScreen>
   }
 
   void _updateProgress(int count) {
-    _progressAnim = Tween<double>(begin: _progressAnim.value, end: count / 11).animate(
+    _progressAnim = Tween<double>(begin: _progressAnim.value, end: count / _targetPlayerCount).animate(
       CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut),
     );
     _progressCtrl
@@ -91,7 +243,7 @@ class _LineupScreenState extends State<LineupScreen>
     setState(() {
       if (_selected.contains(p.id)) {
         _selected.remove(p.id);
-      } else if (_selected.length < 11) {
+      } else if (_selected.length < _targetPlayerCount) {
         _selected.add(p.id);
       }
       _updateProgress(_selected.length);
@@ -108,10 +260,26 @@ class _LineupScreenState extends State<LineupScreen>
     }
   }
 
+  List<_LineupPos> _getFlatPositions() {
+    final formatFormations = _formationsByFormat[_format] ?? [];
+    final activeFormation = formatFormations.firstWhere(
+      (f) => f.name == _formation,
+      orElse: () => formatFormations.isNotEmpty ? formatFormations.first : _formationsByFormat['11v11']!.first,
+    );
+    return activeFormation.lines.expand((line) => line).toList();
+  }
+
+  Color _posColorFor(String label) {
+    if (label == 'GK') return const Color(0xFFFFC107);
+    if (label.contains('B') || label == 'DEF') return PremiumTheme.electricBlue;
+    if (label.contains('M') || label == 'MID') return PremiumTheme.neonGreen;
+    return const Color(0xFFFF5252);
+  }
+
   @override
   Widget build(BuildContext context) {
     final selected = _selected.length;
-    final ready = selected == 11;
+    final ready = selected == _targetPlayerCount;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -122,6 +290,7 @@ class _LineupScreenState extends State<LineupScreen>
           Expanded(
             child: CustomScrollView(
               slivers: [
+                SliverToBoxAdapter(child: _buildFormatSelector()),
                 SliverToBoxAdapter(child: _buildFormationBar()),
                 SliverToBoxAdapter(child: _buildPitch()),
                 SliverToBoxAdapter(child: _buildCounterRow(selected, ready)),
@@ -196,8 +365,8 @@ class _LineupScreenState extends State<LineupScreen>
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.4)),
                           ),
-                          child: const Text('VS',
-                            style: TextStyle(color: PremiumTheme.neonGreen,
+                          child: Text('team.vs_label'.tr().toUpperCase(),
+                            style: const TextStyle(color: PremiumTheme.neonGreen,
                                 fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                         ),
                         Flexible(
@@ -225,8 +394,8 @@ class _LineupScreenState extends State<LineupScreen>
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.3)),
                 ),
-                child: const Text('LINEUP',
-                  style: TextStyle(color: PremiumTheme.neonGreen,
+                child: Text('team.lineup_label'.tr().toUpperCase(),
+                  style: const TextStyle(color: PremiumTheme.neonGreen,
                       fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
               ),
             ],
@@ -236,19 +405,79 @@ class _LineupScreenState extends State<LineupScreen>
     );
   }
 
+  // ── FORMAT SELECTOR ─────────────────────────────────────────────────────────
+
+  Widget _buildFormatSelector() {
+    final formats = ['11v11', '9v9', '6v6', '5v5'];
+    return Container(
+      height: 36,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: formats.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final fmt = formats[i];
+          final active = fmt == _format;
+          return GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _format = fmt;
+                final list = _formationsByFormat[fmt] ?? [];
+                _formation = list.isNotEmpty ? list.first.name : '4-3-3';
+                // Adjust selections if they exceed the new target
+                if (_selected.length > _targetPlayerCount) {
+                  final listSelected = _selected.toList();
+                  _selected.clear();
+                  _selected.addAll(listSelected.take(_targetPlayerCount));
+                }
+                _updateProgress(_selected.length);
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: active ? PremiumTheme.electricBlue : Colors.transparent,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: active
+                      ? PremiumTheme.electricBlue
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
+                  width: 1.5,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                fmt,
+                style: TextStyle(
+                  color: active ? Colors.black : Theme.of(context).colorScheme.onSurface,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   // ── FORMATION BAR ────────────────────────────────────────────────────────────
 
   Widget _buildFormationBar() {
+    final formations = _formationsByFormat[_format] ?? [];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
       child: SizedBox(
-        height: 40,
+        height: 38,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: _formations.length,
+          itemCount: formations.length,
           separatorBuilder: (_, __) => const SizedBox(width: 8),
           itemBuilder: (_, i) {
-            final f = _formations[i];
+            final f = formations[i].name;
             final active = f == _formation;
             return GestureDetector(
               onTap: () {
@@ -257,10 +486,10 @@ class _LineupScreenState extends State<LineupScreen>
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: active ? PremiumTheme.neonGreen : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: active
                         ? PremiumTheme.neonGreen
@@ -305,25 +534,23 @@ class _LineupScreenState extends State<LineupScreen>
             ],
           ),
           child: LayoutBuilder(builder: (ctx, c) {
-            final positions = _positionsFor(_formation);
-            final posLabels = _positionLabels(_formation);
+            final flatPos = _getFlatPositions();
             return Stack(children: [
               Positioned.fill(child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: CustomPaint(painter: _PitchPainter()),
               )),
-              ...positions.asMap().entries.map((e) {
+              ...flatPos.asMap().entries.map((e) {
                 final i = e.key;
-                final off = e.value;
+                final pos = e.value;
                 final pid = i < _selected.length ? _selected.elementAt(i) : null;
                 final player = pid != null
                     ? _roster.firstWhere((p) => p.id == pid, orElse: () => _roster.first)
                     : null;
-                final label = i < posLabels.length ? posLabels[i] : '';
                 return Positioned(
-                  left: off.dx * c.maxWidth - 22,
-                  top: off.dy * c.maxHeight - 28,
-                  child: _PitchSlot(player: player, posLabel: label, posColor: _posColorFor(label)),
+                  left: pos.x * c.maxWidth - 22,
+                  top: pos.y * c.maxHeight - 28,
+                  child: _PitchSlot(player: player, posLabel: pos.label, posColor: _posColorFor(pos.label)),
                 );
               }),
             ]);
@@ -331,13 +558,6 @@ class _LineupScreenState extends State<LineupScreen>
         ),
       ),
     );
-  }
-
-  Color _posColorFor(String label) {
-    if (label == 'GK') return const Color(0xFFFFC107);
-    if (label.contains('B') || label == 'DEF') return PremiumTheme.electricBlue;
-    if (label.contains('M') || label == 'MID') return PremiumTheme.neonGreen;
-    return const Color(0xFFFF5252);
   }
 
   // ── COUNTER ROW ──────────────────────────────────────────────────────────────
@@ -355,7 +575,7 @@ class _LineupScreenState extends State<LineupScreen>
                 fontSize: 22, fontWeight: FontWeight.w900),
             ),
             TextSpan(
-              text: ' / 11  selected',
+              text: ' / $_targetPlayerCount  ' + 'team.selected_suffix'.tr(),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14, fontWeight: FontWeight.w600),
@@ -386,8 +606,8 @@ class _LineupScreenState extends State<LineupScreen>
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: PremiumTheme.danger.withValues(alpha: 0.3)),
                 ),
-                child: const Text('CLEAR',
-                  style: TextStyle(color: PremiumTheme.danger,
+                child: Text('team.clear_btn'.tr().toUpperCase(),
+                  style: const TextStyle(color: PremiumTheme.danger,
                       fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
               ),
             ),
@@ -428,7 +648,7 @@ class _LineupScreenState extends State<LineupScreen>
   Widget _buildPlayerCard(_PlayerVM p) {
     final sel = _selected.contains(p.id);
     final posColor = _posColor(p.position);
-    final canAdd = _selected.length < 11 || sel;
+    final canAdd = _selected.length < _targetPlayerCount || sel;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -556,8 +776,8 @@ class _LineupScreenState extends State<LineupScreen>
                       HapticFeedback.mediumImpact();
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         backgroundColor: PremiumTheme.neonGreen,
-                        content: const Text('Lineup submitted!',
-                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
+                        content: Text('team.lineup_submitted_msg'.tr(),
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ));
@@ -581,7 +801,11 @@ class _LineupScreenState extends State<LineupScreen>
                   const SizedBox(width: 8),
                 ],
                 Text(
-                  ready ? 'SUBMIT LINEUP' : 'SELECT ${11 - _selected.length} MORE PLAYERS',
+                  ready 
+                      ? 'team.submit_lineup_btn'.tr().toUpperCase() 
+                      : 'team.select_more_players_btn'.tr(namedArgs: {
+                          'count': (_targetPlayerCount - _selected.length).toString()
+                        }).toUpperCase(),
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1.2),
                 ),
@@ -592,60 +816,20 @@ class _LineupScreenState extends State<LineupScreen>
       ),
     );
   }
-
-  // ── FORMATIONS ───────────────────────────────────────────────────────────────
-
-  List<Offset> _positionsFor(String formation) {
-    switch (formation) {
-      case '4-4-2':
-        return const [
-          Offset(0.5, 0.91),
-          Offset(0.15, 0.73), Offset(0.38, 0.73), Offset(0.62, 0.73), Offset(0.85, 0.73),
-          Offset(0.15, 0.50), Offset(0.38, 0.50), Offset(0.62, 0.50), Offset(0.85, 0.50),
-          Offset(0.33, 0.22), Offset(0.67, 0.22),
-        ];
-      case '4-2-3-1':
-        return const [
-          Offset(0.5, 0.91),
-          Offset(0.15, 0.74), Offset(0.38, 0.74), Offset(0.62, 0.74), Offset(0.85, 0.74),
-          Offset(0.33, 0.57), Offset(0.67, 0.57),
-          Offset(0.18, 0.36), Offset(0.5, 0.36), Offset(0.82, 0.36),
-          Offset(0.5, 0.14),
-        ];
-      case '3-5-2':
-        return const [
-          Offset(0.5, 0.91),
-          Offset(0.25, 0.73), Offset(0.5, 0.73), Offset(0.75, 0.73),
-          Offset(0.1, 0.52), Offset(0.3, 0.52), Offset(0.5, 0.52), Offset(0.7, 0.52), Offset(0.9, 0.52),
-          Offset(0.33, 0.22), Offset(0.67, 0.22),
-        ];
-      case '4-3-3':
-      default:
-        return const [
-          Offset(0.5, 0.91),
-          Offset(0.15, 0.73), Offset(0.38, 0.73), Offset(0.62, 0.73), Offset(0.85, 0.73),
-          Offset(0.25, 0.50), Offset(0.5, 0.50), Offset(0.75, 0.50),
-          Offset(0.18, 0.20), Offset(0.5, 0.14), Offset(0.82, 0.20),
-        ];
-    }
-  }
-
-  List<String> _positionLabels(String formation) {
-    switch (formation) {
-      case '4-4-2':
-        return ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'];
-      case '4-2-3-1':
-        return ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'RW', 'ST'];
-      case '3-5-2':
-        return ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'CM', 'CM', 'RWB', 'ST', 'ST'];
-      case '4-3-3':
-      default:
-        return ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'CM', 'CM', 'LW', 'ST', 'RW'];
-    }
-  }
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+class _LineupPos {
+  final String label;
+  final double x;
+  final double y;
+  const _LineupPos(this.label, this.x, this.y);
+}
+
+class _LineupFormation {
+  final String name;
+  final List<List<_LineupPos>> lines;
+  const _LineupFormation(this.name, this.lines);
+}
 
 class _PlayerVM {
   final String id;
@@ -768,4 +952,3 @@ class _PitchPainter extends CustomPainter {
   @override
   bool shouldRepaint(_) => false;
 }
-

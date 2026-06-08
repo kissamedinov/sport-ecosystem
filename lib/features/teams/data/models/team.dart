@@ -55,6 +55,48 @@ class Team {
     this.instagram,
   });
 
+  Team copyWith({
+    String? id,
+    String? name,
+    String? city,
+    String? coachId,
+    String? coachName,
+    int? rating,
+    int? matchesPlayed,
+    int? wins,
+    int? draws,
+    int? losses,
+    String? academyName,
+    String? ageCategory,
+    int? birthYear,
+    List<MatchModel>? recentMatches,
+    List<String>? form,
+    List<PlayerTeam>? players,
+    String? whatsapp,
+    String? instagram,
+  }) {
+    return Team(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      city: city ?? this.city,
+      coachId: coachId ?? this.coachId,
+      coachName: coachName ?? this.coachName,
+      rating: rating ?? this.rating,
+      matchesPlayed: matchesPlayed ?? this.matchesPlayed,
+      wins: wins ?? this.wins,
+      draws: draws ?? this.draws,
+      losses: losses ?? this.losses,
+      academyName: academyName ?? this.academyName,
+      ageCategory: ageCategory ?? this.ageCategory,
+      birthYear: birthYear ?? this.birthYear,
+      recentMatches: recentMatches ?? this.recentMatches,
+      form: form ?? this.form,
+      players: players ?? this.players,
+      whatsapp: whatsapp ?? this.whatsapp,
+      instagram: instagram ?? this.instagram,
+    );
+  }
+
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
   Map<String, dynamic> toJson() => _$TeamToJson(this);
 }

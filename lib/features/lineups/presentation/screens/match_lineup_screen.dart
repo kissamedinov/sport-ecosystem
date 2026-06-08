@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/api/api_client.dart';
@@ -52,7 +53,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load players: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(content: Text('team.failed_to_load_players'.tr(namedArgs: {'error': e.toString()})), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -66,14 +67,14 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     // Validation
     if (starters.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('At least 1 starting player is required'), backgroundColor: Colors.orange),
+        SnackBar(content: Text('team.at_least_one_starter'.tr()), backgroundColor: Colors.orange),
       );
       return;
     }
 
     if (starters.any((p) => p.position == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please assign positions for all starting players'), backgroundColor: Colors.orange),
+        SnackBar(content: Text('team.assign_positions_all_starters'.tr()), backgroundColor: Colors.orange),
       );
       return;
     }
@@ -90,14 +91,14 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lineup submitted successfully'), backgroundColor: Colors.green),
+          SnackBar(content: Text('team.lineup_submitted_msg'.tr()), backgroundColor: Colors.green),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Submission failed: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(content: Text('tournament.error_message'.tr(namedArgs: {'error': e.toString()})), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -114,8 +115,8 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Lineup Management', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text('$startingCount Starting Players', style: const TextStyle(fontSize: 12)),
+            Text('team.lineup_management'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('team.starting_players_count'.tr(namedArgs: {'count': startingCount.toString()}), style: const TextStyle(fontSize: 12)),
           ],
         ),
         actions: [
@@ -156,7 +157,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
             ),
             child: _isSubmitting 
               ? const CircularProgressIndicator(color: Colors.white)
-              : const Text('SUBMIT LINEUP', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              : Text('match.submit_lineup_btn'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ),
       ),

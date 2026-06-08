@@ -31,15 +31,6 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     (sum, t) => sum + ((t['players'] as List?)?.length ?? 0),
   );
 
-  double get _avgRating {
-    final all = _teams
-        .expand<dynamic>((t) => (t['players'] as List?) ?? [])
-        .where((p) => p['rating'] != null)
-        .map<double>((p) => (p['rating'] as num).toDouble())
-        .toList();
-    if (all.isEmpty) return 0;
-    return all.reduce((a, b) => a + b) / all.length;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +89,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'MY TEAMS',
+          'team.my_teams_title'.tr(),
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w900,
@@ -151,15 +142,9 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
         child: IntrinsicHeight(
           child: Row(
             children: [
-              _statCell('${_teams.length}', 'TEAMS', PremiumTheme.neonGreen),
+              _statCell('${_teams.length}', 'team.teams_label'.tr().toUpperCase(), PremiumTheme.neonGreen),
               _divider(),
-              _statCell('$_totalPlayers', 'PLAYERS', PremiumTheme.electricBlue),
-              _divider(),
-              _statCell(
-                _avgRating > 0 ? _avgRating.toStringAsFixed(1) : '—',
-                'AVG RATING',
-                Colors.amber,
-              ),
+              _statCell('$_totalPlayers', 'team.players_label'.tr().toUpperCase(), PremiumTheme.electricBlue),
             ],
           ),
         ),
@@ -204,7 +189,6 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     final campus = team['campus']?.toString() ?? 'Main Campus';
     final players = (team['players'] as List?) ?? [];
     final isLive = team['is_live'] == true;
-    final elo = team['elo_rating']?.toString() ?? '1800';
     final wins = team['wins'] ?? 0;
     final draws = team['draws'] ?? 0;
     final losses = team['losses'] ?? 0;
@@ -266,7 +250,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '$ageGroup · $campus · ${players.length} players',
+                                '$ageGroup · $campus · ${players.length} ${'team.players_label'.tr().toLowerCase()}',
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                               ),
                             ],
@@ -295,17 +279,6 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
                         Text(
                           '${losses}L',
                           style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w800),
-                        ),
-                        const Spacer(),
-                        const Icon(Icons.star_rounded, color: Colors.amber, size: 13),
-                        const SizedBox(width: 2),
-                        Text(
-                          elo,
-                          style: const TextStyle(
-                            color: Colors.amber,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                          ),
                         ),
                       ],
                     ),
@@ -398,7 +371,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
         children: [
           Container(width: 5, height: 5, decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle)),
           const SizedBox(width: 3),
-          const Text('LIVE', style: TextStyle(color: Colors.redAccent, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+          Text('team.live_label'.tr().toUpperCase(), style: const TextStyle(color: Colors.redAccent, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
         ],
       ),
     );
@@ -424,11 +397,10 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
       child: Row(
         children: [
           SizedBox(width: 36, child: Text('#', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700))),
-          Expanded(child: Text('PLAYER', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5))),
-          SizedBox(width: 36, child: Center(child: Text('POS', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 30, child: Center(child: Text('G', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 30, child: Center(child: Text('A', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
-          SizedBox(width: 36, child: Center(child: Text('RTG', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          Expanded(child: Text('team.player_col'.tr().toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5))),
+          SizedBox(width: 36, child: Center(child: Text('team.pos_col'.tr().toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          SizedBox(width: 30, child: Center(child: Text('team.goals_col'.tr().toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
+          SizedBox(width: 30, child: Center(child: Text('team.assists_col'.tr().toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w700)))),
         ],
       ),
     );
@@ -440,7 +412,6 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     final pos = player['position']?.toString() ?? 'MID';
     final goals = player['goals']?.toString() ?? '0';
     final assists = player['assists']?.toString() ?? '0';
-    final rating = (player['rating'] as num?)?.toStringAsFixed(1) ?? '—';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -484,12 +455,6 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
             width: 30,
             child: Center(
               child: Text(assists, style: const TextStyle(color: PremiumTheme.electricBlue, fontSize: 13, fontWeight: FontWeight.w700)),
-            ),
-          ),
-          SizedBox(
-            width: 36,
-            child: Center(
-              child: Text(rating, style: const TextStyle(color: Colors.amber, fontSize: 13, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -546,7 +511,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           children: [
             const Icon(Icons.calendar_today_rounded, color: PremiumTheme.electricBlue, size: 13),
             const SizedBox(width: 8),
-            Text('Next: ', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
+            Text('${'common.next'.tr()}: ', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11)),
             Text(
               '$home vs $away',
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 11, fontWeight: FontWeight.w700),
@@ -570,7 +535,7 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
           Icon(Icons.group_off_rounded, color: muted.withValues(alpha: 0.3), size: 64),
           const SizedBox(height: 16),
           Text(
-            'NO TEAMS ASSIGNED',
+            'hub.no_teams_assigned'.tr(),
             style: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
         ],

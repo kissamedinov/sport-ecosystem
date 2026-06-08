@@ -239,7 +239,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     icon: Icons.grid_view_rounded,
                     color: Colors.purpleAccent,
                     title: 'match.lineup'.tr(),
-                    subtitle: 'Select 11'.tr(),
+                    subtitle: 'team.select_11'.tr(),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -266,7 +266,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
             decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
             child: () {
               if (isAssignReadOnly) {
-                final coachName = _team.coachName ?? 'Unassigned / No Coach';
+                final coachName = _team.coachName ?? 'club.unassigned_no_coach'.tr();
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
@@ -313,7 +313,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                 items: [
                   DropdownMenuItem<String?>(
                     value: null,
-                    child: Text('Unassigned / No Coach', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
+                    child: Text('club.unassigned_no_coach'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
                   ),
                   ...coachList.map((c) {
                     return DropdownMenuItem<String?>(
@@ -469,10 +469,9 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'EDIT PLAYER INFO',
-                      style: TextStyle(
-                        color: Colors.white,
+                    Text(
+                      'team.edit_player_info'.tr().toUpperCase(),
+                      style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
                         letterSpacing: 2,
@@ -493,7 +492,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'POSITION',
+                        'team.position'.tr().toUpperCase(),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -547,7 +546,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'JERSEY NUMBER',
+                        'team.jersey_number'.tr().toUpperCase(),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w900,
@@ -563,7 +562,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: PremiumTheme.inputDecorationOf(
                         context,
-                        'Jersey Number (e.g. 10)',
+                        'team.jersey_number_hint'.tr(),
                         prefixIcon: Icons.numbers_rounded,
                       ),
                     ),
@@ -581,7 +580,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             child: Text(
-                              'CANCEL',
+                              'common.cancel'.tr().toUpperCase(),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.w900,
@@ -593,7 +592,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: PremiumButton(
-                            text: 'SAVE',
+                            text: 'common.save'.tr().toUpperCase(),
                             onPressed: () async {
                               final numStr = jerseyController.text.trim();
                               int? parsedNum;
@@ -601,7 +600,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                 parsedNum = int.tryParse(numStr);
                                 if (parsedNum == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Invalid jersey number')),
+                                    SnackBar(content: Text('team.invalid_jersey'.tr())),
                                   );
                                   return;
                                 }
@@ -626,13 +625,13 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                                   _loadFullTeam(); // Reload details to reflect updates
                                 } else if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Failed to update player info.')),
+                                    SnackBar(content: Text('team.player_update_failed'.tr())),
                                   );
                                 }
                               } catch (e) {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error: ${e.toString()}')),
+                                    SnackBar(content: Text('${'common.error'.tr()}: ${e.toString()}')),
                                   );
                                 }
                               } finally {
@@ -900,7 +899,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
     }
     
     if (_selectedCoachId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a coach first.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.select_coach_error'.tr())));
       return;
     }
     
@@ -972,7 +971,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
   }
 
   Widget _buildPendingTrialCard(PlayerTeam req) {
-    final name = req.player?.name ?? 'Candidate';
+    final name = req.player?.name ?? 'Candidate';  // localized via fallback below
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -1011,23 +1010,23 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('club.adding_player'.tr())));
                   final success = await context.read<TeamProvider>().approveRequest(_team.id, req.id);
                   if (success && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trial request approved.')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('team.trial_approved'.tr())));
                     _loadFullTeam();
                   } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to approve request.')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('team.trial_approve_failed'.tr())));
                   }
                 },
               ),
               IconButton(
                 icon: const Icon(Icons.cancel_rounded, color: Colors.redAccent, size: 24),
                 onPressed: () async {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rejecting trial...')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('team.trial_rejecting'.tr())));
                   final success = await context.read<TeamProvider>().rejectRequest(_team.id, req.id);
                   if (success && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trial request rejected.')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('team.trial_rejected'.tr())));
                     _loadFullTeam();
                   } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to reject request.')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('team.trial_reject_failed'.tr())));
                   }
                 },
               ),

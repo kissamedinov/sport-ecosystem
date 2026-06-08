@@ -1,0 +1,1112 @@
+{
+  "club.manage_btn": {
+    "en": "Manage",
+    "ru": "Управление",
+    "kk": "Бақылау"
+  },
+  "academy.location_label": {
+    "en": "LOCATION",
+    "ru": "МЕСТО",
+    "kk": "ЖЕР"
+  },
+  "academy.no_branch": {
+    "en": "No Branch",
+    "ru": "Без отделения",
+    "kk": "Филиалсыз"
+  },
+  "academy.select_branch": {
+    "en": "Select Branch",
+    "ru": "Выбрать отделение",
+    "kk": "Филиалды таңдаңыз"
+  },
+  "academy.field_name": {
+    "en": "Field name / room",
+    "ru": "Название поля / зала",
+    "kk": "Алаң/зал атауы"
+  },
+  "academy.training_days": {
+    "en": "TRAINING DAYS",
+    "ru": "ДНИ ТРЕНИРОВОК",
+    "kk": "ТРЕНИНГ КҮНДЕРІ"
+  },
+  "academy.add_day": {
+    "en": "Add Day",
+    "ru": "Добавить день",
+    "kk": "Күнді қосыңыз"
+  },
+  "academy.save_schedules": {
+    "en": "Save Schedules",
+    "ru": "Сохранить расписания",
+    "kk": "Кестелерді сақтаңыз"
+  },
+  "academy.billing_configuration": {
+    "en": "Billing Configuration",
+    "ru": "Настройка оплаты",
+    "kk": "Төлемді орнату"
+  },
+  "academy.monthly_fee_kzt": {
+    "en": "Monthly Fee (KZT)",
+    "ru": "Ежемесячный взнос (KZT)",
+    "kk": "Ай сайынғы төлем (теңге)"
+  },
+  "academy.filter_by_day": {
+    "en": "Filter by Day",
+    "ru": "Фильтр по дню",
+    "kk": "Күні бойынша сүзіңіз"
+  },
+  "academy.filter_by_team": {
+    "en": "Filter by Team",
+    "ru": "Фильтр по команде",
+    "kk": "Пәрмен бойынша сүзгілеу"
+  },
+  "academy.no_teams_please_add": {
+    "en": "Please add a team first",
+    "ru": "Пожалуйста, сначала добавьте команду",
+    "kk": "Алдымен пәрменді қосыңыз"
+  },
+  "academy.age_group_label": {
+    "en": "Age Group: {age}",
+    "ru": "Возрастная группа: {age}",
+    "kk": "Жас тобы: {age}"
+  },
+  "academy.status_label": {
+    "en": "Status: {status}",
+    "ru": "Статус: {status}",
+    "kk": "Күй: {status}"
+  },
+  "academy.player_id_label": {
+    "en": "Player ID: {id}",
+    "ru": "ID игрока: {id}",
+    "kk": "Ойыншы идентификаторы: {id}"
+  },
+  "academy.no_players_yet": {
+    "en": "No players yet",
+    "ru": "Игроков пока нет",
+    "kk": "Әзірге ойыншылар жоқ"
+  },
+  "academy.no_sessions_scheduled": {
+    "en": "No scheduled sessions",
+    "ru": "Плановых занятий нет",
+    "kk": "Жоспарланған сабақтар жоқ"
+  },
+  "academy.training_session": {
+    "en": "Training session",
+    "ru": "Тренировочное занятие",
+    "kk": "Тренинг сессиясы"
+  },
+  "academy.recurring_schedule": {
+    "en": "Recurring Schedule",
+    "ru": "Регулярное расписание",
+    "kk": "Тұрақты кесте"
+  },
+  "academy.recent_upcoming_sessions": {
+    "en": "Recent & Upcoming Sessions",
+    "ru": "Недавние и предстоящие занятия",
+    "kk": "Соңғы және алдағы сабақтар"
+  },
+  "academy.no_sessions_generated": {
+    "en": "No actual sessions generated yet.\nUse \"Generate Sessions\" in Dashboard.",
+    "ru": "Занятия ещё не сгенерированы.\nИспользуйте «Генерировать занятия» в панели.",
+    "kk": "Сыныптар әлі жасалмаған.\nПанельде \"Әрекеттерді жасау\" пәрменін пайдаланыңыз."
+  },
+  "academy.move_player_to_team": {
+    "en": "Move Player to Team",
+    "ru": "Перевести игрока в команду",
+    "kk": "Ойыншыны командаға ауыстыру"
+  },
+  "academy.select_target_team": {
+    "en": "Select target team:",
+    "ru": "Выберите команду назначения:",
+    "kk": "Мақсатты пәрменді таңдау:"
+  },
+  "academy.player_moved_to": {
+    "en": "Player moved to {team}",
+    "ru": "Игрок переведён в {team}",
+    "kk": "Ойыншы {team} командасына ауыстырылды"
+  },
+  "academy.age_group_header": {
+    "en": "Age Group: {age}",
+    "ru": "Возрастная группа: {age}",
+    "kk": "Жас тобы: {age}"
+  },
+  "academy.coach_id_header": {
+    "en": "Coach ID: {id}",
+    "ru": "ID тренера: {id}",
+    "kk": "Жаттықтырушы идентификаторы: {id}"
+  },
+  "academy.player_name": {
+    "en": "Player: {name}",
+    "ru": "Игрок: {name}",
+    "kk": "Ойыншы: {name}"
+  },
+  "academy.no_position": {
+    "en": "No position assigned",
+    "ru": "Позиция не назначена",
+    "kk": "Лауазым тағайындалмаған"
+  },
+  "academy.add_player_to_team": {
+    "en": "Add Player to Team",
+    "ru": "Добавить игрока в команду",
+    "kk": "Ойыншыны командаға қосыңыз"
+  },
+  "academy.player_profile_id": {
+    "en": "Player Profile ID",
+    "ru": "ID профиля игрока",
+    "kk": "Ойыншы профилінің идентификаторы"
+  },
+  "academy.position_hint": {
+    "en": "Position (e.g. ST, GK)",
+    "ru": "Позиция (напр. НП, ВРТ)",
+    "kk": "Позиция (мысалы, NP, VRT)"
+  },
+  "academy.jersey_number": {
+    "en": "Jersey Number",
+    "ru": "Номер футболки",
+    "kk": "Футболка нөмірі"
+  },
+  "academy.training_hub": {
+    "en": "TRAINING HUB",
+    "ru": "ХАБ ТРЕНИРОВОК",
+    "kk": "ОҚУ ХАБЫ"
+  },
+  "academy.bulk_generate_tooltip": {
+    "en": "Bulk Generate from Schedules",
+    "ru": "Пакетная генерация из расписаний",
+    "kk": "Кестелерден пакетті құру"
+  },
+  "academy.general_training": {
+    "en": "General Training",
+    "ru": "Общая тренировка",
+    "kk": "Жалпы дайындық"
+  },
+  "academy.sessions_generated_range": {
+    "en": "Sessions generated from {start} to {end}",
+    "ru": "Занятия сгенерированы с {start} по {end}",
+    "kk": "{start} және {end} аралығында жасалған сабақтар"
+  },
+  "academy.attendance_tracking": {
+    "en": "ATTENDANCE TRACKING",
+    "ru": "УЧЁТ ПОСЕЩАЕМОСТИ",
+    "kk": "ҚАБЫЛДАУДЫ ЕСЕП"
+  },
+  "academy.submit_attendance": {
+    "en": "SUBMIT ATTENDANCE",
+    "ru": "ОТПРАВИТЬ ПОСЕЩАЕМОСТЬ",
+    "kk": "ЖІБЕРУ"
+  },
+  "academy.attendance_recorded": {
+    "en": "Attendance recorded successfully!",
+    "ru": "Посещаемость зафиксирована!",
+    "kk": "Қатысушылар тіркелді!"
+  },
+  "academy.add_performance_note": {
+    "en": "Add performance note...",
+    "ru": "Добавить заметку о результативности...",
+    "kk": "Өнімділік туралы ескертпе қосу..."
+  },
+  "academy.present_status": {
+    "en": "PRESENT",
+    "ru": "ПРИСУТСТВУЕТ",
+    "kk": "СЫЙЛЫҚ"
+  },
+  "academy.absent_status": {
+    "en": "ABSENT",
+    "ru": "ОТСУТСТВУЕТ",
+    "kk": "ЖОҚ"
+  },
+  "academy.late_status": {
+    "en": "LATE",
+    "ru": "ОПОЗДАЛ",
+    "kk": "КЕШ"
+  },
+  "academy.injured_status": {
+    "en": "INJURED",
+    "ru": "ТРАВМИРОВАН",
+    "kk": ""
+  },
+  "academy.player_num": {
+    "en": "Player #{num}",
+    "ru": "Игрок #{num}",
+    "kk": "Ойыншы №{num}"
+  },
+  "academy.id_short": {
+    "en": "ID: {id}",
+    "ru": "ID: {id}",
+    "kk": "ID: {id}"
+  },
+  "tournament.assign_match_details": {
+    "en": "ASSIGN MATCH DETAILS",
+    "ru": "НАЗНАЧИТЬ ДЕТАЛИ МАТЧА",
+    "kk": "СӘйкестік мәліметтерін ТАғайындаңыз"
+  },
+  "tournament.logistics": {
+    "en": "LOGISTICS",
+    "ru": "ЛОГИСТИКА",
+    "kk": "ЛОГИСТИКА"
+  },
+  "tournament.field_court_name": {
+    "en": "FIELD / COURT NAME",
+    "ru": "ПОЛЕ / ПЛОЩАДКА",
+    "kk": "ЕРІС / САЙТ"
+  },
+  "tournament.schedule_label": {
+    "en": "SCHEDULE",
+    "ru": "РАСПИСАНИЕ",
+    "kk": "КЕСТЕСІ"
+  },
+  "tournament.date_label": {
+    "en": "DATE",
+    "ru": "ДАТА",
+    "kk": "КҮН"
+  },
+  "tournament.time_label": {
+    "en": "TIME",
+    "ru": "ВРЕМЯ",
+    "kk": "TIME"
+  },
+  "tournament.select_label": {
+    "en": "SELECT",
+    "ru": "ВЫБРАТЬ",
+    "kk": "ТАҢДАУ"
+  },
+  "tournament.save_assignments": {
+    "en": "SAVE ASSIGNMENTS",
+    "ru": "СОХРАНИТЬ НАЗНАЧЕНИЯ",
+    "kk": "МАҚСАТТАРДЫ САҚТАҢЫЗ"
+  },
+  "tournament.match_details_updated": {
+    "en": "MATCH DETAILS UPDATED",
+    "ru": "ДЕТАЛИ МАТЧА ОБНОВЛЕНЫ",
+    "kk": "МАТЧТЫҢ МӘЛІМЕТТЕРІ ЖАҢАРТЫЛДЫ"
+  },
+  "tournament.error_updating_match": {
+    "en": "ERROR UPDATING MATCH",
+    "ru": "ОШИБКА ОБНОВЛЕНИЯ МАТЧА",
+    "kk": "СӘЙКЕСТІ ЖАҢАРТУ ҚАТЕСІ"
+  },
+  "tournament.home_label": {
+    "en": "HOME",
+    "ru": "ХОЗЯЕВА",
+    "kk": "ХОСТТАР"
+  },
+  "tournament.away_label": {
+    "en": "AWAY",
+    "ru": "ГОСТИ",
+    "kk": "ҚОНАҚТАР"
+  },
+  "tournament.new_tournament": {
+    "en": "NEW TOURNAMENT",
+    "ru": "НОВЫЙ ТУРНИР",
+    "kk": "ЖАҢА ТУРНИР"
+  },
+  "tournament.edit_tournament": {
+    "en": "EDIT TOURNAMENT",
+    "ru": "ИЗМЕНИТЬ ТУРНИР",
+    "kk": "ТУРНИРДІ ӨЗГЕРТУ"
+  },
+  "tournament.basic_information": {
+    "en": "BASIC INFORMATION",
+    "ru": "ОСНОВНАЯ ИНФОРМАЦИЯ",
+    "kk": "НЕГІЗГІ АҚПАРАТ"
+  },
+  "tournament.location_stadium": {
+    "en": "Location / Stadium",
+    "ru": "Место / Стадион",
+    "kk": "Өтетін орны/Стадион"
+  },
+  "tournament.year": {
+    "en": "Year",
+    "ru": "Год",
+    "kk": "Жыл"
+  },
+  "tournament.season": {
+    "en": "Season",
+    "ru": "Сезон",
+    "kk": "Маусым"
+  },
+  "tournament.organizer_contacts": {
+    "en": "ORGANIZER CONTACTS",
+    "ru": "КОНТАКТЫ ОРГАНИЗАТОРА",
+    "kk": "ҰЙЫМДАСТЫРУШЫМЕН БАЙЛАНЫСТАР"
+  },
+  "tournament.whatsapp_hint": {
+    "en": "WhatsApp (e.g. +7...)",
+    "ru": "WhatsApp (напр. +7...)",
+    "kk": "WhatsApp (мысалы, +7...)"
+  },
+  "tournament.phone_number": {
+    "en": "Phone Number",
+    "ru": "Номер телефона",
+    "kk": "Телефон нөмірі"
+  },
+  "tournament.instagram_hint": {
+    "en": "Instagram (handle only)",
+    "ru": "Instagram (только имя)",
+    "kk": "Instagram (тек аты)"
+  },
+  "tournament.age_divisions": {
+    "en": "AGE DIVISIONS",
+    "ru": "ВОЗРАСТНЫЕ ГРУППЫ",
+    "kk": "ЖАС ТОПТАРЫ"
+  },
+  "tournament.configuration": {
+    "en": "CONFIGURATION",
+    "ru": "КОНФИГУРАЦИЯ",
+    "kk": "КОНФИГУРАЦИЯ"
+  },
+  "tournament.surface": {
+    "en": "Surface",
+    "ru": "Покрытие",
+    "kk": "Қаптау"
+  },
+  "tournament.dates": {
+    "en": "DATES",
+    "ru": "ДАТЫ",
+    "kk": "КҮНДЕР"
+  },
+  "tournament.starts": {
+    "en": "Starts",
+    "ru": "Начало",
+    "kk": "Бастау"
+  },
+  "tournament.ends": {
+    "en": "Ends",
+    "ru": "Конец",
+    "kk": "Соңы"
+  },
+  "tournament.reg_opens": {
+    "en": "Reg. Opens",
+    "ru": "Рег. открыта",
+    "kk": "Рег. ашық"
+  },
+  "tournament.reg_closes": {
+    "en": "Reg. Closes",
+    "ru": "Рег. закрыта",
+    "kk": "Рег. жабық"
+  },
+  "tournament.match_settings": {
+    "en": "MATCH SETTINGS",
+    "ru": "НАСТРОЙКИ МАТЧЕЙ",
+    "kk": "СӘйкестік параметрлері"
+  },
+  "tournament.use_academy_fields": {
+    "en": "Use Academy Fields",
+    "ru": "Использовать поля академии",
+    "kk": "Академия өрістерін пайдаланыңыз"
+  },
+  "tournament.num_fields": {
+    "en": "Number of Fields",
+    "ru": "Количество полей",
+    "kk": "Өрістердің саны"
+  },
+  "tournament.half_min": {
+    "en": "Half (min)",
+    "ru": "Тайм (мин)",
+    "kk": "Уақыт (мин)"
+  },
+  "tournament.break_min": {
+    "en": "Break (min)",
+    "ru": "Перерыв (мин)",
+    "kk": "Үзіліс (мин)"
+  },
+  "tournament.min_rest_slots": {
+    "en": "Min Rest Slots",
+    "ru": "Мин. слотов отдыха",
+    "kk": "Мин. демалыс орындары"
+  },
+  "tournament.day_starts": {
+    "en": "Day Starts",
+    "ru": "Начало дня",
+    "kk": "Күннің басталуы"
+  },
+  "tournament.day_ends": {
+    "en": "Day Ends",
+    "ru": "Конец дня",
+    "kk": "Күннің соңы"
+  },
+  "tournament.points_system": {
+    "en": "POINTS SYSTEM",
+    "ru": "СИСТЕМА ОЧКОВ",
+    "kk": "POINTS ЖҮЙЕСІ"
+  },
+  "tournament.win": {
+    "en": "Win",
+    "ru": "Победа",
+    "kk": "Жеңіс"
+  },
+  "tournament.draw": {
+    "en": "Draw",
+    "ru": "Ничья",
+    "kk": "Сурет салу"
+  },
+  "tournament.loss": {
+    "en": "Loss",
+    "ru": "Поражение",
+    "kk": "Жеңіліс"
+  },
+  "tournament.save_changes": {
+    "en": "SAVE CHANGES",
+    "ru": "СОХРАНИТЬ ИЗМЕНЕНИЯ",
+    "kk": "ӨЗГЕРІСТЕРДІ САҚТАУ"
+  },
+  "tournament.publish_tournament": {
+    "en": "PUBLISH TOURNAMENT",
+    "ru": "ОПУБЛИКОВАТЬ ТУРНИР",
+    "kk": "ТУРНИРДІ ЖАРИЯЛАУ"
+  },
+  "tournament.division_name_hint": {
+    "en": "e.g. U10 Gold",
+    "ru": "напр. U10 Золото",
+    "kk": "мысалы, U10 алтын"
+  },
+  "tournament.format_hint": {
+    "en": "e.g. 8+1",
+    "ru": "напр. 8+1",
+    "kk": "мысалы 8+1"
+  },
+  "tournament.entry_fee": {
+    "en": "Entry Fee",
+    "ru": "Взнос",
+    "kk": "Үлес"
+  },
+  "tournament.division_format": {
+    "en": "Format: {format} • Fee: {fee} • Year: {year} • Max Teams: {max}",
+    "ru": "Формат: {format} • Взнос: {fee} • Год: {year} • Макс: {max}",
+    "kk": "Пішім: {format} • Төлем: {fee} • Жыл: {year} • Макс: {max}"
+  },
+  "tournament.please_enter_division_name": {
+    "en": "Please enter a division name",
+    "ru": "Пожалуйста, введите название группы",
+    "kk": "Топ атын енгізіңіз"
+  },
+  "tournament.tournament_updated": {
+    "en": "Tournament Updated!",
+    "ru": "Турнир обновлён!",
+    "kk": "Турнир жаңартылды!"
+  },
+  "tournament.tournament_created": {
+    "en": "Tournament Created with {count} divisions!",
+    "ru": "Турнир создан с {count} группами!",
+    "kk": "Турнир {count} топпен жасалды!"
+  },
+  "tournament.logo_upload_error": {
+    "en": "Logo Upload Error: {error}",
+    "ru": "Ошибка загрузки логотипа: {error}",
+    "kk": "Логотипті жүктеу қатесі: {error}"
+  },
+  "tournament.error_message": {
+    "en": "Error: {error}",
+    "ru": "Ошибка: {error}",
+    "kk": "Қате: {error}"
+  },
+  "tournament.no_fields_academy": {
+    "en": "No fields found in your academy",
+    "ru": "В вашей академии полей не найдено",
+    "kk": "Академияңызда өрістер табылмады"
+  },
+  "tournament.update_label": {
+    "en": "Update",
+    "ru": "Обновить",
+    "kk": "Жаңарту"
+  },
+  "tournament.event_setup": {
+    "en": "Event Setup",
+    "ru": "Настройка события",
+    "kk": "Оқиғаны орнату"
+  },
+  "tournament.tournament_label": {
+    "en": "TOURNAMENT",
+    "ru": "ТУРНИР",
+    "kk": "ТУРНИР"
+  },
+  "tournament.info_tab": {
+    "en": "INFO",
+    "ru": "ИНФО",
+    "kk": "АҚПАРАТ"
+  },
+  "tournament.matches_tab": {
+    "en": "MATCHES",
+    "ru": "МАТЧИ",
+    "kk": "МАТЧТАР"
+  },
+  "tournament.standings_tab": {
+    "en": "STANDINGS",
+    "ru": "ТАБЛИЦА",
+    "kk": "КЕСТЕ"
+  },
+  "tournament.contact_tab": {
+    "en": "CONTACT",
+    "ru": "КОНТАКТ",
+    "kk": "БАЙЛАНЫС"
+  },
+  "tournament.requests_tab": {
+    "en": "REQUESTS",
+    "ru": "ЗАЯВКИ",
+    "kk": "ҚОЛДАНБАЛАР"
+  },
+  "tournament.tournament_not_found": {
+    "en": "Tournament not found",
+    "ru": "Турнир не найден",
+    "kk": "Турнир табылмады"
+  },
+  "tournament.age_divisions_tab": {
+    "en": "AGE DIVISIONS",
+    "ru": "ВОЗРАСТНЫЕ ГРУППЫ",
+    "kk": "ЖАС ТОПТАРЫ"
+  },
+  "tournament.registration_tab": {
+    "en": "REGISTRATION",
+    "ru": "РЕГИСТРАЦИЯ",
+    "kk": "ТІРКЕЛУ"
+  },
+  "tournament.standard_category": {
+    "en": "Standard Category",
+    "ru": "Стандартная категория",
+    "kk": "Стандартты санат"
+  },
+  "tournament.format_row": {
+    "en": "Format",
+    "ru": "Формат",
+    "kk": "Формат"
+  },
+  "tournament.surface_row": {
+    "en": "Surface",
+    "ru": "Покрытие",
+    "kk": "Қаптау"
+  },
+  "tournament.match_time_row": {
+    "en": "Match Time",
+    "ru": "Время матча",
+    "kk": "Матч уақыты"
+  },
+  "tournament.break_row": {
+    "en": "Break",
+    "ru": "Перерыв",
+    "kk": "Үзіліс"
+  },
+  "tournament.halves_suffix": {
+    "en": "{min}m halves",
+    "ru": "таймы по {min} мин",
+    "kk": "уақыт {min} минут"
+  },
+  "tournament.rest_suffix": {
+    "en": "{min}m rest",
+    "ru": "отдых {min} мин",
+    "kk": "демалу {min} мин"
+  },
+  "tournament.natural_grass": {
+    "en": "Natural Grass",
+    "ru": "Натуральный газон",
+    "kk": "Табиғи көгал"
+  },
+  "tournament.organizer_contacts_section": {
+    "en": "ORGANIZER CONTACTS",
+    "ru": "КОНТАКТЫ ОРГАНИЗАТОРА",
+    "kk": "ҰЙЫМДАСТЫРУШЫМЕН БАЙЛАНЫСТАР"
+  },
+  "tournament.no_contact_info": {
+    "en": "No contact information provided",
+    "ru": "Контактная информация не указана",
+    "kk": "Байланыс ақпараты көрсетілмеген"
+  },
+  "tournament.location_section": {
+    "en": "LOCATION",
+    "ru": "МЕСТО",
+    "kk": "ЖЕР"
+  },
+  "tournament.whatsapp_label": {
+    "en": "WhatsApp",
+    "ru": "WhatsApp",
+    "kk": "whatsapp"
+  },
+  "tournament.phone_label": {
+    "en": "Phone Number",
+    "ru": "Телефон",
+    "kk": "Телефон"
+  },
+  "tournament.instagram_label": {
+    "en": "Instagram",
+    "ru": "Instagram",
+    "kk": "Instagram"
+  },
+  "tournament.deadline": {
+    "en": "DEADLINE",
+    "ru": "СРОК",
+    "kk": "МЕРЗІМ"
+  },
+  "tournament.no_matches_scheduled": {
+    "en": "No matches scheduled yet",
+    "ru": "Матчей пока не запланировано",
+    "kk": "Әзірге жоспарланған матчтар жоқ"
+  },
+  "tournament.ai_scheduler": {
+    "en": "AI SCHEDULER",
+    "ru": "ИИ ПЛАНИРОВЩИК",
+    "kk": "AI ЖОСПАРШЫСЫ"
+  },
+  "tournament.ai_draft_review": {
+    "en": "AI DRAFT REVIEW",
+    "ru": "ПРОВЕРКА ЧЕРНОВИКА ИИ",
+    "kk": "AI ЖОБАСЫН ТЕКСЕРУ"
+  },
+  "tournament.view_report": {
+    "en": "VIEW REPORT",
+    "ru": "ПРОСМОТР ОТЧЁТА",
+    "kk": "ЕСЕПТІ ҚАРАУ"
+  },
+  "tournament.ai_ready": {
+    "en": "Ready to generate the tournament schedule using AI optimization?",
+    "ru": "Готовы создать расписание турнира с помощью ИИ?",
+    "kk": "AI көмегімен турнир кестесін жасауға дайынсыз ба?"
+  },
+  "tournament.ai_draft_mode": {
+    "en": "The schedule is currently in DRAFT mode. Review it and finalize to make it public.",
+    "ru": "Расписание в режиме ЧЕРНОВИК. Проверьте и опубликуйте.",
+    "kk": "Жоспарлау режимінде жоспарлаңыз. Тексеру және жариялау."
+  },
+  "tournament.generate_with_ai": {
+    "en": "GENERATE WITH AI",
+    "ru": "СОЗДАТЬ С ИИ",
+    "kk": "AI МЕНЕН ЖАСАУ"
+  },
+  "tournament.re_generate": {
+    "en": "RE-GENERATE",
+    "ru": "ПЕРЕСОЗДАТЬ",
+    "kk": "ЖАСАУ"
+  },
+  "tournament.finalize": {
+    "en": "FINALIZE",
+    "ru": "ЗАВЕРШИТЬ",
+    "kk": "АЯҚТАУ"
+  },
+  "tournament.schedule_finalized": {
+    "en": "Schedule finalized and published!",
+    "ru": "Расписание опубликовано!",
+    "kk": "Кесте жарияланды!"
+  },
+  "tournament.tbd": {
+    "en": "TBD",
+    "ru": "ОП",
+    "kk": "ОП"
+  },
+  "tournament.finished_status": {
+    "en": "FINISHED",
+    "ru": "ЗАВЕРШЁН",
+    "kk": "АЯҚТАЛДЫ"
+  },
+  "tournament.ai_draft": {
+    "en": "AI DRAFT",
+    "ru": "ЧЕРНОВИК ИИ",
+    "kk": "AI жобасы"
+  },
+  "tournament.lineup_deadline": {
+    "en": "LINEUP DEADLINE",
+    "ru": "ДЕДЛАЙН СОСТАВА",
+    "kk": "ҚҰРАМДЫ БЕРУ МЕРЗІМІ"
+  },
+  "tournament.home_team_label": {
+    "en": "HOME",
+    "ru": "ХОЗЯЕВА",
+    "kk": "ХОСТТАР"
+  },
+  "tournament.away_team_label": {
+    "en": "AWAY",
+    "ru": "ГОСТИ",
+    "kk": "ҚОНАҚТАР"
+  },
+  "tournament.lineup_btn": {
+    "en": "LINEUP",
+    "ru": "СОСТАВ",
+    "kk": "ҚҰРАСТЫРУ"
+  },
+  "tournament.stats_btn": {
+    "en": "STATS",
+    "ru": "СТАТ.",
+    "kk": "STAT."
+  },
+  "tournament.manage_btn": {
+    "en": "MANAGE",
+    "ru": "УПРАВЛЕНИЕ",
+    "kk": "БАСҚАРУ"
+  },
+  "tournament.score_btn": {
+    "en": "SCORE",
+    "ru": "СЧЁТ",
+    "kk": "ТЕКСЕРУ"
+  },
+  "tournament.no_standings": {
+    "en": "No standings data available",
+    "ru": "Данных таблицы нет",
+    "kk": "Кесте деректері жоқ"
+  },
+  "tournament.golden_boot_race": {
+    "en": "GOLDEN BOOT RACE",
+    "ru": "ГОНКА БОМБАРДИРОВ",
+    "kk": "БОМАНДЫҚ ЖАРЫС"
+  },
+  "tournament.view_top_scorers": {
+    "en": "View top goal scorers of the tournament",
+    "ru": "Лучшие бомбардиры турнира",
+    "kk": "Турнирдің үздік бомбардирлері"
+  },
+  "tournament.leaderboard_tab": {
+    "en": "LEADERBOARD",
+    "ru": "РЕЙТИНГ",
+    "kk": "РЕЙТИНГ"
+  },
+  "tournament.group_prefix": {
+    "en": "GROUP {group}",
+    "ru": "ГРУППА {group}",
+    "kk": "GROUP {group}"
+  },
+  "tournament.pending_requests": {
+    "en": "No pending requests",
+    "ru": "Нет ожидающих заявок",
+    "kk": "Күтудегі қолданбалар жоқ"
+  },
+  "tournament.error_rejecting": {
+    "en": "Error rejecting team",
+    "ru": "Ошибка отклонения команды",
+    "kk": "Пәрменді қабылдамау қатесі"
+  },
+  "tournament.error_approving": {
+    "en": "Error approving team",
+    "ru": "Ошибка подтверждения команды",
+    "kk": "Пәрменді растау қатесі"
+  },
+  "tournament.approve_btn": {
+    "en": "APPROVE",
+    "ru": "ОДОБРИТЬ",
+    "kk": "БЕКІТУ"
+  },
+  "tournament.apply_for_division": {
+    "en": "APPLY FOR DIVISION",
+    "ru": "ЗАЯВКА НА ГРУППУ",
+    "kk": "ТОПҚА ӨТІНІШ"
+  },
+  "tournament.select_your_team": {
+    "en": "SELECT YOUR TEAM",
+    "ru": "ВЫБРАТЬ КОМАНДУ",
+    "kk": "КОМАНДА ТАҢДАУ"
+  },
+  "tournament.no_teams_profile": {
+    "en": "No teams found in your profile.",
+    "ru": "Команд в профиле не найдено.",
+    "kk": "Профильде пәрмендер табылмады."
+  },
+  "tournament.registration_sent": {
+    "en": "Registration request sent!",
+    "ru": "Заявка на регистрацию отправлена!",
+    "kk": "Тіркеу туралы өтініш жіберілді!"
+  },
+  "tournament.error_registration": {
+    "en": "Error submitting registration",
+    "ru": "Ошибка отправки заявки",
+    "kk": "Қолданбаны жіберу қатесі"
+  },
+  "tournament.birth_year_label": {
+    "en": "Birth Year: {year}",
+    "ru": "Год рождения: {year}",
+    "kk": ""
+  },
+  "tournament.format_info": {
+    "en": "FORMAT",
+    "ru": "ФОРМАТ",
+    "kk": "Пішімдеу"
+  },
+  "tournament.birth_year_info": {
+    "en": "BIRTH YEAR",
+    "ru": "ГОД РОЖДЕНИЯ",
+    "kk": "ТУҒАН ЖЫЛЫ"
+  },
+  "tournament.fee_info": {
+    "en": "FEE",
+    "ru": "ВЗНОС",
+    "kk": "ҮЛЕС"
+  },
+  "tournament.manage_squad_btn": {
+    "en": "MANAGE SQUAD",
+    "ru": "УПРАВЛЕНИЕ СОСТАВОМ",
+    "kk": "ҚҰРАМДЫ БАСҚАРУ"
+  },
+  "tournament.pending_btn": {
+    "en": "PENDING...",
+    "ru": "ОЖИДАЕТ...",
+    "kk": "КҮТІЛЕДІ..."
+  },
+  "tournament.register_btn": {
+    "en": "REGISTER",
+    "ru": "ЗАРЕГИСТРИРОВАТЬ",
+    "kk": "ТІРКЕЛУ"
+  },
+  "tournament.requirement_born": {
+    "en": "Format: {format} • Requirement: Born {year}",
+    "ru": "Формат: {format} • Требование: Рождён {year}",
+    "kk": "Пішім: {format} • Талап: туған күні: {year}"
+  },
+  "tournament.requirement_born_fee": {
+    "en": "Format: {format} • Requirement: Born {year} • Fee: {fee} ₸",
+    "ru": "Формат: {format} • Требование: Рождён {year} • Взнос: {fee} ₸",
+    "kk": "Пішім: {format} • Талап: Туылған күні: {year} • Төлем: {fee} ₸"
+  },
+  "tournament.teams_swapped": {
+    "en": "Teams swapped and matches updated!",
+    "ru": "Команды поменяны, матчи обновлены!",
+    "kk": "Командалар өзгерді, матчтар жаңартылды!"
+  },
+  "tournament.swap_with": {
+    "en": "SWAP {team} WITH...",
+    "ru": "ПОМЕНЯТЬ {team} С...",
+    "kk": "{team} ӨЗГЕРТУ..."
+  },
+  "tournament.current_group": {
+    "en": "Current: Group {group}",
+    "ru": "Текущая: Группа {group}",
+    "kk": "Ағымдағы: {group} тобы"
+  },
+  "tournament.ai_logic_report": {
+    "en": "AI Logic Report",
+    "ru": "Отчёт логики ИИ",
+    "kk": "AI логикалық есеп"
+  },
+  "tournament.could_not_launch": {
+    "en": "Could not launch contact application",
+    "ru": "Не удалось открыть приложение",
+    "kk": "Қолданбаны ашу мүмкін болмады"
+  },
+  "tournament.match_lineup": {
+    "en": "MATCH LINEUP",
+    "ru": "СОСТАВ НА МАТЧ",
+    "kk": "МАТЧ ТІЗІМІ"
+  },
+  "tournament.starting_count": {
+    "en": "{count} / 11 STARTING",
+    "ru": "{count} / 11 В СТАРТЕ",
+    "kk": "{count} / 11 БАСТА"
+  },
+  "tournament.no_squad_members": {
+    "en": "NO SQUAD MEMBERS FOUND\nPlease add players to the tournament squad first.",
+    "ru": "УЧАСТНИКИ СОСТАВА НЕ НАЙДЕНЫ\nСначала добавьте игроков в состав.",
+    "kk": "МҮШЕЛЕР ТАБЫЛМАДЫ\nБіріншіден, ойыншыларды тізімге қосыңыз."
+  },
+  "tournament.starting_xi_label": {
+    "en": "STARTING XI",
+    "ru": "ОСНОВНОЙ СОСТАВ",
+    "kk": "НЕГІЗГІ ҚҰРАМ"
+  },
+  "tournament.substitute_label": {
+    "en": "SUBSTITUTE",
+    "ru": "ЗАПАСНОЙ",
+    "kk": "ҚОСЫМША"
+  },
+  "tournament.not_selected_label": {
+    "en": "NOT SELECTED",
+    "ru": "НЕ ВЫБРАН",
+    "kk": "ТАҢДАлмаған"
+  },
+  "tournament.max_starters_error": {
+    "en": "MAX 11 STARTING PLAYERS ALLOWED",
+    "ru": "МАКСИМУМ 11 СТАРТОВЫХ ИГРОКОВ",
+    "kk": "КӨБІМІ 11 БАСТАУ ОЙЫНШЫ"
+  },
+  "tournament.please_select_player": {
+    "en": "Please select at least one player.",
+    "ru": "Пожалуйста, выберите хотя бы одного игрока.",
+    "kk": "Кем дегенде бір ойыншыны таңдаңыз."
+  },
+  "tournament.lineup_submitted": {
+    "en": "LINEUP SUBMITTED SUCCESSFULLY",
+    "ru": "СОСТАВ ОТПРАВЛЕН",
+    "kk": "ҚҰРАМ ЖІБЕРІЛДІ"
+  },
+  "tournament.match_report_title": {
+    "en": "MATCH REPORT",
+    "ru": "ОТЧЁТ О МАТЧЕ",
+    "kk": "МАТЧ ЕСЕП"
+  },
+  "tournament.score_tab": {
+    "en": "SCORE",
+    "ru": "СЧЁТ",
+    "kk": "ТЕКСЕРУ"
+  },
+  "tournament.live_tab": {
+    "en": "LIVE",
+    "ru": "ПРЯМОЙ",
+    "kk": "ТІКЕЛЕЙ"
+  },
+  "tournament.stats_tab_label": {
+    "en": "STATS",
+    "ru": "СТАТ.",
+    "kk": "STAT."
+  },
+  "tournament.final_score": {
+    "en": "Final Score",
+    "ru": "Финальный счёт",
+    "kk": "Қорытынды ұпай"
+  },
+  "tournament.submit_final_score": {
+    "en": "SUBMIT FINAL SCORE",
+    "ru": "ОТПРАВИТЬ ФИНАЛЬНЫЙ СЧЁТ",
+    "kk": "ҚОРЫТЫНДЫ шот-фактураны жіберу"
+  },
+  "tournament.score_will_update": {
+    "en": "Submitting the score will update the tournament standings automatically.",
+    "ru": "Отправка счёта автоматически обновит таблицу турнира.",
+    "kk": "Ұпайды жіберу турнир кестесін автоматты түрде жаңартады."
+  },
+  "tournament.player_stats_info": {
+    "en": "Player stats are submitted by the coach of each team.",
+    "ru": "Статистику игроков подаёт тренер каждой команды.",
+    "kk": "Ойыншылардың статистикасын әр команданың жаттықтырушысы береді."
+  },
+  "tournament.no_squad_set": {
+    "en": "No squad members. Set a squad first.",
+    "ru": "Нет участников состава. Сначала задайте состав.",
+    "kk": "Актер мүшелері жоқ. Алдымен композицияны орнатыңыз."
+  },
+  "tournament.submit_player_stats": {
+    "en": "SUBMIT PLAYER STATS",
+    "ru": "ОТПРАВИТЬ СТАТИСТИКУ ИГРОКОВ",
+    "kk": "ОЙЫНШЫ СТАТИСТИКАСЫН ЖІБЕРУ"
+  },
+  "tournament.referee_search_title": {
+    "en": "REFEREE SEARCH",
+    "ru": "ПОИСК СУДЕЙ",
+    "kk": "СУДЬЯЛАРДЫ ІЗДЕУ"
+  },
+  "tournament.all_filter": {
+    "en": "All",
+    "ru": "Все",
+    "kk": "Барлығы"
+  },
+  "tournament.available_filter": {
+    "en": "Available",
+    "ru": "Доступные",
+    "kk": "Қол жетімді"
+  },
+  "tournament.top_rated_filter": {
+    "en": "Top Rated",
+    "ru": "Высокий рейтинг",
+    "kk": "Жоғары рейтинг"
+  },
+  "tournament.search_referees": {
+    "en": "Search referees...",
+    "ru": "Поиск судей...",
+    "kk": "Судьяларды іздеу..."
+  },
+  "tournament.referee_busy": {
+    "en": "Busy",
+    "ru": "Занят",
+    "kk": "Бос емес"
+  },
+  "tournament.referee_available": {
+    "en": "Available",
+    "ru": "Доступен",
+    "kk": "Қол жетімді"
+  },
+  "tournament.experience_label": {
+    "en": "Experience",
+    "ru": "Опыт",
+    "kk": "Тәжірибе"
+  },
+  "tournament.matches_label": {
+    "en": "Matches",
+    "ru": "Матчи",
+    "kk": "Сәйкестіктер"
+  },
+  "tournament.rating_label": {
+    "en": "Rating",
+    "ru": "Рейтинг",
+    "kk": "Рейтинг"
+  },
+  "tournament.contact_referee": {
+    "en": "Contact",
+    "ru": "Написать",
+    "kk": "Жазыңыз"
+  },
+  "tournament.call_referee": {
+    "en": "Call",
+    "ru": "Позвонить",
+    "kk": "Қоңырау"
+  },
+  "tournament.no_referees": {
+    "en": "No referees found",
+    "ru": "Судьи не найдены",
+    "kk": "Судьялар табылмады"
+  },
+  "tournament.announcements_title": {
+    "en": "TOURNAMENT ANNOUNCEMENTS",
+    "ru": "ОБЪЯВЛЕНИЯ ТУРНИРОВ",
+    "kk": "ТУРНИР ХАБАРЛАМАЛАР"
+  },
+  "tournament.leaderboard_title": {
+    "en": "LEADERBOARD",
+    "ru": "РЕЙТИНГ",
+    "kk": "РЕЙТИНГ"
+  },
+  "tournament.golden_boot_title": {
+    "en": "Golden",
+    "ru": "Гонка",
+    "kk": "Жарыс"
+  },
+  "tournament.golden_boot_subtitle": {
+    "en": "Boot Race",
+    "ru": "Бомбардиров",
+    "kk": "Бомбардирлер"
+  },
+  "tournament.no_scorers": {
+    "en": "No scorers recorded yet.",
+    "ru": "Бомбардиров пока нет.",
+    "kk": "Әзірге бомбалаушы ұшақтар жоқ."
+  },
+  "tournament.manage_squad_title": {
+    "en": "MANAGE SQUAD",
+    "ru": "УПРАВЛЕНИЕ СОСТАВОМ",
+    "kk": "ҚҰРАМДЫ БАСҚАРУ"
+  },
+  "tournament.no_players_team": {
+    "en": "NO PLAYERS FOUND IN THIS TEAM",
+    "ru": "ИГРОКОВ В КОМАНДЕ НЕ НАЙДЕНО",
+    "kk": "КОМАНДА ОЙЫНШЫЛАР ТАБАДЫ"
+  },
+  "tournament.squad_counter": {
+    "en": "SQUAD · {count}",
+    "ru": "СОСТАВ · {count}",
+    "kk": "ҚҰРАМЫ · {count}"
+  },
+  "tournament.in_squad": {
+    "en": "IN SQUAD",
+    "ru": "В СОСТАВЕ",
+    "kk": "ҚҰРАМЫНДА"
+  },
+  "tournament.not_in_squad": {
+    "en": "NOT IN SQUAD",
+    "ru": "НЕ В СОСТАВЕ",
+    "kk": "ҚОСЫЛМАЙДЫ"
+  },
+  "tournament.add_to_squad": {
+    "en": "Add to Squad",
+    "ru": "Добавить в состав",
+    "kk": "Композицияға қосыңыз"
+  },
+  "tournament.remove_from_squad": {
+    "en": "Remove",
+    "ru": "Убрать",
+    "kk": "Қойыңыз"
+  },
+  "tournament.player_added_squad": {
+    "en": "Player added to squad!",
+    "ru": "Игрок добавлен в состав!",
+    "kk": "Ойыншы тізімге қосылды!"
+  },
+  "tournament.player_removed_squad": {
+    "en": "Player removed from squad.",
+    "ru": "Игрок убран из состава.",
+    "kk": "Ойыншы командадан шығарылды."
+  },
+  "match.team_fixtures": {
+    "en": "TEAM FIXTURES",
+    "ru": "МАТЧИ КОМАНДЫ",
+    "kk": "КОМАНДАЛЫҚ МАТЧТАР"
+  }
+}
