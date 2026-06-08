@@ -812,7 +812,9 @@
     "add_to_squad": "Add to Squad",
     "remove_from_squad": "Remove",
     "player_added_squad": "Player added to squad!",
-    "player_removed_squad": "Player removed from squad."
+    "player_removed_squad": "Player removed from squad.",
+    "golden_boot": "GOLDEN BOOT",
+    "boot_race": "BOOT RACE"
   },
   "match": {
     "live_matches": "LIVE MATCHES",
@@ -917,7 +919,7 @@
     "regular_player": "Regular Player (System)",
     "no_booking_requests": "No booking requests found.",
     "date_and_time": "Date & Time",
-    "revenue_label": "Revenue",
+    "revenue_label": "REVENUE",
     "availability_pricing": "Availability & Pricing",
     "dynamic_pricing_adjustments": "Dynamic Pricing Adjustments",
     "prime_time_rate": "Prime-Time Rate",
@@ -950,7 +952,16 @@
     "promo_code_hint": "Promo Code (UPPERCASE)",
     "discount_percentage": "Discount: {percent}%",
     "max_usage_count": "Max Usage Count",
-    "create_promo_code_btn": "Create Promo Code"
+    "create_promo_code_btn": "Create Promo Code",
+    "booking_requests_title": "BOOKING REQUESTS",
+    "no_requests_found": "No booking requests found.",
+    "date_time_label": "DATE & TIME",
+    "reject_btn": "REJECT",
+    "approve_btn": "APPROVE",
+    "bulk_slots_subtitle": "Setup your field availability for a full day.",
+    "start_hour_label": "Start Hour (0-23)",
+    "end_hour_label": "End Hour (1-24)",
+    "price_per_slot_label": "Price per slot (₸)"
   },
   "notification": {
     "notifications": "NOTIFICATIONS",

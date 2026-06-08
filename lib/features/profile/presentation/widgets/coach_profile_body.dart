@@ -519,6 +519,8 @@ class _CoachProfileBodyState extends State<CoachProfileBody> {
               Text(
                 title,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w900),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(

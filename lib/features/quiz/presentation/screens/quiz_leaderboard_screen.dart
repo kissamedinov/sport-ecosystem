@@ -125,7 +125,7 @@ class _QuizLeaderboardScreenState extends State<QuizLeaderboardScreen> {
         ),
         title: Text(
           entry.name,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
         ),
         subtitle: Row(
           children: [
@@ -133,7 +133,7 @@ class _QuizLeaderboardScreenState extends State<QuizLeaderboardScreen> {
             const SizedBox(width: 4),
             Text(
               '${entry.streak} DAY STREAK',
-              style: TextStyle(fontSize: 10, color: Colors.white54, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
             ),
           ],
         ),

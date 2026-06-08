@@ -879,7 +879,9 @@
     "add_to_squad": "Композицияға қосыңыз",
     "remove_from_squad": "Қойыңыз",
     "player_added_squad": "Ойыншы тізімге қосылды!",
-    "player_removed_squad": "Ойыншы командадан шығарылды."
+    "player_removed_squad": "Ойыншы командадан шығарылды.",
+    "golden_boot": "АЛТЫН БУТС",
+    "boot_race": "ЖАРЫС"
   },
   "match": {
     "live_matches": "ТІКЕЛЕЙ МАТЧТАР",
@@ -984,7 +986,7 @@
     "regular_player": "Тұрақты ойыншы (жүйе)",
     "no_booking_requests": "Брондау өтінімдері табылмады.",
     "date_and_time": "Күн мен уақыт",
-    "revenue_label": "Кіріс",
+    "revenue_label": "КІРІС",
     "availability_pricing": "Қолжетімділік және баға",
     "dynamic_pricing_adjustments": "Динамикалық баға реттеулері",
     "prime_time_rate": "Прайм-тайм тарифі",
@@ -1017,7 +1019,16 @@
     "promo_code_hint": "Промокод (БАС ӘРІППЕН)",
     "discount_percentage": "Жеңілдік: {percent}%",
     "max_usage_count": "Ең көп пайдалану саны",
-    "create_promo_code_btn": "Промокод жасау"
+    "create_promo_code_btn": "Промокод жасау",
+    "booking_requests_title": "БРОНДАУ СҰРАУЛАРЫ",
+    "no_requests_found": "Сұраулар табылмады.",
+    "date_time_label": "КҮН ЖӘНЕ УАҚЫТ",
+    "reject_btn": "ҚАБЫЛДАМАУ",
+    "approve_btn": "ҚАБЫЛДАУ",
+    "bulk_slots_subtitle": "Толық күн бойы алаңыздың қолжетімділігін орнатыңыз.",
+    "start_hour_label": "Басталу сағаты (0-23)",
+    "end_hour_label": "Аяқталу сағаты (1-24)",
+    "price_per_slot_label": "Слот бағасы (₸)"
   },
   "notification": {
     "notifications": "ХАБАРЛАНДЫРУЛАР",

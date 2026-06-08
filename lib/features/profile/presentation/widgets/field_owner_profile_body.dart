@@ -570,13 +570,23 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'field.expiry_label'.tr(namedArgs: {'date': expiry}),
-                    style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 8),
+                  Flexible(
+                    child: Text(
+                      'field.expiry_label'.tr(namedArgs: {'date': expiry}),
+                      style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 8),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  Text(
-                    'field.uses_count'.tr(namedArgs: {'count': uses}),
-                    style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      'field.uses_count'.tr(namedArgs: {'count': uses}),
+                      style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
                   ),
                 ],
               ),

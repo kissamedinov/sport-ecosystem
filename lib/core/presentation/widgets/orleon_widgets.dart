@@ -231,6 +231,8 @@ class OrleonStatCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

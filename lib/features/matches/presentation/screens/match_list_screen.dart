@@ -575,10 +575,10 @@ class _MatchListScreenState extends State<MatchListScreen> {
                           Flexible(
                             child: Text(
                               '${lobby.time}  •  ${lobby.date}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                                color: isDark ? Colors.white : cs.onSurface,
                                 letterSpacing: -0.2,
                               ),
                               maxLines: 1,

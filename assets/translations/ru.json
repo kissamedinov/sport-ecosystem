@@ -812,7 +812,9 @@
     "add_to_squad": "Добавить в состав",
     "remove_from_squad": "Убрать",
     "player_added_squad": "Игрок добавлен в состав!",
-    "player_removed_squad": "Игрок убран из состава."
+    "player_removed_squad": "Игрок убран из состава.",
+    "golden_boot": "ЗОЛОТАЯ БУТСА",
+    "boot_race": "ГОНКА"
   },
   "match": {
     "live_matches": "ПРЯМЫЕ МАТЧИ",
@@ -917,7 +919,7 @@
     "regular_player": "Обычный игрок (система)",
     "no_booking_requests": "Заявок на бронь не найдено.",
     "date_and_time": "Дата и время",
-    "revenue_label": "Выручка",
+    "revenue_label": "ДОХОД",
     "availability_pricing": "Доступность и цены",
     "dynamic_pricing_adjustments": "Настройки динамических цен",
     "prime_time_rate": "Прайм-тайм тариф",
@@ -950,7 +952,16 @@
     "promo_code_hint": "Промокод (ЗАГЛАВНЫМИ)",
     "discount_percentage": "Скидка: {percent}%",
     "max_usage_count": "Макс. кол-во использований",
-    "create_promo_code_btn": "Создать промокод"
+    "create_promo_code_btn": "Создать промокод",
+    "booking_requests_title": "ЗАЯВКИ НА БРОНЬ",
+    "no_requests_found": "Заявок не найдено.",
+    "date_time_label": "ДАТА И ВРЕМЯ",
+    "reject_btn": "ОТКЛОНИТЬ",
+    "approve_btn": "ОДОБРИТЬ",
+    "bulk_slots_subtitle": "Настройте доступность поля на весь день.",
+    "start_hour_label": "Час начала (0-23)",
+    "end_hour_label": "Час окончания (1-24)",
+    "price_per_slot_label": "Цена за слот (₸)"
   },
   "notification": {
     "notifications": "УВЕДОМЛЕНИЯ",

@@ -266,9 +266,9 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'BOOKING REQUESTS',
-                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
+                        Text(
+                          'field.booking_requests_title'.tr(),
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1.0),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close_rounded),
@@ -281,7 +281,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                     child: requests.isEmpty
                         ? Center(
                             child: Text(
-                              'No booking requests found.',
+                              'field.no_requests_found'.tr(),
                               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                             ),
                           )
@@ -357,7 +357,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('DATE & TIME', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                            Text('field.date_time_label'.tr(), style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
                                             const SizedBox(height: 2),
                                             Text('$date, $time', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
                                           ],
@@ -365,7 +365,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
-                                            Text('REVENUE', style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
+                                            Text('field.revenue_label'.tr(), style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.bold)),
                                             const SizedBox(height: 2),
                                             Text(
                                               '${price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ₸',
@@ -392,7 +392,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                                                 side: const BorderSide(color: Colors.redAccent, width: 1),
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                               ),
-                                              child: const Text('REJECT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              child: Text('field.reject_btn'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                             ),
                                           ),
                                           const SizedBox(width: 12),
@@ -411,7 +411,7 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
                                                 foregroundColor: Colors.black,
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                               ),
-                                              child: const Text('APPROVE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                              child: Text('field.approve_btn'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                             ),
                                           ),
                                         ],
@@ -836,21 +836,21 @@ class _FieldManagementScreenState extends State<FieldManagementScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Setup your field availability for a full day.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
+            Text('field.bulk_slots_subtitle'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 12)),
             const SizedBox(height: 20),
             TextField(
               controller: startHourController,
-              decoration: InputDecoration(labelText: 'Start Hour (0-23)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+              decoration: InputDecoration(labelText: 'field.start_hour_label'.tr(), labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
             ),
             TextField(
               controller: endHourController,
-              decoration: InputDecoration(labelText: 'End Hour (1-24)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+              decoration: InputDecoration(labelText: 'field.end_hour_label'.tr(), labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
             ),
             TextField(
               controller: priceController,
-              decoration: InputDecoration(labelText: 'Price per slot (₸)', labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
+              decoration: InputDecoration(labelText: 'field.price_per_slot_label'.tr(), labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))),
               keyboardType: TextInputType.number,
             ),
           ],
