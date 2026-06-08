@@ -137,7 +137,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.close, color: Colors.white70),
+                icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                 onPressed: () => Navigator.pop(context),
               ),
               Text(
@@ -221,8 +221,9 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             bool isCorrect = index == question.correctIndex;
             bool isSelected = index == _selectedOption;
             
-            Color borderColor = Colors.white.withValues(alpha: 0.1);
-            Color bgColor = Colors.white.withValues(alpha: 0.05);
+            final cs = Theme.of(context).colorScheme;
+            Color borderColor = cs.onSurface.withValues(alpha: 0.18);
+            Color bgColor = cs.onSurface.withValues(alpha: 0.04);
             
             if (_isAnswered) {
               if (isCorrect) {
@@ -261,7 +262,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                         child: Text(
                           String.fromCharCode(65 + index),
                           style: TextStyle(
-                            color: isSelected || (isCorrect && _isAnswered) ? borderColor : Colors.white38,
+                            color: isSelected || (isCorrect && _isAnswered) ? borderColor : cs.onSurface.withValues(alpha: 0.4),
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -272,7 +273,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                         child: Text(
                           optionText,
                           style: TextStyle(
-                            color: isSelected || (isCorrect && _isAnswered) ? Colors.white : Colors.white70,
+                            color: (_isAnswered && (isCorrect || isSelected)) ? Colors.white : cs.onSurface.withValues(alpha: 0.85),
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -328,7 +329,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             const SizedBox(height: 8),
             Text(
               'quiz.score_today'.tr(namedArgs: {'score': _score.toString()}),
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
             ),
             const SizedBox(height: 48),
             _buildStreakCard(streak + (_score >= 5 ? 1 : 0)), // Приблизительный расчет для экрана успеха
@@ -372,12 +373,12 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
             const SizedBox(height: 8),
             Text(
               'quiz.your_score'.tr(namedArgs: {'score': score.toString(), 'total': total.toString()}),
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16),
             ),
             const SizedBox(height: 16),
             Text(
               'quiz.come_back_tomorrow'.tr(),
-              style: const TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
@@ -388,8 +389,8 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
@@ -425,7 +426,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 ),
                 Text(
                   'quiz.streak_maintain'.tr(),
-                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                 ),
               ],
             ),
@@ -444,7 +445,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
           const SizedBox(height: 16),
           Text('quiz.connection_error'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(error, style: const TextStyle(color: Colors.white38, fontSize: 12), textAlign: TextAlign.center),
+          Text(error, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           TextButton(
             onPressed: () => context.read<QuizProvider>().fetchDailyQuiz(),
