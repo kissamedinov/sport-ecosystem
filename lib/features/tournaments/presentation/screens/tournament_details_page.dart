@@ -1066,12 +1066,12 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: Row(
         children: [
-          SizedBox(width: 32, child: Text('tournament.pos_header'.tr(), style: headerStyle)),
+          SizedBox(width: 32, child: Text('tournament.pos_header'.tr(), style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
           const SizedBox(width: 12),
-          Expanded(child: Text('tournament.team_header'.tr(), style: headerStyle)),
-          SizedBox(width: 35, child: Text('tournament.mp_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 35, child: Text('tournament.gd_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
-          SizedBox(width: 45, child: Text('tournament.pts_header'.tr(), textAlign: TextAlign.center, style: headerStyle)),
+          Expanded(child: Text('tournament.team_header'.tr(), style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 35, child: Text('tournament.mp_header'.tr(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 35, child: Text('tournament.gd_header'.tr(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 45, child: Text('tournament.pts_header'.tr(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

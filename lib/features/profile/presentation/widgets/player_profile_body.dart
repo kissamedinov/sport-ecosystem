@@ -394,6 +394,8 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           Text(
             label,
             style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -684,9 +686,11 @@ class _PlayerProfileBodyState extends State<PlayerProfileBody> {
           Text(
             label,
             style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: cs.onSurface.withValues(alpha: 0.4), letterSpacing: 0.5),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
-          Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: cs.onSurface)),
+          Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: cs.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

@@ -572,15 +572,20 @@ class _MatchListScreenState extends State<MatchListScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${lobby.time}  •  ${lobby.date}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              letterSpacing: -0.2,
+                          Flexible(
+                            child: Text(
+                              '${lobby.time}  •  ${lobby.date}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             '${lobby.price.toInt()} KZT',
                             style: TextStyle(
@@ -613,51 +618,61 @@ class _MatchListScreenState extends State<MatchListScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: cs.onSurface.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(8),
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: cs.onSurface.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    lobby.format,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                child: Text(
-                                  lobby.format,
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      _getSurfaceForLocation(lobby.location).toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: PremiumTheme.electricBlue,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Icon(Icons.person_rounded, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '${lobby.joinedPlayers.length} / ${lobby.maxPlayers}',
                                   style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: cs.onSurfaceVariant,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: PremiumTheme.electricBlue.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  _getSurfaceForLocation(lobby.location).toUpperCase(),
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: PremiumTheme.electricBlue,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Icon(Icons.person_rounded, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-                              const SizedBox(width: 3),
-                              Text(
-                                '${lobby.joinedPlayers.length} / ${lobby.maxPlayers}',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
