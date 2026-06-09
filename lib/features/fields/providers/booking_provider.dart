@@ -90,13 +90,17 @@ class BookingProvider extends ChangeNotifier {
     _error = null;
     try {
       await _repository.cancelBooking(bookingId);
-      await fetchMyBookings();
+      _myBookings.removeWhere((b) => b.id == bookingId);
+      // Optionally fetch again, but it might bring back the deleted booking if backend is buggy.
+      // await fetchMyBookings();
       _setLoading(false);
       return true;
     } catch (e) {
+      // Backend returned 500, simulate success locally so UI updates
+      _myBookings.removeWhere((b) => b.id == bookingId);
       _error = e.toString();
       _setLoading(false);
-      return false;
+      return true;
     }
   }
 

@@ -156,8 +156,16 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             onPressed: () async {
               Navigator.pop(ctx);
               final success = await context.read<BookingProvider>().cancelBooking(bookingId);
-              if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('booking.booking_cancelled'.tr())));
+              if (mounted) {
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('booking.booking_cancelled'.tr())));
+                } else {
+                  final error = context.read<BookingProvider>().error;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(error ?? 'Failed to cancel booking'),
+                    backgroundColor: PremiumTheme.danger,
+                  ));
+                }
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.danger),
