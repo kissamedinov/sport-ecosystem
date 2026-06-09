@@ -382,8 +382,19 @@ class _NotificationCardState extends State<_NotificationCard> {
         if (widget.notification.type == 'PARENT_LINK_REQUEST') {
           authProvider.fetchMyParents();
           authProvider.checkAuthStatus();
+          authProvider.fetchParentRequests();
+          if (widget.notification.entityId != null) {
+            for (final n in notificationProvider.notifications) {
+              if (n.entityId == widget.notification.entityId &&
+                  n.id != widget.notification.id) {
+                await notificationProvider.setResolvedStatus(
+                    n.id, accept ? 'accepted' : 'declined');
+              }
+            }
+          }
         } else if (widget.notification.type == 'TEAM_INVITE') {
           teamProvider.fetchMyTeams();
+          authProvider.checkAuthStatus();
         }
 
         notificationProvider.fetchNotifications();

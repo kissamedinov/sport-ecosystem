@@ -469,11 +469,20 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
         );
         if (!invite.isParentRequest) {
           notificationProvider.markAsRead(invite.id);
+          notificationProvider.setResolvedStatus(invite.id, accept ? 'accepted' : 'declined');
           notificationProvider.fetchNotifications();
           teamProvider.fetchMyTeams();
+          authProvider.checkAuthStatus();
         } else {
           authProvider.fetchMyParents();
           authProvider.checkAuthStatus();
+          authProvider.fetchParentRequests();
+          for (final n in notificationProvider.notifications) {
+            if (n.entityId == invite.entityId && n.id != invite.id) {
+              notificationProvider.setResolvedStatus(
+                  n.id, accept ? 'accepted' : 'declined');
+            }
+          }
         }
       } else {
         scaffoldMessenger.showSnackBar(
