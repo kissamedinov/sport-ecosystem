@@ -524,3 +524,6 @@ def get_player_parents(db: Session, player_profile_id: UUID) -> List[dict]:
         })
     return results
 
+def get_training_attendance(db: Session, training_id: UUID) -> List[TrainingAttendance]:
+    return db.query(TrainingAttendance).filter(TrainingAttendance.training_id == training_id).all()
+

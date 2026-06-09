@@ -327,6 +327,14 @@ def record_training_attendance(
     """
     return services.record_attendance_batch(db, attendance_in)
 
+@router.get("/training/{session_id}/attendance", response_model=List[schemas.TrainingAttendanceResponse])
+def get_training_attendance(
+    session_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.get_training_attendance(db, session_id)
+
 @router.post("/feedback", response_model=schemas.CoachFeedbackResponse)
 def submit_coach_feedback(
     feedback_in: schemas.CoachFeedbackCreate,
