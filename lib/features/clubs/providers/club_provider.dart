@@ -76,12 +76,12 @@ class ClubProvider extends ChangeNotifier {
         _dashboard = await _repository.getMyClubDashboard();
       }
     } catch (e) {
-      _dashboard = null; // Prevent stale dashboard leakage across accounts
       final errorStr = e.toString();
       if (errorStr.contains('404') || errorStr.contains('403')) {
+        _dashboard = null; // no club for this user
         _error = null;
       } else {
-        _error = errorStr;
+        _error = errorStr; // keep existing dashboard — don't wipe on transient errors
       }
     } finally {
       _setLoading(false);
@@ -202,9 +202,7 @@ class ClubProvider extends ChangeNotifier {
         'birth_year': birthYear,
         'coach_id': coachId,
       });
-      if (_dashboard != null) {
-        await fetchClubDashboard(_dashboard!.club.id.toString());
-      }
+      await fetchClubDashboard();
       return true;
     } catch (e) {
       _error = e.toString();

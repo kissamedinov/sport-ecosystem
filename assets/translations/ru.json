@@ -296,6 +296,7 @@
     "cancel": "Отмена",
     "create": "Создать",
     "club_requests": "Заявки клубов",
+    "club_request_sent": "Запрос на создание клуба отправлен!",
     "tournament_moderation": "Модерация турниров",
     "user_management": "Управление пользователями",
     "system_settings": "Системные настройки",

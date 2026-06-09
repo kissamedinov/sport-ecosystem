@@ -296,6 +296,7 @@
     "cancel": "Cancel",
     "create": "Create",
     "club_requests": "Club Requests",
+    "club_request_sent": "Club creation request sent!",
     "tournament_moderation": "Tournament Moderation",
     "user_management": "User Management",
     "system_settings": "System Settings",

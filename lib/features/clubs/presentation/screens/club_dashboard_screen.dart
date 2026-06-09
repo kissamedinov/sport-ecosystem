@@ -82,7 +82,7 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
           }
 
           final dashboard = provider.dashboard;
-          if (dashboard == null) {
+          if (dashboard == null && !provider.isLoading) {
             final user = context.read<AuthProvider>().user;
             final isAdmin = user?.roles?.contains('ADMIN') ?? false;
             final isClubManager = user?.roles?.contains('CLUB_MANAGER') ?? false;
