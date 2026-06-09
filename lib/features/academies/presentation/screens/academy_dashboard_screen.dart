@@ -1526,21 +1526,28 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           builder: (ctx2, p, _) {
             final onSurface = Theme.of(ctx2).colorScheme.onSurface;
             return Container(
-              height: MediaQuery.of(ctx2).size.height * 0.72,
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx2).size.height * 0.85,
+              ),
               child: p.isLoading
-                  ? const Center(child: CircularProgressIndicator(color: _kGreen))
+                  ? const SizedBox(
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator(color: _kGreen)))
                   : p.currentBillingReport == null
-                      ? Center(
-                          child: Text('academy.no_data_month'.tr(),
-                              style: _outfit(14, FontWeight.w500, onSurface.withValues(alpha: 0.5))))
-                      : Padding(
-                          padding: const EdgeInsets.all(20),
+                      ? SizedBox(
+                          height: 160,
+                          child: Center(
+                            child: Text('academy.no_data_month'.tr(),
+                                style: _outfit(14, FontWeight.w500, onSurface.withValues(alpha: 0.5)))))
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Center(
                                 child: Container(
@@ -1571,7 +1578,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                                 _billingRow(ctx2, 'academy.total_owed'.tr(), '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
                                     _kGold, true),
                               ]),
-                              const Spacer(),
+                              const SizedBox(height: 24),
                               SizedBox(
                                 width: double.infinity,
                                 height: 50,

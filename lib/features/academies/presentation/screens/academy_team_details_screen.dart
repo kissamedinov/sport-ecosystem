@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
 import '../../data/models/academy_team.dart';
 import '../../data/models/crm_models.dart';
+import '../../../../core/theme/premium_theme.dart';
 
-const _kGreen  = Color(0xFF00E676);
-const _kCard   = Color(0xFF161B22);
-const _kNavy   = Color(0xFF0A0E12);
+const _kGreen = Color(0xFF00E676);
+
+TextStyle _t(double size, FontWeight w, Color color, {double ls = 0}) =>
+    GoogleFonts.outfit(fontSize: size, fontWeight: w, color: color, letterSpacing: ls);
 
 class AcademyTeamDetailsScreen extends StatefulWidget {
   final AcademyTeam team;
-
   const AcademyTeamDetailsScreen({super.key, required this.team});
 
   @override
@@ -25,6 +27,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() {}));
   }
 
   @override
@@ -35,120 +38,208 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final isScheduleTab = _tabController.index == 1;
+
     return Scaffold(
-      backgroundColor: _kNavy,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        backgroundColor: _kNavy,
-        title: Text(widget.team.name),
+        backgroundColor: PremiumTheme.surfaceCard(context),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: onSurface, size: 18),
+          onPressed: () => Navigator.maybePop(context),
+        ),
+        title: Text(widget.team.name,
+            style: _t(17, FontWeight.w700, onSurface)),
+        centerTitle: true,
       ),
       body: Column(
         children: [
-          _buildTeamHeader(),
-          TabBar(
-            controller: _tabController,
-            indicatorColor: _kGreen,
-            labelColor: _kGreen,
-            unselectedLabelColor: Colors.white54,
-            tabs: [
-              const Tab(text: 'Игроки'),
-              const Tab(text: 'Тренировки'),
-            ],
+          _buildTeamHeader(context),
+          Container(
+            color: PremiumTheme.surfaceCard(context),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: _kGreen,
+              indicatorWeight: 2.5,
+              indicatorSize: TabBarIndicatorSize.label,
+              labelColor: _kGreen,
+              unselectedLabelColor: onSurface.withValues(alpha: 0.4),
+              labelStyle: _t(13, FontWeight.w700, _kGreen),
+              unselectedLabelStyle: _t(13, FontWeight.w500, onSurface),
+              tabs: const [Tab(text: 'Игроки'), Tab(text: 'Тренировки')],
+            ),
           ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              children: [_buildPlayersList(context), _buildTrainingSessions(context)],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: isScheduleTab
+          ? _buildFab(context)
+          : null,
+    );
+  }
+
+  Widget _buildFab(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [_kGreen, Color(0xFF00C853)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: _kGreen.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _showScheduleSheet,
+          child: const Icon(Icons.add_rounded, color: Colors.black, size: 26),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamHeader(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      color: PremiumTheme.surfaceCard(context),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [_kGreen.withValues(alpha: 0.25), _kGreen.withValues(alpha: 0.08)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              border: Border.all(color: _kGreen.withValues(alpha: 0.4)),
+            ),
+            child: Center(
+              child: Text(widget.team.ageGroup,
+                  textAlign: TextAlign.center,
+                  style: _t(10, FontWeight.w900, _kGreen)),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildPlayersList(),
-                _buildTrainingSessions(),
+                Text(widget.team.name, style: _t(17, FontWeight.w700, onSurface)),
+                const SizedBox(height: 2),
+                Text('Возрастная группа: ${widget.team.ageGroup}',
+                    style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddDialog,
-        backgroundColor: _kGreen,
-        child: const Icon(Icons.add, color: Colors.black),
-      ),
     );
   }
 
-  Widget _buildTeamHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white.withValues(alpha: 0.05),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: _kGreen,
-            child: Text(widget.team.ageGroup,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.team.name,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              Text('Возрастная группа: ${widget.team.ageGroup}',
-                  style: const TextStyle(color: Colors.grey)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlayersList() {
+  // ── Players tab ─────────────────────────────────────────────────────────────
+  Widget _buildPlayersList(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Consumer<AcademyProvider>(
-      builder: (context, provider, child) {
-        final teamPlayers = provider.players.toList();
-
-        if (teamPlayers.isEmpty) {
+      builder: (context, provider, _) {
+        final players = provider.players.toList();
+        if (players.isEmpty) {
           return Center(
-            child: Text('Нет игроков в команде',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.4))),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_off_rounded,
+                    size: 48, color: onSurface.withValues(alpha: 0.15)),
+                const SizedBox(height: 12),
+                Text('Нет игроков в команде',
+                    style: _t(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
+              ],
+            ),
           );
         }
-
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: teamPlayers.length,
-          itemBuilder: (context, index) {
-            final player = teamPlayers[index];
-            final initials = _initials(player.fullName);
-            return ListTile(
-              leading: CircleAvatar(
-                backgroundColor: _kGreen.withValues(alpha: 0.15),
-                child: Text(initials,
-                    style: const TextStyle(color: _kGreen, fontWeight: FontWeight.bold, fontSize: 13)),
-              ),
-              title: Text(player.fullName,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text(
-                player.position != null ? player.position! : player.status,
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.swap_horiz, color: Colors.blue, size: 20),
-                    onPressed: () => _showReassignSheet(player),
-                    tooltip: 'Перевести в другую команду',
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.feedback_outlined,
-                        color: Colors.white.withValues(alpha: 0.4), size: 20),
-                    onPressed: () => _showFeedbackDialog(player),
-                  ),
-                ],
-              ),
-            );
-          },
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
+          itemCount: players.length,
+          itemBuilder: (context, index) => _buildPlayerTile(context, players[index], index),
         );
       },
+    );
+  }
+
+  Widget _buildPlayerTile(BuildContext context, AcademyPlayer player, int index) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final initials = _initials(player.fullName);
+    const palette = [_kGreen, Color(0xFF1E90D4), Color(0xFFF5C518),
+                     Color(0xFFB388FF), Color(0xFFFF9800), Color(0xFFFF5252)];
+    final accent = palette[index % palette.length];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: PremiumTheme.surfaceCard(context),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [accent.withValues(alpha: 0.3), accent.withValues(alpha: 0.1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            shape: BoxShape.circle,
+            border: Border.all(color: accent.withValues(alpha: 0.4)),
+          ),
+          child: Center(
+            child: Text(initials, style: _t(13, FontWeight.w800, accent)),
+          ),
+        ),
+        title: Text(player.fullName, style: _t(14, FontWeight.w600, onSurface)),
+        subtitle: Text(
+          player.position ?? player.status,
+          style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45)),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF1E90D4), size: 20),
+              onPressed: () => _showReassignSheet(context, player),
+              tooltip: 'Перевести в другую команду',
+            ),
+            IconButton(
+              icon: Icon(Icons.feedback_outlined,
+                  color: onSurface.withValues(alpha: 0.3), size: 20),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -159,43 +250,60 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     return '?';
   }
 
-  void _showReassignSheet(AcademyPlayer player) {
+  void _showReassignSheet(BuildContext context, AcademyPlayer player) {
     final provider = context.read<AcademyProvider>();
+    final onSurface = Theme.of(context).colorScheme.onSurface;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: _kCard,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            left: 20, right: 20, top: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Перевести игрока в команду',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: onSurface.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Перевести в команду', style: _t(18, FontWeight.w700, onSurface)),
             const SizedBox(height: 16),
-            const Text('Выберите команду'),
-            const SizedBox(height: 8),
-            Expanded(
+            SizedBox(
+              height: 260,
               child: ListView.builder(
                 itemCount: provider.teams.length,
-                itemBuilder: (context, index) {
-                  final team = provider.teams[index];
+                itemBuilder: (ctx2, i) {
+                  final team = provider.teams[i];
                   if (team.id == widget.team.id) return const SizedBox.shrink();
-
                   return ListTile(
-                    leading: CircleAvatar(child: Text(team.ageGroup)),
-                    title: Text(team.name),
+                    leading: CircleAvatar(
+                      backgroundColor: _kGreen.withValues(alpha: 0.15),
+                      child: Text(team.ageGroup,
+                          style: _t(9, FontWeight.w800, _kGreen)),
+                    ),
+                    title: Text(team.name, style: _t(13, FontWeight.w600, onSurface)),
                     onTap: () async {
-                      final success =
-                          await provider.reassignPlayer(player.playerProfileId, team.id);
-                      if (success && context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Игрок переведён в ${team.name}')),
-                        );
+                      Navigator.pop(ctx);
+                      final ok = await provider.reassignPlayer(player.playerProfileId, team.id);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(ok
+                              ? 'Игрок переведён в ${team.name}'
+                              : 'Ошибка перевода'),
+                          backgroundColor: ok ? _kGreen : Colors.redAccent,
+                        ));
                       }
                     },
                   );
@@ -208,9 +316,11 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     );
   }
 
-  Widget _buildTrainingSessions() {
+  // ── Schedule tab ────────────────────────────────────────────────────────────
+  Widget _buildTrainingSessions(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Consumer<AcademyProvider>(
-      builder: (context, provider, child) {
+      builder: (context, provider, _) {
         final teamSessions = provider.sessions
             .where((s) => s.teamIds.contains(widget.team.id))
             .toList()
@@ -222,48 +332,45 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
           padding: const EdgeInsets.all(16),
           children: [
             if (teamSchedules.isNotEmpty) ...[
-              const Text('Повторяющееся расписание',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+              Text('Повторяющееся расписание',
+                  style: _t(14, FontWeight.w700, onSurface)),
               const SizedBox(height: 8),
-              ...teamSchedules.map((s) => _buildScheduleCard(s, provider)),
-              const Divider(height: 32),
+              ...teamSchedules.map((s) => _buildScheduleCard(context, s, provider)),
+              Divider(height: 32, color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
             ],
             Row(
               children: [
-                const Text('Занятия',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                Text('Занятия', style: _t(14, FontWeight.w700, onSurface)),
                 const Spacer(),
                 if (teamSchedules.isNotEmpty)
                   TextButton.icon(
                     onPressed: () => _generateSessions(provider),
-                    icon: const Icon(Icons.autorenew, size: 16, color: _kGreen),
-                    label: const Text('Обновить', style: TextStyle(color: _kGreen, fontSize: 12)),
+                    icon: const Icon(Icons.autorenew_rounded, size: 14, color: _kGreen),
+                    label: Text('Обновить', style: _t(12, FontWeight.w600, _kGreen)),
                   ),
               ],
             ),
             const SizedBox(height: 8),
             if (teamSessions.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Column(
-                    children: [
-                      Icon(Icons.event_busy_rounded,
-                          size: 40, color: Colors.white.withValues(alpha: 0.2)),
-                      const SizedBox(height: 12),
-                      const Text('Занятия ещё не созданы',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 8),
-                      Text('Нажмите + чтобы создать расписание',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 12)),
-                    ],
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  children: [
+                    Icon(Icons.event_busy_rounded,
+                        size: 40, color: onSurface.withValues(alpha: 0.15)),
+                    const SizedBox(height: 12),
+                    Text('Занятия ещё не созданы',
+                        textAlign: TextAlign.center,
+                        style: _t(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
+                    const SizedBox(height: 6),
+                    Text('Нажмите + чтобы создать расписание',
+                        textAlign: TextAlign.center,
+                        style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.25))),
+                  ],
                 ),
               )
             else
-              ...teamSessions.map((session) => _buildSessionCard(session, provider)),
+              ...teamSessions.map((s) => _buildSessionCard(context, s)),
             const SizedBox(height: 80),
           ],
         );
@@ -271,13 +378,13 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     );
   }
 
-  Widget _buildScheduleCard(TrainingSchedule s, AcademyProvider provider) {
-    final dayLabel = _dayLabel(s.dayOfWeek.toShortString());
+  Widget _buildScheduleCard(BuildContext context, TrainingSchedule s, AcademyProvider provider) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kGreen.withValues(alpha: 0.2)),
       ),
@@ -297,38 +404,40 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$dayLabel  ${s.startTime} – ${s.endTime}',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                Text(
+                  '${_dayLabel(s.dayOfWeek.toShortString())}  ${s.startTime} – ${s.endTime}',
+                  style: _t(13, FontWeight.w700, onSurface),
+                ),
                 if (s.location != null)
                   Text(s.location!,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-            onPressed: () async {
-              await provider.deleteSchedule(widget.team.academyId, s.id);
-            },
+            onPressed: () => provider.deleteSchedule(widget.team.academyId, s.id),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSessionCard(TrainingSession session, AcademyProvider provider) {
-    final date = _formatDate(session.date);
+  Widget _buildSessionCard(BuildContext context, TrainingSession session) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final isUpcoming = _isUpcoming(session.date);
+    final statusColor = isUpcoming ? _kGreen : onSurface.withValues(alpha: 0.35);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isUpcoming
               ? _kGreen.withValues(alpha: 0.3)
-              : Colors.white.withValues(alpha: 0.07),
+              : PremiumTheme.borderSubtle(context).withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -337,11 +446,10 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: (isUpcoming ? _kGreen : Colors.grey).withValues(alpha: 0.12),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.sports_soccer_rounded,
-                color: isUpcoming ? _kGreen : Colors.grey, size: 20),
+            child: Icon(Icons.sports_soccer_rounded, color: statusColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -349,24 +457,21 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(session.description ?? 'Тренировка',
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                Text('$date  ·  ${session.startTime}–${session.endTime}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    style: _t(13, FontWeight.w600, onSurface)),
+                Text('${_formatDate(session.date)}  ·  ${session.startTime}–${session.endTime}',
+                    style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: (isUpcoming ? _kGreen : Colors.grey).withValues(alpha: 0.12),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               isUpcoming ? 'ПРЕДСТОИТ' : 'ПРОШЛО',
-              style: TextStyle(
-                  color: isUpcoming ? _kGreen : Colors.grey,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900),
+              style: _t(9, FontWeight.w900, statusColor, ls: 0.3),
             ),
           ),
         ],
@@ -374,13 +479,13 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     );
   }
 
+  // ── Helpers ─────────────────────────────────────────────────────────────────
   String _formatDate(String dateStr) {
     try {
       final d = DateTime.parse(dateStr);
       const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
       const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-      final dow = days[d.weekday - 1];
-      return '$dow, ${d.day} ${months[d.month - 1]}';
+      return '${days[d.weekday - 1]}, ${d.day} ${months[d.month - 1]}';
     } catch (_) {
       return dateStr;
     }
@@ -402,31 +507,17 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     return map[day] ?? day;
   }
 
-  // ── Add dialog routing ─────────────────────────────────────────────────────
-
-  void _showAddDialog() {
-    if (_tabController.index == 1) {
-      _showScheduleSheet();
-    }
-    // Players tab: + button not needed for now
-  }
-
-  // ── Schedule creation sheet ────────────────────────────────────────────────
-
   void _showScheduleSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: _kCard,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => _ScheduleSheet(
         academyId: widget.team.academyId,
         teamId: widget.team.id,
-        onSaved: () {
-          final provider = context.read<AcademyProvider>();
-          _generateSessions(provider);
-        },
+        onSaved: () => _generateSessions(context.read<AcademyProvider>()),
       ),
     );
   }
@@ -439,12 +530,9 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
       );
     }
   }
-
-  void _showFeedbackDialog(AcademyPlayer player) {}
 }
 
-// ── Schedule creation sheet widget ────────────────────────────────────────────
-
+// ── Schedule creation sheet ────────────────────────────────────────────────────
 class _ScheduleSheet extends StatefulWidget {
   final String academyId;
   final String teamId;
@@ -469,13 +557,9 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   bool _saving = false;
 
   static const _dayNames = {
-    DayOfWeek.MONDAY: 'Пн',
-    DayOfWeek.TUESDAY: 'Вт',
-    DayOfWeek.WEDNESDAY: 'Ср',
-    DayOfWeek.THURSDAY: 'Чт',
-    DayOfWeek.FRIDAY: 'Пт',
-    DayOfWeek.SATURDAY: 'Сб',
-    DayOfWeek.SUNDAY: 'Вс',
+    DayOfWeek.MONDAY: 'Пн', DayOfWeek.TUESDAY: 'Вт', DayOfWeek.WEDNESDAY: 'Ср',
+    DayOfWeek.THURSDAY: 'Чт', DayOfWeek.FRIDAY: 'Пт',
+    DayOfWeek.SATURDAY: 'Сб', DayOfWeek.SUNDAY: 'Вс',
   };
 
   String _endTime() {
@@ -496,31 +580,43 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final borderColor = PremiumTheme.borderSubtle(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomInset),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: onSurface.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Row(
               children: [
-                const Text('Создать расписание',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                Text('Создать расписание', style: _t(18, FontWeight.w700, onSurface)),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.5)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
             const SizedBox(height: 16),
 
-            // ── Days of week ─────────────────────────────────
-            const Text('ДНИ НЕДЕЛИ',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5, color: Colors.grey)),
+            // Days
+            Text('ДНИ НЕДЕЛИ',
+                style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
@@ -536,25 +632,19 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                   }),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    width: 42,
-                    height: 42,
+                    width: 42, height: 42,
                     decoration: BoxDecoration(
-                      color: selected
-                          ? _kGreen
-                          : Colors.white.withValues(alpha: 0.07),
+                      color: selected ? _kGreen : onSurface.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: selected ? _kGreen : Colors.white.withValues(alpha: 0.12),
+                        color: selected ? _kGreen : borderColor.withValues(alpha: 0.5),
                       ),
                     ),
                     child: Center(
                       child: Text(
                         _dayNames[day]!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: selected ? Colors.black : Colors.white70,
-                        ),
+                        style: _t(12, FontWeight.w800,
+                            selected ? Colors.black : onSurface.withValues(alpha: 0.7)),
                       ),
                     ),
                   ),
@@ -563,44 +653,36 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             ),
             const SizedBox(height: 20),
 
-            // ── Time & Duration ──────────────────────────────
+            // Time & Duration
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('НАЧАЛО',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5, color: Colors.grey)),
+                      Text('НАЧАЛО',
+                          style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () async {
                           final t = await showTimePicker(
                             context: context,
                             initialTime: _startTime,
-                            builder: (context, child) => Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.dark(primary: _kGreen, onPrimary: Colors.black),
-                              ),
-                              child: child!,
-                            ),
                           );
                           if (t != null) setState(() => _startTime = t);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.07),
+                            color: onSurface.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: _kGreen.withValues(alpha: 0.3)),
+                            border: Border.all(color: _kGreen.withValues(alpha: 0.4)),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.access_time_rounded, color: _kGreen, size: 18),
                               const SizedBox(width: 8),
-                              Text(_startTimeStr(),
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                              Text(_startTimeStr(), style: _t(18, FontWeight.w800, onSurface)),
                             ],
                           ),
                         ),
@@ -613,25 +695,25 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('ДЛИТЕЛЬНОСТЬ',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5, color: Colors.grey)),
+                      Text('ДЛИТЕЛЬНОСТЬ',
+                          style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.07),
+                          color: onSurface.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                          border: Border.all(color: borderColor.withValues(alpha: 0.5)),
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<int>(
                             value: _durationMinutes,
-                            dropdownColor: const Color(0xFF1E2530),
-                            items: const [
-                              DropdownMenuItem(value: 60, child: Text('60 мин')),
-                              DropdownMenuItem(value: 90, child: Text('90 мин')),
-                              DropdownMenuItem(value: 120, child: Text('2 часа')),
+                            dropdownColor: PremiumTheme.surfaceCard(context),
+                            style: _t(14, FontWeight.w500, onSurface),
+                            items: [
+                              DropdownMenuItem(value: 60, child: Text('60 мин', style: _t(13, FontWeight.w500, onSurface))),
+                              DropdownMenuItem(value: 90, child: Text('90 мин', style: _t(13, FontWeight.w500, onSurface))),
+                              DropdownMenuItem(value: 120, child: Text('2 часа', style: _t(13, FontWeight.w500, onSurface))),
                             ],
                             onChanged: (v) => setState(() => _durationMinutes = v!),
                           ),
@@ -642,35 +724,36 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // ── End time preview ─────────────────────────────
+            const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Icons.schedule_rounded, color: Colors.grey, size: 14),
+                Icon(Icons.schedule_rounded, color: onSurface.withValues(alpha: 0.35), size: 14),
                 const SizedBox(width: 6),
                 Text('Окончание: ${_endTime()}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
             const SizedBox(height: 20),
 
-            // ── Location ─────────────────────────────────────
-            const Text('МЕСТО (необязательно)',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5, color: Colors.grey)),
+            // Location
+            Text('МЕСТО (необязательно)',
+                style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 8),
             TextField(
               controller: _locationController,
-              style: const TextStyle(fontSize: 14),
+              style: _t(14, FontWeight.w500, onSurface),
               decoration: InputDecoration(
                 hintText: 'Поле, зал, адрес...',
-                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+                hintStyle: _t(13, FontWeight.w400, onSurface.withValues(alpha: 0.3)),
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.07),
+                fillColor: onSurface.withValues(alpha: 0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: borderColor.withValues(alpha: 0.5)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: borderColor.withValues(alpha: 0.5)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -681,14 +764,13 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             ),
             const SizedBox(height: 20),
 
-            // ── Period ───────────────────────────────────────
-            const Text('ГЕНЕРИРОВАТЬ НА',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5, color: Colors.grey)),
+            // Period
+            Text('ГЕНЕРИРОВАТЬ НА',
+                style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 10),
             Row(
               children: [4, 8, 12].map((w) {
-                final selected = _weeksAhead == w;
+                final sel = _weeksAhead == w;
                 return Expanded(
                   child: GestureDetector(
                     onTap: () => setState(() => _weeksAhead = w),
@@ -697,23 +779,18 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: selected ? _kGreen : Colors.white.withValues(alpha: 0.07),
+                        color: sel ? _kGreen : onSurface.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? _kGreen : Colors.white.withValues(alpha: 0.12),
+                          color: sel ? _kGreen : borderColor.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Column(
                         children: [
-                          Text('$w',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: selected ? Colors.black : Colors.white)),
-                          Text('нед.',
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: selected ? Colors.black87 : Colors.white54)),
+                          Text('$w', style: _t(20, FontWeight.w900,
+                              sel ? Colors.black : onSurface)),
+                          Text('нед.', style: _t(11, FontWeight.w500,
+                              sel ? Colors.black87 : onSurface.withValues(alpha: 0.45))),
                         ],
                       ),
                     ),
@@ -722,7 +799,6 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
               }).toList(),
             ),
 
-            // ── Sessions preview ─────────────────────────────
             if (_selectedDays.isNotEmpty) ...[
               const SizedBox(height: 16),
               Container(
@@ -738,39 +814,48 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Будет создано ~${_estimatedSessions()} занятий до ${_endDateStr()}',
-                        style: const TextStyle(color: _kGreen, fontSize: 12),
+                        'Будет создано ~${_selectedDays.length * _weeksAhead} занятий до $_endDateStr',
+                        style: _t(12, FontWeight.w400, _kGreen),
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-
             const SizedBox(height: 24),
 
-            // ── Save button ──────────────────────────────────
+            // Save button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: (_selectedDays.isEmpty || _saving) ? null : _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _kGreen,
-                  disabledBackgroundColor: Colors.white.withValues(alpha: 0.1),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              height: 52,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: _selectedDays.isNotEmpty
+                      ? const LinearGradient(colors: [_kGreen, Color(0xFF00C853)])
+                      : null,
+                  color: _selectedDays.isEmpty ? onSurface.withValues(alpha: 0.08) : null,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: _selectedDays.isNotEmpty
+                      ? [BoxShadow(color: _kGreen.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))]
+                      : null,
                 ),
-                child: _saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.black))
-                    : Text(
-                        'Создать расписание${_selectedDays.length > 1 ? ' (${_selectedDays.length} дня)' : ''}',
-                        style: const TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.w900, fontSize: 15),
-                      ),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  onPressed: (_selectedDays.isEmpty || _saving) ? null : _save,
+                  child: _saving
+                      ? const SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      : Text(
+                          'Создать расписание${_selectedDays.length > 1 ? " (${_selectedDays.length} дня)" : ""}',
+                          style: _t(15, FontWeight.w900,
+                              _selectedDays.isNotEmpty ? Colors.black : onSurface.withValues(alpha: 0.3)),
+                        ),
+                ),
               ),
             ),
           ],
@@ -779,9 +864,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     );
   }
 
-  int _estimatedSessions() => _selectedDays.length * _weeksAhead;
-
-  String _endDateStr() {
+  String get _endDateStr {
     final end = DateTime.now().add(Duration(days: _weeksAhead * 7));
     const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
     return '${end.day} ${months[end.month - 1]}';
@@ -790,7 +873,6 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   Future<void> _save() async {
     setState(() => _saving = true);
     final provider = context.read<AcademyProvider>();
-
     try {
       for (final day in _selectedDays) {
         await provider.createSchedule(widget.academyId, {
@@ -801,12 +883,9 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
           'location': _locationController.text.isEmpty ? null : _locationController.text,
         });
       }
-
       final now = DateTime.now();
-      final end = now.add(Duration(days: _weeksAhead * 7));
-      await provider.triggerGenerateSessions(widget.academyId, now, end);
+      await provider.triggerGenerateSessions(widget.academyId, now, now.add(Duration(days: _weeksAhead * 7)));
       await provider.fetchSchedules(widget.academyId);
-
       if (mounted) {
         Navigator.pop(context);
         widget.onSaved();

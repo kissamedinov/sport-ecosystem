@@ -30,10 +30,10 @@ class ClubQuickActionsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('nav.quick_actions_title'.tr(),
-                  style: _t(28, FontWeight.w900, onSurface)),
+                  style: _t(24, FontWeight.w600, onSurface)),
               const SizedBox(height: 6),
               Text('nav.quick_actions_subtitle'.tr(),
-                  style: _t(14, FontWeight.w400, onSurface.withValues(alpha: 0.5))),
+                  style: _t(14, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               const SizedBox(height: 32),
               Consumer<ClubProvider>(
                 builder: (context, clubProvider, _) {
