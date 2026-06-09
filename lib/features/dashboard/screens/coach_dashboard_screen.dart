@@ -10,6 +10,7 @@ import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../matches/presentation/screens/live_match_screen.dart';
 import '../../coaches/presentation/screens/coach_teams_screen.dart';
+import '../../coaches/presentation/screens/coach_planner_screen.dart';
 import '../../stats/presentation/screens/performance_screen.dart';
 import '../../lineups/presentation/screens/lineup_screen.dart';
 import '../../tournaments/presentation/screens/tournament_announcements_screen.dart';
@@ -27,6 +28,7 @@ class CoachDashboardScreen extends StatefulWidget {
 class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     with SingleTickerProviderStateMixin {
   int _tabIndex = 0;
+  bool _fabActive = false;
   late final AnimationController _fadeCtrl;
 
   @override
@@ -56,6 +58,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     _fadeCtrl.forward();
   }
 
+  Future<void> _openLineup() async {
+    setState(() => _fabActive = true);
+    await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (_, _, _) => const LineupScreen(),
+        transitionsBuilder: (_, a, _, c) =>
+            FadeTransition(opacity: a, child: c),
+        transitionDuration: const Duration(milliseconds: 220),
+      ),
+    );
+    if (mounted) setState(() => _fabActive = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
@@ -74,17 +89,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       ),
       bottomNavigationBar: _CoachBottomNav(
         index: _tabIndex,
+        fabActive: _fabActive,
         onChanged: _goTab,
-        onFabTap: () {
-          Navigator.of(context).push(
-            PageRouteBuilder(
-              pageBuilder: (_, _, _) => const LineupScreen(),
-              transitionsBuilder: (_, a, _, c) =>
-                  FadeTransition(opacity: a, child: c),
-              transitionDuration: const Duration(milliseconds: 220),
-            ),
-          );
-        },
+        onFabTap: _openLineup,
       ),
     );
   }
@@ -932,17 +939,34 @@ class _CoachingToolsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <_ToolItem>[
-      _ToolItem('match.lineup'.tr(), Icons.grid_view_rounded, PremiumTheme.neonGreen,
-          () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LineupScreen()),
-              )),
-      _ToolItem('coach.training_plan'.tr(), Icons.assignment_outlined, PremiumTheme.electricBlue,
-          () {}),
-      _ToolItem('coach.performance'.tr(), Icons.insights_outlined, PremiumTheme.amber,
-          () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PerformanceScreen()),
-              )),
-      _ToolItem('coach.messages'.tr(), Icons.chat_bubble_outline, Colors.purpleAccent, () {}),
+      _ToolItem(
+        'match.lineup'.tr(),
+        'match.lineup_sub'.tr(),
+        Icons.grid_view_rounded,
+        PremiumTheme.neonGreen,
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LineupScreen())),
+      ),
+      _ToolItem(
+        'coach.training_plan'.tr(),
+        'coach.training_plan_sub'.tr(),
+        Icons.assignment_outlined,
+        PremiumTheme.electricBlue,
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CoachPlannerScreen())),
+      ),
+      _ToolItem(
+        'coach.performance'.tr(),
+        'coach.performance_sub'.tr(),
+        Icons.insights_outlined,
+        PremiumTheme.amber,
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PerformanceScreen())),
+      ),
+      _ToolItem(
+        'coach.messages'.tr(),
+        'coach.messages_sub'.tr(),
+        Icons.chat_bubble_outline,
+        Colors.purpleAccent,
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationScreen())),
+      ),
     ];
 
     return Padding(
@@ -953,36 +977,61 @@ class _CoachingToolsGrid extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.35,
-        children: items
-            .map((i) => OrleonCard(
-                  onTap: i.onTap,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
+        childAspectRatio: 1.25,
+        children: items.map((i) {
+          final cs = Theme.of(context).colorScheme;
+          return GestureDetector(
+            onTap: i.onTap,
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: i.color.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: i.color.withValues(alpha: 0.18)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: i.color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(i.icon, color: i.color, size: 20),
+                  ),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: i.color.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(i.icon, color: i.color, size: 20),
-                      ),
                       Text(
                         i.label,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
+                          color: cs.onSurface,
+                          fontSize: 13,
                           fontWeight: FontWeight.w800,
+                          height: 1.2,
                         ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        i.subtitle,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                ))
-            .toList(),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -990,10 +1039,11 @@ class _CoachingToolsGrid extends StatelessWidget {
 
 class _ToolItem {
   final String label;
+  final String subtitle;
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-  _ToolItem(this.label, this.icon, this.color, this.onTap);
+  _ToolItem(this.label, this.subtitle, this.icon, this.color, this.onTap);
 }
 
 class _EmptyPlaceholder extends StatelessWidget {
@@ -1028,23 +1078,16 @@ class _EmptyPlaceholder extends StatelessWidget {
   }
 }
 
-/// ─────────────────────────── INBOX TAB ───────────────────────────
-class _InboxTab extends StatelessWidget {
-  const _InboxTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return const NotificationScreen();
-  }
-}
 
 /// ─────────────────────────── BOTTOM NAV + FAB ───────────────────────────
 class _CoachBottomNav extends StatelessWidget {
   final int index;
+  final bool fabActive;
   final ValueChanged<int> onChanged;
   final VoidCallback onFabTap;
   const _CoachBottomNav({
     required this.index,
+    required this.fabActive,
     required this.onChanged,
     required this.onFabTap,
   });
@@ -1094,7 +1137,7 @@ class _CoachBottomNav extends StatelessWidget {
                 onTap: () => onChanged(1),
               ),
             ),
-            _CoachFab(onTap: onFabTap),
+            _CoachFab(active: fabActive, onTap: onFabTap),
             Expanded(
               child: _NavItem(
                 icon: Icons.event_available_rounded,
@@ -1163,11 +1206,14 @@ class _NavItem extends StatelessWidget {
 }
 
 class _CoachFab extends StatelessWidget {
+  final bool active;
   final VoidCallback onTap;
-  const _CoachFab({required this.onTap});
+  const _CoachFab({required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    const accent = PremiumTheme.neonGreen;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Transform.translate(
       offset: const Offset(0, -16),
       child: GestureDetector(
@@ -1176,19 +1222,34 @@ class _CoachFab extends StatelessWidget {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF00E676), Color(0xFF00C853)],
-            ),
+            gradient: active
+                ? const LinearGradient(
+                    colors: [Color(0xFF00E676), Color(0xFF00C853)],
+                  )
+                : null,
+            color: active
+                ? null
+                : isDark
+                    ? const Color(0xFF1A3A1A)
+                    : accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: accent.withValues(alpha: active ? 1.0 : 0.5),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00E676).withValues(alpha: 0.45),
-                blurRadius: 22,
-                offset: const Offset(0, 10),
+                color: accent.withValues(alpha: active ? 0.45 : 0.12),
+                blurRadius: active ? 22 : 10,
+                offset: Offset(0, active ? 10 : 4),
               ),
             ],
           ),
-          child: const Icon(Icons.flash_on, color: Colors.white, size: 26),
+          child: Icon(
+            Icons.flash_on,
+            color: active ? Colors.white : accent,
+            size: 26,
+          ),
         ),
       ),
     );

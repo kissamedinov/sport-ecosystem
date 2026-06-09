@@ -67,14 +67,21 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [const Color(0xFF0D2A1A), PremiumTheme.surfaceBase(context)],
-            ),
-          ),
+        background: Builder(
+          builder: (ctx) {
+            final isDark = Theme.of(ctx).brightness == Brightness.dark;
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: isDark
+                      ? [const Color(0xFF0D2A1A), PremiumTheme.surfaceBase(ctx)]
+                      : [const Color(0xFFE8F5E9), PremiumTheme.surfaceBase(ctx)],
+                ),
+              ),
+            );
+          },
         ),
       ),
       leading: IconButton(

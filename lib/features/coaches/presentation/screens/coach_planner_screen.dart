@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/api/api_client.dart';
@@ -109,16 +110,16 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
   }
 
   Widget _buildHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [
-            const Color(0xFF0D2A1A),
-            const Color(0xFF0A1510),
-            PremiumTheme.surfaceBase(context),
-          ],
+          colors: isDark
+              ? [const Color(0xFF0D2A1A), const Color(0xFF0A1510), PremiumTheme.surfaceBase(context)]
+              : [const Color(0xFFE8F5E9), const Color(0xFFF5F5F5), PremiumTheme.surfaceBase(context)],
           stops: const [0.0, 0.5, 1.0],
         ),
       ),
@@ -137,19 +138,19 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: onSurface.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.chevron_left_rounded, color: Colors.white70, size: 24),
+                  child: Icon(Icons.chevron_left_rounded, color: onSurface.withValues(alpha: 0.7), size: 24),
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
+              Text(
                 'COACH · PLANNER',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white54,
+                  color: onSurface.withValues(alpha: 0.5),
                   letterSpacing: 2,
                 ),
               ),
@@ -260,9 +261,10 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
   }
 
   Widget _buildDayHeader() {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     final cs = Theme.of(context).colorScheme;
+    final locale = context.locale.languageCode;
+    final safeLocale = locale == 'kk' ? 'ru' : locale;
+    final dateLabel = DateFormat('EEEE, d MMMM', safeLocale).format(_selected);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -270,7 +272,7 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
         children: [
           Container(width: 3, height: 18, color: PremiumTheme.neonGreen, margin: const EdgeInsets.only(right: 8)),
           Text(
-            '${weekdays[_selected.weekday - 1]}, ${months[_selected.month - 1]} ${_selected.day}',
+            dateLabel,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: cs.onSurface, letterSpacing: 0.3),
           ),
           const Spacer(),
@@ -283,7 +285,7 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
                 border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.25)),
               ),
               child: Text(
-                '${_tasks.length} TASKS',
+                'planner.n_tasks'.tr(namedArgs: {'count': '${_tasks.length}'}),
                 style: const TextStyle(fontSize: 9, color: PremiumTheme.neonGreen, fontWeight: FontWeight.w800, letterSpacing: 0.5),
               ),
             ),
@@ -310,7 +312,7 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'NO TASKS FOR THIS DAY',
+              'planner.no_tasks'.tr(),
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
@@ -320,7 +322,7 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Tap + to schedule a task',
+              'planner.add_hint'.tr(),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
             ),
           ],
@@ -450,137 +452,145 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheet) => Container(
-          padding: EdgeInsets.fromLTRB(24, 0, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0F1720),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 24),
-                  decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(2)),
-                ),
-              ),
-              const Text(
-                'ADD TASK',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white54),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: titleCtrl,
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Task title...',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25)),
-                  prefixIcon: const Icon(Icons.edit_rounded, size: 18, color: PremiumTheme.neonGreen),
-                  filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.10)),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
-                    borderSide: BorderSide(color: PremiumTheme.neonGreen),
+        builder: (ctx, setSheet) {
+          final surfCard = PremiumTheme.surfaceCard(ctx);
+          final onSurface = Theme.of(ctx).colorScheme.onSurface;
+          final border = PremiumTheme.borderSubtle(ctx);
+          return Container(
+            padding: EdgeInsets.fromLTRB(24, 0, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+            decoration: BoxDecoration(
+              color: surfCard,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 12, bottom: 24),
+                    decoration: BoxDecoration(
+                      color: border.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: timeCtrl,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Time (e.g. 10:00)',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25)),
-                  prefixIcon: const Icon(Icons.access_time_rounded, size: 18, color: PremiumTheme.neonGreen),
-                  filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.10)),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
-                    borderSide: BorderSide(color: PremiumTheme.neonGreen),
+                Text(
+                  'planner.add_task'.tr(),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: onSurface.withValues(alpha: 0.5)),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: titleCtrl,
+                  autofocus: true,
+                  style: TextStyle(color: onSurface),
+                  decoration: InputDecoration(
+                    hintText: 'planner.task_title_hint'.tr(),
+                    hintStyle: TextStyle(color: onSurface.withValues(alpha: 0.3)),
+                    prefixIcon: const Icon(Icons.edit_rounded, size: 18, color: PremiumTheme.neonGreen),
+                    filled: true,
+                    fillColor: onSurface.withValues(alpha: 0.05),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: border),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                      borderSide: BorderSide(color: PremiumTheme.neonGreen),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'CATEGORY',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.5, color: Colors.white38),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: categories.map((cat) {
-                  final active = cat == category;
-                  final color = _categoryColor(cat);
-                  return GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setSheet(() => category = cat);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: active ? color : color.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: color.withValues(alpha: active ? 1 : 0.25)),
-                      ),
-                      child: Text(
-                        cat,
-                        style: TextStyle(
-                          color: active ? Colors.white : color,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
+                const SizedBox(height: 12),
+                TextField(
+                  controller: timeCtrl,
+                  style: TextStyle(color: onSurface),
+                  decoration: InputDecoration(
+                    hintText: 'planner.time_hint'.tr(),
+                    hintStyle: TextStyle(color: onSurface.withValues(alpha: 0.3)),
+                    prefixIcon: const Icon(Icons.access_time_rounded, size: 18, color: PremiumTheme.neonGreen),
+                    filled: true,
+                    fillColor: onSurface.withValues(alpha: 0.05),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: border),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(14)),
+                      borderSide: BorderSide(color: PremiumTheme.neonGreen),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'planner.category'.tr(),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.5, color: onSurface.withValues(alpha: 0.4)),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: categories.map((cat) {
+                    final active = cat == category;
+                    final color = _categoryColor(cat);
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setSheet(() => category = cat);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: active ? color : color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: color.withValues(alpha: active ? 1 : 0.25)),
+                        ),
+                        child: Text(
+                          cat,
+                          style: TextStyle(
+                            color: active ? Colors.black : color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: PremiumTheme.neonGreen,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    if (titleCtrl.text.trim().isEmpty) return;
-                    HapticFeedback.mediumImpact();
-                    Navigator.pop(ctx);
-                    _createTask(
-                      titleCtrl.text.trim(),
-                      timeCtrl.text.trim().isEmpty ? null : timeCtrl.text.trim(),
-                      category,
                     );
-                  },
-                  child: const Text(
-                    'ADD TASK',
-                    style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PremiumTheme.neonGreen,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      if (titleCtrl.text.trim().isEmpty) return;
+                      HapticFeedback.mediumImpact();
+                      Navigator.pop(ctx);
+                      _createTask(
+                        titleCtrl.text.trim(),
+                        timeCtrl.text.trim().isEmpty ? null : timeCtrl.text.trim(),
+                        category,
+                      );
+                    },
+                    child: Text(
+                      'planner.submit_task'.tr(),
+                      style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

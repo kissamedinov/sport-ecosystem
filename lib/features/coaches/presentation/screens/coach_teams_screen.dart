@@ -308,52 +308,49 @@ class _CoachTeamsScreenState extends State<CoachTeamsScreen> {
     final losses = team['losses'] ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () {
-              if (teamId.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TeamManagementScreen(
-                      team: Team(
-                        id: teamId,
-                        name: team['name']?.toString() ?? 'Team',
-                        city: team['city']?.toString() ?? '',
-                        rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
-                        matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
-                        wins: wins,
-                        draws: draws,
-                        losses: losses,
-                        academyName: team['academy_name']?.toString(),
-                        ageCategory: team['category']?.toString() ?? team['age_category']?.toString(),
-                        coachId: team['coach_id']?.toString(),
-                        coachName: team['coach_name']?.toString(),
-                      ),
-                      availableCoaches: const [],
-                      isReadOnly: false,
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            if (teamId.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TeamManagementScreen(
+                    team: Team(
+                      id: teamId,
+                      name: team['name']?.toString() ?? 'Team',
+                      city: team['city']?.toString() ?? '',
+                      rating: team['rating'] != null ? int.tryParse(team['rating'].toString()) ?? 0 : 0,
+                      matchesPlayed: team['matches_played'] != null ? int.tryParse(team['matches_played'].toString()) ?? 0 : 0,
+                      wins: wins,
+                      draws: draws,
+                      losses: losses,
+                      academyName: team['academy_name']?.toString(),
+                      ageCategory: team['category']?.toString() ?? team['age_category']?.toString(),
+                      coachId: team['coach_id']?.toString(),
+                      coachName: team['coach_name']?.toString(),
                     ),
+                    availableCoaches: const [],
+                    isReadOnly: false,
                   ),
-                );
-              }
-            },
-            icon: const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.black),
-            label: Text(
-              'club.manage_btn'.tr().toUpperCase(),
-              style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: PremiumTheme.neonGreen,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
+                ),
+              );
+            }
+          },
+          icon: const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.black),
+          label: Text(
+            'club.manage_btn'.tr().toUpperCase(),
+            style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5),
           ),
-        ],
+          style: ElevatedButton.styleFrom(
+            backgroundColor: PremiumTheme.neonGreen,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+          ),
+        ),
       ),
     );
   }

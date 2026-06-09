@@ -907,6 +907,7 @@
     "yellow_cards": "Сары карточкалар",
     "red_cards": "Қызыл карточкалар",
     "lineup": "Құрам",
+    "lineup_sub": "Құрам және старт",
     "events": "Оқиғалар",
     "report": "Есеп",
     "premier_league": "ПРЕМЬЕР-ЛИГА",
@@ -1239,7 +1240,20 @@
     "trainings_this_week": "Осы аптадағы жаттығулар",
     "coaching_tools": "Жаттықтырушы құралдары",
     "no_upcoming_fixtures": "Алдағы матчтар жоқ",
-    "messages": "Хабарлар"
+    "messages": "Хабарлар",
+    "training_plan_sub": "Жаттығу кестесі",
+    "performance_sub": "Ойыншы статистикасы",
+    "messages_sub": "Хабарландырулар"
+  },
+  "planner": {
+    "add_task": "ТАПСЫРМА ҚОС",
+    "task_title_hint": "Тапсырма атауы...",
+    "time_hint": "Уақыт (мыс. 10:00)",
+    "category": "САНАТ",
+    "no_tasks": "БҰЛ КҮН ТАПСЫРМА ЖОҚ",
+    "add_hint": "Қосу үшін + басыңыз",
+    "submit_task": "ТАПСЫРМА ЖАСАУ",
+    "n_tasks": "{count} ТАПСЫРМА"
   },
   "children": {
     "children_activity": "Балалар белсенділігі",

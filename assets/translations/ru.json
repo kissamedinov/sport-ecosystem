@@ -841,6 +841,7 @@
     "yellow_cards": "Жёлтые карточки",
     "red_cards": "Красные карточки",
     "lineup": "Состав",
+    "lineup_sub": "Состав и старт",
     "events": "События",
     "report": "Отчёт",
     "premier_league": "ПРЕМЬЕР-ЛИГА",
@@ -1172,7 +1173,20 @@
     "trainings_this_week": "Тренировки на неделе",
     "coaching_tools": "Инструменты тренера",
     "no_upcoming_fixtures": "Предстоящих матчей нет",
-    "messages": "Сообщения"
+    "messages": "Сообщения",
+    "training_plan_sub": "Расписание тренировок",
+    "performance_sub": "Статистика игроков",
+    "messages_sub": "Уведомления"
+  },
+  "planner": {
+    "add_task": "ДОБАВИТЬ ЗАДАЧУ",
+    "task_title_hint": "Название задачи...",
+    "time_hint": "Время (напр. 10:00)",
+    "category": "КАТЕГОРИЯ",
+    "no_tasks": "НЕТ ЗАДАЧ НА ЭТОТ ДЕНЬ",
+    "add_hint": "Нажмите + для добавления",
+    "submit_task": "СОЗДАТЬ ЗАДАЧУ",
+    "n_tasks": "{count} ЗАДАЧ"
   },
   "children": {
     "children_activity": "Активность детей",

@@ -841,6 +841,7 @@
     "yellow_cards": "Yellow Cards",
     "red_cards": "Red Cards",
     "lineup": "Lineup",
+    "lineup_sub": "Lineup & Start XI",
     "events": "Events",
     "report": "Report",
     "premier_league": "PREMIER LEAGUE",
@@ -1172,7 +1173,20 @@
     "trainings_this_week": "Trainings This Week",
     "coaching_tools": "Coaching Tools",
     "no_upcoming_fixtures": "No upcoming fixtures",
-    "messages": "Messages"
+    "messages": "Messages",
+    "training_plan_sub": "Training schedule",
+    "performance_sub": "Player statistics",
+    "messages_sub": "Notifications"
+  },
+  "planner": {
+    "add_task": "ADD TASK",
+    "task_title_hint": "Task title...",
+    "time_hint": "Time (e.g. 10:00)",
+    "category": "CATEGORY",
+    "no_tasks": "NO TASKS FOR THIS DAY",
+    "add_hint": "Tap + to schedule a task",
+    "submit_task": "ADD TASK",
+    "n_tasks": "{count} TASKS"
   },
   "children": {
     "children_activity": "Children Activity",
