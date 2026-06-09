@@ -9,7 +9,7 @@ from app.academies.models import (
     TrainingSession, TrainingAttendance, 
     CoachFeedback, TrainingSchedule, AcademyBranch, AcademyBillingConfig, DayOfWeek, AttendanceStatus
 )
-from app.users.models import User, PlayerProfile
+from app.users.models import User, PlayerProfile, ParentChildRelation, ParentChildStatus
 from app.clubs.models import Club
 from app.tournaments.models import TournamentStandings
 from app.academies import schemas
@@ -501,4 +501,26 @@ def get_players_activities(db: Session, player_ids: List[UUID]) -> List[Training
 
 def get_academy_rankings(db: Session) -> List[AcademyRanking]:
     return db.query(AcademyRanking).order_by(AcademyRanking.points.desc()).all()
+
+def get_player_parents(db: Session, player_profile_id: UUID) -> List[dict]:
+    profile = db.query(PlayerProfile).filter(PlayerProfile.id == player_profile_id).first()
+    if not profile:
+        return []
+    
+    relations = db.query(ParentChildRelation).filter(
+        ParentChildRelation.child_id == profile.user_id,
+        ParentChildRelation.status == ParentChildStatus.ACCEPTED
+    ).all()
+    
+    results = []
+    for rel in relations:
+        parent = rel.parent
+        results.append({
+            "id": parent.id,
+            "name": parent.name,
+            "email": parent.email,
+            "phone": parent.phone,
+            "relation_type": rel.relation_type.value if hasattr(rel.relation_type, "value") else str(rel.relation_type)
+        })
+    return results
 

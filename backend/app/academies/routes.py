@@ -402,6 +402,14 @@ def reassign_player_team(
     """
     return services.move_player_between_teams(db, player_profile_id, target_team_id)
 
+@router.get("/players/{player_profile_id}/parents", response_model=List[schemas.ParentInfoResponse])
+def get_player_parents(
+    player_profile_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_coach)
+):
+    return services.get_player_parents(db, player_profile_id)
+
 @router.get("/{id}/billing/config", response_model=Optional[schemas.AcademyBillingConfigResponse])
 def get_billing_config(
     id: UUID,

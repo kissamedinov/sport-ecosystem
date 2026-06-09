@@ -251,6 +251,15 @@ class AcademyCompositePlayerResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ParentInfoResponse(BaseModel):
+    id: UUID
+    name: str
+    email: str
+    phone: Optional[str] = None
+    relation_type: str
+
+    model_config = ConfigDict(from_attributes=True)
+
 # Parent-specific response schemas
 class ParentFeedbackItem(BaseModel):
     child_id: str
