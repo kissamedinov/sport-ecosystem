@@ -847,7 +847,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -914,42 +914,40 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final isSelected = _selectedIndex == 1;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const accent = Color(0xFF00E676);
-    return Transform.translate(
-      offset: const Offset(0, -14),
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedIndex = 1),
-        child: Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isSelected
-                  ? [accent, const Color(0xFF00C853)]
-                  : isDark
-                      ? [const Color(0xFF1A3A1A), const Color(0xFF0F250F)]
-                      : [accent.withValues(alpha: 0.12), accent.withValues(alpha: 0.06)],
-            ),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: accent.withValues(alpha: isSelected ? 1.0 : 0.4),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: isSelected ? 0.55 : 0.15),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () => setState(() => _selectedIndex = 1),
+      child: Container(
+        width: 58,
+        height: 58,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isSelected
+                ? [accent, const Color(0xFF00C853)]
+                : isDark
+                    ? [const Color(0xFF1A3A1A), const Color(0xFF0F250F)]
+                    : [accent.withValues(alpha: 0.12), accent.withValues(alpha: 0.06)],
           ),
-          child: Center(
-            child: Icon(
-              Icons.emoji_events_rounded,
-              color: isSelected ? Colors.black : accent,
-              size: 26,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: accent.withValues(alpha: isSelected ? 1.0 : 0.5),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: isSelected ? 0.4 : 0.12),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: Center(
+          child: Icon(
+            Icons.emoji_events_rounded,
+            color: isSelected ? Colors.black : accent,
+            size: 26,
           ),
         ),
       ),

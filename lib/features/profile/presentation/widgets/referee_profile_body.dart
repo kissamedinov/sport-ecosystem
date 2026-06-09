@@ -86,7 +86,7 @@ class _RefereeProfileBodyState extends State<RefereeProfileBody> {
             ),
             const OrleonSectionHeader(title: 'Availability'),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
               child: _buildAvailabilityCard(),
             ),
           ],
