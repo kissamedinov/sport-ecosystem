@@ -68,8 +68,8 @@ class AcademyPlayer {
       id: json['id'] as String,
       academyId: json['academy_id'] as String,
       playerProfileId: json['player_profile_id'] as String,
-      firstName: json['first_name'] as String? ?? '',
-      lastName: json['last_name'] as String? ?? '',
+      firstName: json['first_name'] as String? ?? (json['full_name'] != null ? (json['full_name'] as String).split(' ').first : ''),
+      lastName: json['last_name'] as String? ?? (json['full_name'] != null && (json['full_name'] as String).contains(' ') ? (json['full_name'] as String).split(' ').sublist(1).join(' ') : ''),
       position: json['position'] as String?,
       status: json['status'] as String,
       joinedAt: DateTime.parse(json['joined_at']),
@@ -201,7 +201,12 @@ class AcademyTeamPlayer {
     return AcademyTeamPlayer(
       id: json['id'] as String,
       playerProfileId: json['player_profile_id'] as String,
-      fullName: json['full_name'] as String?,
+      fullName: json['full_name'] as String? ?? 
+                json['player_name'] as String? ??
+                (json['player'] != null ? (json['player']['full_name'] as String? ?? json['player']['first_name'] as String?) : null) ??
+                ((json['first_name'] != null || json['last_name'] != null) 
+                    ? '${json['first_name'] ?? ''} ${json['last_name'] ?? ''}'.trim() 
+                    : json.toString()),
       teamId: json['team_id'] as String,
       position: json['position'] as String?,
       jerseyNumber: json['jersey_number'] as int?,

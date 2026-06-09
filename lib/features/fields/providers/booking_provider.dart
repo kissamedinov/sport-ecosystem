@@ -8,6 +8,7 @@ class BookingProvider extends ChangeNotifier {
   List<Field> _fields = [];
   final List<Booking> _myBookings = [];
   final List<Booking> _ownerBookings = [];
+  final Set<String> _canceledBookingIds = {};
   bool _isLoading = false;
   String? _error;
 
@@ -37,7 +38,7 @@ class BookingProvider extends ChangeNotifier {
     try {
       final bookings = await _repository.getMyBookings();
       _myBookings.clear();
-      _myBookings.addAll(bookings);
+      _myBookings.addAll(bookings.where((b) => !_canceledBookingIds.contains(b.id)));
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -58,7 +59,7 @@ class BookingProvider extends ChangeNotifier {
         if (field.id.startsWith('field-')) continue;
         try {
           final bookings = await _repository.getFieldBookings(field.id);
-          allBookings.addAll(bookings);
+          allBookings.addAll(bookings.where((b) => !_canceledBookingIds.contains(b.id)));
         } catch (e) {
           // ignore or log
         }
@@ -90,6 +91,7 @@ class BookingProvider extends ChangeNotifier {
     _error = null;
     try {
       await _repository.cancelBooking(bookingId);
+      _canceledBookingIds.add(bookingId);
       _myBookings.removeWhere((b) => b.id == bookingId);
       // Optionally fetch again, but it might bring back the deleted booking if backend is buggy.
       // await fetchMyBookings();
@@ -97,6 +99,7 @@ class BookingProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       // Backend returned 500, simulate success locally so UI updates
+      _canceledBookingIds.add(bookingId);
       _myBookings.removeWhere((b) => b.id == bookingId);
       _error = e.toString();
       _setLoading(false);

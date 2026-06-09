@@ -72,11 +72,17 @@ class AcademyPlayer(Base):
 
     @property
     def first_name(self):
-        return self.player_profile.first_name if self.player_profile else ""
+        if self.player_user and self.player_user.name:
+            parts = self.player_user.name.split()
+            return parts[0] if parts else ""
+        return ""
 
     @property
     def last_name(self):
-        return self.player_profile.last_name if self.player_profile else ""
+        if self.player_user and self.player_user.name:
+            parts = self.player_user.name.split()
+            return " ".join(parts[1:]) if len(parts) > 1 else ""
+        return ""
 
     @property
     def position(self):

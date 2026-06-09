@@ -28,6 +28,14 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
+    Future.microtask(() {
+      if (mounted) {
+        context.read<AcademyProvider>().fetchTeamPlayers(widget.team.id);
+        if (context.read<AcademyProvider>().players.isEmpty) {
+          context.read<AcademyProvider>().fetchAcademyPlayers(widget.team.academyId);
+        }
+      }
+    });
   }
 
   @override
@@ -163,7 +171,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     final onSurface = Theme.of(context).colorScheme.onSurface;
     return Consumer<AcademyProvider>(
       builder: (context, provider, _) {
-        final players = provider.players.toList();
+        final players = provider.teamPlayers.toList();
         if (players.isEmpty) {
           return Center(
             child: Column(
@@ -181,15 +189,28 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
         return ListView.builder(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
           itemCount: players.length,
-          itemBuilder: (context, index) => _buildPlayerTile(context, players[index], index),
+          itemBuilder: (context, index) => _buildPlayerTile(context, players[index], index, provider),
         );
       },
     );
   }
 
-  Widget _buildPlayerTile(BuildContext context, AcademyPlayer player, int index) {
+  Widget _buildPlayerTile(BuildContext context, AcademyTeamPlayer player, int index, AcademyProvider provider) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    final initials = _initials(player.fullName);
+    
+    // Fallback: try to find the player in the main academy roster to get the real name
+    String? resolvedName = player.fullName;
+    if (resolvedName == null || resolvedName.startsWith('{')) {
+      final rosterMatch = provider.players.where((p) => p.playerProfileId == player.playerProfileId).firstOrNull;
+      if (rosterMatch != null) {
+        resolvedName = rosterMatch.fullName;
+      } else {
+        resolvedName = 'Неизвестный Игрок';
+      }
+    }
+    if (resolvedName.trim().isEmpty) resolvedName = 'Неизвестный Игрок';
+
+    final initials = _initials(resolvedName);
     const palette = [_kGreen, Color(0xFF1E90D4), Color(0xFFF5C518),
                      Color(0xFFB388FF), Color(0xFFFF9800), Color(0xFFFF5252)];
     final accent = palette[index % palette.length];
@@ -219,9 +240,9 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             child: Text(initials, style: _t(13, FontWeight.w800, accent)),
           ),
         ),
-        title: Text(player.fullName, style: _t(14, FontWeight.w600, onSurface)),
+        title: Text(resolvedName, style: _t(14, FontWeight.w600, onSurface)),
         subtitle: Text(
-          player.position ?? player.status,
+          player.position ?? 'Игрок',
           style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45)),
         ),
         trailing: Row(
@@ -244,13 +265,14 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
   }
 
   String _initials(String name) {
+    if (name == '?') return '?';
     final parts = name.trim().split(' ');
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     if (parts.isNotEmpty && parts[0].isNotEmpty) return parts[0][0].toUpperCase();
     return '?';
   }
 
-  void _showReassignSheet(BuildContext context, AcademyPlayer player) {
+  void _showReassignSheet(BuildContext context, AcademyTeamPlayer player) {
     final provider = context.read<AcademyProvider>();
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
