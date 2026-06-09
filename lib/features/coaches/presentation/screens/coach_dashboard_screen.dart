@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
@@ -80,9 +81,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               size: 18,
               color: PremiumTheme.neonGreen,
             ),
-            label: const Text(
-              'RETRY',
-              style: TextStyle(color: PremiumTheme.neonGreen, letterSpacing: 1),
+            label: Text(
+              'coach.retry'.tr(),
+              style: const TextStyle(color: PremiumTheme.neonGreen, letterSpacing: 1),
             ),
           ),
         ],
@@ -164,7 +165,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'COACH · DASHBOARD',
+                'coach.coach_dashboard_label'.tr(),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -279,7 +280,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUICK ACTIONS',
+            'coach.quick_actions'.tr(),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 12,
@@ -292,7 +293,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             children: [
               _actionBtn(
                 icon: Icons.how_to_reg_rounded,
-                label: 'ATTENDANCE',
+                label: 'coach.attendance'.tr().toUpperCase(),
                 color: PremiumTheme.neonGreen,
                 onTap: () {
                   HapticFeedback.heavyImpact();
@@ -305,7 +306,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               const SizedBox(width: 12),
               _actionBtn(
                 icon: Icons.architecture_rounded,
-                label: 'TACTICS',
+                label: 'coach.tactics'.tr().toUpperCase(),
                 color: PremiumTheme.electricBlue,
                 onTap: () {
                   HapticFeedback.heavyImpact();
@@ -319,7 +320,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             children: [
               _actionBtn(
                 icon: Icons.calendar_month_rounded,
-                label: 'PLANNER',
+                label: 'coach.planner'.tr().toUpperCase(),
                 color: Colors.amber,
                 onTap: () {
                   HapticFeedback.heavyImpact();
@@ -329,7 +330,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               const SizedBox(width: 12),
               _actionBtn(
                 icon: Icons.star_outline_rounded,
-                label: 'SCOUTING',
+                label: 'coach.scouting'.tr().toUpperCase(),
                 color: Colors.purpleAccent,
                 onTap: () {
                   HapticFeedback.heavyImpact();
@@ -378,16 +379,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   }
 
   Widget _buildIconBtn(IconData icon, {required VoidCallback onTap}) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: onSurface.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.white70, size: 20),
+        child: Icon(icon, color: onSurface.withValues(alpha: 0.7), size: 20),
       ),
     );
   }
@@ -541,7 +543,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   ],
                 ),
                 Text(
-                  'RATING',
+                  'coach.rating'.tr(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 9,
@@ -574,23 +576,23 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         child: IntrinsicHeight(
           child: Row(
             children: [
-              _buildStatCell(winRate, 'WIN RATE', PremiumTheme.neonGreen),
+              _buildStatCell(winRate, 'coach.win_rate'.tr(), PremiumTheme.neonGreen),
               _buildDivider(),
               _buildStatCell(
                 '${perf['matches_played'] ?? 0}',
-                'MATCHES',
+                'coach.matches'.tr(),
                 Theme.of(context).colorScheme.onSurface,
               ),
               _buildDivider(),
               _buildStatCell(
                 '${perf['goals_scored'] ?? 0}',
-                'GOALS',
+                'coach.goals'.tr(),
                 PremiumTheme.electricBlue,
               ),
               _buildDivider(),
               _buildStatCell(
                 '${perf['clean_sheets'] ?? 0}',
-                'CLEAN',
+                'coach.clean'.tr(),
                 Colors.amber,
               ),
             ],
@@ -708,9 +710,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'My team',
-                          style: TextStyle(
+                        Text(
+                          'coach.my_team'.tr(),
+                          style: const TextStyle(
                             color: PremiumTheme.neonGreen,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -743,7 +745,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Opponent',
+                          'coach.opponent'.tr(),
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10),
                         ),
                       ],
@@ -796,9 +798,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Lineup required',
-                    style: TextStyle(
+                  Text(
+                    'coach.lineup_required'.tr(),
+                    style: const TextStyle(
                       color: Colors.amber,
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
@@ -824,9 +826,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   color: Colors.amber,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  'SUBMIT',
-                  style: TextStyle(
+                child: Text(
+                  'coach.submit'.tr(),
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -852,7 +854,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           Row(
             children: [
               Text(
-                'MY TEAMS · ${teams.length}',
+                'coach.my_teams'.tr(namedArgs: {'count': '${teams.length}'}),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12,
@@ -868,9 +870,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     builder: (_) => CoachTeamsScreen(teams: teams),
                   ),
                 ),
-                child: const Text(
-                  'ALL TEAMS →',
-                  style: TextStyle(
+                child: Text(
+                  'coach.all_teams'.tr(),
+                  style: const TextStyle(
                     color: PremiumTheme.neonGreen,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -983,7 +985,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '$players players · $wins W - $draws D - $losses L',
+                          '$players ${'coach.players_label'.tr()} · $wins W - $draws D - $losses L',
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                         ),
                       ],
@@ -1114,7 +1116,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               Container(width: 3, height: 16, color: PremiumTheme.neonGreen),
               const SizedBox(width: 8),
               Text(
-                'UPCOMING FIXTURES',
+                'coach.upcoming_fixtures'.tr().toUpperCase(),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12,
@@ -1140,7 +1142,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       decoration: PremiumTheme.glassDecorationOf(context, radius: 16),
       child: Center(
         child: Text(
-          'NO UPCOMING FIXTURES',
+          'coach.no_upcoming_fixtures'.tr().toUpperCase(),
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 11,
