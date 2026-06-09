@@ -188,6 +188,17 @@ def get_training_session_players(
         })
     return results
 
+@router.get("/{id}", response_model=schemas.AcademyResponse)
+def get_academy_by_id(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    academy = services.get_academy_by_id(db, id)
+    if not academy:
+        raise HTTPException(status_code=404, detail="Academy not found")
+    return academy
+
 @router.get("/{id}/teams", response_model=List[schemas.AcademyTeamResponse])
 def list_academy_teams(
     id: UUID,

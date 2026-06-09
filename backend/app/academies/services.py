@@ -86,6 +86,9 @@ def create_academy_branch(db: Session, academy_id: UUID, branch_in: schemas.Acad
     db.refresh(new_branch)
     return new_branch
 
+def get_academy_by_id(db: Session, academy_id: UUID) -> Optional[Academy]:
+    return db.query(Academy).filter(Academy.id == academy_id).first()
+
 def get_academy_branches(db: Session, academy_id: UUID) -> List[AcademyBranch]:
     return db.query(AcademyBranch).filter(AcademyBranch.academy_id == academy_id).all()
 

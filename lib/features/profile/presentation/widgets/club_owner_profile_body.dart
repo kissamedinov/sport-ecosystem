@@ -5,7 +5,7 @@ import 'package:mobile/features/clubs/data/models/club_dashboard.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/invite_member_screen.dart';
-import 'package:mobile/features/clubs/presentation/screens/academy_management_screen.dart';
+import 'package:mobile/features/academies/presentation/screens/academy_dashboard_screen.dart';
 
 class ClubOwnerProfileBody extends StatefulWidget {
   final bool isManager;
@@ -462,9 +462,8 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AcademyManagementScreen(
-                    academy: academy,
-                    dashboard: dashboard,
+                  builder: (_) => AcademyDashboardScreen(
+                    academyId: academy.id,
                   ),
                 ),
               );
