@@ -175,6 +175,7 @@ class CoachPlayerResponse(BaseModel):
 
 class CoachTeamResponse(BaseModel):
     id: UUID
+    academy_id: Optional[UUID] = None
     name: str
     birth_year: Optional[int] = None
     category: Optional[str] = None

@@ -843,6 +843,7 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 # ALWAYS add the team even if it has 0 players, for consistency
                 team_responses.append(schemas.CoachTeamResponse(
                     id=t.id,
+                    academy_id=t.academy_id,
                     name=t.name,
                     birth_year=t.birth_year,
                     category=t.age_category,
