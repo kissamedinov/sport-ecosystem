@@ -37,13 +37,14 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         title: const Text('MY CHILDREN', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 16)),
         backgroundColor: Colors.transparent,
       ),
-      body: _isLoading 
+      body: _isLoading
         ? const Center(child: CircularProgressIndicator())
         : Column(
             children: [
@@ -63,7 +64,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
               ),
               Expanded(
                 child: (_children == null || _children!.isEmpty)
-                  ? const Center(child: Text('No linked children', style: TextStyle(color: Colors.white38)))
+                  ? Center(child: Text('No linked children', style: TextStyle(color: cs.onSurfaceVariant)))
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: _children!.length,
@@ -71,32 +72,41 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
                         final child = _children![index];
                         final bool isPending = child['status'] == 'PENDING';
                         final String? academyName = child['academy']?['name'];
-                        
+
                         return PremiumCard(
                           child: Column(
                             children: [
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: CircleAvatar(
-                                  backgroundColor: isPending ? Colors.orange.withOpacity(0.1) : Colors.white10, 
-                                  child: Icon(Icons.face, color: isPending ? Colors.orange : Colors.white70)
+                                  backgroundColor: isPending
+                                      ? Colors.orange.withValues(alpha: 0.1)
+                                      : cs.onSurface.withValues(alpha: 0.08),
+                                  child: Icon(Icons.face,
+                                      color: isPending ? Colors.orange : cs.onSurface.withValues(alpha: 0.6)),
                                 ),
-                                title: Text(child['full_name'] ?? child['name'] ?? 'Child Profile', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                title: Text(child['full_name'] ?? child['name'] ?? 'Child Profile',
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
                                 subtitle: Text(
-                                  isPending 
-                                    ? 'PENDING APPROVAL' 
-                                    : (academyName ?? (child['date_of_birth'] != null ? 'DOB: ${child['date_of_birth']}' : 'NO ACADEMY')), 
+                                  isPending
+                                    ? 'PENDING APPROVAL'
+                                    : (academyName ?? (child['date_of_birth'] != null ? 'DOB: ${child['date_of_birth']}' : 'NO ACADEMY')),
                                   style: TextStyle(
-                                    color: isPending ? Colors.orangeAccent : (academyName != null ? PremiumTheme.neonGreen : Colors.white38), 
-                                    fontSize: 11
-                                  )
+                                    color: isPending
+                                        ? Colors.orangeAccent
+                                        : (academyName != null ? PremiumTheme.neonGreen : cs.onSurfaceVariant),
+                                    fontSize: 11,
+                                  ),
                                 ),
-                                trailing: isPending 
+                                trailing: isPending
                                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange))
-                                  : Icon(Icons.verified_user, color: academyName != null ? PremiumTheme.neonGreen.withOpacity(0.5) : Colors.white10),
+                                  : Icon(Icons.verified_user,
+                                      color: academyName != null
+                                          ? PremiumTheme.neonGreen.withValues(alpha: 0.5)
+                                          : cs.onSurface.withValues(alpha: 0.1)),
                               ),
                               if (!isPending && academyName == null) ...[
-                                const Divider(color: Colors.white10),
+                                Divider(color: cs.onSurface.withValues(alpha: 0.1)),
                                 TextButton.icon(
                                   onPressed: () => _showAcademySelector(context, child['player_profile_id']),
                                   icon: const Icon(Icons.add_business_rounded, size: 18, color: PremiumTheme.neonGreen),
@@ -116,7 +126,7 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
 
   void _showAcademySelector(BuildContext context, String? playerProfileId) {
     if (playerProfileId == null) return;
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: PremiumTheme.surfaceCard(context),
@@ -151,135 +161,154 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20, right: 20, top: 20
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('CREATE CHILD ACCOUNT', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.5)),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(child: TextField(controller: firstNameController, decoration: PremiumTheme.inputDecorationOf(context, 'First Name'))),
-                    const SizedBox(width: 12),
-                    Expanded(child: TextField(controller: lastNameController, decoration: PremiumTheme.inputDecorationOf(context, 'Last Name'))),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                      builder: (context, child) => Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.dark(primary: PremiumTheme.neonGreen, onPrimary: Colors.black, surface: PremiumTheme.surfaceCard(context)),
+        builder: (context, setModalState) {
+          final cs = Theme.of(context).colorScheme;
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 20, right: 20, top: 20,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('CREATE CHILD ACCOUNT',
+                      style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface, letterSpacing: 1.5)),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(child: TextField(controller: firstNameController, decoration: PremiumTheme.inputDecorationOf(context, 'First Name'))),
+                      const SizedBox(width: 12),
+                      Expanded(child: TextField(controller: lastNameController, decoration: PremiumTheme.inputDecorationOf(context, 'Last Name'))),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: ColorScheme.dark(primary: PremiumTheme.neonGreen, onPrimary: Colors.black, surface: PremiumTheme.surfaceCard(context)),
+                          ),
+                          child: child!,
                         ),
-                        child: child!,
+                      );
+                      if (date != null) setModalState(() => selectedDate = date);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: cs.onSurface.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
                       ),
-                    );
-                    if (date != null) setModalState(() => selectedDate = date);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white10)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(selectedDate == null ? 'Select Date of Birth' : 'DOB: ${selectedDate!.toLocal().toString().split(' ')[0]}', 
-                             style: TextStyle(color: selectedDate == null ? Colors.white38 : Colors.white)),
-                        const Icon(Icons.calendar_today, color: PremiumTheme.neonGreen, size: 20),
-                      ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            selectedDate == null
+                                ? 'Select Date of Birth'
+                                : 'DOB: ${selectedDate!.toLocal().toString().split(' ')[0]}',
+                            style: TextStyle(color: selectedDate == null ? cs.onSurfaceVariant : cs.onSurface),
+                          ),
+                          const Icon(Icons.calendar_today, color: PremiumTheme.neonGreen, size: 20),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(controller: emailController, decoration: PremiumTheme.inputDecorationOf(context, 'Child Email')),
-                const SizedBox(height: 12),
-                TextField(controller: passwordController, obscureText: true, decoration: PremiumTheme.inputDecorationOf(context, 'Child Password')),
-                const SizedBox(height: 12),
-                TextField(controller: inviteCodeController, decoration: PremiumTheme.inputDecorationOf(context, 'Academy Invite Code (Optional)')),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, padding: const EdgeInsets.symmetric(vertical: 16)),
-                    onPressed: () async {
-                      if (firstNameController.text.isEmpty || lastNameController.text.isEmpty || selectedDate == null || emailController.text.isEmpty || passwordController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
-                        return;
-                      }
-                      
-                      final success = await context.read<AuthProvider>().createChild(
-                        firstName: firstNameController.text,
-                        lastName: lastNameController.text,
-                        dob: selectedDate!,
-                        email: emailController.text,
-                        password: passwordController.text,
-                        inviteCode: inviteCodeController.text.isEmpty ? null : inviteCodeController.text,
-                      );
-                      
-                      if (success && mounted) {
-                        Navigator.pop(context);
-                        _fetchChildren();
-                      }
-                    },
-                    child: const Text('CREATE ACCOUNT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  TextField(controller: emailController, decoration: PremiumTheme.inputDecorationOf(context, 'Child Email')),
+                  const SizedBox(height: 12),
+                  TextField(controller: passwordController, obscureText: true, decoration: PremiumTheme.inputDecorationOf(context, 'Child Password')),
+                  const SizedBox(height: 12),
+                  TextField(controller: inviteCodeController, decoration: PremiumTheme.inputDecorationOf(context, 'Academy Invite Code (Optional)')),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen, padding: const EdgeInsets.symmetric(vertical: 16)),
+                      onPressed: () async {
+                        if (firstNameController.text.isEmpty || lastNameController.text.isEmpty || selectedDate == null || emailController.text.isEmpty || passwordController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
+                          return;
+                        }
+
+                        final success = await context.read<AuthProvider>().createChild(
+                          firstName: firstNameController.text,
+                          lastName: lastNameController.text,
+                          dob: selectedDate!,
+                          email: emailController.text,
+                          password: passwordController.text,
+                          inviteCode: inviteCodeController.text.isEmpty ? null : inviteCodeController.text,
+                        );
+
+                        if (success && mounted) {
+                          Navigator.pop(context);
+                          _fetchChildren();
+                        }
+                      },
+                      child: const Text('CREATE ACCOUNT', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-              ],
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
+
   void _showAddChildOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: PremiumTheme.surfaceCard(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('ADD CHILD', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.5, fontSize: 16)),
-            const SizedBox(height: 24),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.person_add, color: Colors.white)),
-              title: const Text('Create New Account', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              subtitle: const Text('Completely register a new child', style: TextStyle(color: Colors.white38, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(context);
-                _showCreateChildDialog(context);
-              },
-            ),
-            const Divider(color: Colors.white10, height: 24),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(backgroundColor: PremiumTheme.neonGreen.withOpacity(0.2), child: const Icon(Icons.link, color: PremiumTheme.neonGreen)),
-              title: const Text('Link Existing Account', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              subtitle: const Text('Link a child who is already registered', style: TextStyle(color: Colors.white38, fontSize: 12)),
-              onTap: () {
-                Navigator.pop(context);
-                _showLinkChildByEmailDialog(context);
-              },
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('ADD CHILD',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface, letterSpacing: 1.5, fontSize: 16)),
+              const SizedBox(height: 24),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.person_add, color: Colors.white)),
+                title: Text('Create New Account', style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
+                subtitle: Text('Completely register a new child', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCreateChildDialog(context);
+                },
+              ),
+              Divider(color: cs.onSurface.withValues(alpha: 0.1), height: 24),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                    backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                    child: const Icon(Icons.link, color: PremiumTheme.neonGreen)),
+                title: Text('Link Existing Account', style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
+                subtitle: Text('Link a child who is already registered', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLinkChildByEmailDialog(context);
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -287,44 +316,51 @@ class _MyChildrenScreenState extends State<MyChildrenScreen> {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.surfaceCard(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Link Child by Email', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: TextField(
-          controller: controller,
-          style: const TextStyle(color: Colors.white),
-          keyboardType: TextInputType.emailAddress,
-          decoration: PremiumTheme.inputDecorationOf(context, 'Child\'s Email Address'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white54))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen),
-            onPressed: () async {
-              if (controller.text.isNotEmpty) {
-                final success = await context.read<AuthProvider>().linkChildByEmail(controller.text.trim());
-                if (success && mounted) {
-                  Navigator.pop(context);
-                  _fetchChildren();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link request sent successfully!'), behavior: SnackBarBehavior.floating),
-                  );
-                } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.read<AuthProvider>().error ?? 'Failed to send link request'),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('SEND REQUEST', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+      builder: (context) {
+        final cs = Theme.of(context).colorScheme;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(context),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('Link Child by Email',
+              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
+          content: TextField(
+            controller: controller,
+            style: TextStyle(color: cs.onSurface),
+            keyboardType: TextInputType.emailAddress,
+            decoration: PremiumTheme.inputDecorationOf(context, 'Child\'s Email Address'),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('CANCEL', style: TextStyle(color: cs.onSurfaceVariant)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: PremiumTheme.neonGreen),
+              onPressed: () async {
+                if (controller.text.isNotEmpty) {
+                  final success = await context.read<AuthProvider>().linkChildByEmail(controller.text.trim());
+                  if (success && mounted) {
+                    Navigator.pop(context);
+                    _fetchChildren();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Link request sent successfully!'), behavior: SnackBarBehavior.floating),
+                    );
+                  } else if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.read<AuthProvider>().error ?? 'Failed to send link request'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('SEND REQUEST', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -348,23 +384,30 @@ class _AcademyPickerState extends State<_AcademyPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final academies = context.watch<AcademyProvider>().academies;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('SELECT ACADEMY', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white70, letterSpacing: 1.5)),
+          Text('SELECT ACADEMY',
+              style: TextStyle(fontWeight: FontWeight.w900, color: cs.onSurface.withValues(alpha: 0.7), letterSpacing: 1.5)),
           const SizedBox(height: 16),
           if (academies.isEmpty)
-            const Center(child: Padding(padding: EdgeInsets.all(20), child: Text('No academies found', style: TextStyle(color: Colors.white38)))),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text('No academies found', style: TextStyle(color: cs.onSurfaceVariant)),
+              ),
+            ),
           ...academies.map((a) => ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.business, color: PremiumTheme.neonGreen),
-            title: Text(a.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-            subtitle: Text(a.city, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            title: Text(a.name, style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
+            subtitle: Text(a.city, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
             onTap: () => widget.onSelected(a),
           )),
           const SizedBox(height: 20),
