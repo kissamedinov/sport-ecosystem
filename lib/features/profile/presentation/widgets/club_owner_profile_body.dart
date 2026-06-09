@@ -463,7 +463,7 @@ class _ClubOwnerProfileBodyState extends State<ClubOwnerProfileBody> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => AcademyDashboardScreen(
-                    academyId: academy.id,
+                    academy: academy,
                   ),
                 ),
               );

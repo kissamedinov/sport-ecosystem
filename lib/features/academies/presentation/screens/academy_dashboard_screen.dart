@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/academy_provider.dart';
+import '../../data/models/academy.dart';
 import '../../data/models/crm_models.dart';
 import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
@@ -28,7 +29,8 @@ Color _accentAt(int i) => _avatarPalette[i % _avatarPalette.length];
 // ── Screen ─────────────────────────────────────────────────────────────────
 class AcademyDashboardScreen extends StatefulWidget {
   final String? academyId;
-  const AcademyDashboardScreen({super.key, this.academyId});
+  final Academy? academy;
+  const AcademyDashboardScreen({super.key, this.academyId, this.academy});
 
   @override
   State<AcademyDashboardScreen> createState() => _AcademyDashboardScreenState();
@@ -46,7 +48,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.academyId != null) {
+      if (widget.academy != null) {
+        context.read<AcademyProvider>().setAcademyAndLoad(widget.academy!);
+      } else if (widget.academyId != null) {
         context.read<AcademyProvider>().fetchAcademyById(widget.academyId!);
       } else {
         context.read<AcademyProvider>().fetchMyAcademy();

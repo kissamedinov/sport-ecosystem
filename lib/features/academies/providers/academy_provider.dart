@@ -87,6 +87,24 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> setAcademyAndLoad(Academy academy) async {
+    _myAcademy = academy;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await fetchAcademyTeams(academy.id);
+      await fetchAcademyPlayers(academy.id);
+      await fetchSchedules(academy.id);
+      await fetchBillingConfig(academy.id);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchAcademyTeams(String academyId) async {
     try {
       _teams = await _repository.getAcademyTeams(academyId);
