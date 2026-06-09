@@ -114,7 +114,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                 .where((b) => b.status != 'CANCELLED' && b.status.toUpperCase() != 'PENDING' && !_canceledBookingIds.contains(b.id))
                 .toList();
 
-            final revenue = activeBookings.fold(0.0, (sum, b) => sum + b.totalPrice);
+            final revenue = activeBookings.fold(0.0, (sum, b) => sum + (b.totalPrice ?? 0.0));
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -719,7 +719,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${booking.totalPrice.toInt()} ₸',
+                        '${(booking.totalPrice ?? 0.0).toInt()} ₸',
                         style: TextStyle(
                           color: onSurface,
                           fontWeight: FontWeight.w900,
@@ -1121,7 +1121,7 @@ class _FieldOwnerProfileBodyState extends State<FieldOwnerProfileBody> {
                 _buildDialogRow('Field Arena', field.name),
                 _buildDialogRow('Start Time', booking.startTime.replaceAll('T', ' ')),
                 _buildDialogRow('End Time', booking.endTime.replaceAll('T', ' ')),
-                _buildDialogRow('Payment Total', '${booking.totalPrice.toInt()} ₸'),
+                _buildDialogRow('Payment Total', '${(booking.totalPrice ?? 0.0).toInt()} ₸'),
                 _buildDialogRow('Status', isCancelled ? 'CANCELLED' : booking.status.toUpperCase(), 
                     color: isCancelled ? Colors.redAccent : PremiumTheme.neonGreen),
                 const SizedBox(height: 24),
