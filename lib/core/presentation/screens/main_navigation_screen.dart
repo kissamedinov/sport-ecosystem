@@ -852,26 +852,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Center(
-                      child: _buildRefereeNavButton(
-                        0,
-                        Icons.home_outlined,
-                        Icons.home_rounded,
-                        'nav.home'.tr().toUpperCase(),
-                        isDark,
-                      ),
+                    child: _buildRefereeNavItem(
+                      0,
+                      Icons.home_outlined,
+                      Icons.home_rounded,
+                      'nav.home'.tr().toUpperCase(),
                     ),
                   ),
                   _buildRefereeTournamentFab(),
                   Expanded(
-                    child: Center(
-                      child: _buildRefereeNavButton(
-                        2,
-                        Icons.person_outline_rounded,
-                        Icons.person_rounded,
-                        'nav.profile'.tr().toUpperCase(),
-                        isDark,
-                      ),
+                    child: _buildRefereeNavItem(
+                      2,
+                      Icons.person_outline_rounded,
+                      Icons.person_rounded,
+                      'nav.profile'.tr().toUpperCase(),
                     ),
                   ),
                 ],
@@ -883,56 +877,32 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  Widget _buildRefereeNavButton(int index, IconData icon, IconData activeIcon, String label, bool isDark) {
+  Widget _buildRefereeNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final isSelected = _selectedIndex == index;
-    const accent = Color(0xFF00E676);
+    const activeColor = Color(0xFF00E676);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inactiveColor = isDark ? Colors.white60 : Colors.black54;
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [accent, Color(0xFF00C853)],
-                )
-              : null,
-          color: isSelected
-              ? null
-              : isDark
-                  ? Colors.white.withValues(alpha: 0.07)
-                  : Colors.black.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? Colors.transparent
-                : isDark
-                    ? Colors.white.withValues(alpha: 0.13)
-                    : Colors.black.withValues(alpha: 0.10),
-          ),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black54),
-              size: 22,
-            ),
-            const SizedBox(height: 3),
+            Icon(isSelected ? activeIcon : icon, color: isSelected ? activeColor : inactiveColor, size: 24),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 fontSize: 9,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black54),
-                letterSpacing: 0.8,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? activeColor : inactiveColor,
+                letterSpacing: 0.5,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
