@@ -1176,7 +1176,12 @@
     "messages": "Сообщения",
     "training_plan_sub": "Расписание тренировок",
     "performance_sub": "Статистика игроков",
-    "messages_sub": "Уведомления"
+    "messages_sub": "Уведомления",
+    "absent": "ОТСУТСТВУЕТ",
+    "present": "ПРИСУТСТВУЕТ",
+    "save_attendance": "СОХРАНИТЬ ПОСЕЩАЕМОСТЬ",
+    "attendance_saved": "ПОСЕЩАЕМОСТЬ СОХРАНЕНА",
+    "no_players_in_team": "НЕТ ИГРОКОВ В КОМАНДЕ"
   },
   "planner": {
     "add_task": "ДОБАВИТЬ ЗАДАЧУ",

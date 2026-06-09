@@ -99,10 +99,12 @@ class _WinRateCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
       child: OrleonCard(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0F1E16), Color(0xFF0A0E12)],
+          colors: Theme.of(context).brightness == Brightness.dark
+              ? const [Color(0xFF0F1E16), Color(0xFF0A0E12)]
+              : [PremiumTheme.surfaceCard(context), PremiumTheme.surfaceCard(context)],
         ),
         borderColor: PremiumTheme.neonGreen.withValues(alpha: 0.4),
         child: Column(

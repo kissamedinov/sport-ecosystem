@@ -1243,7 +1243,12 @@
     "messages": "Хабарлар",
     "training_plan_sub": "Жаттығу кестесі",
     "performance_sub": "Ойыншы статистикасы",
-    "messages_sub": "Хабарландырулар"
+    "messages_sub": "Хабарландырулар",
+    "absent": "ЖОҚ",
+    "present": "БАР",
+    "save_attendance": "ҚАТЫСУДЫ САҚТАУ",
+    "attendance_saved": "ҚАТЫСУ САҚТАЛДЫ",
+    "no_players_in_team": "КОМАНДАДА ОЙЫНШЫ ЖОҚ"
   },
   "planner": {
     "add_task": "ТАПСЫРМА ҚОС",

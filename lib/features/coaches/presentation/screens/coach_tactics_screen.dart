@@ -700,12 +700,16 @@ class _CoachTacticsScreenState extends State<CoachTacticsScreen> {
   // ─── Header ───────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [const Color(0xFF0D2A1A), const Color(0xFF0A1510), PremiumTheme.surfaceBase(context)],
+          colors: isDark
+              ? [const Color(0xFF0D2A1A), const Color(0xFF0A1510), PremiumTheme.surfaceBase(context)]
+              : [const Color(0xFFE8F5E9), const Color(0xFFF5F5F5), PremiumTheme.surfaceBase(context)],
           stops: const [0.0, 0.5, 1.0],
         ),
       ),
@@ -719,12 +723,12 @@ class _CoachTacticsScreenState extends State<CoachTacticsScreen> {
                 onTap: () { HapticFeedback.mediumImpact(); Navigator.pop(context); },
                 child: Container(
                   width: 38, height: 38,
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.chevron_left_rounded, color: Colors.white70, size: 24),
+                  decoration: BoxDecoration(color: onSurface.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
+                  child: Icon(Icons.chevron_left_rounded, color: onSurface.withValues(alpha: 0.7), size: 24),
                 ),
               ),
               const SizedBox(width: 12),
-              const Text('COACH · TACTICS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white54, letterSpacing: 2)),
+              Text('COACH · TACTICS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: onSurface.withValues(alpha: 0.5), letterSpacing: 2)),
             ],
           ),
         ),

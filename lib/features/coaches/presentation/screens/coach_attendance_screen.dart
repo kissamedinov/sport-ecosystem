@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
@@ -59,7 +60,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
         centerTitle: false,
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
         title: Text(
-          'ATTENDANCE',
+          'coach.attendance'.tr().toUpperCase(),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
@@ -151,7 +152,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
             Icon(Icons.group_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
             Text(
-              'NO PLAYERS IN THIS TEAM',
+              'coach.no_players_in_team'.tr(),
               style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
             ),
           ],
@@ -222,7 +223,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              isPresent ? 'PRESENT' : 'ABSENT',
+                              isPresent ? 'coach.present'.tr() : 'coach.absent'.tr(),
                               style: TextStyle(
                                 color: isPresent ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.4),
                                 fontSize: 10,
@@ -258,7 +259,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
           HapticFeedback.mediumImpact();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('ATTENDANCE SAVED SUCCESSFULLY'),
+              content: Text('coach.attendance_saved'.tr()),
               backgroundColor: PremiumTheme.neonGreen,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -279,10 +280,10 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
               ),
             ],
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'SAVE ATTENDANCE',
-              style: TextStyle(
+              'coach.save_attendance'.tr(),
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 14,
                 fontWeight: FontWeight.w900,

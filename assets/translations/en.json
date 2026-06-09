@@ -1176,7 +1176,12 @@
     "messages": "Messages",
     "training_plan_sub": "Training schedule",
     "performance_sub": "Player statistics",
-    "messages_sub": "Notifications"
+    "messages_sub": "Notifications",
+    "absent": "ABSENT",
+    "present": "PRESENT",
+    "save_attendance": "SAVE ATTENDANCE",
+    "attendance_saved": "ATTENDANCE SAVED",
+    "no_players_in_team": "NO PLAYERS IN THIS TEAM"
   },
   "planner": {
     "add_task": "ADD TASK",
