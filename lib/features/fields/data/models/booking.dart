@@ -15,7 +15,7 @@ class Booking {
   final String endTime;
   final String status;
   @JsonKey(name: 'total_price')
-  final double totalPrice;
+  final double? totalPrice;
   @JsonKey(name: 'user_name')
   final String? userName;
 
@@ -26,7 +26,7 @@ class Booking {
     required this.startTime,
     required this.endTime,
     required this.status,
-    required this.totalPrice,
+    this.totalPrice,
     this.userName,
   });
 
