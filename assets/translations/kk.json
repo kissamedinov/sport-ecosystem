@@ -264,7 +264,8 @@
     "no_promo_codes": "Промокодтар әлі жасалмаған.",
     "no_recent_bookings": "Соңғы клиент брондаулары жоқ.",
     "family_badge": "Отбасы",
-    "games_badge": "Ойындар"
+    "games_badge": "Ойындар",
+    "role_field_owner": "Алаңды жалға беруші"
   },
   "club": {
     "unassigned_no_coach": "Тағайындалмаған / Жаттықтырушысыз",

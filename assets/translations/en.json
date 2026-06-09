@@ -264,7 +264,8 @@
     "no_promo_codes": "No promo codes created yet.",
     "no_recent_bookings": "No recent client bookings found.",
     "family_badge": "Family",
-    "games_badge": "Games"
+    "games_badge": "Games",
+    "role_field_owner": "Field Lessor"
   },
   "club": {
     "unassigned_no_coach": "Unassigned / No Coach",

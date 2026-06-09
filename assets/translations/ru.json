@@ -264,7 +264,8 @@
     "no_promo_codes": "Промокоды ещё не созданы.",
     "no_recent_bookings": "Недавних бронирований клиентов нет.",
     "family_badge": "Семья",
-    "games_badge": "Игры"
+    "games_badge": "Игры",
+    "role_field_owner": "Арендодатель полей"
   },
   "club": {
     "unassigned_no_coach": "Не назначен / Без тренера",
