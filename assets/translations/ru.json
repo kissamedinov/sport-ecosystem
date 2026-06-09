@@ -21,7 +21,13 @@
     "create_team": "Создать команду",
     "add_academy": "Добавить академию",
     "schedule": "Расписание",
-    "analytics": "Аналитика"
+    "analytics": "Аналитика",
+    "quick_actions_title": "Добавить",
+    "quick_actions_subtitle": "Выберите действие",
+    "invite_member_sub": "Отправить приглашение в клуб",
+    "add_player_profile_sub": "Создать профиль ребёнка",
+    "create_team_sub": "Новая команда в академии",
+    "add_academy_sub": "Зарегистрировать академию"
   },
   "auth": {
     "welcome_back": "С возвращением",
@@ -1186,7 +1192,8 @@
     "select_dob": "Выбрать дату рождения",
     "dob_label": "ДР: {date}",
     "position_label": "Позиция (напр. Нападающий)",
-    "create_profile_btn": "Создать профиль"
+    "create_profile_btn": "Создать профиль",
+    "position_hint": "Например, Нападающий"
   },
   "media": {
     "media_gallery": "Медиа галерея",

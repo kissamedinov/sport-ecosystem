@@ -8,10 +8,9 @@ import '../../data/models/crm_models.dart';
 import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
 import '../../../../features/clubs/providers/club_provider.dart';
+import '../../../../core/theme/premium_theme.dart';
 
-// ── Design tokens ──────────────────────────────────────────────────────────
-const _kNavy   = Color(0xFF0A0E12);
-const _kCard   = Color(0xFF161B22);
+// ── Design tokens (accent/brand — theme-independent) ──────────────────────
 const _kGreen  = Color(0xFF00E676);
 const _kGreenD = Color(0xFF00C853);
 const _kGold   = Color(0xFFF5C518);
@@ -71,8 +70,8 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       builder: (context, provider, _) {
         final hasAcademy = provider.myAcademy != null;
         return Scaffold(
-          backgroundColor: _kNavy,
-          appBar: _buildAppBar(hasAcademy),
+          backgroundColor: PremiumTheme.surfaceBase(context),
+          appBar: _buildAppBar(context, hasAcademy),
           body: provider.isLoading && !hasAcademy
               ? const Center(child: CircularProgressIndicator(color: _kGreen))
               : hasAcademy
@@ -92,24 +91,26 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     );
   }
 
-  PreferredSizeWidget _buildAppBar(bool hasAcademy) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, bool hasAcademy) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return AppBar(
-      backgroundColor: _kCard,
+      backgroundColor: PremiumTheme.surfaceCard(context),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+        icon: Icon(Icons.arrow_back_ios_new_rounded, color: onSurface, size: 18),
         onPressed: () => Navigator.maybePop(context),
       ),
       title: Text('academy.academy_dashboard'.tr(),
-          style: _outfit(17, FontWeight.w800, Colors.white, ls: 0.3)),
+          style: _outfit(17, FontWeight.w800, onSurface, ls: 0.3)),
       bottom: hasAcademy
           ? PreferredSize(
               preferredSize: const Size.fromHeight(48),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.07))),
+                  border: Border(bottom: BorderSide(
+                    color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5))),
                 ),
                 child: TabBar(
                   controller: _tabController,
@@ -118,9 +119,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                   indicatorWeight: 2.5,
                   indicatorSize: TabBarIndicatorSize.label,
                   labelColor: _kGreen,
-                  unselectedLabelColor: Colors.white.withValues(alpha: 0.45),
+                  unselectedLabelColor: onSurface.withValues(alpha: 0.45),
                   labelStyle: _outfit(13, FontWeight.w700, _kGreen),
-                  unselectedLabelStyle: _outfit(13, FontWeight.w500, Colors.white),
+                  unselectedLabelStyle: _outfit(13, FontWeight.w500, onSurface),
                   tabs: [
                     Tab(text: 'academy.overview'.tr()),
                     Tab(text: 'academy.teams'.tr()),
@@ -136,6 +137,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
   // ── No academy ────────────────────────────────────────────────────────────
   Widget _buildNoAcademyView() {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -149,10 +151,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             child: const Icon(Icons.school_rounded, size: 56, color: _kGreen),
           ),
           const SizedBox(height: 20),
-          Text('academy.no_academy_yet'.tr(), style: _outfit(18, FontWeight.w700, Colors.white)),
+          Text('academy.no_academy_yet'.tr(), style: _outfit(18, FontWeight.w700, onSurface)),
           const SizedBox(height: 8),
           Text('academy.register_academy_hint'.tr(),
-              style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.5))),
+              style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.5))),
           const SizedBox(height: 28),
           _PrimaryBtn(label: 'academy.register_academy'.tr(), onPressed: () {}),
         ],
@@ -179,12 +181,13 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   }
 
   Widget _buildAcademyInfoCard(dynamic academy) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -206,11 +209,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(academy.name,
-                    style: _outfit(16, FontWeight.w800, Colors.white)),
+                Text(academy.name, style: _outfit(16, FontWeight.w800, onSurface)),
                 const SizedBox(height: 3),
                 Text('${academy.city} · ${academy.address}',
-                    style: _outfit(12, FontWeight.w400, Colors.white.withValues(alpha: 0.5))),
+                    style: _outfit(12, FontWeight.w400, onSurface.withValues(alpha: 0.5))),
               ],
             ),
           ),
@@ -247,9 +249,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   }
 
   Widget _buildStatCard(_StatData s) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: s.color.withValues(alpha: 0.18)),
       ),
@@ -269,10 +272,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(s.value, style: _outfit(28, FontWeight.w900, Colors.white)),
+              Text(s.value, style: _outfit(28, FontWeight.w900, onSurface)),
               Text(s.label,
-                  style: _outfit(11, FontWeight.w600,
-                      Colors.white.withValues(alpha: 0.45), ls: 0.3)),
+                  style: _outfit(11, FontWeight.w600, onSurface.withValues(alpha: 0.45), ls: 0.3)),
             ],
           ),
         ],
@@ -281,16 +283,17 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   }
 
   Widget _buildRecentSessions(AcademyProvider provider) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('academy.recent_sessions'.tr(), style: _outfit(15, FontWeight.w800, Colors.white)),
+            Text('academy.recent_sessions'.tr(), style: _outfit(15, FontWeight.w800, onSurface)),
             if (provider.sessions.isNotEmpty)
               Text('${provider.sessions.length} total',
-                  style: _outfit(11, FontWeight.w600, Colors.white.withValues(alpha: 0.4))),
+                  style: _outfit(11, FontWeight.w600, onSurface.withValues(alpha: 0.4))),
           ],
         ),
         const SizedBox(height: 10),
@@ -303,13 +306,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   }
 
   Widget _buildSessionRow(dynamic s, int index) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -327,11 +331,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(s.scheduledAt,
-                    style: _outfit(13, FontWeight.w600, Colors.white)),
+                Text(s.scheduledAt, style: _outfit(13, FontWeight.w600, onSurface)),
                 Text(s.topic ?? 'academy.training_session'.tr(),
-                    style: _outfit(11, FontWeight.w400,
-                        Colors.white.withValues(alpha: 0.45))),
+                    style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
           ),
@@ -353,6 +355,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   // TEAMS TAB
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildTeamsTab(AcademyProvider provider) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Column(
       children: [
         Padding(
@@ -362,7 +365,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
             children: [
               Row(
                 children: [
-                  Text('academy.my_teams'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
+                  Text('academy.my_teams'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -399,7 +402,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         Expanded(
           child: RefreshIndicator(
             color: _kGreen,
-            backgroundColor: _kCard,
+            backgroundColor: PremiumTheme.surfaceCard(context),
             onRefresh: () => widget.academyId != null
                 ? provider.fetchAcademyById(widget.academyId!)
                 : provider.fetchMyAcademy(),
@@ -425,6 +428,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
   Widget _buildTeamCard(dynamic team, int index, AcademyProvider provider) {
     final accent = _accentAt(index);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -434,9 +438,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: _kCard,
+          color: PremiumTheme.surfaceCard(context),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -465,23 +469,22 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(team.name, style: _outfit(14, FontWeight.w700, Colors.white)),
+                  Text(team.name, style: _outfit(14, FontWeight.w700, onSurface)),
                   const SizedBox(height: 3),
                   Row(
                     children: [
                       Icon(Icons.schedule_rounded, size: 11,
-                          color: Colors.white.withValues(alpha: 0.35)),
+                          color: onSurface.withValues(alpha: 0.35)),
                       const SizedBox(width: 4),
                       Text('academy.next_session'.tr(),
-                          style: _outfit(11, FontWeight.w400,
-                              Colors.white.withValues(alpha: 0.4))),
+                          style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.4))),
                     ],
                   ),
                 ],
               ),
             ),
             Icon(Icons.chevron_right_rounded,
-                color: Colors.white.withValues(alpha: 0.25), size: 20),
+                color: onSurface.withValues(alpha: 0.25), size: 20),
           ],
         ),
       ),
@@ -587,6 +590,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   static const _dayColors = [_kBlue, _kGreen, _kGold, _kPurple, _kOrange, _kRed, _kBlue];
 
   Widget _buildScheduleCard(dynamic schedule, int index, AcademyProvider provider) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final scheduleTeams = provider.teams
         .where((t) => schedule.teamIds.contains(t.id))
         .toList();
@@ -604,23 +608,21 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: IntrinsicHeight(
           child: Row(
             children: [
-              // Left accent bar
               Container(width: 4, color: dayColor),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
                   child: Row(
                     children: [
-                      // Day/time icon
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -636,24 +638,22 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                           children: [
                             Text(
                               '${schedule.dayOfWeek.toShortString()}  ·  ${schedule.startTime} – ${schedule.endTime}',
-                              style: _outfit(13, FontWeight.w800, Colors.white),
+                              style: _outfit(13, FontWeight.w800, onSurface),
                             ),
                             const SizedBox(height: 5),
                             Row(children: [
                               Icon(Icons.group_rounded, size: 12,
-                                  color: Colors.white.withValues(alpha: 0.4)),
+                                  color: onSurface.withValues(alpha: 0.4)),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(teamsLabel,
-                                    style: _outfit(11, FontWeight.w400,
-                                        Colors.white.withValues(alpha: 0.55))),
+                                    style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.55))),
                               ),
                             ]),
                             if (branch != null) ...[
                               const SizedBox(height: 3),
                               Row(children: [
-                                const Icon(Icons.location_on_rounded,
-                                    size: 12, color: _kBlue),
+                                const Icon(Icons.location_on_rounded, size: 12, color: _kBlue),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text('${branch.name} (${branch.address})',
@@ -664,11 +664,10 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                             const SizedBox(height: 3),
                             Row(children: [
                               Icon(Icons.place_rounded, size: 12,
-                                  color: Colors.white.withValues(alpha: 0.3)),
+                                  color: onSurface.withValues(alpha: 0.3)),
                               const SizedBox(width: 4),
                               Text(schedule.location ?? 'academy.main_field'.tr(),
-                                  style: _outfit(11, FontWeight.w400,
-                                      Colors.white.withValues(alpha: 0.4))),
+                                  style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.4))),
                             ]),
                           ],
                         ),
@@ -694,33 +693,36 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   void _confirmDeleteSchedule(dynamic schedule, AcademyProvider provider) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.delete_schedule'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: Text('academy.delete_schedule_confirm'.tr(),
-            style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.7))),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: _kRed),
-            onPressed: () async {
-              Navigator.pop(context);
-              final ok = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(ok ? 'academy.schedule_deleted'.tr() : 'academy.failed_delete'.tr()),
-                  backgroundColor: ok ? _kGreen : _kRed,
-                ));
-              }
-            },
-            child: Text('common.delete'.tr(), style: _outfit(13, FontWeight.w700, _kRed)),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.delete_schedule'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: Text('academy.delete_schedule_confirm'.tr(),
+              style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.7))),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, onSurface.withValues(alpha: 0.5))),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: _kRed),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final ok = await provider.deleteSchedule(provider.myAcademy!.id, schedule.id);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(ok ? 'academy.schedule_deleted'.tr() : 'academy.failed_delete'.tr()),
+                    backgroundColor: ok ? _kGreen : _kRed,
+                  ));
+                }
+              },
+              child: Text('common.delete'.tr(), style: _outfit(13, FontWeight.w700, _kRed)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -728,6 +730,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   // BILLING TAB
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildBillingTab(AcademyProvider provider) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     if (provider.billingConfig == null) {
       return Center(
         child: Column(
@@ -739,16 +742,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 color: _kGold.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.account_balance_wallet_rounded,
-                  size: 52, color: _kGold),
+              child: const Icon(Icons.account_balance_wallet_rounded, size: 52, color: _kGold),
             ),
             const SizedBox(height: 20),
             Text('academy.billing_not_configured'.tr(),
-                style: _outfit(18, FontWeight.w700, Colors.white)),
+                style: _outfit(18, FontWeight.w700, onSurface)),
             const SizedBox(height: 8),
             Text('academy.setup_billing_hint'.tr(),
-                style: _outfit(13, FontWeight.w400,
-                    Colors.white.withValues(alpha: 0.45))),
+                style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
             const SizedBox(height: 28),
             _PrimaryBtn(label: 'academy.configure_billing'.tr(), onPressed: _showBillingConfigDialog),
           ],
@@ -761,16 +762,12 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
     return Column(
       children: [
-        // Pricing banner
         Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                _kGreen.withValues(alpha: 0.12),
-                _kBlue.withValues(alpha: 0.08),
-              ],
+              colors: [_kGreen.withValues(alpha: 0.12), _kBlue.withValues(alpha: 0.08)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -793,9 +790,8 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('academy.monthly_fee'.tr(), style: _outfit(11, FontWeight.w600,
-                        Colors.white.withValues(alpha: 0.5), ls: 0.5)),
-                    Text('$fee $currency / month',
-                        style: _outfit(16, FontWeight.w800, Colors.white)),
+                        onSurface.withValues(alpha: 0.5), ls: 0.5)),
+                    Text('$fee $currency / month', style: _outfit(16, FontWeight.w800, onSurface)),
                   ],
                 ),
               ),
@@ -818,7 +814,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Row(
             children: [
-              Text('academy.player_billing'.tr(), style: _outfit(15, FontWeight.w800, Colors.white)),
+              Text('academy.player_billing'.tr(), style: _outfit(15, FontWeight.w800, onSurface)),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -847,6 +843,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   }
 
   Widget _buildPlayerBillingCard(dynamic player, int index) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final idStr = (player.playerProfileId ?? 'Unknown');
     final shortId = idStr.length >= 8 ? idStr.substring(0, 8).toUpperCase() : idStr;
     final accent = _accentAt(index);
@@ -858,9 +855,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: _kCard,
+          color: PremiumTheme.surfaceCard(context),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+          border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -876,10 +873,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 shape: BoxShape.circle,
                 border: Border.all(color: accent.withValues(alpha: 0.4)),
               ),
-              child: Center(
-                child: Text(initials,
-                    style: _outfit(12, FontWeight.w800, accent)),
-              ),
+              child: Center(child: Text(initials, style: _outfit(12, FontWeight.w800, accent))),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -887,10 +881,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('academy.player_num'.tr(namedArgs: {'num': (index + 1).toString()}),
-                      style: _outfit(13, FontWeight.w700, Colors.white)),
+                      style: _outfit(13, FontWeight.w700, onSurface)),
                   Text('ID: $shortId',
-                      style: _outfit(11, FontWeight.w500,
-                          Colors.white.withValues(alpha: 0.4))),
+                      style: _outfit(11, FontWeight.w500, onSurface.withValues(alpha: 0.4))),
                 ],
               ),
             ),
@@ -935,8 +928,11 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
           onTap: () {
             if (_tabController.index == 1) {
               _showAddTeamDialog();
-            } else if (_tabController.index == 2) _showAddScheduleDialog();
-            else if (_tabController.index == 3) _showBillingConfigDialog();
+            } else if (_tabController.index == 2) {
+              _showAddScheduleDialog();
+            } else if (_tabController.index == 3) {
+              _showBillingConfigDialog();
+            }
           },
           child: const Icon(Icons.add_rounded, color: Colors.black, size: 26),
         ),
@@ -948,41 +944,43 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   // Shared helpers
   // ══════════════════════════════════════════════════════════════════════════
   Widget _emptyState(IconData icon, String message) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 52, color: Colors.white.withValues(alpha: 0.15)),
+          Icon(icon, size: 52, color: onSurface.withValues(alpha: 0.15)),
           const SizedBox(height: 14),
-          Text(message,
-              style: _outfit(14, FontWeight.w500, Colors.white.withValues(alpha: 0.35))),
+          Text(message, style: _outfit(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
         ],
       ),
     );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // Dialogs – logic identical to original, only styling updated
+  // Dialogs
   // ══════════════════════════════════════════════════════════════════════════
 
   void _selectFilterDay() async {
     final result = await showDialog<DayOfWeek>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.filter_by_day'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: DayOfWeek.values
-              .map((day) => ListTile(
-                    title: Text(day.toShortString(),
-                        style: _outfit(14, FontWeight.w500, Colors.white)),
-                    onTap: () => Navigator.pop(context, day),
-                  ))
-              .toList(),
-        ),
-      ),
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.filter_by_day'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: DayOfWeek.values
+                .map((day) => ListTile(
+                      title: Text(day.toShortString(), style: _outfit(14, FontWeight.w500, onSurface)),
+                      onTap: () => Navigator.pop(ctx, day),
+                    ))
+                .toList(),
+          ),
+        );
+      },
     );
     if (result != null) setState(() => _filterDay = result);
   }
@@ -990,29 +988,32 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
   void _selectFilterTeam(AcademyProvider provider) async {
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.filter_by_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: provider.teams.length,
-            itemBuilder: (context, i) {
-              final team = provider.teams[i];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: _accentAt(i).withValues(alpha: 0.2),
-                  child: Text(team.ageGroup, style: _outfit(9, FontWeight.w800, _accentAt(i))),
-                ),
-                title: Text(team.name, style: _outfit(13, FontWeight.w600, Colors.white)),
-                onTap: () => Navigator.pop(context, team.id),
-              );
-            },
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.filter_by_team'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: provider.teams.length,
+              itemBuilder: (ctx2, i) {
+                final team = provider.teams[i];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: _accentAt(i).withValues(alpha: 0.2),
+                    child: Text(team.ageGroup, style: _outfit(9, FontWeight.w800, _accentAt(i))),
+                  ),
+                  title: Text(team.name, style: _outfit(13, FontWeight.w600, onSurface)),
+                  onTap: () => Navigator.pop(ctx, team.id),
+                );
+              },
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
     if (result != null) setState(() => _filterTeamId = result);
   }
@@ -1022,35 +1023,38 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     final ageCtrl = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.new_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dialogField(nameCtrl, 'academy.team_name'.tr()),
-            const SizedBox(height: 12),
-            _dialogField(ageCtrl, 'academy.age_groups'.tr(), hint: 'academy.age_groups_hint'.tr()),
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.new_team'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _dialogField(ctx, nameCtrl, 'academy.team_name'.tr()),
+              const SizedBox(height: 12),
+              _dialogField(ctx, ageCtrl, 'academy.age_groups'.tr(), hint: 'academy.age_groups_hint'.tr()),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, onSurface.withValues(alpha: 0.5))),
+            ),
+            _DialogBtn(
+              label: 'academy.add_team'.tr(),
+              onPressed: () {
+                final p = context.read<AcademyProvider>();
+                final id = p.myAcademy?.id;
+                if (id == null) return;
+                p.createTeam(id, nameCtrl.text, ageCtrl.text, 'Intermediate');
+                Navigator.pop(ctx);
+              },
+            ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
-          ),
-          _DialogBtn(
-            label: 'academy.add_team'.tr(),
-            onPressed: () {
-              final p = context.read<AcademyProvider>();
-              final id = p.myAcademy?.id;
-              if (id == null) return;
-              p.createTeam(id, nameCtrl.text, ageCtrl.text, 'Intermediate');
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1063,54 +1067,55 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.link_existing_team'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: available.isEmpty
-            ? Text('academy.all_teams_linked'.tr(),
-                style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)))
-            : SizedBox(
-                width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: available.length,
-                  itemBuilder: (context, i) {
-                    final team = available[i];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: _accentAt(i).withValues(alpha: 0.2),
-                        child: const Icon(Icons.groups_rounded, size: 18),
-                      ),
-                      title: Text(team['name'] ?? 'common.unknown'.tr(),
-                          style: _outfit(13, FontWeight.w600, Colors.white)),
-                      subtitle: Text(team['age_group'] ?? '',
-                          style: _outfit(11, FontWeight.w400,
-                              Colors.white.withValues(alpha: 0.45))),
-                      onTap: () async {
-                        final id = academyProvider.myAcademy?.id;
-                        if (id != null) {
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.link_existing_team'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: available.isEmpty
+              ? Text('academy.all_teams_linked'.tr(),
+                  style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.6)))
+              : SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: available.length,
+                    itemBuilder: (ctx2, i) {
+                      final team = available[i];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: _accentAt(i).withValues(alpha: 0.2),
+                          child: const Icon(Icons.groups_rounded, size: 18),
+                        ),
+                        title: Text(team['name'] ?? 'common.unknown'.tr(),
+                            style: _outfit(13, FontWeight.w600, onSurface)),
+                        subtitle: Text(team['age_group'] ?? '',
+                            style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
+                        onTap: () async {
+                          final id = academyProvider.myAcademy?.id;
+                          if (id == null) return;
+                          Navigator.pop(ctx);
                           final ok = await academyProvider.linkExistingTeam(id, team['id'].toString());
                           if (mounted) {
-                            Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(ok ? 'academy.team_linked'.tr() : 'academy.failed_link_team'.tr()),
                               backgroundColor: ok ? _kGreen : _kRed,
                             ));
                           }
-                        }
-                      },
-                    );
-                  },
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('common.close'.tr(), style: _outfit(13, FontWeight.w600, Colors.white.withValues(alpha: 0.5))),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('common.close'.tr(), style: _outfit(13, FontWeight.w600, onSurface.withValues(alpha: 0.5))),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1124,81 +1129,74 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModal) => AlertDialog(
-          backgroundColor: _kCard,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(children: [
-            const Icon(Icons.bolt_rounded, color: _kGold, size: 22),
-            const SizedBox(width: 10),
-            Text('academy.generate_sessions'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-          ]),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'academy.generate_sessions_desc'.tr(),
-                style: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.6)),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) {
+          final onSurface = Theme.of(ctx).colorScheme.onSurface;
+          return AlertDialog(
+            backgroundColor: PremiumTheme.surfaceCard(ctx),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(children: [
+              const Icon(Icons.bolt_rounded, color: _kGold, size: 22),
+              const SizedBox(width: 10),
+              Text('academy.generate_sessions'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+            ]),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('academy.generate_sessions_desc'.tr(),
+                    style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.6))),
+                const SizedBox(height: 20),
+                Text('academy.date_range'.tr(),
+                    style: _outfit(11, FontWeight.w700, onSurface.withValues(alpha: 0.5), ls: 1)),
+                const SizedBox(height: 10),
+                _buildDateRow(ctx, 'academy.start'.tr(), startDate,
+                    (d) { if (d != null) setModal(() => startDate = d); }),
+                const SizedBox(height: 8),
+                _buildDateRow(ctx, 'academy.end'.tr(), endDate,
+                    (d) { if (d != null) setModal(() => endDate = d); }),
+                const SizedBox(height: 12),
+                Text('academy.sessions_can_cancel'.tr(),
+                    style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.35))),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('common.cancel'.tr(),
+                    style: _outfit(13, FontWeight.w600, onSurface.withValues(alpha: 0.5))),
               ),
-              const SizedBox(height: 20),
-              Text('academy.date_range'.tr(), style: _outfit(11, FontWeight.w700,
-                  Colors.white.withValues(alpha: 0.5), ls: 1)),
-              const SizedBox(height: 10),
-              _buildDateRow('academy.start'.tr(), startDate,
-                  (d) { if (d != null) setModal(() => startDate = d); }),
-              const SizedBox(height: 8),
-              _buildDateRow('academy.end'.tr(), endDate,
-                  (d) { if (d != null) setModal(() => endDate = d); }),
-              const SizedBox(height: 12),
-              Text('academy.sessions_can_cancel'.tr(),
-                  style: _outfit(11, FontWeight.w400, Colors.white.withValues(alpha: 0.35))),
+              _DialogBtn(
+                label: 'academy.generate'.tr(),
+                color: _kGold,
+                textColor: Colors.black,
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  final ok = await provider.triggerGenerateSessions(academyId, startDate, endDate);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(ok ? 'academy.sessions_generated'.tr() : 'academy.failed_generate'.tr()),
+                      backgroundColor: ok ? _kGreen : _kRed,
+                    ));
+                  }
+                },
+              ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600,
-                  Colors.white.withValues(alpha: 0.5))),
-            ),
-            _DialogBtn(
-              label: 'academy.generate'.tr(),
-              color: _kGold,
-              textColor: Colors.black,
-              onPressed: () async {
-                Navigator.pop(context);
-                final ok = await provider.triggerGenerateSessions(academyId, startDate, endDate);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(ok ? 'academy.sessions_generated'.tr() : 'academy.failed_generate'.tr()),
-                    backgroundColor: ok ? _kGreen : _kRed,
-                  ));
-                }
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildDateRow(String label, DateTime date, Function(DateTime?) onPick) {
+  Widget _buildDateRow(BuildContext ctx, String label, DateTime date, Function(DateTime?) onPick) {
+    final onSurface = Theme.of(ctx).colorScheme.onSurface;
     return InkWell(
       onTap: () async {
         final picked = await showDatePicker(
-          context: context,
+          context: ctx,
           initialDate: date,
           firstDate: DateTime.now().subtract(const Duration(days: 365)),
           lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-          builder: (context, child) => Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.dark(
-                primary: _kGreen, onPrimary: Colors.black,
-                surface: _kCard, onSurface: Colors.white,
-              ),
-            ),
-            child: child!,
-          ),
         );
         onPick(picked);
       },
@@ -1206,15 +1204,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.04),
+          color: onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: PremiumTheme.borderSubtle(ctx).withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: _outfit(13, FontWeight.w500,
-                Colors.white.withValues(alpha: 0.6))),
+            Text(label, style: _outfit(13, FontWeight.w500, onSurface.withValues(alpha: 0.6))),
             Text('${date.day}.${date.month}.${date.year}',
                 style: _outfit(13, FontWeight.w700, _kGold)),
           ],
@@ -1247,15 +1244,18 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModal) {
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) {
+          final onSurface = Theme.of(ctx).colorScheme.onSurface;
+          final cardColor = PremiumTheme.surfaceCard(ctx);
+          final border = PremiumTheme.borderSubtle(ctx);
           return Container(
-            decoration: const BoxDecoration(
-              color: _kCard,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
               left: 20, right: 20, top: 16,
             ),
             child: SingleChildScrollView(
@@ -1267,16 +1267,16 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                     child: Container(
                       width: 40, height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: onSurface.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('academy.add_schedule'.tr(), style: _outfit(20, FontWeight.w800, Colors.white)),
+                  Text('academy.add_schedule'.tr(), style: _outfit(20, FontWeight.w800, onSurface)),
                   const SizedBox(height: 20),
                   Text('academy.teams_label'.tr(), style: _outfit(10, FontWeight.w800,
-                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
+                      onSurface.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8, runSpacing: 8,
@@ -1284,75 +1284,82 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                       final sel = selectedTeamIds.contains(t.id);
                       return FilterChip(
                         label: Text(t.name, style: _outfit(12, FontWeight.w600,
-                            sel ? _kGreen : Colors.white.withValues(alpha: 0.7))),
+                            sel ? _kGreen : onSurface.withValues(alpha: 0.7))),
                         selected: sel,
-                        backgroundColor: Colors.white.withValues(alpha: 0.05),
+                        backgroundColor: onSurface.withValues(alpha: 0.05),
                         selectedColor: _kGreen.withValues(alpha: 0.15),
                         checkmarkColor: _kGreen,
-                        side: BorderSide(color: sel ? _kGreen.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1)),
+                        side: BorderSide(color: sel ? _kGreen.withValues(alpha: 0.5) : border.withValues(alpha: 0.5)),
                         onSelected: (v) => setModal(() {
                           if (v) {
                             selectedTeamIds.add(t.id);
-                          } else if (selectedTeamIds.length > 1) selectedTeamIds.remove(t.id);
+                          } else if (selectedTeamIds.length > 1) {
+                            selectedTeamIds.remove(t.id);
+                          }
                         }),
                       );
                     }).toList(),
                   ),
                   const SizedBox(height: 20),
                   Text('academy.location_label'.tr(), style: _outfit(10, FontWeight.w800,
-                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
+                      onSurface.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    dropdownColor: _kCard,
+                    dropdownColor: cardColor,
                     initialValue: selectedBranchId,
-                    hint: Text('academy.select_branch'.tr(), style: _outfit(13, FontWeight.w400,
-                        Colors.white.withValues(alpha: 0.4))),
+                    hint: Text('academy.select_branch'.tr(),
+                        style: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.4))),
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text('academy.no_branch'.tr(), style: _outfit(13, FontWeight.w500, Colors.white)),
+                        child: Text('academy.no_branch'.tr(),
+                            style: _outfit(13, FontWeight.w500, onSurface)),
                       ),
                       ...provider.branches.map((b) => DropdownMenuItem(
                         value: b.id,
-                        child: Text(b.name, style: _outfit(13, FontWeight.w500, Colors.white)),
+                        child: Text(b.name, style: _outfit(13, FontWeight.w500, onSurface)),
                       )),
                     ],
                     onChanged: (v) => setModal(() => selectedBranchId = v),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      fillColor: onSurface.withValues(alpha: 0.05),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(color: border.withValues(alpha: 0.5)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(color: border.withValues(alpha: 0.5)),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: locationCtrl,
-                    style: _outfit(14, FontWeight.w500, Colors.white),
+                    style: _outfit(14, FontWeight.w500, onSurface),
                     decoration: InputDecoration(
                       hintText: 'academy.field_name'.tr(),
-                      hintStyle: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.35)),
+                      hintStyle: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.35)),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      fillColor: onSurface.withValues(alpha: 0.05),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(color: border.withValues(alpha: 0.5)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(color: border.withValues(alpha: 0.5)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: _kGreen, width: 1.5),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   Text('academy.training_days'.tr(), style: _outfit(10, FontWeight.w800,
-                      Colors.white.withValues(alpha: 0.4), ls: 1.5)),
+                      onSurface.withValues(alpha: 0.4), ls: 1.5)),
                   const SizedBox(height: 8),
                   ...slots.asMap().entries.map((e) {
                     final idx = e.key;
@@ -1361,9 +1368,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.04),
+                        color: onSurface.withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                        border: Border.all(color: border.withValues(alpha: 0.5)),
                       ),
                       child: Column(
                         children: [
@@ -1373,9 +1380,9 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                                 child: DropdownButton<DayOfWeek>(
                                   isExpanded: true,
                                   value: item['day_of_week'],
-                                  dropdownColor: _kCard,
+                                  dropdownColor: cardColor,
                                   underline: const SizedBox(),
-                                  style: _outfit(13, FontWeight.w600, Colors.white),
+                                  style: _outfit(13, FontWeight.w600, onSurface),
                                   items: DayOfWeek.values.map((d) => DropdownMenuItem(
                                     value: d,
                                     child: Text(d.toShortString()),
@@ -1393,14 +1400,14 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                           Row(
                             children: [
                               Expanded(child: _timePicker('Start', item['start_time'],
-                                  (p) { if (p != null) setModal(() => item['start_time'] = p); }, context)),
+                                  (p) { if (p != null) setModal(() => item['start_time'] = p); }, ctx)),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Text('→', style: _outfit(14, FontWeight.w400,
-                                    Colors.white.withValues(alpha: 0.4))),
+                                    onSurface.withValues(alpha: 0.4))),
                               ),
                               Expanded(child: _timePicker('End', item['end_time'],
-                                  (p) { if (p != null) setModal(() => item['end_time'] = p); }, context)),
+                                  (p) { if (p != null) setModal(() => item['end_time'] = p); }, ctx)),
                             ],
                           ),
                         ],
@@ -1446,7 +1453,7 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
                             };
                           }).toList();
                           final ok = await provider.createSchedule(academyId, {'schedules': finalSlots});
-                          if (ok) Navigator.pop(context);
+                          if (ok && ctx.mounted) Navigator.pop(ctx);
                         },
                         child: Text('academy.save_schedules'.tr(),
                             style: _outfit(14, FontWeight.w900, Colors.black, ls: 0.5)),
@@ -1468,32 +1475,35 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
         text: provider.billingConfig?.monthlySubscriptionFee?.toString() ?? '0');
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _kCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('academy.billing_configuration'.tr(), style: _outfit(16, FontWeight.w800, Colors.white)),
-        content: _dialogField(feeCtrl, 'academy.monthly_fee_kzt'.tr(),
-            keyboardType: TextInputType.number),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('common.cancel'.tr(), style: _outfit(13, FontWeight.w600,
-                Colors.white.withValues(alpha: 0.5))),
-          ),
-          _DialogBtn(
-            label: 'common.save'.tr(),
-            onPressed: () async {
-              final id = provider.myAcademy?.id;
-              if (id == null) return;
-              final ok = await provider.saveBillingConfig(id, {
-                'monthly_subscription_fee': double.tryParse(feeCtrl.text) ?? 0,
-                'currency': 'KZT',
-              });
-              if (ok && mounted) Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final onSurface = Theme.of(ctx).colorScheme.onSurface;
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(ctx),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('academy.billing_configuration'.tr(), style: _outfit(16, FontWeight.w800, onSurface)),
+          content: _dialogField(ctx, feeCtrl, 'academy.monthly_fee_kzt'.tr(),
+              keyboardType: TextInputType.number),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('common.cancel'.tr(),
+                  style: _outfit(13, FontWeight.w600, onSurface.withValues(alpha: 0.5))),
+            ),
+            _DialogBtn(
+              label: 'common.save'.tr(),
+              onPressed: () async {
+                final id = provider.myAcademy?.id;
+                if (id == null) return;
+                final ok = await provider.saveBillingConfig(id, {
+                  'monthly_subscription_fee': double.tryParse(feeCtrl.text) ?? 0,
+                  'currency': 'KZT',
+                });
+                if (ok && ctx.mounted) Navigator.pop(ctx);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1507,95 +1517,104 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: _kCard,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Consumer<AcademyProvider>(
-        builder: (context, p, _) => SizedBox(
-          height: MediaQuery.of(context).size.height * 0.72,
-          child: p.isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kGreen))
-              : p.currentBillingReport == null
-                  ? Center(
-                      child: Text('academy.no_data_month'.tr(),
-                          style: _outfit(14, FontWeight.w500,
-                              Colors.white.withValues(alpha: 0.5))))
-                  : Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Container(
-                              width: 40, height: 4,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(DateFormat('MMMM yyyy').format(now),
-                              style: _outfit(20, FontWeight.w900, Colors.white)),
-                          const SizedBox(height: 4),
-                          Text(p.currentBillingReport!.playerName,
-                              style: _outfit(14, FontWeight.w600, _kBlue)),
-                          const SizedBox(height: 20),
-                          _reportSection('academy.attendance_section'.tr(), [
-                            _billingRow('academy.total_sessions'.tr(), p.currentBillingReport!.attendance.totalSessions.toString()),
-                            _billingRow('academy.present'.tr(), p.currentBillingReport!.attendance.present.toString(), _kGreen),
-                            _billingRow('academy.absent'.tr(), p.currentBillingReport!.attendance.absent.toString(), _kRed),
-                            _billingRow('academy.late'.tr(), p.currentBillingReport!.attendance.late.toString(), _kOrange),
-                          ]),
-                          const SizedBox(height: 16),
-                          _reportSection('academy.fees_section'.tr(), [
-                            _billingRow('academy.base_monthly'.tr(), '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
-                            _billingRow('academy.additional'.tr(), '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
-                            _billingRow('academy.total_owed'.tr(), '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
-                                _kGold, true),
-                          ]),
-                          const Spacer(),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [_kGreen, _kGreenD]),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      builder: (ctx) {
+        final cardColor = PremiumTheme.surfaceCard(ctx);
+        return Consumer<AcademyProvider>(
+          builder: (ctx2, p, _) {
+            final onSurface = Theme.of(ctx2).colorScheme.onSurface;
+            return Container(
+              height: MediaQuery.of(ctx2).size.height * 0.72,
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: p.isLoading
+                  ? const Center(child: CircularProgressIndicator(color: _kGreen))
+                  : p.currentBillingReport == null
+                      ? Center(
+                          child: Text('academy.no_data_month'.tr(),
+                              style: _outfit(14, FontWeight.w500, onSurface.withValues(alpha: 0.5))))
+                      : Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Container(
+                                  width: 40, height: 4,
+                                  decoration: BoxDecoration(
+                                    color: onSurface.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
-                                onPressed: () => Navigator.pop(context),
-                                child: Text('common.close'.tr(), style: _outfit(14, FontWeight.w800, Colors.black)),
                               ),
-                            ),
+                              const SizedBox(height: 20),
+                              Text(DateFormat('MMMM yyyy').format(now),
+                                  style: _outfit(20, FontWeight.w900, onSurface)),
+                              const SizedBox(height: 4),
+                              Text(p.currentBillingReport!.playerName,
+                                  style: _outfit(14, FontWeight.w600, _kBlue)),
+                              const SizedBox(height: 20),
+                              _reportSection(ctx2, 'academy.attendance_section'.tr(), [
+                                _billingRow(ctx2, 'academy.total_sessions'.tr(), p.currentBillingReport!.attendance.totalSessions.toString()),
+                                _billingRow(ctx2, 'academy.present'.tr(), p.currentBillingReport!.attendance.present.toString(), _kGreen),
+                                _billingRow(ctx2, 'academy.absent'.tr(), p.currentBillingReport!.attendance.absent.toString(), _kRed),
+                                _billingRow(ctx2, 'academy.late'.tr(), p.currentBillingReport!.attendance.late.toString(), _kOrange),
+                              ]),
+                              const SizedBox(height: 16),
+                              _reportSection(ctx2, 'academy.fees_section'.tr(), [
+                                _billingRow(ctx2, 'academy.base_monthly'.tr(), '${p.currentBillingReport!.baseFee} ${p.currentBillingReport!.currency}'),
+                                _billingRow(ctx2, 'academy.additional'.tr(), '${p.currentBillingReport!.additionalFees} ${p.currentBillingReport!.currency}'),
+                                _billingRow(ctx2, 'academy.total_owed'.tr(), '${p.currentBillingReport!.totalOwed} ${p.currentBillingReport!.currency}',
+                                    _kGold, true),
+                              ]),
+                              const Spacer(),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(colors: [_kGreen, _kGreenD]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: Text('common.close'.tr(), style: _outfit(14, FontWeight.w800, Colors.black)),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-        ),
-      ),
+                        ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _reportSection(String title, List<Widget> rows) {
+  Widget _reportSection(BuildContext ctx, String title, List<Widget> rows) {
+    final onSurface = Theme.of(ctx).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: onSurface.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        border: Border.all(color: PremiumTheme.borderSubtle(ctx).withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title.toUpperCase(),
-              style: _outfit(9, FontWeight.w800,
-                  Colors.white.withValues(alpha: 0.4), ls: 1.2)),
+              style: _outfit(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.2)),
           const SizedBox(height: 10),
           ...rows,
         ],
@@ -1603,42 +1622,45 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
     );
   }
 
-  Widget _billingRow(String label, String value, [Color? color, bool bold = false]) {
+  Widget _billingRow(BuildContext ctx, String label, String value,
+      [Color? color, bool bold = false]) {
+    final onSurface = Theme.of(ctx).colorScheme.onSurface;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: _outfit(13, bold ? FontWeight.w700 : FontWeight.w400,
-              Colors.white.withValues(alpha: bold ? 0.85 : 0.6))),
+              onSurface.withValues(alpha: bold ? 0.85 : 0.6))),
           Text(value, style: _outfit(bold ? 16 : 13,
               bold ? FontWeight.w900 : FontWeight.w600,
-              color ?? Colors.white)),
+              color ?? onSurface)),
         ],
       ),
     );
   }
 
-  Widget _dialogField(TextEditingController ctrl, String label,
+  Widget _dialogField(BuildContext ctx, TextEditingController ctrl, String label,
       {String? hint, TextInputType? keyboardType}) {
+    final onSurface = Theme.of(ctx).colorScheme.onSurface;
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
-      style: _outfit(14, FontWeight.w500, Colors.white),
+      style: _outfit(14, FontWeight.w500, onSurface),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: _outfit(13, FontWeight.w500, Colors.white.withValues(alpha: 0.5)),
-        hintStyle: _outfit(13, FontWeight.w400, Colors.white.withValues(alpha: 0.3)),
+        labelStyle: _outfit(13, FontWeight.w500, onSurface.withValues(alpha: 0.5)),
+        hintStyle: _outfit(13, FontWeight.w400, onSurface.withValues(alpha: 0.3)),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: onSurface.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          borderSide: BorderSide(color: PremiumTheme.borderSubtle(ctx).withValues(alpha: 0.5)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          borderSide: BorderSide(color: PremiumTheme.borderSubtle(ctx).withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -1673,27 +1695,28 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? _kGreen.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+          color: active ? _kGreen.withValues(alpha: 0.1) : onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: active ? _kGreen.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+            color: active ? _kGreen.withValues(alpha: 0.5) : PremiumTheme.borderSubtle(context).withValues(alpha: 0.5),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 13, color: active ? _kGreen : Colors.white.withValues(alpha: 0.6)),
+            Icon(icon, size: 13, color: active ? _kGreen : onSurface.withValues(alpha: 0.6)),
             const SizedBox(width: 5),
             Text(label,
                 style: GoogleFonts.outfit(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: active ? _kGreen : Colors.white.withValues(alpha: 0.6))),
+                    color: active ? _kGreen : onSurface.withValues(alpha: 0.6))),
           ],
         ),
       ),
@@ -1757,6 +1780,7 @@ class _DialogBtn extends StatelessWidget {
 }
 
 Widget _timePicker(String label, TimeOfDay time, Function(TimeOfDay?) onPick, BuildContext ctx) {
+  final onSurface = Theme.of(ctx).colorScheme.onSurface;
   return InkWell(
     onTap: () async {
       final picked = await showTimePicker(context: ctx, initialTime: time);
@@ -1768,9 +1792,9 @@ Widget _timePicker(String label, TimeOfDay time, Function(TimeOfDay?) onPick, Bu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.outfit(fontSize: 10, color: Colors.white.withValues(alpha: 0.4))),
+          Text(label, style: GoogleFonts.outfit(fontSize: 10, color: onSurface.withValues(alpha: 0.4))),
           Text(time.format(ctx),
-              style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+              style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w700, color: onSurface)),
         ],
       ),
     ),

@@ -21,7 +21,13 @@
     "create_team": "Create Team",
     "add_academy": "Add Academy",
     "schedule": "Schedule",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "quick_actions_title": "Add",
+    "quick_actions_subtitle": "Choose an action",
+    "invite_member_sub": "Send a club invitation",
+    "add_player_profile_sub": "Create child's profile",
+    "create_team_sub": "New team in the academy",
+    "add_academy_sub": "Register an academy"
   },
   "auth": {
     "welcome_back": "Welcome back",
@@ -1186,7 +1192,8 @@
     "select_dob": "Select Date of Birth",
     "dob_label": "DOB: {date}",
     "position_label": "Position (e.g. Forward)",
-    "create_profile_btn": "Create Profile"
+    "create_profile_btn": "Create Profile",
+    "position_hint": "E.g., Forward"
   },
   "media": {
     "media_gallery": "Media Gallery",

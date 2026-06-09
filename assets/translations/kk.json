@@ -21,7 +21,13 @@
     "create_team": "Команда жасау",
     "add_academy": "Академия қосу",
     "schedule": "Кесте",
-    "analytics": "Аналитика"
+    "analytics": "Аналитика",
+    "quick_actions_title": "Қосу",
+    "quick_actions_subtitle": "Әрекетті таңдаңыз",
+    "invite_member_sub": "Клубқа шақыру жіберу",
+    "add_player_profile_sub": "Баланың профилін жасау",
+    "create_team_sub": "Академиядағы жаңа команда",
+    "add_academy_sub": "Академияны тіркеу"
   },
   "auth": {
     "welcome_back": "Қайта оралдыңыз",
@@ -1253,7 +1259,8 @@
     "select_dob": "Туған күнді таңдаңыз",
     "dob_label": "ТК: {date}",
     "position_label": "Позиция (мыс. Шабуылдаушы)",
-    "create_profile_btn": "Профиль жасау"
+    "create_profile_btn": "Профиль жасау",
+    "position_hint": "Мысалы, Форвард"
   },
   "media": {
     "media_gallery": "Медиа галерея",
