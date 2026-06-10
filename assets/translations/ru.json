@@ -133,6 +133,7 @@
     "id_copied": "ID СКОПИРОВАН В БУФЕР",
     "club_label": "КЛУБ: ",
     "no_club_assigned": "КЛУБ НЕ НАЗНАЧЕН",
+    "no_club_label": "без клуба",
     "about_me": "ОБО МНЕ",
     "syncing": "СИНХРОНИЗАЦИЯ...",
     "system_error": "СИСТЕМНАЯ ОШИБКА",

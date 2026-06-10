@@ -133,6 +133,7 @@
     "id_copied": "ID БУФЕРГЕ КӨШІРІЛДІ",
     "club_label": "КЛУБ: ",
     "no_club_assigned": "КЛУБ ТАҒАЙЫНДАЛМАҒАН",
+    "no_club_label": "клубсыз",
     "about_me": "МЕН ТУРАЛЫ",
     "syncing": "ДЕРЕКТЕР СИНХРОНДАЛУДА...",
     "system_error": "ЖҮЙЕ ҚАТЕСІ",

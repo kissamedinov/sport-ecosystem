@@ -133,6 +133,7 @@
     "id_copied": "ID COPIED TO CLIPBOARD",
     "club_label": "CLUB: ",
     "no_club_assigned": "NO CLUB ASSIGNED",
+    "no_club_label": "no club",
     "about_me": "ABOUT ME",
     "syncing": "SYNCING DATA...",
     "system_error": "SYSTEM ERROR",

@@ -184,7 +184,7 @@ class ProfileHeader extends StatelessWidget {
                         final isPlayer = roleLabel.toLowerCase().contains('player');
                         final clubLabel = (displayClub != null && displayClub.trim().isNotEmpty)
                             ? displayClub.trim()
-                            : (isPlayer ? 'без клуба' : null);
+                            : (isPlayer ? 'profile.no_club_label'.tr() : null);
                         final headerSub = clubLabel != null ? '$roleLabel  ·  $clubLabel' : roleLabel;
                         return Text(
                           headerSub,
