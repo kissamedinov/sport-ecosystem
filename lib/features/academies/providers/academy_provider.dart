@@ -198,8 +198,9 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> submitCoachFeedback(String playerId, String trainingId, int technical, int tactical, int physical, int discipline, String comment) async {
-    if (_myAcademy == null) {
+  Future<bool> submitCoachFeedback(String playerId, String trainingId, int technical, int tactical, int physical, int discipline, String comment, {String? academyId}) async {
+    final resolvedAcademyId = academyId ?? _myAcademy?.id;
+    if (resolvedAcademyId == null) {
       _error = "Academy not loaded";
       return false;
     }
@@ -207,7 +208,7 @@ class AcademyProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _repository.submitCoachFeedback({
-        'academy_id': _myAcademy!.id,
+        'academy_id': resolvedAcademyId,
         'player_id': playerId,
         'training_id': trainingId,
         'technical': technical,

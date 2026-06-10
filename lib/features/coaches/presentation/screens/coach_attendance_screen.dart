@@ -19,6 +19,7 @@ class CoachAttendanceScreen extends StatefulWidget {
 class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
   String? _selectedTeamId;
   String? _selectedSessionId;
+  String? _academyId;
   
   // map of playerId to status ('PRESENT', 'ABSENT', etc)
   final Map<String, String> _attendanceStatus = {};
@@ -52,6 +53,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
     }
 
     if (academyId != null && mounted) {
+      setState(() => _academyId = academyId);
       context.read<AcademyProvider>().fetchSessions(academyId, teamId: _selectedTeamId);
     }
   }
@@ -493,7 +495,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
 
   void _showFeedbackSheet(BuildContext context, String playerId, String playerName) {
     if (_selectedSessionId == null) return;
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -501,6 +503,7 @@ class _CoachAttendanceScreenState extends State<CoachAttendanceScreen> {
           playerId: playerId,
           playerName: playerName,
           sessionId: _selectedSessionId!,
+          academyId: _academyId,
         ),
       ),
     );
@@ -586,12 +589,14 @@ class CoachFeedbackScreen extends StatefulWidget {
   final String playerId;
   final String playerName;
   final String sessionId;
+  final String? academyId;
 
   const CoachFeedbackScreen({
     super.key,
     required this.playerId,
     required this.playerName,
     required this.sessionId,
+    this.academyId,
   });
 
   @override
@@ -709,25 +714,26 @@ class _CoachFeedbackScreenState extends State<CoachFeedbackScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () async {
-                    Navigator.pop(context);
                     final provider = context.read<AcademyProvider>();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
                     final success = await provider.submitCoachFeedback(
-                      widget.playerId, 
-                      widget.sessionId, 
-                      technical.toInt(), 
-                      tactical.toInt(), 
-                      physical.toInt(), 
-                      discipline.toInt(), 
-                      textController.text
+                      widget.playerId,
+                      widget.sessionId,
+                      technical.toInt(),
+                      tactical.toInt(),
+                      physical.toInt(),
+                      discipline.toInt(),
+                      textController.text,
+                      academyId: widget.academyId,
                     );
-                    if (!mounted) return;
-                    
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(success ? 'Feedback sent to parent' : 'Failed to send feedback'),
-                          backgroundColor: success ? PremiumTheme.neonGreen : Colors.red,
-                        )
-                      );
+                    navigator.pop();
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(success ? 'Feedback sent to parent' : 'Failed to send feedback'),
+                        backgroundColor: success ? PremiumTheme.neonGreen : Colors.red,
+                      ),
+                    );
                   },
                   child: const Text('SEND FEEDBACK', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
