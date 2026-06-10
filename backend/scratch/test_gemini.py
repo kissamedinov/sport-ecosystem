@@ -41,12 +41,37 @@ Return ONLY the JSON array.
 
 try:
     print("Calling Gemini...")
-    response = model.generate_content(
-        prompt,
-        generation_config={"response_mime_type": "application/json"}
-    )
+    
+    models_to_try = [
+        'gemini-3.5-flash',
+        'gemini-3.1-flash-lite',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-flash-latest',
+        'gemini-flash-lite-latest'
+    ]
+    
+    text = None
+    success = False
+    for model_name in models_to_try:
+        try:
+            print(f"Trying model: {model_name}...")
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json", "temperature": 1.0}
+            )
+            text = response.text
+            print(f"Success with model: {model_name}!")
+            success = True
+            break
+        except Exception as model_err:
+            print(f"Model {model_name} failed: {model_err}")
+            
+    if not success:
+        raise Exception("All models failed!")
+        
     print("Response received:")
-    text = response.text
     print(text)
     # Check parsing
     parsed = json.loads(text)

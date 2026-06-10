@@ -17,15 +17,19 @@ from app.quizzes import models as quiz_models
 from app.planner import models as planner_models
 
 from app.database import SessionLocal
-from app.quizzes.models import DailyQuiz
+from app.quizzes.models import DailyQuiz, QuizAttempt
 from app.quizzes.services import get_astana_date
 
 db = SessionLocal()
 today = get_astana_date()
 quizzes = db.query(DailyQuiz).filter(DailyQuiz.date == today).all()
 cnt = len(quizzes)
-for q in quizzes:
-    db.delete(q)
+if quizzes:
+    quiz_ids = [q.id for q in quizzes]
+    deleted_attempts = db.query(QuizAttempt).filter(QuizAttempt.quiz_id.in_(quiz_ids)).delete(synchronize_session=False)
+    print(f"Deleted {deleted_attempts} quiz attempts.")
+    for q in quizzes:
+        db.delete(q)
 db.commit()
 print(f"Deleted today's daily quizzes ({today}) with ORM delete: {cnt}")
 db.close()

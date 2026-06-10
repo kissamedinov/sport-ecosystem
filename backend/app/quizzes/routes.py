@@ -71,10 +71,13 @@ def reset_daily_quiz(
     current_user = Depends(get_current_user)
 ):
     """Reset today's daily quiz for both audiences to force regeneration."""
-    from app.quizzes.models import DailyQuiz
+    from app.quizzes.models import DailyQuiz, QuizAttempt
     today = get_astana_date()
     quizzes = db.query(DailyQuiz).filter(DailyQuiz.date == today).all()
-    for q in quizzes:
-        db.delete(q)
+    if quizzes:
+        quiz_ids = [q.id for q in quizzes]
+        db.query(QuizAttempt).filter(QuizAttempt.quiz_id.in_(quiz_ids)).delete(synchronize_session=False)
+        for q in quizzes:
+            db.delete(q)
     db.commit()
     return {"message": f"Daily quizzes for {today} have been reset. They will regenerate on next request."}

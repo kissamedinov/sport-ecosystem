@@ -94,7 +94,6 @@ class QuizService:
     @staticmethod
     def _generate_with_gemini(api_key: str, audience: str = "KIDS", target_date: Optional[date] = None) -> List[dict]:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-flash-latest')
         
         date_str = str(target_date) if target_date else str(date.today())
         
@@ -140,12 +139,33 @@ class QuizService:
         Return ONLY the JSON array. Do not include any markdown styling, code blocks, or conversational introduction.
         """
         
-        response = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json", "temperature": 1.0}
-        )
-        text = response.text.strip()
-        return json.loads(text)
+        models_to_try = [
+            'gemini-3.5-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-flash-latest',
+            'gemini-flash-lite-latest'
+        ]
+        
+        last_error = None
+        for model_name in models_to_try:
+            try:
+                logger.info(f"Attempting quiz generation with model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(
+                    prompt,
+                    generation_config={"response_mime_type": "application/json", "temperature": 1.0}
+                )
+                text = response.text.strip()
+                parsed = json.loads(text)
+                logger.info(f"Quiz generation successful using model: {model_name}")
+                return parsed
+            except Exception as e:
+                logger.warning(f"Failed generating with model {model_name}: {e}")
+                last_error = e
+                
+        raise last_error or Exception("All available Gemini models failed to generate content.")
 
     @staticmethod
     def _get_fallback_questions(audience: str = "KIDS") -> List[dict]:
