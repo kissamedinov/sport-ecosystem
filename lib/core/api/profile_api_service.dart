@@ -73,6 +73,12 @@ class ProfileApiService {
     return (response.data as List).cast<Map<String, dynamic>>();
   }
 
+  /// Get coach feedback for current child player
+  Future<List<Map<String, dynamic>>> getPlayerFeedback() async {
+    final response = await _apiClient.get('/academies/player/feedback');
+    return (response.data as List).cast<Map<String, dynamic>>();
+  }
+
   /// Get attendance summary for parent's children
   Future<List<Map<String, dynamic>>> getParentChildrenAttendance() async {
     final response = await _apiClient.get('/academies/parent/attendance');

@@ -474,6 +474,17 @@ def get_parent_children_feedback(
         ))
     return results
 
+@router.get("/player/feedback", response_model=List[schemas.CoachFeedbackResponse])
+def get_player_feedback(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns all coach feedback for the current logged in player."""
+    feedbacks = db.query(models.CoachFeedback).filter(
+        models.CoachFeedback.player_id == current_user.id
+    ).order_by(models.CoachFeedback.created_at.desc()).limit(10).all()
+    return [schemas.CoachFeedbackResponse.model_validate(f) for f in feedbacks]
+
 @router.get("/parent/attendance", response_model=List[schemas.ParentAttendanceSummary])
 def get_parent_children_attendance(
     db: Session = Depends(get_db),
