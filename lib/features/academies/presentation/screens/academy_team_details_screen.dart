@@ -78,7 +78,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               unselectedLabelColor: onSurface.withValues(alpha: 0.4),
               labelStyle: _t(13, FontWeight.w700, _kGreen),
               unselectedLabelStyle: _t(13, FontWeight.w500, onSurface),
-              tabs: const [Tab(text: 'Игроки'), Tab(text: 'Тренировки')],
+              tabs: [Tab(text: 'academy.players'.tr()), Tab(text: 'academy.training'.tr())],
             ),
           ),
           Expanded(
@@ -157,7 +157,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               children: [
                 Text(widget.team.name, style: _t(17, FontWeight.w700, onSurface)),
                 const SizedBox(height: 2),
-                Text('Возрастная группа: ${widget.team.ageGroup}',
+                Text('academy.age_group_header'.tr(namedArgs: {'age': widget.team.ageGroup}),
                     style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
@@ -181,7 +181,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
                 Icon(Icons.person_off_rounded,
                     size: 48, color: onSurface.withValues(alpha: 0.15)),
                 const SizedBox(height: 12),
-                Text('Нет игроков в команде',
+                Text('academy.no_players_in_team'.tr(),
                     style: _t(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
               ],
             ),
@@ -206,10 +206,10 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
       if (rosterMatch != null) {
         resolvedName = rosterMatch.fullName;
       } else {
-        resolvedName = 'Неизвестный Игрок';
+        resolvedName = 'academy.unknown_player'.tr();
       }
     }
-    if (resolvedName.trim().isEmpty) resolvedName = 'Неизвестный Игрок';
+    if (resolvedName.trim().isEmpty) resolvedName = 'academy.unknown_player'.tr();
 
     final initials = _initials(resolvedName);
     const palette = [_kGreen, Color(0xFF1E90D4), Color(0xFFF5C518),
@@ -243,7 +243,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
         ),
         title: Text(resolvedName, style: _t(14, FontWeight.w600, onSurface)),
         subtitle: Text(
-          player.position ?? 'Игрок',
+          player.position ?? 'academy.player_label'.tr(),
           style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45)),
         ),
         trailing: Row(
@@ -252,7 +252,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             IconButton(
               icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF1E90D4), size: 20),
               onPressed: () => _showReassignSheet(context, player),
-              tooltip: 'Перевести в другую команду',
+              tooltip: 'academy.transfer_to_another_team'.tr(),
             ),
             IconButton(
               icon: Icon(Icons.contact_mail_outlined,
@@ -302,7 +302,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               ),
             ),
             const SizedBox(height: 20),
-            Text('Перевести в команду', style: _t(18, FontWeight.w700, onSurface)),
+            Text('academy.move_player_to_team'.tr(), style: _t(18, FontWeight.w700, onSurface)),
             const SizedBox(height: 16),
             SizedBox(
               height: 260,
@@ -324,8 +324,8 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(ok
-                              ? 'Игрок переведён в ${team.name}'
-                              : 'Ошибка перевода'),
+                              ? 'academy.player_moved_to'.tr(namedArgs: {'team': team.name})
+                              : 'academy.transfer_error'.tr()),
                           backgroundColor: ok ? _kGreen : Colors.redAccent,
                         ));
                       }
@@ -440,7 +440,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
           padding: const EdgeInsets.all(16),
           children: [
             if (teamSchedules.isNotEmpty) ...[
-              Text('Повторяющееся расписание',
+              Text('academy.recurring_schedule_title'.tr(),
                   style: _t(14, FontWeight.w700, onSurface)),
               const SizedBox(height: 8),
               ...teamSchedules.map((s) => _buildScheduleCard(context, s, provider)),
@@ -448,13 +448,13 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             ],
             Row(
               children: [
-                Text('Занятия', style: _t(14, FontWeight.w700, onSurface)),
+                Text('academy.sessions'.tr(), style: _t(14, FontWeight.w700, onSurface)),
                 const Spacer(),
                 if (teamSchedules.isNotEmpty)
                   TextButton.icon(
                     onPressed: () => _generateSessions(provider),
                     icon: const Icon(Icons.autorenew_rounded, size: 14, color: _kGreen),
-                    label: Text('Обновить', style: _t(12, FontWeight.w600, _kGreen)),
+                    label: Text('academy.refresh'.tr(), style: _t(12, FontWeight.w600, _kGreen)),
                   ),
               ],
             ),
@@ -467,11 +467,11 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
                     Icon(Icons.event_busy_rounded,
                         size: 40, color: onSurface.withValues(alpha: 0.15)),
                     const SizedBox(height: 12),
-                    Text('Занятия ещё не созданы',
+                    Text('academy.no_sessions_created'.tr(),
                         textAlign: TextAlign.center,
                         style: _t(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
                     const SizedBox(height: 6),
-                    Text('Нажмите + чтобы создать расписание',
+                    Text('academy.create_schedule_hint'.tr(),
                         textAlign: TextAlign.center,
                         style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.25))),
                   ],
@@ -564,7 +564,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(session.description ?? 'Тренировка',
+                Text(session.description ?? 'academy.training_fallback'.tr(),
                     style: _t(13, FontWeight.w600, onSurface)),
                 Text('${_formatDate(session.date)}  ·  ${session.startTime}–${session.endTime}',
                     style: _t(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
@@ -578,7 +578,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              isUpcoming ? 'ПРЕДСТОИТ' : 'ПРОШЛО',
+              isUpcoming ? 'academy.upcoming_status'.tr() : 'academy.past_status'.tr(),
               style: _t(9, FontWeight.w900, statusColor, ls: 0.3),
             ),
           ),
@@ -591,9 +591,9 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
   String _formatDate(String dateStr) {
     try {
       final d = DateTime.parse(dateStr);
-      const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-      const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-      return '${days[d.weekday - 1]}, ${d.day} ${months[d.month - 1]}';
+      final lang = context.locale.languageCode;
+      final safeLocale = lang == 'kk' ? 'ru' : lang;
+      return DateFormat('EEE, d MMM', safeLocale).format(d);
     } catch (_) {
       return dateStr;
     }
@@ -608,11 +608,8 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
   }
 
   String _dayLabel(String day) {
-    const map = {
-      'MONDAY': 'Понедельник', 'TUESDAY': 'Вторник', 'WEDNESDAY': 'Среда',
-      'THURSDAY': 'Четверг', 'FRIDAY': 'Пятница', 'SATURDAY': 'Суббота', 'SUNDAY': 'Воскресенье',
-    };
-    return map[day] ?? day;
+    final key = 'academy.day_${day.toLowerCase()}';
+    return key.tr();
   }
 
   void _showScheduleSheet() {
@@ -634,7 +631,7 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
     await provider.generateSessions(widget.team.academyId);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Занятия обновлены'), backgroundColor: _kGreen),
+        SnackBar(content: Text('academy.sessions_updated'.tr()), backgroundColor: _kGreen),
       );
     }
   }
@@ -664,10 +661,14 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   int _weeksAhead = 4;
   bool _saving = false;
 
-  static const _dayNames = {
-    DayOfWeek.MONDAY: 'Пн', DayOfWeek.TUESDAY: 'Вт', DayOfWeek.WEDNESDAY: 'Ср',
-    DayOfWeek.THURSDAY: 'Чт', DayOfWeek.FRIDAY: 'Пт',
-    DayOfWeek.SATURDAY: 'Сб', DayOfWeek.SUNDAY: 'Вс',
+  static const _dayKeys = {
+    DayOfWeek.MONDAY: 'academy.day_mon_short',
+    DayOfWeek.TUESDAY: 'academy.day_tue_short',
+    DayOfWeek.WEDNESDAY: 'academy.day_wed_short',
+    DayOfWeek.THURSDAY: 'academy.day_thu_short',
+    DayOfWeek.FRIDAY: 'academy.day_fri_short',
+    DayOfWeek.SATURDAY: 'academy.day_sat_short',
+    DayOfWeek.SUNDAY: 'academy.day_sun_short',
   };
 
   String _endTime() {
@@ -712,7 +713,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             const SizedBox(height: 20),
             Row(
               children: [
-                Text('Создать расписание', style: _t(18, FontWeight.w700, onSurface)),
+                Text('academy.create_schedule'.tr(), style: _t(18, FontWeight.w700, onSurface)),
                 const Spacer(),
                 IconButton(
                   icon: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.5)),
@@ -723,7 +724,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             const SizedBox(height: 16),
 
             // Days
-            Text('ДНИ НЕДЕЛИ',
+            Text('academy.days_of_week_label'.tr(),
                 style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 10),
             Wrap(
@@ -750,7 +751,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                     ),
                     child: Center(
                       child: Text(
-                        _dayNames[day]!,
+                        _dayKeys[day]!.tr(),
                         style: _t(12, FontWeight.w800,
                             selected ? Colors.black : onSurface.withValues(alpha: 0.7)),
                       ),
@@ -768,7 +769,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('НАЧАЛО',
+                      Text('academy.start_time_label'.tr(),
                           style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
                       const SizedBox(height: 8),
                       GestureDetector(
@@ -803,7 +804,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ДЛИТЕЛЬНОСТЬ',
+                      Text('academy.duration_label'.tr(),
                           style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
                       const SizedBox(height: 8),
                       Container(
@@ -819,9 +820,9 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                             dropdownColor: PremiumTheme.surfaceCard(context),
                             style: _t(14, FontWeight.w500, onSurface),
                             items: [
-                              DropdownMenuItem(value: 60, child: Text('60 мин', style: _t(13, FontWeight.w500, onSurface))),
-                              DropdownMenuItem(value: 90, child: Text('90 мин', style: _t(13, FontWeight.w500, onSurface))),
-                              DropdownMenuItem(value: 120, child: Text('2 часа', style: _t(13, FontWeight.w500, onSurface))),
+                              DropdownMenuItem(value: 60, child: Text('academy.duration_60'.tr(), style: _t(13, FontWeight.w500, onSurface))),
+                              DropdownMenuItem(value: 90, child: Text('academy.duration_90'.tr(), style: _t(13, FontWeight.w500, onSurface))),
+                              DropdownMenuItem(value: 120, child: Text('academy.duration_120'.tr(), style: _t(13, FontWeight.w500, onSurface))),
                             ],
                             onChanged: (v) => setState(() => _durationMinutes = v!),
                           ),
@@ -837,21 +838,21 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
               children: [
                 Icon(Icons.schedule_rounded, color: onSurface.withValues(alpha: 0.35), size: 14),
                 const SizedBox(width: 6),
-                Text('Окончание: ${_endTime()}',
+                Text('academy.end_time_info'.tr(namedArgs: {'time': _endTime()}),
                     style: _t(12, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
               ],
             ),
             const SizedBox(height: 20),
 
             // Location
-            Text('МЕСТО (необязательно)',
+            Text('academy.location_optional_label'.tr(),
                 style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 8),
             TextField(
               controller: _locationController,
               style: _t(14, FontWeight.w500, onSurface),
               decoration: InputDecoration(
-                hintText: 'Поле, зал, адрес...',
+                hintText: 'academy.location_hint_text'.tr(),
                 hintStyle: _t(13, FontWeight.w400, onSurface.withValues(alpha: 0.3)),
                 filled: true,
                 fillColor: onSurface.withValues(alpha: 0.05),
@@ -873,7 +874,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             const SizedBox(height: 20),
 
             // Period
-            Text('ГЕНЕРИРОВАТЬ НА',
+            Text('academy.generate_for_label'.tr(),
                 style: _t(9, FontWeight.w800, onSurface.withValues(alpha: 0.4), ls: 1.5)),
             const SizedBox(height: 10),
             Row(
@@ -897,7 +898,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                         children: [
                           Text('$w', style: _t(20, FontWeight.w900,
                               sel ? Colors.black : onSurface)),
-                          Text('нед.', style: _t(11, FontWeight.w500,
+                          Text('academy.weeks_abbr'.tr(), style: _t(11, FontWeight.w500,
                               sel ? Colors.black87 : onSurface.withValues(alpha: 0.45))),
                         ],
                       ),
@@ -922,7 +923,10 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Будет создано ~${_selectedDays.length * _weeksAhead} занятий до $_endDateStr',
+                        'academy.sessions_preview'.tr(namedArgs: {
+                          'count': '${_selectedDays.length * _weeksAhead}',
+                          'date': _getEndDateStr(context),
+                        }),
                         style: _t(12, FontWeight.w400, _kGreen),
                       ),
                     ),
@@ -959,7 +963,9 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                           width: 20, height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                       : Text(
-                          'Создать расписание${_selectedDays.length > 1 ? " (${_selectedDays.length} дня)" : ""}',
+                          _selectedDays.length > 1
+                              ? 'academy.create_schedule_days'.tr(namedArgs: {'count': '${_selectedDays.length}'})
+                              : 'academy.create_schedule'.tr(),
                           style: _t(15, FontWeight.w900,
                               _selectedDays.isNotEmpty ? Colors.black : onSurface.withValues(alpha: 0.3)),
                         ),
@@ -972,10 +978,11 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     );
   }
 
-  String get _endDateStr {
+  String _getEndDateStr(BuildContext context) {
     final end = DateTime.now().add(Duration(days: _weeksAhead * 7));
-    const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-    return '${end.day} ${months[end.month - 1]}';
+    final lang = context.locale.languageCode;
+    final safeLocale = lang == 'kk' ? 'ru' : lang;
+    return DateFormat('d MMM', safeLocale).format(end);
   }
 
   Future<void> _save() async {
@@ -1001,7 +1008,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.redAccent),
+          SnackBar(content: Text('academy.save_error'.tr(namedArgs: {'error': '$e'})), backgroundColor: Colors.redAccent),
         );
       }
     } finally {
