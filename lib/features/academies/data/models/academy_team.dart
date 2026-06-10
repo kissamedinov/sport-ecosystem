@@ -224,3 +224,37 @@ class AcademyTeamPlayer {
     'joined_at': joinedAt.toIso8601String(),
   };
 }
+
+class TrainingAttendance {
+  final String id;
+  final String trainingId;
+  final String playerId;
+  final String status;
+  final String? note;
+
+  TrainingAttendance({
+    required this.id,
+    required this.trainingId,
+    required this.playerId,
+    required this.status,
+    this.note,
+  });
+
+  factory TrainingAttendance.fromJson(Map<String, dynamic> json) {
+    return TrainingAttendance(
+      id: json['id'] as String,
+      trainingId: json['training_id'] as String,
+      playerId: json['player_id'] as String,
+      status: json['status'] as String,
+      note: json['note'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'training_id': trainingId,
+    'player_id': playerId,
+    'status': status,
+    'note': note,
+  };
+}

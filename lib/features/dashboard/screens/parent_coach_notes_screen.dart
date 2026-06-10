@@ -160,13 +160,10 @@ class _ParentCoachNotesScreenState extends State<ParentCoachNotesScreen> {
   Widget _buildRatingBar(String label, int value, Color color) {
     final pct = (value.clamp(0, 10) / 10.0);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label, style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 10, fontWeight: FontWeight.w600)),
-        Text('$value/10', style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800)),
-      ]),
-      const SizedBox(height: 4),
+      Text(label, style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontSize: 10, fontWeight: FontWeight.w600)),
+      const SizedBox(height: 6),
       ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: LinearProgressIndicator(

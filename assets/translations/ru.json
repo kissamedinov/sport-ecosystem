@@ -613,7 +613,18 @@
     "late_status": "ОПОЗДАЛ",
     "injured_status": "ТРАВМИРОВАН",
     "player_num": "Игрок #{num}",
-    "id_short": "ID: {id}"
+    "id_short": "ID: {id}",
+    "upcoming": "Предстоящая",
+    "passed": "Прошлая",
+    "ongoing": "Текущая",
+    "attendance_not_recorded": "Посещаемость еще не отмечена",
+    "unknown_player": "Неизвестный Игрок",
+    "player_id": "ID Игрока",
+    "reason": "Причина",
+    "attendance_list": "Список Посещаемости",
+    "contact_parent": "Связь с родителем",
+    "parent_not_linked": "Родитель не привязан",
+    "unknown": "Неизвестно"
   },
   "tournament": {
     "tournaments": "ТУРНИРЫ",
@@ -1153,8 +1164,9 @@
     "clean_sheets_stat": "Сухие матчи"
   },
   "coach": {
-    "coach_dashboard": "Панель тренера",
-    "my_players": "Мои игроки",
+    "coach_dashboard": "Панель Тренера",
+    "planner_title": "ТРЕНЕР · ПЛАНЕР",
+    "my_players": "Мои Игроки",
     "training_plan": "План тренировок",
     "performance": "Эффективность",
     "tactics": "Тактика",
@@ -1198,7 +1210,16 @@
     "retry": "ПОВТОРИТЬ",
     "players_label": "игроков",
     "edit_profile": "Редактировать профиль",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "all_present": "Все присутствуют",
+    "all_absent": "Все отсутствуют",
+    "select_session_above": "Выберите тренировку выше",
+    "no_sessions_available": "Для этой команды нет тренировок",
+    "training": "Тренировка",
+    "not_marked": "Не отмечено",
+    "reason_for_absence": "Причина отсутствия...",
+    "team": "Команда",
+    "player": "Игрок"
   },
   "planner": {
     "add_task": "ДОБАВИТЬ ЗАДАЧУ",

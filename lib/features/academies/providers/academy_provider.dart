@@ -151,6 +151,81 @@ class AcademyProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchPlayerParents(String playerProfileId) async {
+    try {
+      return await _repository.getPlayerParents(playerProfileId);
+    } catch (e) {
+      _error = e.toString();
+      return [];
+    }
+  }
+
+  Future<List<TrainingAttendance>> fetchSessionAttendance(String sessionId) async {
+    try {
+      final list = await _repository.getSessionAttendance(sessionId);
+      return list.map((j) => TrainingAttendance.fromJson(j)).toList();
+    } catch (e) {
+      _error = e.toString();
+      return [];
+    }
+  }
+
+  Future<List<AcademyTeamPlayer>> getSessionTeamPlayers(TrainingSession session) async {
+    try {
+      List<AcademyTeamPlayer> allPlayers = [];
+      for (var teamId in session.teamIds) {
+        final players = await _repository.getTeamPlayers(teamId);
+        allPlayers.addAll(players);
+      }
+      return allPlayers;
+    } catch (e) {
+      _error = e.toString();
+      return [];
+    }
+  }
+
+  Future<bool> saveSessionAttendance(String sessionId, List<TrainingAttendance> attendance) async {
+    try {
+      final records = attendance.map((a) => {
+        'player_id': a.playerId,
+        'status': a.status,
+        'note': a.note,
+      }).toList();
+      return await _repository.saveSessionAttendance(sessionId, records);
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    }
+  }
+
+  Future<bool> submitCoachFeedback(String playerId, String trainingId, int technical, int tactical, int physical, int discipline, String comment) async {
+    if (_myAcademy == null) {
+      _error = "Academy not loaded";
+      return false;
+    }
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.submitCoachFeedback({
+        'academy_id': _myAcademy!.id,
+        'player_id': playerId,
+        'training_id': trainingId,
+        'technical': technical,
+        'tactical': tactical,
+        'physical': physical,
+        'discipline': discipline,
+        'comment': comment,
+      });
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // New method for unified attendance lists
   List<AcademyCompositePlayer> _compositePlayers = [];
   List<AcademyCompositePlayer> get compositePlayers => _compositePlayers;

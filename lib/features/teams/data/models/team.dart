@@ -21,6 +21,8 @@ class Team {
   final int losses;
   @JsonKey(name: 'academy_name')
   final String? academyName;
+  @JsonKey(name: 'academy_id')
+  final String? academyId;
   @JsonKey(name: 'age_category')
   final String? ageCategory;
   @JsonKey(name: 'birth_year')
@@ -46,6 +48,7 @@ class Team {
     required this.draws,
     required this.losses,
     this.academyName,
+    this.academyId,
     this.ageCategory,
     this.birthYear,
     this.recentMatches = const [],
@@ -67,6 +70,7 @@ class Team {
     int? draws,
     int? losses,
     String? academyName,
+    String? academyId,
     String? ageCategory,
     int? birthYear,
     List<MatchModel>? recentMatches,
@@ -87,6 +91,7 @@ class Team {
       draws: draws ?? this.draws,
       losses: losses ?? this.losses,
       academyName: academyName ?? this.academyName,
+      academyId: academyId ?? this.academyId,
       ageCategory: ageCategory ?? this.ageCategory,
       birthYear: birthYear ?? this.birthYear,
       recentMatches: recentMatches ?? this.recentMatches,

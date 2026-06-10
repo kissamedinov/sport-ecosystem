@@ -59,14 +59,14 @@ class QuizService:
 
         if not api_key:
             logger.error("!!! GOOGLE_API_KEY NOT FOUND IN ENVIRONMENT !!!")
-            questions_data = QuizService._get_fallback_questions()
+            questions_data = QuizService._get_fallback_questions(audience)
         elif not HAS_GEMINI:
             logger.error("!!! google-generativeai PACKAGE NOT INSTALLED !!!")
-            questions_data = QuizService._get_fallback_questions()
+            questions_data = QuizService._get_fallback_questions(audience)
         else:
             try:
                 logger.info(f"Calling Gemini API for {audience}...")
-                questions_data = QuizService._generate_with_gemini(api_key, audience)
+                questions_data = QuizService._generate_with_gemini(api_key, audience, target_date)
                 logger.info(f"Gemini API call successful for {audience}!")
             except Exception as e:
                 logger.error(f"!!! Gemini generation failed: {e} !!!")
@@ -92,54 +92,59 @@ class QuizService:
         return new_quiz
 
     @staticmethod
-    def _generate_with_gemini(api_key: str, audience: str = "KIDS") -> List[dict]:
+    def _generate_with_gemini(api_key: str, audience: str = "KIDS", target_date: Optional[date] = None) -> List[dict]:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-flash-latest')
         
+        date_str = str(target_date) if target_date else str(date.today())
+        
         if audience == "ADULTS":
-            prompt = """
-            Generate 10 football (soccer) quiz questions for adults and hardcore fans!
+            prompt = f"""
+            Generate exactly 10 football (soccer) quiz questions for adults and hardcore fans in Russian.
+            Today's quiz date identifier: {date_str}. Make sure the questions are highly unique, diverse, and specific to this date identifier so they differ from previous runs.
             These must be DIFFICULT. Focus on:
-            - Balance between Historic facts (World Cups 1950-2000) and Modern era (2010-2026).
-            - Obscure player facts and records.
-            - Detailed statistics (transfer fees, clean sheets, career goals, xG stats).
+            - Balance between Historic facts (World Cups 1930-2000) and Modern era (2010-2026).
+            - Obscure player facts, records, and career paths.
+            - Detailed statistics (transfer fees, clean sheets, career goals, xG stats, Champions League achievements).
             - Tactical nuances and historic vs modern formations.
-            - Recent major league stats (Premier League, La Liga, Seria A, Kazakhstan Premier League 2023-2025).
+            - Recent major league stats (Premier League, La Liga, Serie A, Kazakhstan Premier League 2023-2025).
             - Club history and modern rivalries.
             
             Mix the difficulty: 2 Medium, 5 Hard, 3 Extreme (expert level) questions.
+            Do not repeat standard trivia questions (such as "Who won the 2022 World Cup" or "Who has 8 Ballon d'Ors").
             """
         else:
-            prompt = """
-            Generate 10 football (soccer) quiz questions for kids (age 8-12), but make them challenging!
-            Mix the difficulty: 3 Easy, 4 Medium, and 3 Hard (expert level) questions.
+            prompt = f"""
+            Generate exactly 10 football (soccer) quiz questions for kids (age 8-12) in Russian.
+            Today's quiz date identifier: {date_str}. Make sure the questions are highly unique, diverse, and specific to this date identifier so they differ from previous runs.
+            Mix the difficulty: 3 Easy, 4 Medium, and 3 Hard questions.
             Topics should include: 
-            - Famous players and their records
-            - Football rules and referee signals
-            - Basic tactics (e.g., "What is a 4-3-3 formation?")
-            - Major tournament history (Champions League, World Cup)
+            - Famous players, their shirts, positions, and fun records.
+            - Football rules, card meanings, and referee signals.
+            - Basic tactics (e.g., "What is a 4-3-3 formation?", positions like defender/winger).
+            - Major tournament history (Champions League, World Cup, Euro) explained simply.
+            
+            Ensure the questions are engaging, educational, and fun.
+            Do not repeat basic trivia like "How many players are on the field?".
             """
         
         prompt += """
         Format: JSON list of objects.
         Each object must have:
         - "question": string
-        - "options": list of 4 strings
+        - "options": list of exactly 4 strings
         - "correct_index": integer (0-3)
         - "explanation": string (fun fact or educational tip)
         
         Language: Russian.
-        Return ONLY the JSON array.
+        Return ONLY the JSON array. Do not include any markdown styling, code blocks, or conversational introduction.
         """
         
-        response = model.generate_content(prompt)
-        # Clean response text from markdown code blocks if present
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json", "temperature": 1.0}
+        )
         text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:-3].strip()
-        elif text.startswith("```"):
-            text = text[3:-3].strip()
-            
         return json.loads(text)
 
     @staticmethod
@@ -169,6 +174,42 @@ class QuizService:
                     "options": ["Самат Смаков", "Бахтиёр Зайнутдинов", "Руслан Балтиев", "Абат Аймбетов"],
                     "correct_index": 1,
                     "explanation": "Бахтиёр Зайнутдинов побил рекорд Руслана Балтиева в 2023 году."
+                },
+                {
+                    "question": "Какой стадион принимал финальный матч первого в истории Чемпионата мира по футболу в 1930 году?",
+                    "options": ["Маракана", "Сентенарио", "Уэмбли", "Сан-Сиро"],
+                    "correct_index": 1,
+                    "explanation": "Первый финал ЧМ прошел на стадионе Сентенарио в Монтевидео, Уругвай."
+                },
+                {
+                    "question": "Кто является единственным вратарем, получившим награду 'Золотой мяч'?",
+                    "options": ["Джанлуиджи Буффон", "Лев Яшин", "Мануэль Нойер", "Оливер Кан"],
+                    "correct_index": 1,
+                    "explanation": "Лев Яшин получил 'Золотой мяч' в 1963 году."
+                },
+                {
+                    "question": "Какая сборная забила самый быстрый гол в истории финалов Чемпионатов мира (на 90-й секунде)?",
+                    "options": ["Нидерланды", "Бразилия", "Италия", "ФРГ"],
+                    "correct_index": 0,
+                    "explanation": "Йохан Нескенс забил пенальти в ворота ФРГ на 90-й секунде финала ЧМ-1974."
+                },
+                {
+                    "question": "Какой клуб удерживает рекорд по самой длинной беспроигрышной серии в топ-5 лигах Европы во всех турнирах?",
+                    "options": ["Арсенал", "Ювентус", "Байер Леверкузен", "Бавария"],
+                    "correct_index": 2,
+                    "explanation": "Байер Леверкузен под руководством Хаби Алонсо не проигрывал 51 матч подряд во всех турнирах в сезоне 2023/24."
+                },
+                {
+                    "question": "Какой футболист забил самый быстрый хет-трик в истории английской Премьер-лиги (за 2 минуты 56 секунд)?",
+                    "options": ["Садио Мане", "Робби Фаулер", "Кристиан Бентеке", "Харри Кейн"],
+                    "correct_index": 0,
+                    "explanation": "Садио Мане забил хет-трик за Саутгемптон против Астон Виллы в 2015 году."
+                },
+                {
+                    "question": "Какой показатель xG (ожидаемые голы) обычно присваивается стандартному пенальти без учета добивания?",
+                    "options": ["0.50", "0.76", "0.85", "0.90"],
+                    "correct_index": 1,
+                    "explanation": "В большинстве современных систем xG пенальти оценивается в 0.76, так как в среднем реализуется 76% пенальти."
                 }
             ]
         
@@ -189,7 +230,7 @@ class QuizService:
                 "question": "Кто получил больше всего Золотых мячей в истории?",
                 "options": ["Роналду", "Мбаппе", "Месси", "Пеле"],
                 "correct_index": 2,
-                "explanation": "Лионель Месси является рекордсменом по количеству Золотых мячей."
+                "explanation": "Лионель Месси является рекордсмесом по количеству Золотых мячей."
             },
             {
                 "question": "Как называется удар с 11-метровой отметки?",
@@ -214,6 +255,24 @@ class QuizService:
                 "options": ["Желтую", "Синюю", "Красную", "Зеленую"],
                 "correct_index": 2,
                 "explanation": "Красная карточка означает, что игрок должен покинуть поле до конца матча."
+            },
+            {
+                "question": "Что означает желтая карточка, которую показывает судья?",
+                "options": ["Предупреждение", "Удаление с поля", "Штрафной удар", "Конец игры"],
+                "correct_index": 0,
+                "explanation": "Желтая карточка — это предупреждение игроку за серьезное нарушение правил."
+            },
+            {
+                "question": "Какая часть тела, кроме рук, запрещена для игры в футбол полевым игрокам?",
+                "options": ["Голова", "Грудь", "Колени", "Все части тела разрешены, кроме рук"],
+                "correct_index": 3,
+                "explanation": "Полевые игроки могут играть любой частью тела, кроме рук."
+            },
+            {
+                "question": "Какое животное изображено на эмблеме Премьер-лиги Англии?",
+                "options": ["Лев", "Орел", "Медведь", "Кенгуру"],
+                "correct_index": 0,
+                "explanation": "Лев является символом английского футбола и изображен на эмблеме АПЛ."
             }
         ]
 

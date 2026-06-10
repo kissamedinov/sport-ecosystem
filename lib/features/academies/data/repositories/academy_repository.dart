@@ -179,4 +179,26 @@ class AcademyRepository {
     final List<dynamic> data = response.data;
     return data.map((json) => AcademyRanking.fromJson(json)).toList();
   }
+
+  Future<List<Map<String, dynamic>>> getPlayerParents(String playerProfileId) async {
+    final response = await _apiClient.get('/academies/players/$playerProfileId/parents');
+    return List<Map<String, dynamic>>.from(response.data);
+  }
+
+  Future<List<dynamic>> getSessionAttendance(String sessionId) async {
+    final response = await _apiClient.get('/academies/training/$sessionId/attendance');
+    return response.data as List;
+  }
+
+  Future<bool> saveSessionAttendance(String sessionId, List<Map<String, dynamic>> records) async {
+    try {
+      await _apiClient.post('/academies/attendance', data: {
+        'training_id': sessionId,
+        'records': records
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

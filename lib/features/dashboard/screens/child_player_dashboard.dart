@@ -12,6 +12,7 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../tournaments/presentation/screens/tournament_list_screen.dart';
+import 'parent_coach_notes_screen.dart';
 // import 'adult_player_dashboard.dart'; // for TemporaryScreen
 
 class ChildPlayerDashboard extends StatefulWidget {
@@ -233,7 +234,7 @@ class _ChildPlayerDashboardState extends State<ChildPlayerDashboard> {
                       title: 'player.coach_msg'.tr(),
                       subtitle: 'player.read_feedback'.tr(),
                       accent: PremiumTheme.neonGreen,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TemporaryScreen(title: 'player.message_from_coach'.tr()))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ParentCoachNotesScreen())),
                     ),
                     _buildActionCard(
                       icon: Icons.fitness_center_rounded,

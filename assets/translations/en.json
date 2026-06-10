@@ -613,7 +613,18 @@
     "late_status": "LATE",
     "injured_status": "INJURED",
     "player_num": "Player #{num}",
-    "id_short": "ID: {id}"
+    "id_short": "ID: {id}",
+    "upcoming": "Upcoming",
+    "passed": "Passed",
+    "ongoing": "Ongoing",
+    "attendance_not_recorded": "Attendance not recorded yet",
+    "unknown_player": "Unknown Player",
+    "player_id": "Player ID",
+    "reason": "Reason",
+    "attendance_list": "Attendance List",
+    "contact_parent": "Contact Parent",
+    "parent_not_linked": "Parent not linked",
+    "unknown": "Unknown"
   },
   "tournament": {
     "tournaments": "TOURNAMENTS",
@@ -1154,6 +1165,7 @@
   },
   "coach": {
     "coach_dashboard": "Coach Dashboard",
+    "planner_title": "COACH · PLANNER",
     "my_players": "My Players",
     "training_plan": "Training Plan",
     "performance": "Performance",
@@ -1198,7 +1210,16 @@
     "retry": "RETRY",
     "players_label": "players",
     "edit_profile": "Edit Profile",
-    "logout": "Log out"
+    "logout": "Log out",
+    "all_present": "All Present",
+    "all_absent": "All Absent",
+    "select_session_above": "Select a session above",
+    "no_sessions_available": "No sessions available for this team",
+    "training": "Training",
+    "not_marked": "Not marked",
+    "reason_for_absence": "Reason for absence...",
+    "team": "Team",
+    "player": "Player"
   },
   "planner": {
     "add_task": "ADD TASK",

@@ -18,6 +18,7 @@ Team _$TeamFromJson(Map<String, dynamic> json) => Team(
   draws: (json['draws'] as num).toInt(),
   losses: (json['losses'] as num).toInt(),
   academyName: json['academy_name'] as String?,
+  academyId: json['academy_id'] as String?,
   ageCategory: json['age_category'] as String?,
   birthYear: (json['birth_year'] as num?)?.toInt(),
   recentMatches:
@@ -48,6 +49,7 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
   'draws': instance.draws,
   'losses': instance.losses,
   'academy_name': instance.academyName,
+  'academy_id': instance.academyId,
   'age_category': instance.ageCategory,
   'birth_year': instance.birthYear,
   'recent_matches': instance.recentMatches,

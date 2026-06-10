@@ -9,6 +9,9 @@ import '../../data/models/academy_team.dart';
 import 'academy_team_details_screen.dart';
 import '../../../../features/clubs/providers/club_provider.dart';
 import '../../../../core/theme/premium_theme.dart';
+import '../../../../features/teams/providers/team_provider.dart';
+import '../../../../features/teams/data/models/team.dart';
+import '../../../../features/teams/data/models/player_team.dart';
 
 // ── Design tokens (accent/brand — theme-independent) ──────────────────────
 const _kGreen  = Color(0xFF00E676);
@@ -307,47 +310,206 @@ class _AcademyDashboardScreenState extends State<AcademyDashboardScreen>
 
   Widget _buildSessionRow(dynamic s, int index) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: PremiumTheme.surfaceCard(context),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.4)),
+    return GestureDetector(
+      onTap: () => _showSessionDetails(context, s),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: PremiumTheme.surfaceCard(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: PremiumTheme.borderSubtle(context).withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _accentAt(index).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.calendar_today_rounded, color: _accentAt(index), size: 16),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(s.scheduledAt, style: _outfit(13, FontWeight.w600, onSurface)),
+                  Text(s.topic ?? 'academy.training_session'.tr(),
+                      style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: _kGreen.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text('academy.active'.tr(),
+                  style: _outfit(9, FontWeight.w700, _kGreen, ls: 0.3)),
+            ),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: _accentAt(index).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.calendar_today_rounded, color: _accentAt(index), size: 16),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(s.scheduledAt, style: _outfit(13, FontWeight.w600, onSurface)),
-                Text(s.topic ?? 'academy.training_session'.tr(),
-                    style: _outfit(11, FontWeight.w400, onSurface.withValues(alpha: 0.45))),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: _kGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text('academy.active'.tr(),
-                style: _outfit(9, FontWeight.w700, _kGreen, ls: 0.3)),
-          ),
-        ],
-      ),
+    );
+  }
+
+  void _showSessionDetails(BuildContext context, dynamic session) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final provider = context.read<AcademyProvider>();
+    
+    // Determine session status (Past, Ongoing, Upcoming)
+    String statusStr = 'academy.upcoming'.tr();
+    Color statusColor = _kBlue;
+    try {
+      final now = DateTime.now();
+      final dt = DateTime.parse(session.date);
+      final startTimeParts = session.startTime.split(':');
+      final endTimeParts = session.endTime.split(':');
+      final startDt = DateTime(dt.year, dt.month, dt.day, int.parse(startTimeParts[0]), int.parse(startTimeParts[1]));
+      final endDt = DateTime(dt.year, dt.month, dt.day, int.parse(endTimeParts[0]), int.parse(endTimeParts[1]));
+      
+      if (now.isAfter(endDt)) {
+        statusStr = 'academy.passed'.tr();
+        statusColor = _kGreen;
+      } else if (now.isAfter(startDt) && now.isBefore(endDt)) {
+        statusStr = 'academy.ongoing'.tr();
+        statusColor = _kGold;
+      }
+    } catch (_) {}
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: PremiumTheme.surfaceCard(context),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      isScrollControlled: true,
+      builder: (ctx) {
+        final teamProvider = context.read<TeamProvider>();
+        return FutureBuilder<List<dynamic>>(
+          future: Future.wait([
+            provider.fetchSessionAttendance(session.id),
+            ...session.teamIds.map((tid) => teamProvider.fetchTeamById(tid)),
+          ]),
+          builder: (context, snapshot) {
+            Widget content;
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              content = const Center(child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(color: _kGreen),
+              ));
+            } else {
+              final attendance = (snapshot.data?[0] as List<TrainingAttendance>?) ?? [];
+              
+              // Extract all PlayerTeam objects from the fetched teams
+              final List<PlayerTeam> allPlayers = [];
+              if (snapshot.data != null && snapshot.data!.length > 1) {
+                for (int i = 1; i < snapshot.data!.length; i++) {
+                  final team = snapshot.data![i] as Team?;
+                  if (team != null && team.players.isNotEmpty) {
+                    allPlayers.addAll(team.players);
+                  }
+                }
+              }
+              
+              if (attendance.isEmpty) {
+                content = Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.assignment_late_rounded, size: 48, color: onSurface.withValues(alpha: 0.15)),
+                      const SizedBox(height: 12),
+                      Text('academy.attendance_not_recorded'.tr(), style: _outfit(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
+                    ],
+                  ),
+                );
+              } else {
+                content = Column(
+                  children: attendance.map((record) {
+                    final isPresent = record.status == 'PRESENT';
+                    final color = isPresent ? _kGreen : _kRed;
+                    // Try to find player name
+                    String playerName = 'academy.unknown_player'.tr();
+                    
+                    // Match against the user ID (playerId in PlayerTeam)
+                    final ptMatch = allPlayers.where((p) => p.playerId == record.playerId || p.id == record.playerId).firstOrNull;
+                    if (ptMatch != null && ptMatch.player != null) {
+                      playerName = ptMatch.player!.name;
+                    } else {
+                      // Fallback: academy players
+                      final acaMatch = provider.players.where((p) => p.id == record.playerId || p.playerProfileId == record.playerId).firstOrNull;
+                      if (acaMatch != null) {
+                        playerName = acaMatch.fullName;
+                      }
+                    }
+                    
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: color.withValues(alpha: 0.15),
+                        child: Icon(isPresent ? Icons.check_rounded : Icons.close_rounded, color: color, size: 18),
+                      ),
+                      title: Text(playerName, style: _outfit(14, FontWeight.w600, onSurface)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(record.status == 'PRESENT' ? 'coach.present'.tr() : record.status == 'ABSENT' ? 'coach.absent'.tr() : record.status, style: _outfit(11, FontWeight.w800, color)),
+                          if (record.note != null && record.note!.isNotEmpty)
+                            Text('${'academy.reason'.tr()}: ${record.note}', style: _outfit(12, FontWeight.w400, onSurface.withValues(alpha: 0.6))),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              }
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom + 24, left: 20, right: 20, top: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 48), // Balance for close button
+                        Container(width: 40, height: 4, decoration: BoxDecoration(color: onSurface.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(2))),
+                        IconButton(
+                          icon: Icon(Icons.close_rounded, color: onSurface.withValues(alpha: 0.5)),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: Text(session.topic ?? 'academy.training_session'.tr(), style: _outfit(18, FontWeight.w800, onSurface))),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                          child: Text(statusStr, style: _outfit(11, FontWeight.w800, statusColor)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(session.scheduledAt, style: _outfit(13, FontWeight.w500, onSurface.withValues(alpha: 0.5))),
+                    const SizedBox(height: 20),
+                    Text('academy.attendance_list'.tr(), style: _outfit(14, FontWeight.w700, onSurface)),
+                    const SizedBox(height: 12),
+                    content,
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -254,9 +255,10 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
               tooltip: 'Перевести в другую команду',
             ),
             IconButton(
-              icon: Icon(Icons.feedback_outlined,
+              icon: Icon(Icons.contact_mail_outlined,
                   color: onSurface.withValues(alpha: 0.3), size: 20),
-              onPressed: () {},
+              onPressed: () => _showParentInfoSheet(context, player),
+              tooltip: 'academy.contact_parent'.tr(),
             ),
           ],
         ),
@@ -335,6 +337,90 @@ class _AcademyTeamDetailsScreenState extends State<AcademyTeamDetailsScreen>
           ],
         ),
       ),
+    );
+  }
+
+  void _showParentInfoSheet(BuildContext context, AcademyTeamPlayer player) {
+    final provider = context.read<AcademyProvider>();
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: PremiumTheme.surfaceCard(context),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      isScrollControlled: true,
+      builder: (ctx) {
+        return FutureBuilder<List<Map<String, dynamic>>>(
+          future: provider.fetchPlayerParents(player.playerProfileId),
+          builder: (context, snapshot) {
+            Widget content;
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              content = const Center(child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(color: _kGreen),
+              ));
+            } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              content = Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.person_off_rounded, size: 48, color: onSurface.withValues(alpha: 0.15)),
+                    const SizedBox(height: 12),
+                    Text('academy.parent_not_linked'.tr(),
+                        style: _t(14, FontWeight.w500, onSurface.withValues(alpha: 0.35))),
+                  ],
+                ),
+              );
+            } else {
+              content = Column(
+                children: snapshot.data!.map((parent) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: _kGreen.withValues(alpha: 0.15),
+                      child: const Icon(Icons.person, color: _kGreen, size: 20),
+                    ),
+                    title: Text(parent['name'] ?? 'academy.unknown'.tr(), style: _t(15, FontWeight.w600, onSurface)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(parent['relation_type'] ?? '', style: _t(12, FontWeight.w500, _kGreen)),
+                        if (parent['email'] != null) Text(parent['email'], style: _t(13, FontWeight.w400, onSurface)),
+                        if (parent['phone'] != null) Text(parent['phone'], style: _t(13, FontWeight.w400, onSurface)),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+                  left: 20, right: 20, top: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: onSurface.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text('academy.contact_parent'.tr(), style: _t(18, FontWeight.w700, onSurface)),
+                  const SizedBox(height: 16),
+                  content,
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

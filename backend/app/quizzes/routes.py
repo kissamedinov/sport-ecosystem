@@ -64,3 +64,17 @@ def get_quiz_leaderboard(
             "user_id": entry.id
         })
     return result
+
+@router.post("/daily/reset")
+def reset_daily_quiz(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Reset today's daily quiz for both audiences to force regeneration."""
+    from app.quizzes.models import DailyQuiz
+    today = get_astana_date()
+    quizzes = db.query(DailyQuiz).filter(DailyQuiz.date == today).all()
+    for q in quizzes:
+        db.delete(q)
+    db.commit()
+    return {"message": f"Daily quizzes for {today} have been reset. They will regenerate on next request."}

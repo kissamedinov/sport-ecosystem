@@ -146,7 +146,7 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'COACH · PLANNER',
+                'coach.planner_title'.tr(),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -180,9 +180,17 @@ class _CoachPlannerScreenState extends State<CoachPlannerScreen> {
 
   Widget _buildWeekStrip() {
     final now = DateTime.now();
-    final start = _selected.subtract(Duration(days: _selected.weekday - 1));
+    // Rolling 7 days starting from today
+    final start = DateTime(now.year, now.month, now.day);
     final days = List.generate(7, (i) => start.add(Duration(days: i)));
-    const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    
+    final locale = context.locale.languageCode;
+    final safeLocale = locale == 'kk' ? 'ru' : locale;
+    final labels = days.map((d) {
+      String e = DateFormat('E', safeLocale).format(d);
+      if (e.length > 2) e = e.substring(0, 2);
+      return e.toUpperCase();
+    }).toList();
 
     return Container(
       height: 76,
