@@ -168,7 +168,9 @@ class ProfileScreen extends StatelessWidget {
       return const RefereeProfileBody();
     } else if (roles.contains('CLUB_OWNER')) {
       return const ClubOwnerProfileBody();
-    } else if (roles.contains('MANAGER') || roles.contains('CLUB_MANAGER')) {
+    } else if (roles.contains('CLUB_MANAGER')) {
+      return const ClubOwnerProfileBody(isManager: true);
+    } else if (roles.contains('MANAGER')) {
       return const ManagerProfileBody();
     } else if (roles.contains('COACH')) {
       return CoachProfileBody(coachId: user.id);
