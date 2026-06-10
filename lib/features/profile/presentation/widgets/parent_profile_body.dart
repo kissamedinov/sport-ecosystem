@@ -5,11 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:mobile/core/api/profile_api_service.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
-import 'package:mobile/features/clubs/data/models/child_profile.dart';
 import 'package:mobile/features/matches/data/models/match.dart';
 import 'package:mobile/features/player_stats/presentation/screens/player_stats_screen.dart';
 import 'package:mobile/features/matches/presentation/screens/match_events_screen.dart';
 import 'package:mobile/features/children/providers/child_provider.dart';
+import 'package:mobile/features/children/models/child.dart';
 
 class ParentProfileBody extends StatefulWidget {
   const ParentProfileBody({super.key});
@@ -20,43 +20,22 @@ class ParentProfileBody extends StatefulWidget {
 
 class _ParentProfileBodyState extends State<ParentProfileBody> {
   final ProfileApiService _profileApi = ProfileApiService();
-  late Future<List<ChildProfile>> _childrenFuture;
   late Future<List<MatchModel>> _matchesFuture;
   final TextEditingController _emailController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _matchesFuture = _profileApi.getChildrenUpcomingMatches().catchError((_) => <MatchModel>[]);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ChildProvider>().addListener(_onChildProviderChanged);
+      context.read<ChildProvider>().fetchChildren();
     });
-  }
-
-  void _onChildProviderChanged() {
-    if (mounted) {
-      _refresh();
-    }
   }
 
   @override
   void dispose() {
-    try {
-      context.read<ChildProvider>().removeListener(_onChildProviderChanged);
-    } catch (_) {}
     _emailController.dispose();
     super.dispose();
-  }
-
-  void _loadData() {
-    _childrenFuture = _profileApi.getChildProfiles().catchError((_) => <ChildProfile>[]);
-    _matchesFuture = _profileApi.getChildrenUpcomingMatches().catchError((_) => <MatchModel>[]);
-  }
-
-  void _refresh() {
-    setState(() {
-      _loadData();
-    });
   }
 
   Future<void> _handleLinkChild() async {
@@ -138,19 +117,15 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ChildProfile>>(
-      future: _childrenFuture,
-      builder: (context, childSnapshot) {
+    return Consumer<ChildProvider>(
+      builder: (context, childProvider, _) {
         return FutureBuilder<List<MatchModel>>(
           future: _matchesFuture,
           builder: (context, matchSnapshot) {
-            final isLoading =
-                childSnapshot.connectionState == ConnectionState.waiting ||
-                matchSnapshot.connectionState == ConnectionState.waiting;
+            final matchesLoading = matchSnapshot.connectionState == ConnectionState.waiting;
+            if (childProvider.isLoading && matchesLoading) return _buildLoadingState();
 
-            if (isLoading) return _buildLoadingState();
-
-            final children = childSnapshot.data ?? [];
+            final children = childProvider.children;
             final matches = matchSnapshot.data ?? [];
 
             return Padding(
@@ -161,7 +136,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                   const SizedBox(height: 8),
                   _buildStatsRow(children.length, matches.length),
                   const SizedBox(height: 24),
-                  
+
                   _buildSectionLabel('profile.my_children'.tr()),
                   const SizedBox(height: 12),
                   _buildChildrenList(children),
@@ -394,11 +369,11 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
     );
   }
 
-  Widget _buildChildrenList(List<ChildProfile> children) {
+  Widget _buildChildrenList(List<Child> children) {
     if (children.isEmpty) return const SizedBox.shrink();
     return Column(
       children: children.map((child) {
-        final initials = child.fullName.trim().split(' ')
+        final initials = child.name.trim().split(' ')
             .where((w) => w.isNotEmpty).take(2)
             .map((w) => w[0].toUpperCase()).join();
         return Padding(
@@ -431,7 +406,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                 ),
                 const SizedBox(width: 14),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(child.fullName,
+                  Text(child.name,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w800, fontSize: 14)),
@@ -442,7 +417,7 @@ class _ParentProfileBodyState extends State<ParentProfileBody> {
                       color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(child.position?.toUpperCase() ?? 'PLAYER',
+                    child: Text(child.teamName.toUpperCase(),
                         style: const TextStyle(color: PremiumTheme.neonGreen,
                             fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                   ),
