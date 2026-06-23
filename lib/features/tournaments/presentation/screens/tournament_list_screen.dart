@@ -212,16 +212,27 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                   return _buildEmptyState();
                 }
 
-                return ListView.builder(
+                final activeTournaments = tournaments.where((t) => t.displayStatus == 'ACTIVE').toList();
+                final upcomingTournaments = tournaments.where((t) => t.displayStatus != 'ACTIVE' && t.displayStatus != 'FINISHED').toList();
+                final finishedTournaments = tournaments.where((t) => t.displayStatus == 'FINISHED').toList();
+
+                return ListView(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  itemCount: tournaments.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == tournaments.length) {
-                      return const SizedBox(height: 180);
-                    }
-                    final tournament = tournaments[index];
-                    return _buildTournamentCard(tournament, isChild);
-                  },
+                  children: [
+                    if (activeTournaments.isNotEmpty) ...[
+                      _buildSectionTitle('tournament.status_active'.tr()),
+                      ...activeTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                    ],
+                    if (upcomingTournaments.isNotEmpty) ...[
+                      _buildSectionTitle('tournament.status_upcoming'.tr()),
+                      ...upcomingTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                    ],
+                    if (finishedTournaments.isNotEmpty) ...[
+                      _buildSectionTitle('tournament.status_finished'.tr()),
+                      ...finishedTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                    ],
+                    const SizedBox(height: 180),
+                  ],
                 );
               },
             ),
@@ -267,6 +278,17 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      child: Text(
+        title,
+        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5),
       ),
     );
   }

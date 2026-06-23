@@ -21,6 +21,8 @@ class TournamentStanding {
   final int points;
   @JsonKey(name: 'division_id')
   final String? divisionId;
+  @JsonKey(name: 'division_name')
+  final String? divisionName;
   @JsonKey(name: 'group_id')
   final String? groupId;
 
@@ -36,6 +38,7 @@ class TournamentStanding {
     required this.goalDifference,
     required this.points,
     this.divisionId,
+    this.divisionName,
     this.groupId,
   });
 

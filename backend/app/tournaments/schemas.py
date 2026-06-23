@@ -103,6 +103,8 @@ class TournamentGroupResponse(BaseModel):
 class TournamentStandingsResponse(BaseModel):
     team_id: UUID
     team_name: Optional[str] = None
+    division_id: Optional[UUID] = None
+    division_name: Optional[str] = None
     played: int
     wins: int
     draws: int

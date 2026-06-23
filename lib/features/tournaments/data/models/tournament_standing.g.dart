@@ -19,6 +19,7 @@ TournamentStanding _$TournamentStandingFromJson(Map<String, dynamic> json) =>
       goalDifference: (json['goal_difference'] as num).toInt(),
       points: (json['points'] as num).toInt(),
       divisionId: json['division_id'] as String?,
+      divisionName: json['division_name'] as String?,
       groupId: json['group_id'] as String?,
     );
 
@@ -35,5 +36,6 @@ Map<String, dynamic> _$TournamentStandingToJson(TournamentStanding instance) =>
       'goal_difference': instance.goalDifference,
       'points': instance.points,
       'division_id': instance.divisionId,
+      'division_name': instance.divisionName,
       'group_id': instance.groupId,
     };

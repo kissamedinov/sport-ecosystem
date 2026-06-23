@@ -506,7 +506,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildMatchesTab(List<TournamentMatch> matches, TournamentProvider provider) {
-    final isOrganizer = _isOrganizer;
+    bool _isOrganizer = false;
+    String? _selectedStandingsDivisionId;
     final hasDraft = matches.any((m) => m.status == 'DRAFT');
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
     final tournament = provider.selectedTournament;
@@ -1012,30 +1013,6 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   }
 
   Widget _buildStandingsTab(List<TournamentStanding> standings) {
-    // MOCK DATA: Bypassing backend issues to showcase the visual design
-    standings = [
-      TournamentStanding(
-        teamId: 'm1', teamName: 'Golden Eagles',
-        played: 5, wins: 4, draws: 1, losses: 0, goalsFor: 12, goalsAgainst: 3, goalDifference: 9, points: 13,
-      ),
-      TournamentStanding(
-        teamId: 'm2', teamName: 'Blue Lions',
-        played: 5, wins: 3, draws: 1, losses: 1, goalsFor: 10, goalsAgainst: 5, goalDifference: 5, points: 10,
-      ),
-      TournamentStanding(
-        teamId: 'm3', teamName: 'Red Dragons',
-        played: 5, wins: 2, draws: 2, losses: 1, goalsFor: 8, goalsAgainst: 8, goalDifference: 0, points: 8,
-      ),
-      TournamentStanding(
-        teamId: 'm4', teamName: 'Green Tigers',
-        played: 5, wins: 1, draws: 1, losses: 3, goalsFor: 4, goalsAgainst: 10, goalDifference: -6, points: 4,
-      ),
-      TournamentStanding(
-        teamId: 'm5', teamName: 'Silver Hawks',
-        played: 5, wins: 0, draws: 1, losses: 4, goalsFor: 2, goalsAgainst: 10, goalDifference: -8, points: 1,
-      ),
-    ];
-
     final provider = context.read<TournamentProvider>();
     final tournament = provider.selectedTournament;
     final isGroupStage = tournament?.format == 'GROUP_STAGE';
@@ -1054,71 +1031,144 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       );
     }
 
-    if (isGroupStage) {
-      // Group standings by group_id
-      final groupedStandings = <String?, List<TournamentStanding>>{};
-      for (var s in standings) {
-        groupedStandings.putIfAbsent(s.groupId, () => []).add(s);
+    final Map<String, String> divisionsMap = {};
+    for (var s in standings) {
+      if (s.divisionId != null) {
+        divisionsMap[s.divisionId!] = s.divisionName ?? 'Division';
       }
+    }
+    
+    return StatefulBuilder(
+      builder: (context, setState) {
+        String? selectedDivisionId;
+        if (divisionsMap.isNotEmpty) {
+          // Keep selection or default to first
+          selectedDivisionId = _selectedStandingsDivisionId ?? divisionsMap.keys.first;
+          _selectedStandingsDivisionId = selectedDivisionId;
+        }
 
-      return ListView(
-        padding: const EdgeInsets.all(20),
-        children: groupedStandings.entries.map((entry) {
+        final filteredStandings = selectedDivisionId != null 
+            ? standings.where((s) => s.divisionId == selectedDivisionId).toList()
+            : standings;
+
+        Widget buildContent() {
+          if (filteredStandings.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 40),
+                child: Text('common.empty_state'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))),
+              ),
+            );
+          }
+
+          if (isGroupStage) {
+            final groupedStandings = <String?, List<TournamentStanding>>{};
+            for (var s in filteredStandings) {
+              groupedStandings.putIfAbsent(s.groupId, () => []).add(s);
+            }
+
+            return Column(
+              children: groupedStandings.entries.map((entry) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle('tournament.group_prefix'.tr(namedArgs: {'group': entry.key?.toString().split("-").last.toUpperCase() ?? "A"}), Icons.grid_view),
+                    const SizedBox(height: 12),
+                    _buildStandingsHeader(),
+                    const SizedBox(height: 8),
+                    ...entry.value.asMap().entries.map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT')),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              }).toList(),
+            );
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle('tournament.group_prefix'.tr(namedArgs: {'group': entry.key?.toString().split("-").last.toUpperCase() ?? "A"}), Icons.grid_view),
-              const SizedBox(height: 12),
-              _buildStandingsHeader(),
+              _buildSectionTitle('tournament.leaderboard_title'.tr(), Icons.table_chart),
               const SizedBox(height: 8),
-              ...entry.value.asMap().entries.map((item) {
+              _buildStandingsHeader(),
+              const SizedBox(height: 12),
+              ...filteredStandings.asMap().entries.map((entry) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT')),
+                  child: _buildStandingsRow(entry.key + 1, entry.value),
                 );
               }),
-              const SizedBox(height: 16),
             ],
           );
-        }).toList(),
-      );
-    }
+        }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildActionCard(
-            'tournament.golden_boot_race'.tr(),
-            'tournament.view_top_scorers'.tr(),
-            Icons.military_tech,
-            PremiumTheme.neonGreen,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TournamentLeaderboardScreen(tournamentId: widget.tournamentId),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (divisionsMap.isNotEmpty) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: divisionsMap.entries.map((entry) {
+                      final isSelected = selectedDivisionId == entry.key;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedStandingsDivisionId = entry.key;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.15) : cs.onSurface.withValues(alpha: 0.05),
+                              border: Border.all(color: isSelected ? PremiumTheme.neonGreen : Colors.transparent),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              entry.value,
+                              style: TextStyle(
+                                color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.6),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              );
-            },
+                const SizedBox(height: 24),
+              ],
+              _buildActionCard(
+                'tournament.golden_boot_race'.tr(),
+                'tournament.view_top_scorers'.tr(),
+                Icons.military_tech,
+                PremiumTheme.neonGreen,
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TournamentLeaderboardScreen(tournamentId: widget.tournamentId),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 32),
+              buildContent(),
+              const SizedBox(height: 40),
+            ],
           ),
-          const SizedBox(height: 32),
-          _buildSectionTitle('tournament.leaderboard_title'.tr(), Icons.table_chart),
-          const SizedBox(height: 8),
-          _buildStandingsHeader(),
-          const SizedBox(height: 12),
-          ...standings.asMap().entries.map((entry) {
-            final index = entry.key;
-            final s = entry.value;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildStandingsRow(index + 1, s),
-            );
-          }),
-          const SizedBox(height: 40),
-        ],
-      ),
+        );
+      },
     );
   }
 

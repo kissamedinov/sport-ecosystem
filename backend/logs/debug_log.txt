@@ -1429,3 +1429,7 @@ LINE 1: INSERT INTO notifications (id, type, title, message, entity_...
 [2026-03-28 00:03:44.584328] Notification object flushed, ID: 00e8de65-dcf5-4249-878b-415de888088f
 [2026-03-28 00:03:44.585023] Adding target for user: 00e248ff-82fd-45e6-af9b-b605d79e1411
 [2026-03-28 00:03:44.590976] Notification 00e8de65-dcf5-4249-878b-415de888088f committed successfully
+[2026-06-23 12:58:44.262870] Inside create_notification: type=MATCH_RESULT, user_ids=[UUID('35afe4df-a9ea-44b3-b5a9-c95c9078d252')]
+[2026-06-23 12:58:44.267376] Notification object flushed, ID: 86d6abb4-53db-45b5-995b-21fc11119436
+[2026-06-23 12:58:44.267708] Adding target for user: 35afe4df-a9ea-44b3-b5a9-c95c9078d252
+[2026-06-23 12:58:44.273607] Notification 86d6abb4-53db-45b5-995b-21fc11119436 committed successfully

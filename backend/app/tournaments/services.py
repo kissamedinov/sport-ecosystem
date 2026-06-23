@@ -933,12 +933,16 @@ def get_tournament_standings(db: Session, tournament_id: UUID):
     ).all()
 
     from app.teams.models import Team
+    from app.tournaments.models import TournamentDivision
     result = []
     for s in standings:
         team = db.query(Team).filter(Team.id == s.team_id).first()
+        division = db.query(TournamentDivision).filter(TournamentDivision.id == s.division_id).first()
         result.append({
             "team_id": s.team_id,
             "team_name": team.name if team else "Unknown Team",
+            "division_id": s.division_id,
+            "division_name": division.name if division else "Division",
             "played": s.played,
             "wins": s.wins,
             "draws": s.draws,
@@ -1155,46 +1159,14 @@ def get_tournament_leaderboards(db: Session, tournament_id: UUID):
     from app.users.models import PlayerProfile
     from app.teams.models import Team
     
-    divisions = db.query(TournamentDivision.id).filter(TournamentDivision.tournament_edition_id == tournament_id).all()
-    division_ids = [d[0] for d in divisions]
+    divisions = db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == tournament_id).all()
     
-    if not division_ids:
-        return {"scorers": [], "assists": [], "clean_sheets": []}
+    if not divisions:
+        return []
     
-    top_scorers = db.query(
-        TournamentPlayerStats.player_profile_id,
-        func.sum(TournamentPlayerStats.goals).label('total_goals')
-    ).filter(
-        TournamentPlayerStats.division_id.in_(division_ids)
-    ).group_by(
-        TournamentPlayerStats.player_profile_id
-    ).order_by(
-        desc('total_goals')
-    ).limit(10).all()
+    final_result = []
 
-    top_assists = db.query(
-        TournamentPlayerStats.player_profile_id,
-        func.sum(TournamentPlayerStats.assists).label('total_assists')
-    ).filter(
-        TournamentPlayerStats.division_id.in_(division_ids)
-    ).group_by(
-        TournamentPlayerStats.player_profile_id
-    ).order_by(
-        desc('total_assists')
-    ).limit(10).all()
-
-    top_clean_sheets = db.query(
-        TournamentPlayerStats.player_profile_id,
-        func.sum(TournamentPlayerStats.clean_sheets).label('total_clean_sheets')
-    ).filter(
-        TournamentPlayerStats.division_id.in_(division_ids)
-    ).group_by(
-        TournamentPlayerStats.player_profile_id
-    ).order_by(
-        desc('total_clean_sheets')
-    ).limit(10).all()
-
-    def format_player_data(stats_list):
+    def format_player_data(stats_list, div_id):
         result = []
         for stat in stats_list:
             if stat[1] == 0:
@@ -1214,7 +1186,6 @@ def get_tournament_leaderboards(db: Session, tournament_id: UUID):
                 if team:
                     team_name = team.name
 
-            # Handle player name via user
             user_name = "Unknown Player"
             if player.user:
                 user_name = player.user.name or f"{player.user.first_name} {player.user.last_name}"
@@ -1227,11 +1198,63 @@ def get_tournament_leaderboards(db: Session, tournament_id: UUID):
             })
         return result
 
-    return {
-        "scorers": format_player_data(top_scorers),
-        "assists": format_player_data(top_assists),
-        "clean_sheets": format_player_data(top_clean_sheets)
-    }
+    for div in divisions:
+        div_id = div.id
+        
+        top_scorers = db.query(
+            TournamentPlayerStats.player_profile_id,
+            func.sum(TournamentPlayerStats.goals).label('total_goals')
+        ).filter(
+            TournamentPlayerStats.division_id == div_id
+        ).group_by(
+            TournamentPlayerStats.player_profile_id
+        ).order_by(
+            desc('total_goals')
+        ).limit(10).all()
+
+        top_assists = db.query(
+            TournamentPlayerStats.player_profile_id,
+            func.sum(TournamentPlayerStats.assists).label('total_assists')
+        ).filter(
+            TournamentPlayerStats.division_id == div_id
+        ).group_by(
+            TournamentPlayerStats.player_profile_id
+        ).order_by(
+            desc('total_assists')
+        ).limit(10).all()
+
+        top_clean_sheets = db.query(
+            TournamentPlayerStats.player_profile_id,
+            func.sum(TournamentPlayerStats.clean_sheets).label('total_clean_sheets')
+        ).filter(
+            TournamentPlayerStats.division_id == div_id
+        ).group_by(
+            TournamentPlayerStats.player_profile_id
+        ).order_by(
+            desc('total_clean_sheets')
+        ).limit(10).all()
+
+        top_goal_plus_pass = db.query(
+            TournamentPlayerStats.player_profile_id,
+            (func.sum(TournamentPlayerStats.goals) + func.sum(TournamentPlayerStats.assists)).label('total_ga')
+        ).filter(
+            TournamentPlayerStats.division_id == div_id
+        ).group_by(
+            TournamentPlayerStats.player_profile_id
+        ).order_by(
+            desc('total_ga')
+        ).limit(10).all()
+
+        final_result.append({
+            "division_id": str(div.id),
+            "division_name": div.name,
+            "scorers": format_player_data(top_scorers, div_id),
+            "assists": format_player_data(top_assists, div_id),
+            "clean_sheets": format_player_data(top_clean_sheets, div_id),
+            "goal_plus_pass": format_player_data(top_goal_plus_pass, div_id)
+        })
+
+    return final_result
 
 def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()
