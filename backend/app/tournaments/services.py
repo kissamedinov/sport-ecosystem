@@ -271,6 +271,20 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     db.commit()
     db.refresh(new_team_reg)
     
+    if status == RegistrationStatus.APPROVED:
+        existing_standing = db.query(TournamentStandings).filter(
+            TournamentStandings.tournament_id == tournament.id,
+            TournamentStandings.team_id == team_id
+        ).first()
+        if not existing_standing:
+            new_standing = TournamentStandings(
+                tournament_id=tournament.id,
+                team_id=team_id,
+                division_id=division_id
+            )
+            db.add(new_standing)
+            db.commit()
+            
     return new_team_reg
 
 def get_tournament_teams(db: Session, tournament_id: UUID):
