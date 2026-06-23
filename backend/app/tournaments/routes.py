@@ -165,6 +165,10 @@ def update_match_result(
 def get_tournament_standings(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_standings(db, id)
 
+@router.get("/{id}/leaderboards")
+def get_tournament_leaderboards(id: UUID, db: Session = Depends(get_db)):
+    return services.get_tournament_leaderboards(db, id)
+
 @router.post("/match-stats")
 def record_match_stats(
     match_id: UUID,

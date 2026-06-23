@@ -924,13 +924,32 @@ def get_tournament_standings(db: Session, tournament_id: UUID):
         "minimum_rest_slots", "points_for_win", "points_for_draw", "points_for_loss",
         "surface_type", "whatsapp", "phone"
     ]
-    return db.query(TournamentStandings).filter(
+    standings = db.query(TournamentStandings).filter(
         TournamentStandings.tournament_id == tournament_id
     ).order_by(
         TournamentStandings.points.desc(),
         TournamentStandings.goal_difference.desc(),
         TournamentStandings.goals_for.desc()
     ).all()
+
+    from app.teams.models import Team
+    result = []
+    for s in standings:
+        team = db.query(Team).filter(Team.id == s.team_id).first()
+        result.append({
+            "team_id": s.team_id,
+            "team_name": team.name if team else "Unknown Team",
+            "played": s.played,
+            "wins": s.wins,
+            "draws": s.draws,
+            "losses": s.losses,
+            "goals_for": s.goals_for,
+            "goals_against": s.goals_against,
+            "goal_difference": s.goal_difference,
+            "points": s.points,
+            "group_id": s.group_id
+        })
+    return result
 
 def get_tournament_matches(db: Session, tournament_id: UUID):
     matches = db.query(Match).filter(Match.tournament_id == tournament_id).order_by(Match.match_date).all()
@@ -1129,6 +1148,90 @@ def get_tournament_squad(db: Session, tt_id: UUID):
         }
         for member in squad
     ]
+
+def get_tournament_leaderboards(db: Session, tournament_id: UUID):
+    from sqlalchemy import func, desc
+    from app.tournaments.models import TournamentPlayerStats, TournamentDivision, TournamentSquad, TournamentTeam
+    from app.users.models import PlayerProfile
+    from app.teams.models import Team
+    
+    divisions = db.query(TournamentDivision.id).filter(TournamentDivision.tournament_edition_id == tournament_id).all()
+    division_ids = [d[0] for d in divisions]
+    
+    if not division_ids:
+        return {"scorers": [], "assists": [], "clean_sheets": []}
+    
+    top_scorers = db.query(
+        TournamentPlayerStats.player_profile_id,
+        func.sum(TournamentPlayerStats.goals).label('total_goals')
+    ).filter(
+        TournamentPlayerStats.division_id.in_(division_ids)
+    ).group_by(
+        TournamentPlayerStats.player_profile_id
+    ).order_by(
+        desc('total_goals')
+    ).limit(10).all()
+
+    top_assists = db.query(
+        TournamentPlayerStats.player_profile_id,
+        func.sum(TournamentPlayerStats.assists).label('total_assists')
+    ).filter(
+        TournamentPlayerStats.division_id.in_(division_ids)
+    ).group_by(
+        TournamentPlayerStats.player_profile_id
+    ).order_by(
+        desc('total_assists')
+    ).limit(10).all()
+
+    top_clean_sheets = db.query(
+        TournamentPlayerStats.player_profile_id,
+        func.sum(TournamentPlayerStats.clean_sheets).label('total_clean_sheets')
+    ).filter(
+        TournamentPlayerStats.division_id.in_(division_ids)
+    ).group_by(
+        TournamentPlayerStats.player_profile_id
+    ).order_by(
+        desc('total_clean_sheets')
+    ).limit(10).all()
+
+    def format_player_data(stats_list):
+        result = []
+        for stat in stats_list:
+            if stat[1] == 0:
+                continue
+            player = db.query(PlayerProfile).filter(PlayerProfile.id == stat.player_profile_id).first()
+            if not player:
+                continue
+            
+            squad_entry = db.query(TournamentSquad).join(TournamentTeam).filter(
+                TournamentSquad.player_profile_id == stat.player_profile_id,
+                TournamentTeam.tournament_id == tournament_id
+            ).first()
+            
+            team_name = "Unknown"
+            if squad_entry and squad_entry.tournament_team:
+                team = db.query(Team).filter(Team.id == squad_entry.tournament_team.team_id).first()
+                if team:
+                    team_name = team.name
+
+            # Handle player name via user
+            user_name = "Unknown Player"
+            if player.user:
+                user_name = player.user.name or f"{player.user.first_name} {player.user.last_name}"
+                
+            result.append({
+                "player_id": str(stat.player_profile_id),
+                "name": user_name,
+                "team_name": team_name,
+                "value": int(stat[1])
+            })
+        return result
+
+    return {
+        "scorers": format_player_data(top_scorers),
+        "assists": format_player_data(top_assists),
+        "clean_sheets": format_player_data(top_clean_sheets)
+    }
 
 def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, current_user: User):
     tt = db.query(TournamentTeam).filter(TournamentTeam.id == tt_id).first()

@@ -31,24 +31,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
       final response = await _apiClient.get('/tournaments/${widget.tournamentId}/leaderboards');
       return response.data as Map<String, dynamic>;
     } catch (e) {
-      // Fallback mock data in case of any connection issue
-      return {
-        "scorers": [
-          {"player_id": "p1", "name": "Cristiano Ronaldo", "value": 12},
-          {"player_id": "p2", "name": "Lionel Messi", "value": 9},
-          {"player_id": "p3", "name": "Kylian Mbappe", "value": 7},
-        ],
-        "assists": [
-          {"player_id": "p2", "name": "Lionel Messi", "value": 8},
-          {"player_id": "p4", "name": "Kevin De Bruyne", "value": 6},
-          {"player_id": "p5", "name": "Neymar Jr", "value": 5},
-        ],
-        "clean_sheets": [
-          {"player_id": "gk1", "name": "Игорь Акинфеев", "value": 4},
-          {"player_id": "gk2", "name": "Мануэль Нойер", "value": 3},
-          {"player_id": "gk3", "name": "Джанлуиджи Буффон", "value": 2},
-        ]
-      };
+      throw Exception("Failed to fetch leaderboards: $e");
     }
   }
 
