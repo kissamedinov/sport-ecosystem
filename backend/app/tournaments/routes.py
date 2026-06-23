@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, Body, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 
 from app.database import get_db
@@ -103,11 +103,13 @@ def update_tournament(
 def register_team(
     division_id: UUID, 
     team_id: UUID, 
-    registration_data: str = Body(...),
+    registration_data: Optional[Dict[str, Any]] = Body(None),
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
-    return services.register_tournament_team(db, division_id, team_id, registration_data, current_user)
+    import json
+    data_str = json.dumps(registration_data) if registration_data else "{}"
+    return services.register_tournament_team(db, division_id, team_id, data_str, current_user)
 
 @router.get("/{id}/teams", response_model=List[schemas.TournamentTeamResponse])
 def get_tournament_teams(id: UUID, db: Session = Depends(get_db)):
