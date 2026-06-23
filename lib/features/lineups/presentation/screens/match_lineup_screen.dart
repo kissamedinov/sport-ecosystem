@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/api/api_client.dart';
 import '../widgets/player_card.dart';
 import '../../models/player_lineup_model.dart';
+import '../../../tournaments/presentation/screens/match_tactics_board_screen.dart';
 
 class MatchLineupScreen extends StatefulWidget {
   final String matchId;
@@ -58,6 +59,40 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _openTacticsBoard() async {
+    final starters = _players.where((p) => p.isStarting).toList();
+    if (starters.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('team.at_least_one_starter'.tr()),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final updatedStarters = await Navigator.push<List<PlayerLineupModel>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MatchTacticsBoardScreen(starters: starters),
+      ),
+    );
+
+    if (updatedStarters != null && mounted) {
+      setState(() {
+        for (var updated in updatedStarters) {
+          final idx = _players.indexWhere((p) => p.id == updated.id);
+          if (idx != -1) {
+            _players[idx].position = updated.position;
+            _players[idx].jerseyNumber = updated.jerseyNumber;
+            _players[idx].posX = updated.posX;
+            _players[idx].posY = updated.posY;
+          }
+        }
+      });
     }
   }
 
@@ -120,6 +155,11 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: _openTacticsBoard,
+            icon: const Icon(Icons.sports_soccer_rounded, color: Color(0xFF00E676)),
+            tooltip: 'Настроить тактику',
+          ),
           IconButton(onPressed: _fetchPlayers, icon: const Icon(Icons.refresh)),
         ],
       ),
@@ -137,6 +177,9 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
                 },
                 onPositionChanged: (value) {
                   setState(() => player.position = value);
+                },
+                onJerseyNumberChanged: (value) {
+                  setState(() => player.jerseyNumber = value);
                 },
               );
             },

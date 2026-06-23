@@ -105,7 +105,7 @@ def register_team(
     team_id: UUID, 
     registration_data: str = Body(...),
     db: Session = Depends(get_db), 
-    current_user: User = Depends(require_coach)
+    current_user: User = Depends(get_current_user)
 ):
     return services.register_tournament_team(db, division_id, team_id, registration_data, current_user)
 

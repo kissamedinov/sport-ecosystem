@@ -22,6 +22,8 @@ class MatchModel {
   final String? divisionId;
   @JsonKey(name: 'group_id')
   final String? groupId;
+  @JsonKey(name: 'round_number')
+  final int? roundNumber;
 
   // Compatibility getter for UI
   String get scheduledAt => matchDate?.toIso8601String() ?? "";
@@ -37,6 +39,7 @@ class MatchModel {
     this.tournamentId,
     this.divisionId,
     this.groupId,
+    this.roundNumber,
   });
 
   factory MatchModel.fromJson(Map<String, dynamic> json) => _$MatchModelFromJson(json);

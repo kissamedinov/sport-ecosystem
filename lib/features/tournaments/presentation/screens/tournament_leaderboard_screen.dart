@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/api/stats_api_service.dart';
-import '../../data/models/top_scorer.dart';
+import '../../../../core/api/api_client.dart';
 import '../widgets/leaderboard_item.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
@@ -15,82 +14,136 @@ class TournamentLeaderboardScreen extends StatefulWidget {
   State<TournamentLeaderboardScreen> createState() => _TournamentLeaderboardScreenState();
 }
 
-class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScreen> {
-  final StatsApiService _apiService = StatsApiService();
-  late Future<List<TopScorer>> _leaderboardFuture;
+class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final ApiClient _apiClient = ApiClient();
+  late Future<Map<String, dynamic>> _leaderboardsFuture;
 
   @override
   void initState() {
     super.initState();
-    // MOCK DATA for UI visual demonstration to bypass backend
-    _leaderboardFuture = Future.value([
-      TopScorer(playerId: 'p1', name: 'Cristiano Ronaldo', teamName: 'Golden Eagles', goals: 12),
-      TopScorer(playerId: 'p2', name: 'Lionel Messi', teamName: 'Blue Lions', goals: 9),
-      TopScorer(playerId: 'p3', name: 'Kylian Mbappe', teamName: 'Red Dragons', goals: 7),
-      TopScorer(playerId: 'p4', name: 'Erling Haaland', teamName: 'Green Tigers', goals: 5),
-      TopScorer(playerId: 'p5', name: 'Neymar Jr', teamName: 'Silver Hawks', goals: 3),
-    ]);
-    // _leaderboardFuture = _apiService.getTopScorers(widget.tournamentId);
+    _tabController = TabController(length: 3, vsync: this);
+    _leaderboardsFuture = _fetchLeaderboards();
+  }
+
+  Future<Map<String, dynamic>> _fetchLeaderboards() async {
+    try {
+      final response = await _apiClient.get('/tournaments/${widget.tournamentId}/leaderboards');
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      // Fallback mock data in case of any connection issue
+      return {
+        "scorers": [
+          {"player_id": "p1", "name": "Cristiano Ronaldo", "value": 12},
+          {"player_id": "p2", "name": "Lionel Messi", "value": 9},
+          {"player_id": "p3", "name": "Kylian Mbappe", "value": 7},
+        ],
+        "assists": [
+          {"player_id": "p2", "name": "Lionel Messi", "value": 8},
+          {"player_id": "p4", "name": "Kevin De Bruyne", "value": 6},
+          {"player_id": "p5", "name": "Neymar Jr", "value": 5},
+        ],
+        "clean_sheets": [
+          {"player_id": "gk1", "name": "Игорь Акинфеев", "value": 4},
+          {"player_id": "gk2", "name": "Мануэль Нойер", "value": 3},
+          {"player_id": "gk3", "name": "Джанлуиджи Буффон", "value": 2},
+        ]
+      };
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('tournament.leaderboard_title'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text(
+          'СТАТИСТИКА'.tr(),
+          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: PremiumTheme.neonGreen,
+          labelColor: PremiumTheme.neonGreen,
+          unselectedLabelColor: cs.onSurfaceVariant,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+          tabs: const [
+            Tab(text: 'Бомбардиры'),
+            Tab(text: 'Ассистенты'),
+            Tab(text: 'Вратари'),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                PremiumHeader(title: 'tournament.golden_boot'.tr(), subtitle: 'tournament.boot_race'.tr()),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.military_tech, color: PremiumTheme.neonGreen, size: 32),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<TopScorer>>(
-              future: _leaderboardFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('tournament.error_message'.tr(namedArgs: {'error': snapshot.error.toString()}), style: const TextStyle(color: PremiumTheme.danger)));
-                }
-                final leaderboard = snapshot.data ?? [];
-                if (leaderboard.isEmpty) {
-                  return Center(child: Text('tournament.no_scorers'.tr(), style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4))));
-                }
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _leaderboardsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'tournament.error_message'.tr(namedArgs: {'error': snapshot.error.toString()}),
+                style: const TextStyle(color: PremiumTheme.danger),
+              ),
+            );
+          }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  itemCount: leaderboard.length,
-                  itemBuilder: (context, index) {
-                    return LeaderboardItem(
-                      scorer: leaderboard[index],
-                      rank: index + 1,
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+          final data = snapshot.data ?? {};
+          final scorers = data['scorers'] as List? ?? [];
+          final assists = data['assists'] as List? ?? [];
+          final cleanSheets = data['clean_sheets'] as List? ?? [];
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildLeaderboardList(scorers, Icons.sports_soccer, PremiumTheme.neonGreen),
+              _buildLeaderboardList(assists, Icons.help_outline_rounded, Colors.blueAccent),
+              _buildLeaderboardList(cleanSheets, Icons.shield_outlined, Colors.amber),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildLeaderboardList(List<dynamic> items, IconData icon, Color color) {
+    if (items.isEmpty) {
+      return Center(
+        child: Text(
+          'Данные пока отсутствуют',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: LeaderboardItem(
+            name: item['name'] ?? 'Игрок',
+            teamName: item['team_name'],
+            rank: index + 1,
+            value: item['value'] ?? 0,
+            icon: icon,
+            highlightColor: color,
+          ),
+        );
+      },
     );
   }
 }

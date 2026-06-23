@@ -234,19 +234,21 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     user_roles = {ur.role for ur in current_user.roles}
     is_coach = Role.COACH in user_roles and team.coach_id == current_user.id
     is_owner = Role.TEAM_OWNER in user_roles and team.academy_id and db.query(Academy).filter(Academy.id == team.academy_id, Academy.owner_id == current_user.id).first()
+    is_organizer = Role.TOURNAMENT_ORGANIZER in user_roles and tournament.created_by == current_user.id
     
-    if not (is_coach or is_owner):
-        raise HTTPException(status_code=403, detail="Operation not permitted. Only the team's coach or owner can register it.")
+    if not (is_coach or is_owner or is_organizer):
+        raise HTTPException(status_code=403, detail="Operation not permitted. Only the team's coach/owner or the tournament organizer can register it.")
     
-    today = date.today()
-    if today < tournament.registration_open or today > tournament.registration_close:
-        raise HTTPException(status_code=400, detail="Registration is closed or not yet open")
-    
-    if team.birth_year and team.birth_year != division.birth_year:
-         raise HTTPException(
-            status_code=400, 
-            detail=f"Team birth year ({team.birth_year}) does not match division requirement ({division.birth_year})"
-        )
+    if not is_organizer:
+        today = date.today()
+        if today < tournament.registration_open or today > tournament.registration_close:
+            raise HTTPException(status_code=400, detail="Registration is closed or not yet open")
+        
+        if team.birth_year and team.birth_year != division.birth_year:
+             raise HTTPException(
+                status_code=400, 
+                detail=f"Team birth year ({team.birth_year}) does not match division requirement ({division.birth_year})"
+            )
     
     existing = db.query(TournamentTeam).filter(
         TournamentTeam.division_id == division_id,
@@ -255,12 +257,14 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
     if existing:
         raise HTTPException(status_code=400, detail="Team already registered for this division")
     
+    status = RegistrationStatus.APPROVED if is_organizer else RegistrationStatus.PENDING
+    
     new_team_reg = TournamentTeam(
         division_id=division_id,
         tournament_id=tournament.id,
         team_id=team_id,
         registered_by=current_user.id,
-        status=RegistrationStatus.PENDING,
+        status=status,
         registration_data=registration_data
     )
     db.add(new_team_reg)
@@ -394,7 +398,7 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     
     # Parse field_ids if they exist
     field_ids = []
-    if tournament.field_ids:
+    if getattr(tournament, "field_ids", None):
         try:
             field_ids = json.loads(tournament.field_ids)
         except:
@@ -464,7 +468,8 @@ def generate_knockout_schedule(db: Session, tournament_id: UUID):
     import math
     import random
     import json
-    from datetime import timedelta
+    import uuid
+    from datetime import timedelta, date, datetime
     
     tournament = get_tournament_by_id(db, tournament_id)
     approved_teams = db.query(TournamentTeam).filter(
@@ -476,70 +481,143 @@ def generate_knockout_schedule(db: Session, tournament_id: UUID):
     if num_teams < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed for Knockout")
     
-    # Parse field_ids
     field_ids = []
-    if tournament.field_ids:
+    if getattr(tournament, "field_ids", None):
         try:
             field_ids = json.loads(tournament.field_ids)
         except:
             pass
     num_fields = len(field_ids) if field_ids else tournament.num_fields
     if num_fields < 1: num_fields = 1
-
+    
     # Randomize seeding
     random.shuffle(approved_teams)
     
-    target_bracket_size = 2**int(math.log2(num_teams))
-    if target_bracket_size < num_teams:
-        num_matches_in_round_1 = num_teams - target_bracket_size
-        num_teams_in_round_1 = num_matches_in_round_1 * 2
+    # Calculate K (largest power of 2 <= num_teams)
+    # T is the nearest power of 2 >= num_teams
+    if num_teams & (num_teams - 1) == 0:
+        K = num_teams
+        has_preliminary = False
     else:
-        num_matches_in_round_1 = num_teams // 2
-        num_teams_in_round_1 = num_teams
+        K = 2**int(math.log2(num_teams))
+        has_preliminary = True
 
-    match_count = 0
-    teams_playing = approved_teams[:num_teams_in_round_1]
-    
+    # Total rounds
+    # If no preliminary round, rounds are 1 .. log2(K)
+    # If preliminary round, rounds are 1 (preliminary) .. log2(K) + 1
+    if not has_preliminary:
+        max_round = int(math.log2(K))
+    else:
+        max_round = int(math.log2(K)) + 1
+
     # Timing config
     current_time = tournament.start_time or tournament.start_date
     if isinstance(current_time, str):
-        from datetime import datetime
         current_time = datetime.fromisoformat(current_time)
+    if isinstance(current_time, date) and not isinstance(current_time, datetime):
+        current_time = datetime.combine(current_time, datetime.min.time())
         
     match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
-    slot_index = 0
 
-    for i in range(0, len(teams_playing), 2):
-        field_slot = slot_index % num_fields
-        time_offset = slot_index // num_fields
-        match_start = current_time + timedelta(minutes=time_offset * match_duration)
-        
-        field_uuid = None
-        if field_ids:
-            field_uuid = uuid.UUID(field_ids[field_slot])
+    created_matches = {} # Keyed by (round_number, bracket_position)
+    matches_to_add = []
 
-        new_match = Match(
-            tournament_id=tournament_id,
-            division_id=approved_teams[0].division_id,
-            home_team_id=teams_playing[i].team_id,
-            away_team_id=teams_playing[i+1].team_id,
-            field_id=field_uuid,
-            match_date=match_start,
-            status=MatchStatus.DRAFT,
-            round_number=1
-        )
-        db.add(new_match)
-        match_count += 1
-        slot_index += 1
+    # Let's build the tree starting from max_round down to 1
+    for r in range(max_round, 0, -1):
+        # Determine number of matches in this round
+        if r == 1 and has_preliminary:
+            num_matches_in_round = num_teams - K
+        else:
+            # For round r (1-indexed), the number of matches is K / 2**(r - 1) (if no prelims)
+            # or K / 2**(r - 2) (if prelims)
+            round_power = r - 1 if not has_preliminary else r - 2
+            if round_power < 0:
+                num_matches_in_round = K
+            else:
+                num_matches_in_round = K // (2**round_power)
+
+        # Date for this round: each round played on a different day (consecutive days)
+        round_start_time = current_time + timedelta(days=r - 1)
+
+        for pos in range(num_matches_in_round):
+            # Calculate field and time offset for this round
+            field_slot = pos % num_fields
+            time_offset = pos // num_fields
+            match_start = round_start_time + timedelta(minutes=time_offset * match_duration)
+            
+            field_uuid = None
+            if field_ids:
+                try:
+                    field_uuid = uuid.UUID(field_ids[field_slot])
+                except:
+                    pass
+
+            new_match = Match(
+                id=uuid.uuid4(),
+                tournament_id=tournament_id,
+                division_id=approved_teams[0].division_id,
+                field_id=field_uuid,
+                match_date=match_start,
+                status=MatchStatus.DRAFT,
+                round_number=r,
+                bracket_position=pos
+            )
+            created_matches[(r, pos)] = new_match
+            matches_to_add.append(new_match)
+
+    # Link the matches
+    for (r, pos), m in created_matches.items():
+        if r < max_round:
+            # If r == 1 and we have a preliminary round, it feeds into Round 2 Match (pos // 2)
+            # Otherwise, it feeds into Round (r+1) Match (pos // 2)
+            next_round = 2 if (r == 1 and has_preliminary) else r + 1
+            parent_match = created_matches.get((next_round, pos // 2))
+            if parent_match:
+                m.next_match_id = parent_match.id
+
+    # Team assignments
+    if not has_preliminary:
+        # All teams assigned in Round 1
+        for pos in range(K // 2):
+            m = created_matches[(1, pos)]
+            m.home_team_id = approved_teams[2 * pos].team_id
+            m.away_team_id = approved_teams[2 * pos + 1].team_id
+    else:
+        # First 2*(N-K) teams play in Round 1
+        num_prelim_matches = num_teams - K
+        for pos in range(num_prelim_matches):
+            m = created_matches[(1, pos)]
+            m.home_team_id = approved_teams[2 * pos].team_id
+            m.away_team_id = approved_teams[2 * pos + 1].team_id
+
+        # Remaining (2*K - N) teams get BYEs and are placed in Round 2
+        bye_teams = approved_teams[2 * num_prelim_matches:]
+        bye_index = 0
         
+        for pos in range(K // 2):
+            m = created_matches[(2, pos)]
+            
+            # Check Home slot: if it's not fed by Round 1, assign a BYE team
+            if 2 * pos >= num_prelim_matches:
+                if bye_index < len(bye_teams):
+                    m.home_team_id = bye_teams[bye_index].team_id
+                    bye_index += 1
+            
+            # Check Away slot: if it's not fed by Round 1, assign a BYE team
+            if 2 * pos + 1 >= num_prelim_matches:
+                if bye_index < len(bye_teams):
+                    m.away_team_id = bye_teams[bye_index].team_id
+                    bye_index += 1
+
+    db.add_all(matches_to_add)
     db.commit()
     
     return {
-        "message": "AI has constructed the initial knockout bracket with field assignments.",
-        "ai_report": f"Calculated bracket for {num_teams} teams. {num_teams - num_teams_in_round_1} teams received a BYE. Matches distributed across {num_fields} fields.",
+        "message": "AI has constructed the full knockout playoff bracket with automatic advancement links.",
+        "ai_report": f"Calculated playoff tree with {max_round} rounds for {num_teams} teams. {len(matches_to_add)} total matches generated.",
         "teams_total": num_teams,
-        "byes": num_teams - num_teams_in_round_1,
-        "matches_count": match_count
+        "rounds_total": max_round,
+        "matches_count": len(matches_to_add)
     }
 
 def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_group: int = 4):
@@ -560,7 +638,7 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
     
     # Parse field_ids
     field_ids = []
-    if tournament.field_ids:
+    if getattr(tournament, "field_ids", None):
         try:
             field_ids = json.loads(tournament.field_ids)
         except:
@@ -747,6 +825,25 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
         result.status = ResultStatus.FINAL
         
     match.status = MatchStatus.FINISHED
+    
+    # Automatic playoff advancement logic
+    if match.next_match_id:
+        if home_score == away_score:
+            raise HTTPException(
+                status_code=400,
+                detail="Playoff matches must have a winner. Draw scores are not allowed."
+            )
+        winner_id = match.home_team_id if home_score > away_score else match.away_team_id
+        
+        next_match = db.query(Match).filter(Match.id == match.next_match_id).first()
+        if next_match:
+            if match.bracket_position is not None:
+                if match.bracket_position % 2 == 0:
+                    next_match.home_team_id = winner_id
+                else:
+                    next_match.away_team_id = winner_id
+                db.add(next_match)
+                
     db.commit()
     
     # Notify participants about the final score
@@ -959,13 +1056,13 @@ def update_tournament_player_stats(
     
     agg_stats = db.query(TournamentPlayerStats).filter(
         TournamentPlayerStats.division_id == division_id,
-        TournamentPlayerStats.child_profile_id == child_profile_id
+        TournamentPlayerStats.player_profile_id == child_profile_id
     ).first()
     
     if not agg_stats:
         agg_stats = TournamentPlayerStats(
             division_id=division_id,
-            child_profile_id=child_profile_id
+            player_profile_id=child_profile_id
         )
         db.add(agg_stats)
     

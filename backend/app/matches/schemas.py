@@ -125,6 +125,8 @@ class LineupPlayerBase(BaseModel):
     is_starting: bool = True
     position: Optional[str] = None # GK, DF, MF, FW
     jersey_number: Optional[int] = None
+    pos_x: Optional[float] = None
+    pos_y: Optional[float] = None
 
 class LineupPlayerResponse(LineupPlayerBase):
     id: UUID

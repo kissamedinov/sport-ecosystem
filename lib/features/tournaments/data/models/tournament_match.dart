@@ -30,6 +30,12 @@ class TournamentMatch {
   final String? awayTeamName;
   @JsonKey(name: 'group_id')
   final String? groupId;
+  @JsonKey(name: 'next_match_id')
+  final String? nextMatchId;
+  @JsonKey(name: 'bracket_position')
+  final int? bracketPosition;
+  @JsonKey(name: 'round_number')
+  final int? roundNumber;
 
   TournamentMatch({
     required this.id,
@@ -46,6 +52,9 @@ class TournamentMatch {
     this.homeTeamName,
     this.awayTeamName,
     this.groupId,
+    this.nextMatchId,
+    this.bracketPosition,
+    this.roundNumber,
   });
 
   factory TournamentMatch.fromJson(Map<String, dynamic> json) => _$TournamentMatchFromJson(json);

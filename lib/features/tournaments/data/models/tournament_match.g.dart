@@ -25,6 +25,9 @@ TournamentMatch _$TournamentMatchFromJson(Map<String, dynamic> json) =>
       homeTeamName: json['home_team_name'] as String?,
       awayTeamName: json['away_team_name'] as String?,
       groupId: json['group_id'] as String?,
+      nextMatchId: json['next_match_id'] as String?,
+      bracketPosition: (json['bracket_position'] as num?)?.toInt(),
+      roundNumber: (json['round_number'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TournamentMatchToJson(TournamentMatch instance) =>
@@ -43,4 +46,7 @@ Map<String, dynamic> _$TournamentMatchToJson(TournamentMatch instance) =>
       'home_team_name': instance.homeTeamName,
       'away_team_name': instance.awayTeamName,
       'group_id': instance.groupId,
+      'next_match_id': instance.nextMatchId,
+      'bracket_position': instance.bracketPosition,
+      'round_number': instance.roundNumber,
     };

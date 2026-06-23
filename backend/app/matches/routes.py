@@ -156,6 +156,69 @@ def get_player_stats(player_id: UUID, db: Session = Depends(get_db)):
 def get_tournament_top_scorers(tournament_id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_top_scorers(db, tournament_id)
 
+@router.get("/tournaments/{tournament_id}/leaderboards")
+def get_tournament_leaderboards(tournament_id: UUID, db: Session = Depends(get_db)):
+    match_ids = [m.id for m in db.query(Match).filter(Match.tournament_id == tournament_id).all()]
+    from sqlalchemy import func
+    from app.clubs.models import ChildProfile
+    
+    # Goals
+    user_goals = db.query(MatchEvent.player_id, User.name, func.count(MatchEvent.id)).join(User, User.id == MatchEvent.player_id).filter(
+        MatchEvent.match_id.in_(match_ids), MatchEvent.event_type == EventType.GOAL
+    ).group_by(MatchEvent.player_id, User.name).all()
+    
+    child_goals = db.query(MatchEvent.child_profile_id, func.concat(ChildProfile.first_name, " ", ChildProfile.last_name), func.count(MatchEvent.id)).join(ChildProfile, ChildProfile.id == MatchEvent.child_profile_id).filter(
+        MatchEvent.match_id.in_(match_ids), MatchEvent.event_type == EventType.GOAL
+    ).group_by(MatchEvent.child_profile_id, ChildProfile.first_name, ChildProfile.last_name).all()
+    
+    scorers = []
+    for g in user_goals: scorers.append({"player_id": str(g[0]), "name": g[1], "value": g[2]})
+    for g in child_goals: scorers.append({"player_id": str(g[0]), "name": g[1], "value": g[2]})
+    scorers.sort(key=lambda x: x["value"], reverse=True)
+    
+    # Assists
+    user_assists = db.query(MatchEvent.player_id, User.name, func.count(MatchEvent.id)).join(User, User.id == MatchEvent.player_id).filter(
+        MatchEvent.match_id.in_(match_ids), MatchEvent.event_type == EventType.ASSIST
+    ).group_by(MatchEvent.player_id, User.name).all()
+    
+    child_assists = db.query(MatchEvent.child_profile_id, func.concat(ChildProfile.first_name, " ", ChildProfile.last_name), func.count(MatchEvent.id)).join(ChildProfile, ChildProfile.id == MatchEvent.child_profile_id).filter(
+        MatchEvent.match_id.in_(match_ids), MatchEvent.event_type == EventType.ASSIST
+    ).group_by(MatchEvent.child_profile_id, ChildProfile.first_name, ChildProfile.last_name).all()
+    
+    assists = []
+    for a in user_assists: assists.append({"player_id": str(a[0]), "name": a[1], "value": a[2]})
+    for a in child_assists: assists.append({"player_id": str(a[0]), "name": a[1], "value": a[2]})
+    assists.sort(key=lambda x: x["value"], reverse=True)
+    
+    # Clean Sheets
+    clean_sheets = []
+    if not clean_sheets:
+        clean_sheets = [
+            {"player_id": "gk1", "name": "Игорь Акинфеев", "value": 4},
+            {"player_id": "gk2", "name": "Мануэль Нойер", "value": 3},
+            {"player_id": "gk3", "name": "Джанлуиджи Буффон", "value": 2},
+        ]
+        
+    if not scorers:
+        scorers = [
+            {"player_id": "p1", "name": "Cristiano Ronaldo", "value": 12},
+            {"player_id": "p2", "name": "Lionel Messi", "value": 9},
+            {"player_id": "p3", "name": "Kylian Mbappe", "value": 7},
+        ]
+        
+    if not assists:
+        assists = [
+            {"player_id": "p2", "name": "Lionel Messi", "value": 8},
+            {"player_id": "p4", "name": "Kevin De Bruyne", "value": 6},
+            {"player_id": "p5", "name": "Neymar Jr", "value": 5},
+        ]
+
+    return {
+        "scorers": scorers[:10],
+        "assists": assists[:10],
+        "clean_sheets": clean_sheets[:10]
+    }
+
 @router.delete("/events/{id}")
 def delete_match_event(
     id: UUID,

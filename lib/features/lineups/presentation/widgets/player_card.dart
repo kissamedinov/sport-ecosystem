@@ -6,12 +6,14 @@ class PlayerCard extends StatelessWidget {
   final PlayerLineupModel player;
   final ValueChanged<bool> onStartingChanged;
   final ValueChanged<String?> onPositionChanged;
+  final ValueChanged<int?> onJerseyNumberChanged;
 
   const PlayerCard({
     super.key,
     required this.player,
     required this.onStartingChanged,
     required this.onPositionChanged,
+    required this.onJerseyNumberChanged,
   });
 
   @override
@@ -104,6 +106,32 @@ class PlayerCard extends StatelessWidget {
                         }).toList(),
                         onChanged: onPositionChanged,
                       ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Номер джерси',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: 80,
+                    height: 36,
+                    child: TextFormField(
+                      initialValue: player.jerseyNumber?.toString(),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: '#',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
+                      onChanged: (value) {
+                        onJerseyNumberChanged(int.tryParse(value));
+                      },
                     ),
                   ),
                 ],

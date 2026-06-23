@@ -48,6 +48,8 @@ class LineupPlayer {
   final bool isStarting;
   final String? position;
   final int? jerseyNumber;
+  final double? posX;
+  final double? posY;
 
   LineupPlayer({
     this.playerId,
@@ -55,6 +57,8 @@ class LineupPlayer {
     required this.isStarting,
     this.position,
     this.jerseyNumber,
+    this.posX,
+    this.posY,
   });
 
   factory LineupPlayer.fromJson(Map<String, dynamic> json) {
@@ -64,6 +68,8 @@ class LineupPlayer {
       isStarting: json['is_starting'] ?? false,
       position: json['position'],
       jerseyNumber: json['jersey_number'],
+      posX: json['pos_x'] != null ? (json['pos_x'] as num).toDouble() : null,
+      posY: json['pos_y'] != null ? (json['pos_y'] as num).toDouble() : null,
     );
   }
 
@@ -74,6 +80,8 @@ class LineupPlayer {
       'is_starting': isStarting,
       'position': position,
       if (jerseyNumber != null) 'jersey_number': jerseyNumber,
+      if (posX != null) 'pos_x': posX,
+      if (posY != null) 'pos_y': posY,
     };
   }
 }

@@ -20,6 +20,7 @@ MatchModel _$MatchModelFromJson(Map<String, dynamic> json) => MatchModel(
   tournamentId: json['tournament_id'] as String?,
   divisionId: json['division_id'] as String?,
   groupId: json['group_id'] as String?,
+  roundNumber: (json['round_number'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$MatchModelToJson(MatchModel instance) =>
@@ -34,4 +35,5 @@ Map<String, dynamic> _$MatchModelToJson(MatchModel instance) =>
       'tournament_id': instance.tournamentId,
       'division_id': instance.divisionId,
       'group_id': instance.groupId,
+      'round_number': instance.roundNumber,
     };

@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
-import '../../data/models/top_scorer.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class LeaderboardItem extends StatelessWidget {
-  final TopScorer scorer;
+  final String name;
+  final String? teamName;
   final int rank;
+  final int value;
+  final IconData icon;
+  final Color highlightColor;
 
   const LeaderboardItem({
     super.key,
-    required this.scorer,
+    required this.name,
+    this.teamName,
     required this.rank,
+    required this.value,
+    this.icon = Icons.sports_soccer,
+    this.highlightColor = PremiumTheme.neonGreen,
   });
 
   @override
@@ -29,7 +36,7 @@ class LeaderboardItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  scorer.name.toUpperCase(),
+                  name.toUpperCase(),
                   style: TextStyle(
                     fontWeight: isTop3 ? FontWeight.bold : FontWeight.w500,
                     fontSize: 14,
@@ -37,9 +44,9 @@ class LeaderboardItem extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                if (scorer.teamName != null)
+                if (teamName != null)
                   Text(
-                    scorer.teamName!,
+                    teamName!,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
                   ),
               ],
@@ -48,19 +55,19 @@ class LeaderboardItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+              color: highlightColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.1)),
+              border: Border.all(color: highlightColor.withValues(alpha: 0.1)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.sports_soccer, size: 12, color: PremiumTheme.neonGreen),
+                Icon(icon, size: 12, color: highlightColor),
                 const SizedBox(width: 6),
                 Text(
-                  "${scorer.goals}",
-                  style: const TextStyle(
+                  "$value",
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: PremiumTheme.neonGreen,
+                    color: highlightColor,
                     fontSize: 14,
                   ),
                 ),

@@ -304,7 +304,9 @@ def create_or_update_lineup(db: Session, match_id: UUID, lineup_in: LineupCreate
             child_profile_id=p.child_profile_id,
             is_starting=p.is_starting,
             position=p.position,
-            jersey_number=p.jersey_number
+            jersey_number=p.jersey_number,
+            pos_x=p.pos_x,
+            pos_y=p.pos_y
         )
         db.add(lp)
     

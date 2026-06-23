@@ -479,43 +479,67 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
               ),
 
               const SizedBox(height: 24),
-              _buildSectionTitle('tournament.match_settings'.tr(), Icons.timer, cs),
-              PremiumCard(
-                child: Column(
+              Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  title: Row(
+                    children: [
+                      Icon(Icons.tune, color: PremiumTheme.neonGreen, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'tournament.advanced_settings'.tr(),
+                        style: TextStyle(
+                          color: cs.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  iconColor: PremiumTheme.neonGreen,
+                  collapsedIconColor: cs.onSurface.withValues(alpha: 0.7),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
                   children: [
-                    _buildFieldSelectionToggle(cs),
-                    const SizedBox(height: 16),
-                    if (!_useAcademyFields)
-                      _buildNumberField('tournament.num_fields'.tr(), _numFields, (v) => _numFields = v, cs)
-                    else
-                      _buildFieldsList(cs),
-                    Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
-                    Row(
-                      children: [
-                        Expanded(child: _buildNumberField('tournament.half_min'.tr(), _matchHalf, (v) => _matchHalf = v, cs)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildNumberField('tournament.break_min'.tr(), _halfBreak, (v) => _halfBreak = v, cs)),
-                      ],
+                    _buildSectionTitle('tournament.match_settings'.tr(), Icons.timer, cs),
+                    PremiumCard(
+                      child: Column(
+                        children: [
+                          _buildFieldSelectionToggle(cs),
+                          const SizedBox(height: 16),
+                          if (!_useAcademyFields)
+                            _buildNumberField('tournament.num_fields'.tr(), _numFields, (v) => _numFields = v, cs)
+                          else
+                            _buildFieldsList(cs),
+                          Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
+                          Row(
+                            children: [
+                              Expanded(child: _buildNumberField('tournament.half_min'.tr(), _matchHalf, (v) => _matchHalf = v, cs)),
+                              const SizedBox(width: 12),
+                              Expanded(child: _buildNumberField('tournament.break_min'.tr(), _halfBreak, (v) => _halfBreak = v, cs)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _buildNumberField('tournament.min_rest_slots'.tr(), _minRest, (v) => _minRest = v, cs),
+                          Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
+                          _buildTimeTile('tournament.day_starts'.tr(), _startTime, (t) => setState(() => _startTime = t), cs),
+                          _buildTimeTile('tournament.day_ends'.tr(), _endTime, (t) => setState(() => _endTime = t), cs),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildNumberField('tournament.min_rest_slots'.tr(), _minRest, (v) => _minRest = v, cs),
-                    Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 32),
-                    _buildTimeTile('tournament.day_starts'.tr(), _startTime, (t) => setState(() => _startTime = t), cs),
-                    _buildTimeTile('tournament.day_ends'.tr(), _endTime, (t) => setState(() => _endTime = t), cs),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              _buildSectionTitle('tournament.points_system'.tr(), Icons.score, cs),
-              PremiumCard(
-                child: Row(
-                  children: [
-                    Expanded(child: _buildNumberField('tournament.win'.tr(), _ptsWin, (v) => _ptsWin = v, cs)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildNumberField('tournament.draw'.tr(), _ptsDraw, (v) => _ptsDraw = v, cs)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildNumberField('tournament.loss'.tr(), _ptsLoss, (v) => _ptsLoss = v, cs)),
+                    const SizedBox(height: 24),
+                    _buildSectionTitle('tournament.points_system'.tr(), Icons.score, cs),
+                    PremiumCard(
+                      child: Row(
+                        children: [
+                          Expanded(child: _buildNumberField('tournament.win'.tr(), _ptsWin, (v) => _ptsWin = v, cs)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildNumberField('tournament.draw'.tr(), _ptsDraw, (v) => _ptsDraw = v, cs)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildNumberField('tournament.loss'.tr(), _ptsLoss, (v) => _ptsLoss = v, cs)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -534,6 +558,39 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       ),
     );
   }
+  void _addQuickDivision(String ageCategory) {
+    setState(() {
+      int birthYear = 0;
+      if (ageCategory != 'ADULT') {
+        if (ageCategory.startsWith('U')) {
+          birthYear = DateTime.now().year - int.parse(ageCategory.substring(1));
+        } else {
+          birthYear = int.parse(ageCategory);
+        }
+      }
+      
+      final name = 'Дивизион $ageCategory';
+      final exists = _divisions.any((div) => div['name'] == name);
+      if (exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Дивизион $ageCategory уже добавлен'),
+            backgroundColor: PremiumTheme.danger,
+          ),
+        );
+        return;
+      }
+
+      _divisions.add({
+        'name': name,
+        'format': '8+1',
+        'entry_fee': 0,
+        'birth_year': birthYear,
+        'max_teams': 10,
+      });
+    });
+  }
+
   void _addDivision() {
     if (_divisionNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -565,9 +622,60 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     });
   }
 
+  Widget _buildQuickAgeChips(ColorScheme cs) {
+    final quickAges = ['2012', '2013', '2014', '2015', '2016', '2017', 'U10', 'U12', 'ADULT'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+          child: Text(
+            'Быстрый выбор возраста (авто-создание группы):',
+            style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6), fontSize: 11, fontWeight: FontWeight.w500),
+          ),
+        ),
+        SizedBox(
+          height: 38,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: quickAges.length,
+            itemBuilder: (context, index) {
+              final age = quickAges[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ChoiceChip(
+                  label: Text(
+                    age,
+                    style: TextStyle(
+                      color: PremiumTheme.neonGreen,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  selected: false,
+                  backgroundColor: PremiumTheme.surfaceCard(context),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  onSelected: (_) => _addQuickDivision(age),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
   Widget _buildDivisionsSection(ColorScheme cs) {
     return Column(
       children: [
+        _buildQuickAgeChips(cs),
         PremiumCard(
           child: Column(
             children: [
@@ -577,7 +685,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                     flex: 2,
                     child: PremiumTextField(
                       controller: _divisionNameController,
-                      label: 'tournament.tournament_name'.tr(),
+                      label: 'tournament.division_name'.tr(),
                       icon: Icons.label_outline,
                       hintText: 'tournament.division_name_hint'.tr(),
                     ),

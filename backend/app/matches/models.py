@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Enum, func, Boolean
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Enum, func, Boolean, Float
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -56,13 +56,15 @@ class Match(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tournament_id = Column(UUID(as_uuid=True), ForeignKey("tournaments.id"), nullable=True)
     division_id = Column(UUID(as_uuid=True), ForeignKey("tournament_divisions.id"), nullable=True)
-    home_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
-    away_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=False)
+    home_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=True)
+    away_team_id = Column(UUID(as_uuid=True), ForeignKey("teams.id"), nullable=True)
     field_id = Column(UUID(as_uuid=True), ForeignKey("fields.id"), nullable=True)
     group_id = Column(UUID(as_uuid=True), ForeignKey("tournament_groups.id"), nullable=True)
     round_number = Column(Integer, nullable=False, default=1)
     match_date = Column(DateTime(timezone=True), nullable=True)
     status = Column(String, default=MatchStatus.SCHEDULED.value, nullable=False)
+    next_match_id = Column(UUID(as_uuid=True), ForeignKey("matches.id"), nullable=True)
+    bracket_position = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     from app.fields.models import Field
@@ -74,6 +76,7 @@ class Match(Base):
     away_team = relationship("Team", foreign_keys=[away_team_id])
     group = relationship("TournamentGroup")
     result = relationship("MatchResult", back_populates="match", uselist=False)
+    next_match = relationship("Match", remote_side=[id], backref="prev_matches")
     
     @property
     def field_name(self):
@@ -120,6 +123,8 @@ class MatchLineupPlayer(Base):
     role = Column(Enum(LineupRole), default=LineupRole.STARTING, nullable=False)
     position = Column(String, nullable=True) # GK, DF, MF, FW
     jersey_number = Column(Integer, nullable=True)
+    pos_x = Column(Float, nullable=True)
+    pos_y = Column(Float, nullable=True)
 
     lineup = relationship("MatchLineup", back_populates="players")
     player = relationship("User")
