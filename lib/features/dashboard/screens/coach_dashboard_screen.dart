@@ -62,9 +62,42 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   Future<void> _openLineup() async {
     setState(() => _fabActive = true);
+    final provider = context.read<ClubProvider>();
+    final dashboard = provider.coachDashboard;
+    final teams = dashboard != null ? (dashboard['teams'] as List? ?? []) : [];
+    
+    final matchedTeam = teams.isNotEmpty ? teams.first : null;
+    String? myTeamName;
+    List<PlayerTeam> players = [];
+    if (matchedTeam != null) {
+      myTeamName = (matchedTeam['name'] ?? 'My Team').toString();
+      final coachedTeamId = matchedTeam['id']?.toString() ?? '';
+      if (matchedTeam['players'] != null) {
+        final playerList = matchedTeam['players'] as List;
+        players = playerList.map((p) {
+          return PlayerTeam(
+            id: p['profile_id']?.toString() ?? '',
+            teamId: coachedTeamId,
+            playerId: p['user_id']?.toString() ?? '',
+            joinedAt: DateTime.now(),
+            player: User(
+              id: p['user_id']?.toString() ?? '',
+              name: p['name']?.toString() ?? 'Player',
+              email: '',
+            ),
+            position: p['position']?.toString(),
+            jerseyNumber: p['jersey_number'] != null ? int.tryParse(p['jersey_number'].toString()) : null,
+          );
+        }).toList();
+      }
+    }
+
     await Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (_, _, _) => const LineupScreen(),
+        pageBuilder: (_, _, _) => LineupScreen(
+          teamName: myTeamName,
+          players: players,
+        ),
         transitionsBuilder: (_, a, _, c) =>
             FadeTransition(opacity: a, child: c),
         transitionDuration: const Duration(milliseconds: 220),
@@ -996,13 +1029,50 @@ class _CoachingToolsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ClubProvider>();
+    final dashboard = provider.coachDashboard;
+    final teams = dashboard != null ? (dashboard['teams'] as List? ?? []) : [];
+    
+    final matchedTeam = teams.isNotEmpty ? teams.first : null;
+    String? myTeamName;
+    List<PlayerTeam> players = [];
+    if (matchedTeam != null) {
+      myTeamName = (matchedTeam['name'] ?? 'My Team').toString();
+      final coachedTeamId = matchedTeam['id']?.toString() ?? '';
+      if (matchedTeam['players'] != null) {
+        final playerList = matchedTeam['players'] as List;
+        players = playerList.map((p) {
+          return PlayerTeam(
+            id: p['profile_id']?.toString() ?? '',
+            teamId: coachedTeamId,
+            playerId: p['user_id']?.toString() ?? '',
+            joinedAt: DateTime.now(),
+            player: User(
+              id: p['user_id']?.toString() ?? '',
+              name: p['name']?.toString() ?? 'Player',
+              email: '',
+            ),
+            position: p['position']?.toString(),
+            jerseyNumber: p['jersey_number'] != null ? int.tryParse(p['jersey_number'].toString()) : null,
+          );
+        }).toList();
+      }
+    }
+
     final items = <_ToolItem>[
       _ToolItem(
         'match.lineup'.tr(),
         'match.lineup_sub'.tr(),
         Icons.grid_view_rounded,
         PremiumTheme.neonGreen,
-        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LineupScreen())),
+        () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => LineupScreen(
+              teamName: myTeamName,
+              players: players,
+            ),
+          ),
+        ),
       ),
       _ToolItem(
         'coach.training_plan'.tr(),
