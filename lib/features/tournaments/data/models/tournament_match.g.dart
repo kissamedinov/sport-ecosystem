@@ -11,8 +11,8 @@ TournamentMatch _$TournamentMatchFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       tournamentId: json['tournament_id'] as String?,
       divisionId: json['division_id'] as String?,
-      homeTeamId: json['home_team_id'] as String,
-      awayTeamId: json['away_team_id'] as String,
+      homeTeamId: json['home_team_id'] as String?,
+      awayTeamId: json['away_team_id'] as String?,
       fieldId: json['field_id'] as String?,
       fieldName: json['field_name'] as String?,
       matchDate:

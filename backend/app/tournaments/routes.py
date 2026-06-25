@@ -119,11 +119,12 @@ def get_tournament_teams(id: UUID, db: Session = Depends(get_db)):
 def update_team_status(
     tournament_id: UUID, 
     team_id: UUID, 
-    status: RegistrationStatus, 
+    status: Optional[RegistrationStatus] = None, 
+    registration_data: Optional[str] = None,
     db: Session = Depends(get_db), 
     current_user: User = Depends(require_tournament_organizer)
 ):
-    return services.update_tournament_team_status(db, tournament_id, team_id, status)
+    return services.update_tournament_team_status(db, tournament_id, team_id, status, registration_data)
 
 #  Scheduling & Matches 
 

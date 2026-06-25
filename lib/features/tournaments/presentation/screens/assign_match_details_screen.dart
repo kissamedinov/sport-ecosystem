@@ -185,19 +185,19 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildTeamInfo(widget.match.homeTeamId, 'tournament.home_label'.tr()),
-          const Column(
-            children: [
-              Text("VS", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2)),
-            ],
-          ),
-          _buildTeamInfo(widget.match.awayTeamId, 'tournament.away_label'.tr()),
+        _buildTeamInfo(widget.match.homeTeamId, 'tournament.home_label'.tr()),
+        const Column(
+          children: [
+            Text("VS", style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2)),
+          ],
+        ),
+        _buildTeamInfo(widget.match.awayTeamId, 'tournament.away_label'.tr()),
         ],
       ),
     );
   }
 
-  Widget _buildTeamInfo(String teamId, String label) {
+  Widget _buildTeamInfo(String? teamId, String label) {
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
@@ -214,7 +214,7 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
         const SizedBox(height: 12),
         Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
         const SizedBox(height: 4),
-        Text(teamId.substring(0, 8).toUpperCase(), style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 12)),
+        Text(teamId != null ? (teamId.length > 8 ? teamId.substring(0, 8).toUpperCase() : teamId.toUpperCase()) : 'TBD', style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 12)),
       ],
     );
   }

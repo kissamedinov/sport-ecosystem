@@ -5,6 +5,7 @@ from uuid import UUID
 from app.tournaments.models import TournamentFormat, AgeCategory, RegistrationStatus, SurfaceType, Season
 from app.matches.models import MatchStatus as TournamentMatchStatus
 from app.teams.schemas import TeamResponse
+from app.matches.schemas import MatchResultResponse
 
 class TournamentBase(BaseModel):
     name: str
@@ -130,8 +131,8 @@ class TournamentMatchResponse(BaseModel):
     id: UUID
     tournament_id: Optional[UUID] = None
     division_id: Optional[UUID] = None
-    home_team_id: UUID
-    away_team_id: UUID
+    home_team_id: Optional[UUID] = None
+    away_team_id: Optional[UUID] = None
     field_id: Optional[UUID] = None
     match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
@@ -140,7 +141,7 @@ class TournamentMatchResponse(BaseModel):
     away_team_name: Optional[str] = None
     
     # We'll use this to fetch scores from the nested result object
-    result: Optional[dict] = None 
+    result: Optional[MatchResultResponse] = None 
 
     @computed_field
     @property
@@ -168,6 +169,7 @@ class TournamentTeamResponse(BaseModel):
     tournament_id: Optional[UUID] = None
     team_id: UUID
     status: RegistrationStatus
+    registration_data: Optional[str] = None
     team: TeamResponse
 
     model_config = ConfigDict(from_attributes=True)

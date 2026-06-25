@@ -8,6 +8,12 @@ import '../../../clubs/data/models/invitation.dart';
 import '../../../auth/providers/auth_provider.dart' as import_auth;
 import '../../../teams/providers/team_provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import '../../../matches/data/repositories/match_repository.dart';
+import '../../../../core/api/api_client.dart';
+import '../../../tournaments/presentation/screens/match_center_screen.dart';
+import '../../../tournaments/presentation/screens/tournament_details_page.dart';
+import '../../../teams/presentation/screens/team_details_screen.dart';
+
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -230,6 +236,7 @@ class _NotificationCardState extends State<_NotificationCard> {
         if (isUnread) {
           context.read<NotificationProvider>().markAsRead(notification.id);
         }
+        _handleTapNavigation(context, notification);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
@@ -332,6 +339,84 @@ class _NotificationCardState extends State<_NotificationCard> {
       ),
     );
   }
+
+  Future<void> _handleTapNavigation(BuildContext context, dynamic notification) async {
+    final entityId = notification.entityId;
+    final entityType = notification.entityType;
+    final type = notification.type;
+
+    if (entityId == null || entityId.isEmpty) return;
+
+    if (entityType == 'MATCH' || type == 'MATCH_SCHEDULED' || type == 'MATCH_RESULT' || type == 'PLAYER_SELECTED') {
+      _navigateToMatch(context, entityId);
+    } else if (entityType == 'TOURNAMENT' || type.toString().contains('TOURNAMENT')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TournamentDetailsPage(tournamentId: entityId),
+        ),
+      );
+    } else if (entityType == 'TEAM' || type == 'TEAM_INVITE') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TeamDetailsScreen(teamId: entityId),
+        ),
+      );
+    }
+  }
+
+  Future<void> _navigateToMatch(BuildContext context, String matchId) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+      ),
+    );
+
+    try {
+      final matchRepository = MatchRepository(ApiClient());
+      final match = await matchRepository.getMatchById(matchId);
+      
+      if (context.mounted) {
+        Navigator.pop(context); // Dismiss loading dialog
+        
+        if (match.tournamentId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MatchCenterScreen(
+                matchId: match.id,
+                tournamentId: match.tournamentId!,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Tournament ID not found for this match')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Dismiss loading dialog
+        
+        String errorMessage = 'Error loading match details: $e';
+        if (e.toString().contains('404') || e.toString().toLowerCase().contains('not found')) {
+          errorMessage = 'match.match_not_found'.tr();
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
+
 
   void _handleInvitation(BuildContext context, String? invitationId, bool accept,
       {bool isApproval = false}) async {

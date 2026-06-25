@@ -5,7 +5,6 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import '../../../../core/api/stats_api_service.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../matches/data/models/match_event.dart';
-import '../../../matches/data/models/match_award.dart';
 import '../../../matches/data/models/match.dart';
 import '../../../lineups/providers/lineup_provider.dart';
 import '../../../lineups/models/lineup.dart';
@@ -38,6 +37,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   MatchModel? _match;
   bool _isLoadingMatch = true;
   String? _matchError;
+  String? _fieldName;
 
   // Selected team for visual lineup pitch (true = home, false = away)
   bool _viewHomeLineup = true;
@@ -46,10 +46,18 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   String _homeTeamName = 'КОМАНДА ХОЗЯЕВ';
   String _awayTeamName = 'КОМАНДА ГОСТЕЙ';
 
+  /// Map of childProfileId / playerId -> display name
+  final Map<String, String> _playerNamesCache = {};
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     _matchRepository = MatchRepository(ApiClient());
     _loadMatchData();
   }
@@ -63,22 +71,41 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       // Fetch lineups
       if (mounted) {
         final lineupProvider = context.read<LineupProvider>();
-        lineupProvider.fetchTeamLineup(widget.matchId, matchData.homeTeamId);
-        lineupProvider.fetchTeamLineup(widget.matchId, matchData.awayTeamId);
+        if (matchData.homeTeamId != null) lineupProvider.fetchTeamLineup(widget.matchId, matchData.homeTeamId!);
+        if (matchData.awayTeamId != null) lineupProvider.fetchTeamLineup(widget.matchId, matchData.awayTeamId!);
       }
       
       // Fetch team names
       if (mounted) {
         final teamProvider = context.read<TeamProvider>();
-        final homeTeam = await teamProvider.fetchTeamById(matchData.homeTeamId);
-        final awayTeam = await teamProvider.fetchTeamById(matchData.awayTeamId);
+        final homeTeam = matchData.homeTeamId != null ? await teamProvider.fetchTeamById(matchData.homeTeamId!) : null;
+        final awayTeam = matchData.awayTeamId != null ? await teamProvider.fetchTeamById(matchData.awayTeamId!) : null;
         if (mounted) {
           setState(() {
             if (homeTeam != null) _homeTeamName = homeTeam.name;
             if (awayTeam != null) _awayTeamName = awayTeam.name;
             _isLoadingMatch = false;
           });
+          // Load player names for lineup display
+          _loadPlayerNames(matchData.homeTeamId, matchData.awayTeamId);
         }
+      }
+
+      // Fetch field name
+      try {
+        if (mounted) {
+          final apiClient = context.read<ApiClient>();
+          final res = await apiClient.get('/matches/${widget.matchId}');
+          if (res.statusCode == 200 && res.data != null) {
+            if (mounted) {
+              setState(() {
+                _fieldName = res.data['field_name'];
+              });
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore field name fetch error
       }
     } catch (e) {
       setState(() {
@@ -86,6 +113,31 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         _isLoadingMatch = false;
       });
     }
+  }
+
+  /// Fetches player names from /teams/{teamId}/players for both sides
+  Future<void> _loadPlayerNames(String? homeTeamId, String? awayTeamId) async {
+    final apiClient = context.read<ApiClient>();
+
+    Future<void> fetchForTeam(String? teamId) async {
+      if (teamId == null) return;
+      try {
+        final res = await apiClient.get('/teams/$teamId/players');
+        if (res.statusCode == 200 && res.data is List) {
+          for (var item in res.data) {
+            final pId = item['child_profile_id'] ?? item['player_id'];
+            final name = item['player_name'] ?? item['player']?['name'];
+            if (pId != null && name != null) {
+              if (mounted) _playerNamesCache[pId.toString()] = name.toString();
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    await fetchForTeam(homeTeamId);
+    await fetchForTeam(awayTeamId);
+    if (mounted) setState(() {});
   }
 
   Future<void> _shareMatchCard() async {
@@ -132,8 +184,6 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     if (_isLoadingMatch) {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0F1D),
@@ -171,7 +221,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'МАТЧ-ЦЕНТР'.tr(),
+          'match.match_center'.tr().toUpperCase(),
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 14,
@@ -179,12 +229,6 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share_rounded, color: Colors.white),
-            onPressed: _shareMatchCard,
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -206,159 +250,223 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   }
 
   Widget _buildScoreboardCard(MatchModel match) {
-    final bool isLive = match.status == 'LIVE';
-    final bool isFinished = match.status == 'FINISHED';
-
     return RepaintBoundary(
       key: _repaintKey,
       child: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFF0A0F1D),
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [PremiumTheme.surfaceBase(context), Colors.black],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161F37),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF1E2640), Color(0xFF0B111E)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(child: _buildTeamHeader(_homeTeamName, Colors.redAccent)),
+                _buildMiddleScore(match),
+                Expanded(child: _buildTeamHeader(_awayTeamName, Colors.blueAccent)),
+              ],
             ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  // Home Team
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.redAccent.withOpacity(0.4), width: 1.5),
-                          ),
-                          child: const Icon(Icons.shield, size: 32, color: Colors.redAccent),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _homeTeamName,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Score
-                  Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white10),
-                        ),
-                        child: Text(
-                          isFinished || isLive
-                              ? '${match.homeScore} - ${match.awayScore}'
-                              : 'VS',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isLive 
-                              ? const Color(0xFF00E676).withOpacity(0.15) 
-                              : Colors.blueAccent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          isLive ? 'LIVE' : (isFinished ? 'ЗАВЕРШЕН' : 'ЗАПЛАНИРОВАН'),
-                          style: TextStyle(
-                            color: isLive ? const Color(0xFF00E676) : Colors.blueAccent,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  // Away Team
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.blueAccent.withOpacity(0.4), width: 1.5),
-                          ),
-                          child: const Icon(Icons.shield, size: 32, color: Colors.blueAccent),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _awayTeamName,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            const SizedBox(height: 24),
+            _buildMatchMeta(match),
+            const SizedBox(height: 24),
+            _buildActionButtons(),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTabBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161F37).withOpacity(0.4),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          color: const Color(0xFF2979FF),
-          borderRadius: BorderRadius.circular(12),
+  Widget _buildTeamHeader(String name, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 70,
+          height: 70,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+            boxShadow: [
+              BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 20, spreadRadius: 2),
+            ],
+          ),
+          child: Icon(Icons.shield_rounded, size: 40, color: color),
         ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white54,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        tabs: const [
-          Tab(text: 'Составы'),
-          Tab(text: 'События'),
-          Tab(text: 'Детали'),
+        const SizedBox(height: 12),
+        Text(
+          name,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMiddleScore(MatchModel match) {
+    final bool isLive = match.status == 'LIVE';
+    final bool isFinished = match.status == 'FINISHED';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Text(
+            isFinished || isLive
+                ? '${match.homeScore ?? 0} : ${match.awayScore ?? 0}'
+                : 'VS',
+            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: isLive ? Colors.redAccent.withValues(alpha: 0.1) : Colors.blueAccent.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            isLive ? 'LIVE' : (isFinished ? 'match.status_finished'.tr().toUpperCase() : 'match.status_scheduled'.tr().toUpperCase()),
+            style: TextStyle(
+              color: isLive ? Colors.redAccent : Colors.blueAccent,
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMatchMeta(MatchModel match) {
+    final dateStr = match.matchDate != null
+        ? DateFormat('dd.MM.yyyy HH:mm').format(match.matchDate!)
+        : 'TBD';
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.calendar_today_rounded, size: 14, color: Colors.white38),
+        const SizedBox(width: 8),
+        Text(
+          dateStr,
+          style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(width: 20),
+        const Icon(Icons.location_on_outlined, size: 14, color: Colors.white38),
+        const SizedBox(width: 8),
+        Text(
+          _fieldName ?? 'ARENA CENTER',
+          style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), () {
+          _tabController.animateTo(1);
+        }),
+        const SizedBox(width: 24),
+        _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), null),
+        const SizedBox(width: 24),
+        _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), () {
+          _shareMatchCard();
+        }),
+      ],
+    );
+  }
+
+  Widget _buildCircleAction(IconData icon, String label, VoidCallback? onTap) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Icon(icon, color: onTap != null ? Colors.white : Colors.white24, size: 20),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(label.toUpperCase(), style: TextStyle(color: onTap != null ? Colors.white54 : Colors.white24, fontSize: 9, fontWeight: FontWeight.w800)),
+      ],
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _tabController.animateTo(0);
+              });
+            },
+            child: _buildTab('match.tab_lineups'.tr(), _tabController.index == 0),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _tabController.animateTo(1);
+              });
+            },
+            child: _buildTab('match.tab_timeline'.tr(), _tabController.index == 1),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _tabController.animateTo(2);
+              });
+            },
+            child: _buildTab('match.tab_details'.tr(), _tabController.index == 2),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String label, bool active) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: active ? PremiumTheme.neonGreen : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: active ? PremiumTheme.neonGreen : Colors.white10),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: active ? Colors.black : Colors.white38,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1,
+        ),
       ),
     );
   }
@@ -366,7 +474,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   Widget _buildLineupsTab(MatchModel match) {
     final lineupProvider = context.watch<LineupProvider>();
     final targetTeamId = _viewHomeLineup ? match.homeTeamId : match.awayTeamId;
-    final lineup = lineupProvider.getLineupForMatch(widget.matchId, targetTeamId);
+    final lineup = targetTeamId != null ? lineupProvider.getLineupForMatch(widget.matchId, targetTeamId) : null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -376,11 +484,11 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildTeamTabButton('Хозяева', _viewHomeLineup, () {
+              _buildTeamTabButton('match.home'.tr(), _viewHomeLineup, () {
                 setState(() => _viewHomeLineup = true);
               }),
               const SizedBox(width: 12),
-              _buildTeamTabButton('Гости', !_viewHomeLineup, () {
+              _buildTeamTabButton('match.away'.tr(), !_viewHomeLineup, () {
                 setState(() => _viewHomeLineup = false);
               }),
             ],
@@ -538,9 +646,13 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   }
 
   Widget _buildPlayerToken(LineupPlayer p) {
-    final name = p.playerId != null && p.playerId!.length > 5 
-        ? 'Игрок ${p.playerId!.substring(0, 5)}'
-        : 'Игрок';
+    // Resolve name: use playerName from model, then cache lookup, then jersey number fallback
+    final key = p.childProfileId ?? p.playerId ?? '';
+    final resolvedName = p.playerName
+        ?? _playerNamesCache[key]
+        ?? (p.jerseyNumber != null ? '#${p.jerseyNumber}' : 'P');
+    // Show only the first word of the name for the pitch token
+    final shortName = resolvedName.split(' ').first.toUpperCase();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -569,7 +681,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            name,
+            shortName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.white70, fontSize: 8, fontWeight: FontWeight.bold),
@@ -624,6 +736,11 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   }
 
   Widget _buildPlayerListItem(LineupPlayer p) {
+    final key = p.childProfileId ?? p.playerId ?? '';
+    final resolvedName = p.playerName
+        ?? _playerNamesCache[key]
+        ?? (p.jerseyNumber != null ? 'Player #${p.jerseyNumber}' : 'Unknown Player');
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -646,19 +763,19 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              p.playerId != null && p.playerId!.length > 8 
-                  ? 'Игрок ${p.playerId!.substring(0, 8)}'
-                  : 'Игрок',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
-            ),
-          ),
-          if (p.jerseyNumber != null)
+          if (p.jerseyNumber != null) ...[
             Text(
               '#${p.jerseyNumber}',
               style: const TextStyle(color: Color(0xFF00E676), fontWeight: FontWeight.bold, fontSize: 12),
             ),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Text(
+              resolvedName,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+          ),
         ],
       ),
     );
@@ -707,40 +824,47 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   }
 
   Widget _buildTimelineEventItem(MatchEvent event, bool isLast) {
-    IconData icon;
-    Color iconColor;
+    IconData icon = Icons.sports_soccer;
+    Color iconColor = Colors.white54;
     String titleText = '';
 
     switch (event.eventType) {
-      case 'GOAL':
+      case EventType.GOAL:
+      case EventType.PENALTY_GOAL:
         icon = Icons.sports_soccer;
         iconColor = const Color(0xFF00E676);
-        titleText = 'Гол! ⚽';
+        titleText = event.eventType == EventType.PENALTY_GOAL ? 'Penalty goal! ⚽️' : 'Гол! ⚽️';
         break;
-      case 'YELLOW_CARD':
+      case EventType.YELLOW_CARD:
         icon = Icons.portrait_rounded;
         iconColor = const Color(0xFFFFD700);
         titleText = 'Желтая карточка 🟨';
         break;
-      case 'RED_CARD':
+      case EventType.RED_CARD:
         icon = Icons.portrait_rounded;
         iconColor = Colors.redAccent;
         titleText = 'Красная карточка 🟥';
         break;
-      case 'ASSIST':
+      case EventType.ASSIST:
         icon = Icons.help_outline_rounded;
         iconColor = Colors.blueAccent;
         titleText = 'Голевая передача 👟';
         break;
-      default:
-        icon = Icons.sports_soccer;
-        iconColor = Colors.white54;
-        titleText = 'Событие';
+      case EventType.SAVE:
+        icon = Icons.shield_outlined;
+        iconColor = Colors.tealAccent;
+        titleText = 'Сейв 🧭';
+        break;
+      case EventType.SUBSTITUTE:
+        icon = Icons.swap_horiz_rounded;
+        iconColor = Colors.orangeAccent;
+        titleText = 'Замена 🔄';
+        break;
     }
 
-    final playerName = event.childProfileId != null && event.childProfileId!.length > 6
-        ? 'Игрок ${event.childProfileId!.substring(0, 6)}'
-        : 'Игрок';
+    // Resolve player name from cache (indexed by childProfileId or playerId)
+    final key = event.childProfileId ?? event.playerId ?? '';
+    final playerName = _playerNamesCache[key] ?? (key.isNotEmpty ? 'Player' : 'Unknown');
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

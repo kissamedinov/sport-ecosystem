@@ -90,7 +90,7 @@ def require_permission(permission_name: str):
     return permission_dependency
 def require_match_reporter(current_user: User = Depends(get_current_user)):
     user_roles = {ur.role for ur in current_user.roles}
-    required_roles = {Role.REFEREE, Role.TOURNAMENT_MANAGER, Role.COACH, Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN}
+    required_roles = {Role.REFEREE, Role.TOURNAMENT_MANAGER, Role.TOURNAMENT_ORGANIZER, Role.COACH, Role.CLUB_OWNER, Role.CLUB_MANAGER, Role.ADMIN}
     if not user_roles.intersection(required_roles):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

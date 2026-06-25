@@ -17,6 +17,8 @@ import '../../tournaments/presentation/screens/tournament_announcements_screen.d
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
 import '../../clubs/presentation/screens/team_management_screen.dart';
 import '../../teams/data/models/team.dart';
+import '../../teams/data/models/player_team.dart';
+import '../../auth/data/models/user.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -176,7 +178,7 @@ class _HomeTab extends StatelessWidget {
                 ),
               if (needsLineup != null)
                 SliverToBoxAdapter(
-                  child: _section(child: _LineupAlertCard(match: needsLineup)),
+                  child: _section(child: _LineupAlertCard(match: needsLineup, teams: teams)),
                 ),
               SliverToBoxAdapter(
                 child: OrleonSectionHeader(
@@ -584,12 +586,60 @@ class _HeroIconButton extends StatelessWidget {
 /// ─────────────────────────── LINEUP ALERT ───────────────────────────
 class _LineupAlertCard extends StatelessWidget {
   final Map<String, dynamic> match;
-  const _LineupAlertCard({required this.match});
+  final List teams;
+  const _LineupAlertCard({required this.match, required this.teams});
 
   @override
   Widget build(BuildContext context) {
-    final opponent = (match['opponent'] ?? 'Opponent').toString();
-    final when = (match['scheduled_at'] ?? match['date'] ?? 'soon').toString();
+    final coachedTeamIds = teams.map((t) => t['id']?.toString()).toSet();
+    final isHomeCoached = coachedTeamIds.contains(match['home_team_id']?.toString());
+    
+    final String myTeamName = isHomeCoached 
+        ? (match['home_team_name'] ?? 'My Team').toString() 
+        : (match['away_team_name'] ?? 'My Team').toString();
+        
+    final String opponentName = isHomeCoached 
+        ? (match['away_team_name'] ?? 'Opponent').toString() 
+        : (match['home_team_name'] ?? 'Opponent').toString();
+
+    final String coachedTeamId = isHomeCoached
+        ? (match['home_team_id'] ?? '').toString()
+        : (match['away_team_id'] ?? '').toString();
+
+    final DateTime? matchDate = match['scheduled_at'] != null 
+        ? DateTime.tryParse(match['scheduled_at'].toString()) 
+        : null;
+
+    final String when = matchDate != null
+        ? DateFormat('dd.MM.yyyy HH:mm').format(matchDate)
+        : 'soon';
+
+    // Find the coached team and extract its players
+    final matchedTeam = teams.firstWhere(
+      (t) => t['id']?.toString() == coachedTeamId,
+      orElse: () => null,
+    );
+
+    List<PlayerTeam> players = [];
+    if (matchedTeam != null && matchedTeam['players'] != null) {
+      final playerList = matchedTeam['players'] as List;
+      players = playerList.map((p) {
+        return PlayerTeam(
+          id: p['profile_id']?.toString() ?? '',
+          teamId: coachedTeamId,
+          playerId: p['user_id']?.toString() ?? '',
+          joinedAt: DateTime.now(),
+          player: User(
+            id: p['user_id']?.toString() ?? '',
+            name: p['name']?.toString() ?? 'Player',
+            email: '',
+          ),
+          position: p['position']?.toString(),
+          jerseyNumber: p['jersey_number'] != null ? int.tryParse(p['jersey_number'].toString()) : null,
+        );
+      }).toList();
+    }
+
     return OrleonCard(
       padding: const EdgeInsets.all(16),
       background: PremiumTheme.amber.withValues(alpha: 0.08),
@@ -622,7 +672,7 @@ class _LineupAlertCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'vs $opponent · $when',
+                  'vs $opponentName · $when',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
@@ -635,7 +685,15 @@ class _LineupAlertCard extends StatelessWidget {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const LineupScreen()),
+              MaterialPageRoute(
+                builder: (_) => LineupScreen(
+                  teamName: myTeamName,
+                  opponent: opponentName,
+                  matchDate: matchDate,
+                  players: players,
+                  format: match['tournament_format']?.toString(),
+                ),
+              ),
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),

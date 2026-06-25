@@ -49,23 +49,28 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: PremiumTheme.surfaceCard(context),
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'СТАТИСТИКА'.tr(),
-          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 1),
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: PremiumTheme.neonGreen,
-          labelColor: PremiumTheme.neonGreen,
-          unselectedLabelColor: cs.onSurfaceVariant,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+          indicatorColor: PremiumTheme.accent(context),
+          labelColor: PremiumTheme.accent(context),
+          unselectedLabelColor: cs.onSurface.withValues(alpha: 0.5),
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          indicatorWeight: 2,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.5),
           tabs: const [
-            Tab(text: 'Бомбардиры'),
-            Tab(text: 'Ассистенты'),
-            Tab(text: 'Вратари'),
-            Tab(text: 'Гол+Пас'),
+            Tab(text: 'БОМБАРДИРЫ'),
+            Tab(text: 'АССИСТЕНТЫ'),
+            Tab(text: 'ВРАТАРИ'),
+            Tab(text: 'ГОЛ+ПАС'),
           ],
         ),
       ),
@@ -111,39 +116,43 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
           return Column(
             children: [
               if (divisionsData.length > 1)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Row(
-                    children: divisionsData.map((d) {
-                      final isSelected = _selectedDivisionId == d['division_id'];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedDivisionId = d['division_id'];
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.15) : cs.onSurface.withValues(alpha: 0.05),
-                              border: Border.all(color: isSelected ? PremiumTheme.neonGreen : Colors.transparent),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              d['division_name'] ?? 'Division',
-                              style: TextStyle(
-                                color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.6),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                Container(
+                  color: PremiumTheme.surfaceCard(context),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: divisionsData.map((d) {
+                        final isSelected = _selectedDivisionId == d['division_id'];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedDivisionId = d['division_id'];
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected ? PremiumTheme.accent(context) : cs.onSurface.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                d['division_name']?.toUpperCase() ?? 'DIVISION',
+                                style: TextStyle(
+                                  color: isSelected ? Colors.black : cs.onSurface.withValues(alpha: 0.5),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 10,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               Expanded(
@@ -175,20 +184,17 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: LeaderboardItem(
-            name: item['name'] ?? 'Игрок',
-            teamName: item['team_name'],
-            rank: index + 1,
-            value: item['value'] ?? 0,
-            icon: icon,
-            highlightColor: color,
-          ),
+        return LeaderboardItem(
+          name: item['name'] ?? 'Игрок',
+          teamName: item['team_name'],
+          rank: index + 1,
+          value: item['value'] ?? 0,
+          icon: icon,
+          highlightColor: color,
         );
       },
     );

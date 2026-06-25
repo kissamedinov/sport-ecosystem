@@ -21,13 +21,13 @@ class PremiumTheme {
 
   // === Theme-aware surface colors ===
   static Color surfaceBase(BuildContext c) =>
-      _isDark(c) ? const Color(0xFF0A0E12) : const Color(0xFFF5F5F5);
+      _isDark(c) ? const Color(0xFF081216) : const Color(0xFFF5F5F5);
 
   static Color surfaceCard(BuildContext c) =>
-      _isDark(c) ? const Color(0xFF161B22) : Colors.white;
+      _isDark(c) ? const Color(0xFF0F1E24) : Colors.white;
 
   static Color borderSubtle(BuildContext c) =>
-      _isDark(c) ? const Color(0xFF30363D) : const Color(0xFFE0E0E0);
+      _isDark(c) ? const Color(0xFF1B2E36) : const Color(0xFFE0E0E0);
 
   static bool _isDark(BuildContext c) =>
       Theme.of(c).brightness == Brightness.dark;

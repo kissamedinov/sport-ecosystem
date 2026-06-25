@@ -23,17 +23,19 @@ class PremiumCard extends StatelessWidget {
       height: height,
       width: width,
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: PremiumTheme.glassDecorationOf(context),
+      decoration: BoxDecoration(
+        color: PremiumTheme.surfaceCard(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          child: PremiumTheme.glassEffect(context,
-            child: Padding(
-              padding: padding,
-              child: child,
-            ),
+          child: Padding(
+            padding: padding,
+            child: child,
           ),
         ),
       ),

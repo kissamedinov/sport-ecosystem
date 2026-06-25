@@ -50,6 +50,8 @@ class LineupPlayer {
   final int? jerseyNumber;
   final double? posX;
   final double? posY;
+  /// Display name of the player (from API or resolved separately)
+  final String? playerName;
 
   LineupPlayer({
     this.playerId,
@@ -59,6 +61,7 @@ class LineupPlayer {
     this.jerseyNumber,
     this.posX,
     this.posY,
+    this.playerName,
   });
 
   factory LineupPlayer.fromJson(Map<String, dynamic> json) {
@@ -70,6 +73,7 @@ class LineupPlayer {
       jerseyNumber: json['jersey_number'],
       posX: json['pos_x'] != null ? (json['pos_x'] as num).toDouble() : null,
       posY: json['pos_y'] != null ? (json['pos_y'] as num).toDouble() : null,
+      playerName: json['player_name'],
     );
   }
 

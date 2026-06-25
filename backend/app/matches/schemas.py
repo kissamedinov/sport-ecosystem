@@ -23,8 +23,8 @@ class MatchResultResponse(MatchResultBase):
 
 class MatchBase(BaseModel):
     tournament_id: UUID
-    home_team_id: UUID
-    away_team_id: UUID
+    home_team_id: Optional[UUID] = None
+    away_team_id: Optional[UUID] = None
     round_number: int
     match_date: Optional[datetime] = None
     group_id: Optional[UUID] = None

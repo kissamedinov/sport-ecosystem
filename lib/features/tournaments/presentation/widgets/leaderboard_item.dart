@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/premium_theme.dart';
-import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class LeaderboardItem extends StatelessWidget {
   final String name;
@@ -24,9 +23,19 @@ class LeaderboardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isTop3 = rank <= 3;
     final Color medalColor = _getMedalColor();
+    final cs = Theme.of(context).colorScheme;
 
-    return PremiumCard(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.02),
+        border: Border(
+          bottom: BorderSide(
+            color: cs.onSurface.withValues(alpha: 0.06),
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         children: [
           _buildRankBadge(context, medalColor),
@@ -38,17 +47,22 @@ class LeaderboardItem extends StatelessWidget {
                 Text(
                   name.toUpperCase(),
                   style: TextStyle(
-                    fontWeight: isTop3 ? FontWeight.bold : FontWeight.w500,
+                    fontWeight: isTop3 ? FontWeight.bold : FontWeight.w600,
                     fontSize: 14,
-                    color: isTop3 ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: cs.onSurface,
                     letterSpacing: 0.5,
                   ),
                 ),
-                if (teamName != null)
+                if (teamName != null) ...[
+                  const SizedBox(height: 2),
                   Text(
                     teamName!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 11),
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.4),
+                      fontSize: 11,
+                    ),
                   ),
+                ],
               ],
             ),
           ),
@@ -56,8 +70,7 @@ class LeaderboardItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: highlightColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: highlightColor.withValues(alpha: 0.1)),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Row(
               children: [
@@ -80,41 +93,24 @@ class LeaderboardItem extends StatelessWidget {
   }
 
   Widget _buildRankBadge(BuildContext context, Color medalColor) {
-    if (rank <= 3) {
-      return Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: medalColor.withValues(alpha: 0.15),
-          shape: BoxShape.circle,
-          border: Border.all(color: medalColor.withValues(alpha: 0.5), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: medalColor.withValues(alpha: 0.2),
-              blurRadius: 8,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            rank == 1 ? "🥇" : (rank == 2 ? "🥈" : "🥉"),
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
-      );
-    }
+    final cs = Theme.of(context).colorScheme;
+    final isTop3 = rank <= 3;
+
     return Container(
-      width: 36,
-      height: 36,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+        color: isTop3 ? medalColor : cs.onSurface.withValues(alpha: 0.05),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           "$rank",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: isTop3 ? Colors.black : cs.onSurface.withValues(alpha: 0.5),
+            fontSize: 12,
+          ),
         ),
       ),
     );

@@ -10,9 +10,9 @@ class TournamentMatch {
   @JsonKey(name: 'division_id')
   final String? divisionId;
   @JsonKey(name: 'home_team_id')
-  final String homeTeamId;
+  final String? homeTeamId;
   @JsonKey(name: 'away_team_id')
-  final String awayTeamId;
+  final String? awayTeamId;
   @JsonKey(name: 'field_id')
   final String? fieldId;
   @JsonKey(name: 'field_name')
@@ -41,8 +41,8 @@ class TournamentMatch {
     required this.id,
     this.tournamentId,
     this.divisionId,
-    required this.homeTeamId,
-    required this.awayTeamId,
+    this.homeTeamId,
+    this.awayTeamId,
     this.fieldId,
     this.fieldName,
     this.matchDate,

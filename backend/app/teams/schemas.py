@@ -59,6 +59,7 @@ class PlayerTeamResponse(BaseModel):
     jersey_number: Optional[int] = None
     position: Optional[str] = None
     player: Optional[PlayerInfo] = None
+    player_name: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -71,8 +72,8 @@ class PlayerTeamUpdate(BaseModel):
 class TeamMatchResponse(BaseModel):
     id: UUID
     tournament_id: UUID
-    home_team_id: UUID
-    away_team_id: UUID
+    home_team_id: Optional[UUID] = None
+    away_team_id: Optional[UUID] = None
     home_score: int
     away_score: int
     status: str

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+import 'package:mobile/core/api/api_client.dart';
 import '../../../lineups/providers/lineup_provider.dart';
 import '../../../lineups/models/lineup.dart';
 import '../../../tournaments/data/models/tournament_match.dart';
@@ -9,6 +10,9 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../../lineups/presentation/screens/match_lineup_screen.dart';
 import '../../presentation/screens/match_events_screen.dart';
 import '../../../player_stats/presentation/screens/player_stats_screen.dart';
+import '../../../matches/providers/match_provider.dart';
+import '../../../matches/data/models/match_event.dart';
+import '../../../tournaments/providers/tournament_provider.dart';
 
 class MatchDetailsScreen extends StatefulWidget {
   final TournamentMatch match;
@@ -27,14 +31,96 @@ class MatchDetailsScreen extends StatefulWidget {
 }
 
 class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
+  int _selectedTabIndex = 0;
+  final Map<String, String> _playerNamesCache = {};
+  bool _isLoadingNames = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<LineupProvider>();
-      provider.fetchTeamLineup(widget.match.id, widget.match.homeTeamId);
-      provider.fetchTeamLineup(widget.match.id, widget.match.awayTeamId);
+      final lineupProvider = context.read<LineupProvider>();
+      if (widget.match.homeTeamId != null) {
+        lineupProvider.fetchTeamLineup(widget.match.id, widget.match.homeTeamId!);
+      }
+      if (widget.match.awayTeamId != null) {
+        lineupProvider.fetchTeamLineup(widget.match.id, widget.match.awayTeamId!);
+      }
+      _loadPlayerNames();
+      context.read<MatchProvider>().fetchMatchEvents(widget.match.id);
+      if (widget.match.tournamentId != null) {
+        context.read<TournamentProvider>().fetchTournamentMatches(widget.match.tournamentId!);
+      }
     });
+  }
+
+  Future<void> _loadPlayerNames() async {
+    setState(() => _isLoadingNames = true);
+    final homeId = widget.match.homeTeamId;
+    final awayId = widget.match.awayTeamId;
+    final apiClient = context.read<ApiClient>();
+
+    Future<void> fetchForTeam(String? teamId) async {
+      if (teamId == null) return;
+      try {
+        final res = await apiClient.get('/teams/$teamId/players');
+        if (res.statusCode == 200 && res.data is List) {
+          for (var item in res.data) {
+            final pId = item['player_id'] ?? item['child_profile_id'];
+            final name = item['player_name'] ?? item['player']?['name'];
+            if (pId != null && name != null) {
+              _playerNamesCache[pId] = name;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    await fetchForTeam(homeId);
+    await fetchForTeam(awayId);
+    if (mounted) {
+      setState(() {
+        _isLoadingNames = false;
+      });
+    }
+  }
+
+  List<String> _calculateTeamForm(String teamId) {
+    final tournamentProvider = context.read<TournamentProvider>();
+    final allMatches = tournamentProvider.matches;
+
+    final teamMatches = allMatches.where((m) =>
+      m.status == 'FINISHED' &&
+      (m.homeTeamId == teamId || m.awayTeamId == teamId) &&
+      m.matchDate != null
+    ).toList();
+
+    // Sort by date descending
+    teamMatches.sort((a, b) => b.matchDate!.compareTo(a.matchDate!));
+
+    final recentMatches = teamMatches.take(5).toList();
+
+    final formList = <String>[];
+    for (var m in recentMatches) {
+      if (m.homeTeamId == teamId) {
+        if (m.homeScore > m.awayScore) {
+          formList.add('W');
+        } else if (m.homeScore < m.awayScore) {
+          formList.add('L');
+        } else {
+          formList.add('D');
+        }
+      } else {
+        if (m.awayScore > m.homeScore) {
+          formList.add('W');
+        } else if (m.awayScore < m.homeScore) {
+          formList.add('L');
+        } else {
+          formList.add('D');
+        }
+      }
+    }
+    return formList;
   }
 
   @override
@@ -52,6 +138,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             _buildScoreBoard(),
@@ -59,31 +146,336 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             _buildTabSection(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  _buildLineupSection(
-                    context,
-                    widget.homeTeamName,
-                    widget.match.homeTeamId,
-                    lineupProvider.getLineupForMatch(widget.match.id, widget.match.homeTeamId),
-                    isCoach,
-                    true,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildLineupSection(
-                    context,
-                    widget.awayTeamName,
-                    widget.match.awayTeamId,
-                    lineupProvider.getLineupForMatch(widget.match.id, widget.match.awayTeamId),
-                    isCoach,
-                    false,
-                  ),
-                  const SizedBox(height: 100),
-                ],
-              ),
+              child: _buildSelectedTabContent(lineupProvider, isCoach),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedTabContent(LineupProvider lineupProvider, bool isCoach) {
+    if (_selectedTabIndex == 0) {
+      // Lineups Tab
+      return Column(
+        children: [
+          _buildLineupSection(
+            context,
+            widget.homeTeamName,
+            widget.match.homeTeamId ?? '',
+            widget.match.homeTeamId != null ? lineupProvider.getLineupForMatch(widget.match.id, widget.match.homeTeamId!) : null,
+            isCoach,
+            true,
+          ),
+          const SizedBox(height: 24),
+          _buildLineupSection(
+            context,
+            widget.awayTeamName,
+            widget.match.awayTeamId ?? '',
+            widget.match.awayTeamId != null ? lineupProvider.getLineupForMatch(widget.match.id, widget.match.awayTeamId!) : null,
+            isCoach,
+            false,
+          ),
+          const SizedBox(height: 100),
+        ],
+      );
+    } else if (_selectedTabIndex == 1) {
+      // Timeline Tab
+      return _buildTimelineSection();
+    } else {
+      // Info / Details Tab
+      return _buildInfoSection();
+    }
+  }
+
+  Widget _buildTimelineSection() {
+    final matchProvider = context.watch<MatchProvider>();
+    final events = matchProvider.currentMatchEvents;
+
+    final firstHalfEvents = events.where((e) => e.minute <= 45).toList();
+    final secondHalfEvents = events.where((e) => e.minute > 45).toList();
+
+    if (events.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40.0),
+          child: Column(
+            children: [
+              const Icon(Icons.flash_off_outlined, color: Colors.white12, size: 48),
+              const SizedBox(height: 12),
+              Text(
+                'match.no_events'.tr(),
+                style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        if (firstHalfEvents.isNotEmpty) ...[
+          _buildHalfHeader('match.first_half'.tr()),
+          const SizedBox(height: 12),
+          ...firstHalfEvents.map((e) => _buildTimelineEventRow(e)),
+          const SizedBox(height: 24),
+        ],
+        if (secondHalfEvents.isNotEmpty) ...[
+          _buildHalfHeader('match.second_half'.tr()),
+          const SizedBox(height: 12),
+          ...secondHalfEvents.map((e) => _buildTimelineEventRow(e)),
+          const SizedBox(height: 48),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildHalfHeader(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white.withOpacity(0.04)),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: PremiumTheme.neonGreen,
+            fontWeight: FontWeight.w900,
+            fontSize: 10,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimelineEventRow(MatchEvent event) {
+    final isHome = event.teamId == widget.match.homeTeamId;
+    final pId = event.playerId ?? event.childProfileId;
+    final pName = pId != null ? (_playerNamesCache[pId] ?? 'match.player_placeholder'.tr(namedArgs: {'id': pId.length > 4 ? pId.substring(0, 4) : pId})) : 'match.player_generic'.tr();
+
+    String emoji = '⚽';
+    String typeLabel = '';
+    if (event.eventType == EventType.GOAL) {
+      emoji = '⚽';
+      typeLabel = 'match.event_type_goal'.tr();
+    } else if (event.eventType == EventType.YELLOW_CARD) {
+      emoji = '🟨';
+      typeLabel = 'match.event_type_yellow'.tr();
+    } else if (event.eventType == EventType.RED_CARD) {
+      emoji = '🟥';
+      typeLabel = 'match.event_type_red'.tr();
+    } else if (event.eventType == EventType.SUBSTITUTE) {
+      emoji = '🔄';
+      typeLabel = 'match.event_type_sub'.tr();
+    }
+
+    final contentWidget = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (isHome) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              "${event.minute}'",
+              style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 10),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(emoji, style: const TextStyle(fontSize: 15)),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                pName,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              Text(
+                typeLabel,
+                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
+              ),
+            ],
+          ),
+        ] else ...[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                pName,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              Text(
+                typeLabel,
+                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+          Text(emoji, style: const TextStyle(fontSize: 15)),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              "${event.minute}'",
+              style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10),
+            ),
+          ),
+        ],
+      ],
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: isHome ? MainAxisAlignment.start : MainAxisAlignment.end,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.01),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.03)),
+            ),
+            child: contentWidget,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection() {
+    final homeForm = widget.match.homeTeamId != null ? _calculateTeamForm(widget.match.homeTeamId!) : <String>[];
+    final awayForm = widget.match.awayTeamId != null ? _calculateTeamForm(widget.match.awayTeamId!) : <String>[];
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF122229),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('match.details_header'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1)),
+          const SizedBox(height: 16),
+          _buildInfoRow(Icons.calendar_today_rounded, 'match.date_time'.tr(), widget.match.matchDate?.toString().substring(0, 16) ?? 'TBD'),
+          const SizedBox(height: 12),
+          _buildInfoRow(Icons.location_on_outlined, 'match.arena_field'.tr(), widget.match.fieldName ?? 'ARENA CENTER'),
+          const SizedBox(height: 12),
+          _buildInfoRow(Icons.info_outline, 'match.match_status'.tr(), widget.match.status),
+          const SizedBox(height: 24),
+          const Divider(color: Colors.white10, height: 1),
+          const SizedBox(height: 20),
+          Text('match.team_form_title'.tr(), style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 0.5)),
+          const SizedBox(height: 16),
+          // Home form row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.homeTeamName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (homeForm.isEmpty)
+                _buildEmptyForm()
+              else
+                Row(children: homeForm.map((f) => _buildFormCircle(f)).toList()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Away form row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.awayTeamName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (awayForm.isEmpty)
+                _buildEmptyForm()
+              else
+                Row(children: awayForm.map((f) => _buildFormCircle(f)).toList()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.white38),
+        const SizedBox(width: 12),
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+        const Spacer(),
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildFormCircle(String result) {
+    Color color = Colors.grey;
+    String char = 'match.form_draw'.tr();
+    if (result == 'W') {
+      color = const Color(0xFF00E676);
+      char = 'match.form_win'.tr();
+    } else if (result == 'L') {
+      color = Colors.redAccent;
+      char = 'match.form_loss'.tr();
+    }
+
+    return Container(
+      width: 22,
+      height: 22,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withOpacity(0.5), width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        char,
+        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildEmptyForm() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.brown.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.brown.withOpacity(0.3)),
+      ),
+      child: const Text(
+        '—',
+        style: TextStyle(color: Colors.brown, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -104,9 +496,9 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildTeamHeader(widget.homeTeamName, Colors.redAccent),
+              Expanded(child: _buildTeamHeader(widget.homeTeamName, Colors.redAccent)),
               _buildMiddleScore(),
-              _buildTeamHeader(widget.awayTeamName, Colors.blueAccent),
+              Expanded(child: _buildTeamHeader(widget.awayTeamName, Colors.blueAccent)),
             ],
           ),
           const SizedBox(height: 32),
@@ -120,11 +512,12 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
   Widget _buildMiddleScore() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white10),
           ),
@@ -137,7 +530,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: widget.match.status == 'LIVE' ? Colors.redAccent.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+            color: widget.match.status == 'LIVE' ? Colors.redAccent.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -156,28 +549,28 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
   Widget _buildTeamHeader(String name, Color color) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 70,
           height: 70,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+            border: Border.all(color: color.withOpacity(0.3), width: 2),
             boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 20, spreadRadius: 2),
+              BoxShadow(color: color.withOpacity(0.1), blurRadius: 20, spreadRadius: 2),
             ],
           ),
           child: Icon(Icons.shield_rounded, size: 40, color: color),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          width: 100,
-          child: Text(
-            name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-          ),
+        Text(
+          name,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
         ),
       ],
     );
@@ -187,14 +580,14 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.calendar_today_rounded, size: 14, color: Colors.white38),
+        const Icon(Icons.calendar_today_rounded, size: 14, color: Colors.white38),
         const SizedBox(width: 8),
         Text(
           widget.match.matchDate?.toString().substring(0, 16) ?? 'match.time_tbd'.tr(),
           style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(width: 20),
-        Icon(Icons.location_on_outlined, size: 14, color: Colors.white38),
+        const Icon(Icons.location_on_outlined, size: 14, color: Colors.white38),
         const SizedBox(width: 8),
         Text(
           'match.arena_center'.tr(),
@@ -227,7 +620,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Colors.white.withOpacity(0.05),
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white10),
             ),
@@ -246,11 +639,20 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildTab('match.lineups'.tr(), true),
+          GestureDetector(
+            onTap: () => setState(() => _selectedTabIndex = 0),
+            child: _buildTab('match.tab_lineups'.tr(), _selectedTabIndex == 0),
+          ),
           const SizedBox(width: 12),
-          _buildTab('match.timeline'.tr(), false),
+          GestureDetector(
+            onTap: () => setState(() => _selectedTabIndex = 1),
+            child: _buildTab('match.tab_timeline'.tr(), _selectedTabIndex == 1),
+          ),
           const SizedBox(width: 12),
-          _buildTab('match.info'.tr(), false),
+          GestureDetector(
+            onTap: () => setState(() => _selectedTabIndex = 2),
+            child: _buildTab('match.tab_details'.tr(), _selectedTabIndex == 2),
+          ),
         ],
       ),
     );
@@ -268,7 +670,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         label,
         style: TextStyle(
           color: active ? Colors.black : Colors.white38,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w900,
           letterSpacing: 1,
         ),
@@ -306,16 +708,16 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.02),
+              color: Colors.white.withOpacity(0.02),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
             ),
             child: Column(
               children: [
                 const Icon(Icons.groups_3_outlined, color: Colors.white10, size: 40),
                 const SizedBox(height: 12),
                 Text('match.no_lineup'.tr(), style: const TextStyle(color: Colors.white24, fontSize: 12)),
-                if (isCoach) ...[
+                if (isCoach && teamId.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -327,9 +729,9 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: color.withValues(alpha: 0.1),
+                      backgroundColor: color.withOpacity(0.1),
                       foregroundColor: color,
-                      side: BorderSide(color: color.withValues(alpha: 0.3)),
+                      side: BorderSide(color: color.withOpacity(0.3)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
@@ -373,11 +775,12 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
   Widget _buildPlayerTile(LineupPlayer p) {
     final id = p.playerId ?? p.childProfileId ?? 'Unknown';
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final name = _playerNamesCache[id] ?? 'match.player_placeholder'.tr(namedArgs: {'id': id.length > 4 ? id.substring(0, 4) : id});
     
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: onSurface.withValues(alpha: 0.03),
+        color: onSurface.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -389,17 +792,17 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+            color: PremiumTheme.neonGreen.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
           child: Text(
             p.position ?? '?',
-            style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.w900),
+            style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(
-          'Player ${id.length > 8 ? id.substring(0, 8) : id}',
+          name,
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
         ),
         trailing: p.jerseyNumber != null 

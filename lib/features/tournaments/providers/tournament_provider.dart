@@ -268,10 +268,10 @@ class TournamentProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateTeamStatus(String tournamentId, String teamId, String status) async {
+  Future<bool> updateTeamStatus(String tournamentId, String teamId, String? status, {String? registrationData}) async {
     _setLoading(true);
     try {
-      await _repository.updateTournamentTeamStatus(tournamentId, teamId, status);
+      await _repository.updateTournamentTeamStatus(tournamentId, teamId, status, registrationData: registrationData);
       await fetchTournamentTeams(tournamentId);
       await fetchTournamentStandings(tournamentId);
       _setLoading(false);

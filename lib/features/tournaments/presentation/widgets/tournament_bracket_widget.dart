@@ -51,101 +51,97 @@ class TournamentBracketWidget extends StatelessWidget {
     const double gap = 30.0;
 
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+      scrollDirection: Axis.vertical,
       physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: BracketConnectorsPainter(
-                  roundMatches: roundMatches,
-                  sortedRounds: sortedRounds,
-                  cardWidth: cardWidth,
-                  cardHeight: cardHeight,
-                  gap: gap,
-                  headerOffset: 60.0,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 24.0),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: BracketConnectorsPainter(
+                    roundMatches: roundMatches,
+                    sortedRounds: sortedRounds,
+                    cardWidth: cardWidth,
+                    cardHeight: cardHeight,
+                    gap: gap,
+                    headerOffset: 60.0,
+                  ),
                 ),
               ),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: sortedRounds.map((roundNum) {
-                final roundList = roundMatches[roundNum]!;
-                // Sort matches in round by bracketPosition to display them in correct order
-                roundList.sort((a, b) => (a.bracketPosition ?? 0).compareTo(b.bracketPosition ?? 0));
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: sortedRounds.map((roundNum) {
+                  final roundList = roundMatches[roundNum]!;
+                  // Sort matches in round by bracketPosition to display them in correct order
+                  roundList.sort((a, b) => (a.bracketPosition ?? 0).compareTo(b.bracketPosition ?? 0));
 
-                // Round name in Russian
-                String roundTitle;
-                if (roundNum == maxRound) {
-                  roundTitle = 'Финал';
-                } else if (roundNum == maxRound - 1) {
-                  roundTitle = 'Полуфинал';
-                } else if (roundNum == maxRound - 2) {
-                  roundTitle = 'Четвертьфинал';
-                } else if (roundNum == maxRound - 3) {
-                  roundTitle = '1/8 финала';
-                } else {
-                  roundTitle = 'Раунд $roundNum';
-                }
+                  // Round name in Russian
+                  String roundTitle;
+                  if (roundNum == maxRound) {
+                    roundTitle = 'Финал';
+                  } else if (roundNum == maxRound - 1) {
+                    roundTitle = 'Полуфинал';
+                  } else if (roundNum == maxRound - 2) {
+                    roundTitle = 'Четвертьфинал';
+                  } else if (roundNum == maxRound - 3) {
+                    roundTitle = '1/8 финала';
+                  } else {
+                    roundTitle = 'Раунд $roundNum';
+                  }
 
-                // Math to calculate padding & gaps to align tree branches
-                final int rIndex = roundNum - 1; // 0-based index for math
-                final double scale = rIndex >= 0 ? (1 << rIndex).toDouble() : 1.0;
-                final double topPadding = (scale - 1) * (cardHeight + gap) / 2;
-                final double cardGap = (scale - 1) * cardHeight + scale * gap;
+                  // Math to calculate padding & gaps to align tree branches
+                  final int rIndex = roundNum - 1; // 0-based index for math
+                  final double scale = rIndex >= 0 ? (1 << rIndex).toDouble() : 1.0;
+                  final double topPadding = (scale - 1) * (cardHeight + gap) / 2;
+                  final double cardGap = (scale - 1) * cardHeight + scale * gap;
 
-                return Container(
-                  width: cardWidth + 32, // Width of column with margin
-                  margin: const EdgeInsets.only(right: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Round Header with fixed height for deterministic coordinate math
-                      SizedBox(
-                        height: 36,
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.blueAccent.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
-                            ),
+                  return Container(
+                    width: cardWidth + 32, // Width of column with margin
+                    margin: const EdgeInsets.only(right: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Round Header with fixed height for deterministic coordinate math
+                        SizedBox(
+                          height: 36,
+                          child: Center(
                             child: Text(
-                              roundTitle,
-                              style: const TextStyle(
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                                letterSpacing: 0.5,
+                              roundTitle.toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.6),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 11,
+                                letterSpacing: 1.2,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Matches list
-                      Padding(
-                        padding: EdgeInsets.only(top: topPadding),
-                        child: Column(
-                          children: List.generate(roundList.length, (index) {
-                            final match = roundList[index];
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: cardGap),
-                              child: _buildMatchCard(context, match, cardWidth, cardHeight),
-                            );
-                          }),
+                        const SizedBox(height: 24),
+                        
+                        // Matches list
+                        Padding(
+                          padding: EdgeInsets.only(top: topPadding),
+                          child: Column(
+                            children: List.generate(roundList.length, (index) {
+                              final match = roundList[index];
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: cardGap),
+                                child: _buildMatchCard(context, match, cardWidth, cardHeight),
+                              );
+                            }),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
     );

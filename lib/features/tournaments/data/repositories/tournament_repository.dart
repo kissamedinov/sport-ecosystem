@@ -132,10 +132,12 @@ class TournamentRepository {
     return data.map((json) => TournamentTeamResponse.fromJson(json)).toList();
   }
 
-  Future<TournamentTeamResponse> updateTournamentTeamStatus(String tournamentId, String teamId, String status) async {
-    final response = await _apiClient.patch('/tournaments/$tournamentId/teams/$teamId', queryParameters: {
-      'status': status,
-    });
+  Future<TournamentTeamResponse> updateTournamentTeamStatus(String tournamentId, String teamId, String? status, {String? registrationData}) async {
+    final Map<String, dynamic> queryParams = {};
+    if (status != null) queryParams['status'] = status;
+    if (registrationData != null) queryParams['registration_data'] = registrationData;
+    
+    final response = await _apiClient.patch('/tournaments/$tournamentId/teams/$teamId', queryParameters: queryParams);
     return TournamentTeamResponse.fromJson(response.data);
   }
 

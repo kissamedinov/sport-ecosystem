@@ -10,7 +10,7 @@ from app.tournaments.models import (
     TournamentSquad, TournamentSeries, TournamentDivision,
     TournamentPlayerStats, TournamentAward, Season
 )
-from app.matches.models import Match, MatchStatus, MatchResult, MatchEvent, EventType, ResultStatus
+from app.matches.models import Match, MatchStatus, MatchResult, MatchEvent, EventType, ResultStatus, MatchLineup, MatchLineupPlayer, MatchPlayerStats, MatchAward
 from app.tournaments import schemas
 from app.tournaments.schemas import (
     TournamentCreate, TournamentUpdate, TournamentSeriesCreate, TournamentDivisionCreate,
@@ -290,7 +290,13 @@ def register_tournament_team(db: Session, division_id: UUID, team_id: UUID, regi
 def get_tournament_teams(db: Session, tournament_id: UUID):
     return db.query(TournamentTeam).filter(TournamentTeam.tournament_id == tournament_id).all()
 
-def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUID, status: RegistrationStatus):
+def update_tournament_team_status(
+    db: Session, 
+    tournament_id: UUID, 
+    team_id: UUID, 
+    status: Optional[RegistrationStatus] = None,
+    registration_data: Optional[str] = None
+):
     team_reg = db.query(TournamentTeam).filter(
         TournamentTeam.tournament_id == tournament_id,
         TournamentTeam.team_id == team_id
@@ -298,11 +304,16 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
     if not team_reg:
         raise HTTPException(status_code=404, detail="Team registration not found")
     
-    team_reg.status = status
+    old_status = team_reg.status
+    if status is not None:
+        team_reg.status = status
+    if registration_data is not None:
+        team_reg.registration_data = registration_data
+        
     db.commit()
     db.refresh(team_reg)
     
-    if status == RegistrationStatus.APPROVED:
+    if status == RegistrationStatus.APPROVED and old_status != RegistrationStatus.APPROVED:
         team = db.query(Team).filter(Team.id == team_id).first()
         notify_team_members(
             db=db,
@@ -327,7 +338,7 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
                 entity_id=tournament_id
             )
     
-    if status == RegistrationStatus.APPROVED:
+    if team_reg.status == RegistrationStatus.APPROVED:
         existing_standing = db.query(TournamentStandings).filter(
             TournamentStandings.tournament_id == tournament_id,
             TournamentStandings.team_id == team_id
@@ -340,6 +351,13 @@ def update_tournament_team_status(db: Session, tournament_id: UUID, team_id: UUI
             )
             db.add(new_standing)
             db.commit()
+    else:
+        # If the team is no longer approved, remove it from standings
+        db.query(TournamentStandings).filter(
+            TournamentStandings.tournament_id == tournament_id,
+            TournamentStandings.team_id == team_id
+        ).delete(synchronize_session=False)
+        db.commit()
             
     return team_reg
 
@@ -385,8 +403,52 @@ def get_registrations(db: Session, tournament_id: UUID):
 def get_tournaments_by_series(db: Session, series_name: str):
     return db.query(Tournament).filter(Tournament.series_name == series_name).order_by(Tournament.start_date.desc()).all()
 
+def get_team_time_preference(db: Session, tournament_id: UUID, team_id: UUID):
+    import json
+    tt = db.query(TournamentTeam).filter(
+        TournamentTeam.tournament_id == tournament_id,
+        TournamentTeam.team_id == team_id
+    ).first()
+    if tt and tt.registration_data:
+        try:
+            data = json.loads(tt.registration_data)
+            pref = data.get("time_pref")
+            return pref
+        except:
+            pass
+    return None
+
+def is_time_pref_satisfied(pref: Optional[str], match_time):
+    if not pref:
+        return True
+    t = match_time.time()
+    from datetime import time
+    if pref == "morning":
+        return t < time(13, 0)
+    elif pref == "afternoon":
+        return t >= time(13, 0)
+    return True
+
 def generate_tournament_schedule(db: Session, tournament_id: UUID):
     tournament = get_tournament_by_id(db, tournament_id)
+    
+    # Clean up any existing matches of this tournament first to avoid duplicate schedules & conflicts
+    match_ids = [m.id for m in db.query(Match).filter(Match.tournament_id == tournament_id).all()]
+    if match_ids:
+        # Delete related child records first to satisfy FK constraints
+        db.query(MatchAward).filter(MatchAward.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(MatchEvent).filter(MatchEvent.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(MatchPlayerStats).filter(MatchPlayerStats.match_id.in_(match_ids)).delete(synchronize_session=False)
+        
+        # Lineups
+        lineup_ids = [l.id for l in db.query(MatchLineup).filter(MatchLineup.match_id.in_(match_ids)).all()]
+        if lineup_ids:
+            db.query(MatchLineupPlayer).filter(MatchLineupPlayer.lineup_id.in_(lineup_ids)).delete(synchronize_session=False)
+            db.query(MatchLineup).filter(MatchLineup.id.in_(lineup_ids)).delete(synchronize_session=False)
+            
+        db.query(MatchResult).filter(MatchResult.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(Match).filter(Match.id.in_(match_ids)).delete(synchronize_session=False)
+        db.commit()
     
     if tournament.format == TournamentFormat.LEAGUE:
         return generate_league_schedule(db, tournament_id)
@@ -399,7 +461,8 @@ def generate_tournament_schedule(db: Session, tournament_id: UUID):
 
 def generate_league_schedule(db: Session, tournament_id: UUID):
     import json
-    from datetime import timedelta
+    import uuid
+    from datetime import timedelta, datetime
     
     tournament = get_tournament_by_id(db, tournament_id)
     approved_teams = db.query(TournamentTeam).filter(
@@ -410,6 +473,12 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     if len(approved_teams) < 2:
         raise HTTPException(status_code=400, detail="At least 2 approved teams needed to generate schedule")
     
+    # Group teams by division_id
+    from collections import defaultdict
+    division_teams = defaultdict(list)
+    for t in approved_teams:
+        division_teams[t.division_id].append(t.team_id)
+        
     # Parse field_ids if they exist
     field_ids = []
     if getattr(tournament, "field_ids", None):
@@ -421,54 +490,122 @@ def generate_league_schedule(db: Session, tournament_id: UUID):
     num_fields = len(field_ids) if field_ids else tournament.num_fields
     if num_fields < 1: num_fields = 1
     
-    teams = [t.team_id for t in approved_teams]
+    # Pre-fetch preferences for all approved teams
+    team_prefs = {}
+    for team in approved_teams:
+        team_prefs[team.team_id] = get_team_time_preference(db, tournament_id, team.team_id)
+        
     match_count = 0
     
     # Configuration for timing
     current_time = tournament.start_time or tournament.start_date
     if isinstance(current_time, str):
-        from datetime import datetime
         current_time = datetime.fromisoformat(current_time)
         
     match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    
     slot_index = 0
     
-    # Simple Round Robin
-    for i in range(len(teams)):
-        for j in range(i + 1, len(teams)):
-            # Calculate field and time slot
-            field_slot = slot_index % num_fields
-            time_offset = slot_index // num_fields
+    for div_id, div_teams in division_teams.items():
+        if len(div_teams) < 2:
+            continue
             
-            match_start = current_time + timedelta(minutes=time_offset * match_duration)
+        # Circle Method to generate round robin rounds without team overlap
+        lst = list(div_teams)
+        if len(lst) % 2 != 0:
+            lst.append(None) # dummy team for BYE
             
-            # Check if exceeds day's end_time
-            if tournament.end_time:
-                day_end = datetime.combine(match_start.date(), tournament.end_time.time())
-                if match_start + timedelta(minutes=match_duration) > day_end:
-                    # Move to next day
-                    match_start = match_start + timedelta(days=1)
-                    match_start = datetime.combine(match_start.date(), tournament.start_time.time() if tournament.start_time else match_start.time())
-                    # Reset slot index or handle differently? 
-                    # For simplicity, we just keep incrementing slot_index but adjust match_start
+        n = len(lst)
+        num_rounds = n - 1
+        
+        for r in range(num_rounds):
+            round_fixtures = []
+            for i in range(n // 2):
+                home = lst[i]
+                away = lst[n - 1 - i]
+                if home is not None and away is not None:
+                    if r % 2 == 0:
+                        round_fixtures.append((home, away))
+                    else:
+                        round_fixtures.append((away, home))
+                        
+            # Generate next N slot definitions taking day roll-over into account
+            slots_def = []
+            for _ in range(len(round_fixtures)):
+                field_slot = slot_index % num_fields
+                time_offset = slot_index // num_fields
+                match_start = current_time + timedelta(minutes=time_offset * match_duration)
+                
+                # Check if exceeds day's end_time
+                if tournament.end_time:
+                    day_end = datetime.combine(match_start.date(), tournament.end_time.time())
+                    if match_start + timedelta(minutes=match_duration) > day_end:
+                        # Move current_time to next day and start scheduling round from beginning of day
+                        current_time = current_time + timedelta(days=1)
+                        if tournament.start_time:
+                            current_time = datetime.combine(current_time.date(), tournament.start_time.time())
+                        else:
+                            current_time = datetime.combine(current_time.date(), current_time.time())
+                        slot_index = 0
+                        field_slot = 0
+                        time_offset = 0
+                        match_start = current_time
+                
+                field_uuid = None
+                if field_ids:
+                    field_uuid = uuid.UUID(field_ids[field_slot])
+                    
+                slots_def.append({
+                    "slot_index": slot_index,
+                    "field_uuid": field_uuid,
+                    "match_start": match_start
+                })
+                slot_index += 1
+                
+            # Map round_fixtures to slots_def respecting preferences
+            assigned_fixtures = {} # slot_index -> fixture
+            unassigned_fixtures = list(round_fixtures)
             
-            field_uuid = None
-            if field_ids:
-                field_uuid = uuid.UUID(field_ids[field_slot])
-            
-            new_match = Match(
-                tournament_id=tournament_id,
-                division_id=approved_teams[0].division_id, 
-                home_team_id=teams[i],
-                away_team_id=teams[j],
-                field_id=field_uuid,
-                match_date=match_start,
-                status=MatchStatus.DRAFT,
-                round_number=1
-            )
-            db.add(new_match)
-            match_count += 1
-            slot_index += 1
+            # Priority 1: Match slots that satisfy preferences of both teams
+            for slot in slots_def:
+                for fixture in unassigned_fixtures:
+                    pref_home = team_prefs.get(fixture[0])
+                    pref_away = team_prefs.get(fixture[1])
+                    if is_time_pref_satisfied(pref_home, slot["match_start"]) and is_time_pref_satisfied(pref_away, slot["match_start"]):
+                        assigned_fixtures[slot["slot_index"]] = fixture
+                        unassigned_fixtures.remove(fixture)
+                        break
+                        
+            # Priority 2: Fallback
+            for slot in slots_def:
+                if slot["slot_index"] not in assigned_fixtures:
+                    if unassigned_fixtures:
+                        fixture = unassigned_fixtures.pop(0)
+                        assigned_fixtures[slot["slot_index"]] = fixture
+                        
+            # Create Match objects in database
+            for slot in slots_def:
+                fixture = assigned_fixtures.get(slot["slot_index"])
+                if fixture:
+                    new_match = Match(
+                        tournament_id=tournament_id,
+                        division_id=div_id, 
+                        home_team_id=fixture[0],
+                        away_team_id=fixture[1],
+                        field_id=slot["field_uuid"],
+                        match_date=slot["match_start"],
+                        status=MatchStatus.DRAFT,
+                        round_number=r + 1
+                    )
+                    db.add(new_match)
+                    match_count += 1
+                
+            # Push slot_index to next clean slot multiple of num_fields so next round starts clean
+            if slot_index % num_fields != 0:
+                slot_index = ((slot_index // num_fields) + 1) * num_fields
+                
+            # Rotate list keeping the first fixed
+            lst = [lst[0]] + [lst[-1]] + lst[1:-1]
     
     db.commit()
     
@@ -542,13 +679,10 @@ def generate_knockout_schedule(db: Session, tournament_id: UUID):
         if r == 1 and has_preliminary:
             num_matches_in_round = num_teams - K
         else:
-            # For round r (1-indexed), the number of matches is K / 2**(r - 1) (if no prelims)
-            # or K / 2**(r - 2) (if prelims)
+            # For round r (1-indexed), the number of matches is K / 2**r (if no prelims)
+            # or K / 2**(r - 1) (if prelims)
             round_power = r - 1 if not has_preliminary else r - 2
-            if round_power < 0:
-                num_matches_in_round = K
-            else:
-                num_matches_in_round = K // (2**round_power)
+            num_matches_in_round = K // (2**(round_power + 1))
 
         # Date for this round: each round played on a different day (consecutive days)
         round_start_time = current_time + timedelta(days=r - 1)
@@ -637,7 +771,7 @@ def generate_knockout_schedule(db: Session, tournament_id: UUID):
 def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_group: int = 4):
     import random
     import json
-    from datetime import timedelta
+    from datetime import timedelta, datetime
     from app.tournaments.models import TournamentGroup, TournamentGroupTeam
     
     tournament = get_tournament_by_id(db, tournament_id)
@@ -683,43 +817,130 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
         
     db.flush()
     
+    # Pre-fetch preferences for all approved teams
+    team_prefs = {}
+    for team in approved_teams:
+        team_prefs[team.team_id] = get_team_time_preference(db, tournament_id, team.team_id)
+        
     match_count = 0
     # Timing config
     current_time = tournament.start_time or tournament.start_date
     if isinstance(current_time, str):
-        from datetime import datetime
         current_time = datetime.fromisoformat(current_time)
         
     match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
-    slot_index = 0
 
-    # Generate matches within each group
+    # Use Circle Method for each group stage group round robin
+    rounds_of_group = {}
     for group_id, teams in group_teams.items():
-        for i in range(len(teams)):
-            for j in range(i + 1, len(teams)):
-                field_slot = slot_index % num_fields
-                time_offset = slot_index // num_fields
-                match_start = current_time + timedelta(minutes=time_offset * match_duration)
-                
-                field_uuid = None
-                if field_ids:
-                    field_uuid = uuid.UUID(field_ids[field_slot])
+        lst = [t.team_id for t in teams]
+        if len(lst) % 2 != 0:
+            lst.append(None)
+            
+        n = len(lst)
+        group_rounds = []
+        num_rounds = n - 1
+        
+        for r in range(num_rounds):
+            round_fixtures = []
+            for i in range(n // 2):
+                home = lst[i]
+                away = lst[n - 1 - i]
+                if home is not None and away is not None:
+                    if r % 2 == 0:
+                        round_fixtures.append((home, away, group_id))
+                    else:
+                        round_fixtures.append((away, home, group_id))
+            group_rounds.append(round_fixtures)
+            lst = [lst[0]] + [lst[-1]] + lst[1:-1]
+            
+        rounds_of_group[group_id] = group_rounds
 
+    # Merge group stage rounds to parallelize matches and prevent team overlaps
+    max_rounds = max(len(rounds_of_group[g_id]) for g_id in group_teams.keys())
+    slot_index = 0
+    
+    for r in range(max_rounds):
+        round_fixtures = []
+        for g_id in group_teams.keys():
+            if r < len(rounds_of_group[g_id]):
+                round_fixtures.extend(rounds_of_group[g_id][r])
+                
+        # Generate N slot definitions for this round
+        slots_def = []
+        for _ in range(len(round_fixtures)):
+            field_slot = slot_index % num_fields
+            time_offset = slot_index // num_fields
+            match_start = current_time + timedelta(minutes=time_offset * match_duration)
+            
+            # Check if exceeds day's end_time
+            if tournament.end_time:
+                day_end = datetime.combine(match_start.date(), tournament.end_time.time())
+                if match_start + timedelta(minutes=match_duration) > day_end:
+                    current_time = current_time + timedelta(days=1)
+                    if tournament.start_time:
+                        current_time = datetime.combine(current_time.date(), tournament.start_time.time())
+                    else:
+                        current_time = datetime.combine(current_time.date(), current_time.time())
+                    slot_index = 0
+                    field_slot = 0
+                    time_offset = 0
+                    match_start = current_time
+            
+            field_uuid = None
+            if field_ids:
+                field_uuid = uuid.UUID(field_ids[field_slot])
+                
+            slots_def.append({
+                "slot_index": slot_index,
+                "field_uuid": field_uuid,
+                "match_start": match_start
+            })
+            slot_index += 1
+            
+        # Map round_fixtures to slots_def respecting preferences
+        assigned_fixtures = {} # slot_index -> fixture
+        unassigned_fixtures = list(round_fixtures)
+        
+        # Priority 1: Match slots that satisfy preferences of both teams
+        for slot in slots_def:
+            for fixture in unassigned_fixtures:
+                pref_home = team_prefs.get(fixture[0])
+                pref_away = team_prefs.get(fixture[1])
+                if is_time_pref_satisfied(pref_home, slot["match_start"]) and is_time_pref_satisfied(pref_away, slot["match_start"]):
+                    assigned_fixtures[slot["slot_index"]] = fixture
+                    unassigned_fixtures.remove(fixture)
+                    break
+                    
+        # Priority 2: Fallback
+        for slot in slots_def:
+            if slot["slot_index"] not in assigned_fixtures:
+                if unassigned_fixtures:
+                    fixture = unassigned_fixtures.pop(0)
+                    assigned_fixtures[slot["slot_index"]] = fixture
+                    
+        # Create Match objects in database
+        for slot in slots_def:
+            fixture = assigned_fixtures.get(slot["slot_index"])
+            if fixture:
                 new_match = Match(
                     tournament_id=tournament_id,
                     division_id=approved_teams[0].division_id,
-                    home_team_id=teams[i].team_id,
-                    away_team_id=teams[j].team_id,
-                    group_id=group_id,
-                    field_id=field_uuid,
-                    match_date=match_start,
+                    home_team_id=fixture[0],
+                    away_team_id=fixture[1],
+                    group_id=fixture[2],
+                    field_id=slot["field_uuid"],
+                    match_date=slot["match_start"],
                     status=MatchStatus.DRAFT,
-                    round_number=1
+                    round_number=r + 1
                 )
                 db.add(new_match)
                 match_count += 1
-                slot_index += 1
                 
+        # Pad slot_index to next clean multiple of num_fields for next round
+        if slot_index % num_fields != 0:
+            slot_index = ((slot_index // num_fields) + 1) * num_fields
+            
     db.commit()
     
     return {
@@ -976,9 +1197,8 @@ def get_tournament_matches(db: Session, tournament_id: UUID):
     
     result_list = []
     for m in matches:
-        # Get team names
-        home_team = db.query(Team).filter(Team.id == m.home_team_id).first()
-        away_team = db.query(Team).filter(Team.id == m.away_team_id).first()
+        home_team = db.query(Team).filter(Team.id == m.home_team_id).first() if m.home_team_id else None
+        away_team = db.query(Team).filter(Team.id == m.away_team_id).first() if m.away_team_id else None
         
         # Convert to dict and add names
         match_dict = {

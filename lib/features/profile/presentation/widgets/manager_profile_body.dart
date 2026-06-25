@@ -286,7 +286,7 @@ class _ManagerProfileBodyState extends State<ManagerProfileBody> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Match vs ${match.awayTeamId.substring(0, 4).toUpperCase()}...",
+                        "Match vs ${match.awayTeamId != null ? (match.awayTeamId!.length >= 4 ? match.awayTeamId!.substring(0, 4) : match.awayTeamId!).toUpperCase() : 'TBD'}...",
                         style: TextStyle(
                           color: onSurface,
                           fontWeight: FontWeight.w700,

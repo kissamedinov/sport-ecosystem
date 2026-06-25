@@ -909,7 +909,8 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                         away_team_name=m.away_team.name if (m.away_team and hasattr(m.away_team, 'name')) else "Unknown",
                         home_team_id=m.home_team_id,
                         away_team_id=m.away_team_id,
-                        scheduled_at=m.match_date
+                        scheduled_at=m.match_date,
+                        tournament_format=m.division.format if (m.division and m.division.format) else (m.tournament.format if (m.tournament and hasattr(m.tournament, 'format')) else None)
                     ))
             except Exception as me:
                 print(f"Error fetching match data: {me}")

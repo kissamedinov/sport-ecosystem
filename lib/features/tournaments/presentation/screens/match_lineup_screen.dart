@@ -13,6 +13,12 @@ class MatchLineupScreen extends StatefulWidget {
   final String tournamentTeamId;
   final String teamId;
   final bool isHomeTeam;
+  /// Max number of players allowed to start (from tournament format, e.g. 8 for 8v8)
+  final int maxStartersCount;
+  /// Optional: name of our team (for the header)
+  final String? myTeamName;
+  /// Optional: name of the opposing team (for the header)
+  final String? opponentName;
 
   const MatchLineupScreen({
     super.key,
@@ -20,6 +26,9 @@ class MatchLineupScreen extends StatefulWidget {
     required this.tournamentTeamId,
     required this.teamId,
     this.isHomeTeam = true,
+    this.maxStartersCount = 11,
+    this.myTeamName,
+    this.opponentName,
   });
 
   @override
@@ -48,7 +57,7 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
         _starters.remove(member.childProfileId);
         _positions.remove(member.childProfileId);
       } else {
-        _starters[member.childProfileId] = _startingCount < 11;
+        _starters[member.childProfileId] = _startingCount < widget.maxStartersCount;
         _positions[member.childProfileId] = member.position ?? 'MF';
       }
     });
@@ -59,10 +68,10 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
     setState(() {
       if (_starters.containsKey(childProfileId)) {
         final currentlyStarting = _starters[childProfileId]!;
-        if (!currentlyStarting && _startingCount >= 11) {
+        if (!currentlyStarting && _startingCount >= widget.maxStartersCount) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('tournament.max_starters_error'.tr()),
+              content: Text('tournament.max_starters_error'.tr(namedArgs: {'count': widget.maxStartersCount.toString()})),
               duration: const Duration(seconds: 1),
             ),
           );
@@ -129,27 +138,42 @@ class _MatchLineupScreenState extends State<MatchLineupScreen> {
   Widget build(BuildContext context) {
     final lineupProvider = context.watch<LineupProvider>();
     final cs = Theme.of(context).colorScheme;
+    final maxStarters = widget.maxStartersCount;
+    final isComplete = _startingCount == maxStarters;
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('tournament.match_lineup'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: widget.myTeamName != null && widget.opponentName != null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('tournament.match_lineup'.tr(), style: const TextStyle(letterSpacing: 1.5, fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(
+                    '${widget.myTeamName} vs ${widget.opponentName}',
+                    style: TextStyle(fontSize: 10, color: cs.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              )
+            : Text('tournament.match_lineup'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
         actions: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.025),
+              color: isComplete ? PremiumTheme.neonGreen.withValues(alpha: 0.1) : cs.onSurface.withValues(alpha: 0.025),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _startingCount == 11 ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.06)),
+              border: Border.all(color: isComplete ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.06)),
             ),
             child: Center(
               child: Text(
-                'tournament.starting_count'.tr(namedArgs: {'count': _startingCount.toString()}),
+                '$_startingCount / $maxStarters',
                 style: TextStyle(
-                  color: _startingCount == 11 ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.55),
+                  color: isComplete ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.55),
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,

@@ -8,8 +8,8 @@ part of 'match.dart';
 
 MatchModel _$MatchModelFromJson(Map<String, dynamic> json) => MatchModel(
   id: json['id'] as String,
-  homeTeamId: json['home_team_id'] as String,
-  awayTeamId: json['away_team_id'] as String,
+  homeTeamId: json['home_team_id'] as String?,
+  awayTeamId: json['away_team_id'] as String?,
   matchDate:
       json['match_date'] == null
           ? null

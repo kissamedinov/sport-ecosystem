@@ -57,4 +57,12 @@ class MatchRepository {
   Future<void> assignTournamentAward(String tournamentId, Map<String, dynamic> awardData) async {
     await _apiClient.post('/tournaments/$tournamentId/awards', data: awardData);
   }
+
+  Future<void> deleteMatchEvent(String eventId) async {
+    await _apiClient.delete('/events/$eventId');
+  }
+
+  Future<void> updateMatchStatus(String matchId, String status) async {
+    await _apiClient.patch('/matches/$matchId/status', data: {'status': status});
+  }
 }

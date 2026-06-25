@@ -6,9 +6,9 @@ part 'match.g.dart';
 class MatchModel {
   final String id;
   @JsonKey(name: 'home_team_id')
-  final String homeTeamId;
+  final String? homeTeamId;
   @JsonKey(name: 'away_team_id')
-  final String awayTeamId;
+  final String? awayTeamId;
   @JsonKey(name: 'match_date')
   final DateTime? matchDate;
   final String status;
@@ -30,8 +30,8 @@ class MatchModel {
 
   MatchModel({
     required this.id,
-    required this.homeTeamId,
-    required this.awayTeamId,
+    this.homeTeamId,
+    this.awayTeamId,
     this.matchDate,
     required this.status,
     this.homeScore,

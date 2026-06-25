@@ -98,9 +98,15 @@ class TeamMembership(Base):
     def full_name(self):
         if self.player:
             return self.player.name
+        if self.child_profile:
+            return f"{self.child_profile.first_name} {self.child_profile.last_name}"
         if self.player_profile and self.player_profile.user:
             return self.player_profile.user.name
         return ""
+
+    @property
+    def player_name(self):
+        return self.full_name
 
     @property
     def position(self):

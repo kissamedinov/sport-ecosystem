@@ -74,6 +74,7 @@ Future<void> main() async {
       fallbackLocale: const Locale('en'),
       child: MultiProvider(
         providers: [
+          Provider<ApiClient>.value(value: apiClient),
           ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
           ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
           ChangeNotifierProvider(create: (_) => TournamentProvider(tournamentRepository)),

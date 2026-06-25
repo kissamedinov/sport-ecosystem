@@ -10,11 +10,13 @@ import '../../../../core/presentation/widgets/premium_widgets.dart';
 class TournamentSquadScreen extends StatefulWidget {
   final String tournamentTeamId;
   final String teamId;
+  final bool readOnly;
 
   const TournamentSquadScreen({
     super.key,
     required this.tournamentTeamId,
     required this.teamId,
+    this.readOnly = false,
   });
 
   @override
@@ -39,7 +41,12 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('tournament.manage_squad'.tr(), style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)),
+        title: Text(
+          widget.readOnly 
+            ? 'tournament.view_squad_title'.tr() 
+            : 'tournament.manage_squad_title'.tr(), 
+          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, fontSize: 14)
+        ),
         centerTitle: true,
       ),
       body: Consumer2<TournamentSquadProvider, TeamProvider>(
@@ -54,21 +61,36 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
           ); 
           
           final allPlayers = team.players;
+          final squadMembers = squadProvider.squad;
 
-          if (allPlayers.isEmpty) {
+          final displayedPlayers = widget.readOnly
+              ? allPlayers.where((playerTeam) {
+                  return squadMembers.any((m) =>
+                      m.childProfileId == (playerTeam.childProfileId ?? playerTeam.playerId));
+                }).toList()
+              : allPlayers;
+
+          if (displayedPlayers.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.person_off_rounded, size: 64, color: cs.onSurface.withValues(alpha: 0.1)),
                   const SizedBox(height: 16),
-                  Text('tournament.no_players_found'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, letterSpacing: 1)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      widget.readOnly
+                        ? 'tournament.no_squad_members'.tr()
+                        : 'tournament.no_players_found'.tr(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 12, letterSpacing: 1),
+                    ),
+                  ),
                 ],
               ),
             );
           }
-
-          final squadMembers = squadProvider.squad;
 
           return Column(
             children: [
@@ -76,9 +98,9 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 200),
-                  itemCount: allPlayers.length,
+                  itemCount: displayedPlayers.length,
                   itemBuilder: (context, index) {
-                    final playerTeam = allPlayers[index];
+                    final playerTeam = displayedPlayers[index];
                     final player = playerTeam.player;
                     if (player == null) return const SizedBox.shrink();
 
@@ -155,25 +177,27 @@ class _TournamentSquadScreenState extends State<TournamentSquadScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            if (isInSquad)
-                              _actionBtn(
-                                icon: Icons.remove_circle_outline,
-                                color: PremiumTheme.danger,
-                                onTap: () {
-                                  HapticFeedback.mediumImpact();
-                                  _removeFromSquad(playerTeam.childProfileId ?? playerTeam.playerId);
-                                },
-                              )
-                            else
-                              _actionBtn(
-                                icon: Icons.add_circle_outline,
-                                color: PremiumTheme.neonGreen,
-                                onTap: () {
-                                  HapticFeedback.lightImpact();
-                                  _showAddDialog(playerTeam.childProfileId ?? playerTeam.playerId, player.name);
-                                },
-                              ),
+                            if (!widget.readOnly) ...[
+                              const SizedBox(width: 8),
+                              if (isInSquad)
+                                _actionBtn(
+                                  icon: Icons.remove_circle_outline,
+                                  color: PremiumTheme.danger,
+                                  onTap: () {
+                                    HapticFeedback.mediumImpact();
+                                    _removeFromSquad(playerTeam.childProfileId ?? playerTeam.playerId);
+                                  },
+                                )
+                              else
+                                _actionBtn(
+                                  icon: Icons.add_circle_outline,
+                                  color: PremiumTheme.neonGreen,
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    _showAddDialog(playerTeam.childProfileId ?? playerTeam.playerId, player.name);
+                                  },
+                                ),
+                            ],
                           ],
                         ),
                       ),

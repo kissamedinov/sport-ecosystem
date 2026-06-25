@@ -9,6 +9,7 @@ class LineupScreen extends StatefulWidget {
   final String? opponent;
   final DateTime? matchDate;
   final List<PlayerTeam> players;
+  final String? format;
 
   const LineupScreen({
     super.key,
@@ -16,6 +17,7 @@ class LineupScreen extends StatefulWidget {
     this.opponent,
     this.matchDate,
     this.players = const [],
+    this.format,
   });
 
   @override
@@ -27,6 +29,7 @@ class _LineupScreenState extends State<LineupScreen>
   String _format = '11v11';
   String _formation = '4-3-3';
   final Set<String> _selected = <String>{};
+  final Set<String> _subs = <String>{};
   late AnimationController _progressCtrl;
   late Animation<double> _progressAnim;
 
@@ -184,18 +187,90 @@ class _LineupScreenState extends State<LineupScreen>
         [_LineupPos('ST', 0.5, 0.28)],
       ]),
     ],
+    '8v8': [
+      _LineupFormation('3-3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('CM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('CM', 0.8, 0.52)],
+        [_LineupPos('ST', 0.5, 0.26)],
+      ]),
+      _LineupFormation('3-2-2', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52)],
+        [_LineupPos('ST', 0.35, 0.26), _LineupPos('ST', 0.65, 0.26)],
+      ]),
+      _LineupFormation('2-4-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74)],
+        [_LineupPos('LM', 0.1, 0.52), _LineupPos('CM', 0.37, 0.52), _LineupPos('CM', 0.63, 0.52), _LineupPos('RM', 0.9, 0.52)],
+        [_LineupPos('ST', 0.5, 0.26)],
+      ]),
+    ],
+    '7v7': [
+      _LineupFormation('3-2-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.2, 0.74), _LineupPos('CB', 0.5, 0.74), _LineupPos('CB', 0.8, 0.74)],
+        [_LineupPos('CM', 0.35, 0.52), _LineupPos('CM', 0.65, 0.52)],
+        [_LineupPos('ST', 0.5, 0.26)],
+      ]),
+      _LineupFormation('2-3-1', [
+        [_LineupPos('GK', 0.5, 0.92)],
+        [_LineupPos('CB', 0.35, 0.74), _LineupPos('CB', 0.65, 0.74)],
+        [_LineupPos('LM', 0.2, 0.52), _LineupPos('CM', 0.5, 0.52), _LineupPos('RM', 0.8, 0.52)],
+        [_LineupPos('ST', 0.5, 0.26)],
+      ]),
+    ],
   };
 
+  String _normalizeFormat(String? raw) {
+    if (raw == null) return '11v11';
+    final clean = raw.toLowerCase().replaceAll(' ', '');
+    
+    // Check if it's "8+1" style (9 players)
+    final matchPlus = RegExp(r'(\d+)\+(\d+)').firstMatch(clean);
+    if (matchPlus != null) {
+      final field = int.tryParse(matchPlus.group(1)!) ?? 0;
+      final gk = int.tryParse(matchPlus.group(2)!) ?? 0;
+      final total = field + gk;
+      return '${total}v${total}';
+    }
+    
+    // Check for "9v9", "9x9", "9-9" style
+    final matchSeparator = RegExp(r'(\d+)[vx\-–](\d+)').firstMatch(clean);
+    if (matchSeparator != null) {
+      final n = matchSeparator.group(1)!;
+      return '${n}v${n}';
+    }
+
+    // Check for single digit like "9" or "8"
+    final matchSingle = RegExp(r'^(\d+)$').firstMatch(clean);
+    if (matchSingle != null) {
+      final n = matchSingle.group(1)!;
+      return '${n}v${n}';
+    }
+
+    return '11v11';
+  }
+
   int get _targetPlayerCount {
-    if (_format == '9v9') return 9;
-    if (_format == '6v6') return 6;
-    if (_format == '5v5') return 5;
+    final match = RegExp(r'(\d+)').firstMatch(_format);
+    if (match != null) {
+      return int.tryParse(match.group(1)!) ?? 11;
+    }
     return 11;
   }
 
   @override
   void initState() {
     super.initState();
+    _format = _normalizeFormat(widget.format);
+    if (!_formationsByFormat.containsKey(_format)) {
+      _format = '11v11';
+    }
+    final formations = _formationsByFormat[_format]!;
+    _formation = formations.isNotEmpty ? formations.first.name : '4-3-3';
+
     if (widget.players.isNotEmpty) {
       _roster = widget.players.asMap().entries.map((entry) {
         final i = entry.key;
@@ -243,8 +318,14 @@ class _LineupScreenState extends State<LineupScreen>
     setState(() {
       if (_selected.contains(p.id)) {
         _selected.remove(p.id);
-      } else if (_selected.length < _targetPlayerCount) {
-        _selected.add(p.id);
+      } else if (_subs.contains(p.id)) {
+        _subs.remove(p.id);
+      } else {
+        if (_selected.length < _targetPlayerCount) {
+          _selected.add(p.id);
+        } else {
+          _subs.add(p.id);
+        }
       }
       _updateProgress(_selected.length);
     });
@@ -276,6 +357,89 @@ class _LineupScreenState extends State<LineupScreen>
     return const Color(0xFFFF5252);
   }
 
+  Widget _buildSubstitutesBench() {
+    return Container(
+      height: 52,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            'match.substitutes_label'.tr().toUpperCase() + ':',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _subs.isEmpty
+                ? Center(
+                    child: Text(
+                      'team.no_subs_selected'.tr(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _subs.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 6),
+                    itemBuilder: (_, idx) {
+                      final pid = _subs.elementAt(idx);
+                      final player = _roster.firstWhere((p) => p.id == pid, orElse: () => _roster.first);
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '#${player.number}',
+                              style: const TextStyle(
+                                color: Colors.orange,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              player.name.split(' ').first,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selected = _selected.length;
@@ -287,23 +451,16 @@ class _LineupScreenState extends State<LineupScreen>
       body: Column(
         children: [
           _buildHeader(isDark),
+          _buildFormatSelector(),
+          _buildFormationBar(),
+          _buildPitch(),
+          _buildSubstitutesBench(),
+          _buildCounterRow(selected, ready),
           Expanded(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: _buildFormatSelector()),
-                SliverToBoxAdapter(child: _buildFormationBar()),
-                SliverToBoxAdapter(child: _buildPitch()),
-                SliverToBoxAdapter(child: _buildCounterRow(selected, ready)),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (_, i) => _buildPlayerCard(_roster[i]),
-                      childCount: _roster.length,
-                    ),
-                  ),
-                ),
-              ],
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+              itemCount: _roster.length,
+              itemBuilder: (_, i) => _buildPlayerCard(_roster[i]),
             ),
           ),
         ],
@@ -408,7 +565,8 @@ class _LineupScreenState extends State<LineupScreen>
   // ── FORMAT SELECTOR ─────────────────────────────────────────────────────────
 
   Widget _buildFormatSelector() {
-    final formats = ['11v11', '9v9', '6v6', '5v5'];
+    if (widget.format != null) return const SizedBox.shrink();
+    final formats = ['11v11', '9v9', '8v8', '7v7', '6v6', '5v5'];
     return Container(
       height: 36,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -516,8 +674,8 @@ class _LineupScreenState extends State<LineupScreen>
   Widget _buildPitch() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: AspectRatio(
-        aspectRatio: 0.68,
+      child: SizedBox(
+        height: 230,
         child: Container(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -589,13 +747,14 @@ class _LineupScreenState extends State<LineupScreen>
           _legendChip('MID', PremiumTheme.neonGreen),
           const SizedBox(width: 6),
           _legendChip('FWD', const Color(0xFFFF5252)),
-          if (count > 0) ...[
+          if (count > 0 || _subs.isNotEmpty) ...[
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () {
                 HapticFeedback.mediumImpact();
                 setState(() {
                   _selected.clear();
+                  _subs.clear();
                   _updateProgress(0);
                 });
               },
@@ -646,26 +805,31 @@ class _LineupScreenState extends State<LineupScreen>
   // ── PLAYER CARD ──────────────────────────────────────────────────────────────
 
   Widget _buildPlayerCard(_PlayerVM p) {
-    final sel = _selected.contains(p.id);
+    final isStarter = _selected.contains(p.id);
+    final isSub = _subs.contains(p.id);
+    final sel = isStarter || isSub;
     final posColor = _posColor(p.position);
-    final canAdd = _selected.length < _targetPlayerCount || sel;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: GestureDetector(
-        onTap: canAdd ? () => _togglePlayer(p) : null,
+        onTap: () => _togglePlayer(p),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: sel
+            color: isStarter
                 ? PremiumTheme.neonGreen.withValues(alpha: 0.07)
-                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+                : isSub
+                    ? Colors.orange.withValues(alpha: 0.07)
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: sel
+              color: isStarter
                   ? PremiumTheme.neonGreen.withValues(alpha: 0.4)
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07),
+                  : isSub
+                      ? Colors.orange.withValues(alpha: 0.4)
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07),
               width: sel ? 1.5 : 1,
             ),
           ),
@@ -674,22 +838,28 @@ class _LineupScreenState extends State<LineupScreen>
             Container(
               width: 38, height: 38,
               decoration: BoxDecoration(
-                color: sel
+                color: isStarter
                     ? PremiumTheme.neonGreen.withValues(alpha: 0.15)
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+                    : isSub
+                        ? Colors.orange.withValues(alpha: 0.15)
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: sel
+                  color: isStarter
                       ? PremiumTheme.neonGreen.withValues(alpha: 0.4)
-                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                      : isSub
+                          ? Colors.orange.withValues(alpha: 0.4)
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
               alignment: Alignment.center,
               child: Text('${p.number}',
                 style: TextStyle(
-                  color: sel
+                  color: isStarter
                       ? PremiumTheme.neonGreen
-                      : Theme.of(context).colorScheme.onSurface,
+                      : isSub
+                          ? Colors.orange
+                          : Theme.of(context).colorScheme.onSurface,
                   fontSize: 13, fontWeight: FontWeight.w900)),
             ),
             const SizedBox(width: 12),
@@ -725,27 +895,71 @@ class _LineupScreenState extends State<LineupScreen>
                 ]),
               ],
             )),
+            // Starters/Subs Toggle icon
+            if (sel) ...[
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    if (isStarter) {
+                      _selected.remove(p.id);
+                      _subs.add(p.id);
+                    } else {
+                      if (_selected.length < _targetPlayerCount) {
+                        _subs.remove(p.id);
+                        _selected.add(p.id);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('tournament.max_starters_error'.tr(
+                            namedArgs: {'count': _targetPlayerCount.toString()}
+                          )),
+                          duration: const Duration(seconds: 1),
+                        ));
+                      }
+                    }
+                    _updateProgress(_selected.length);
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isStarter
+                        ? PremiumTheme.neonGreen.withValues(alpha: 0.12)
+                        : Colors.orange.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isStarter ? Icons.airline_seat_recline_normal : Icons.sports_soccer,
+                    color: isStarter ? PremiumTheme.neonGreen : Colors.orange,
+                    size: 18,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             // Checkmark
             AnimatedContainer(
               duration: const Duration(milliseconds: 220),
               width: 28, height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: sel ? PremiumTheme.neonGreen : Colors.transparent,
+                color: isStarter
+                    ? PremiumTheme.neonGreen
+                    : isSub
+                        ? Colors.orange
+                        : Colors.transparent,
                 border: Border.all(
-                  color: sel
+                  color: isStarter
                       ? PremiumTheme.neonGreen
-                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                      : isSub
+                          ? Colors.orange
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
               ),
               child: sel
                   ? const Icon(Icons.check_rounded, color: Colors.black, size: 16)
-                  : (!canAdd
-                      ? Icon(Icons.lock_rounded,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-                          size: 13)
-                      : null),
+                  : null,
             ),
           ]),
         ),

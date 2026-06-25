@@ -265,3 +265,19 @@ def update_lineup(
     # I should probably have a separate update service or just use create_or_update if they delete then create.
     # For now, I'll follow the user's specific endpoint requests.
     return services.create_or_update_lineup(db, id, lineup_in, current_user)
+
+@router.patch("/matches/{id}/status")
+def update_match_status(
+    id: UUID,
+    status: MatchStatus = Body(..., embed=True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_match_reporter)
+):
+    match = db.query(Match).filter(Match.id == id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    match.status = status.value
+    db.commit()
+    db.refresh(match)
+    return {"id": str(match.id), "status": match.status}
+
