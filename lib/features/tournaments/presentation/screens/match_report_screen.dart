@@ -897,11 +897,11 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
   Widget _buildLiveEventsTab() {
     final matchProvider = context.watch<MatchProvider>();
-    final events = matchProvider.currentMatchEvents;
+    final rawEvents = matchProvider.currentMatchEvents;
 
-    // Split events by half (1st Half: <= 45, 2nd Half: > 45)
-    final firstHalfEvents = events.where((e) => e.minute <= 45).toList();
-    final secondHalfEvents = events.where((e) => e.minute > 45).toList();
+    final allGrouped = _groupTimelineEvents(rawEvents);
+    final firstHalfEvents = allGrouped.where((e) => e.minute <= 45).toList();
+    final secondHalfEvents = allGrouped.where((e) => e.minute > 45).toList();
 
     return Column(
       children: [
@@ -941,9 +941,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
         // Live Events Timeline
         Expanded(
-          child: matchProvider.isLoading && events.isEmpty
+          child: matchProvider.isLoading && rawEvents.isEmpty
               ? const Center(child: CircularProgressIndicator())
-              : events.isEmpty
+              : allGrouped.isEmpty
                   ? Center(
                       child: Text(
                         'match.no_events'.tr(),
@@ -973,6 +973,86 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     );
   }
 
+  List<_TimelineGroupedItem> _groupTimelineEvents(List<MatchEvent> events) {
+    final sortedEvents = List<MatchEvent>.from(events)..sort((a, b) => a.minute.compareTo(b.minute));
+    final List<_TimelineGroupedItem> result = [];
+    final Set<String> consumedIds = {};
+
+    int homeScore = 0;
+    int awayScore = 0;
+
+    for (var i = 0; i < sortedEvents.length; i++) {
+      final e = sortedEvents[i];
+      if (consumedIds.contains(e.id)) continue;
+
+      final isHome = e.teamId == _currentMatch?.homeTeamId;
+      final pId = e.playerId ?? e.childProfileId;
+      final pName = pId != null ? (_playerNamesCache[pId] ?? 'Игрок') : 'Игрок';
+
+      if (e.eventType == EventType.GOAL || e.eventType == EventType.PENALTY_GOAL) {
+        if (isHome) homeScore++; else awayScore++;
+
+        MatchEvent? assistEvent;
+        for (var j = 0; j < sortedEvents.length; j++) {
+          final candidate = sortedEvents[j];
+          if (!consumedIds.contains(candidate.id) &&
+              candidate.eventType == EventType.ASSIST &&
+              candidate.minute == e.minute &&
+              candidate.teamId == e.teamId &&
+              candidate.id != e.id) {
+            assistEvent = candidate;
+            break;
+          }
+        }
+
+        String? assistName;
+        String? secId;
+        if (assistEvent != null) {
+          consumedIds.add(assistEvent.id);
+          secId = assistEvent.id;
+          final aId = assistEvent.playerId ?? assistEvent.childProfileId;
+          if (aId != null) {
+            assistName = _playerNamesCache[aId] ?? 'Ассистент';
+          }
+        }
+
+        result.add(_TimelineGroupedItem(
+          id: e.id,
+          secondaryId: secId,
+          eventType: e.eventType,
+          minute: e.minute,
+          isHome: isHome,
+          playerName: pName,
+          assistantName: assistName,
+          runningScore: "$homeScore - $awayScore",
+        ));
+        consumedIds.add(e.id);
+      } else if (e.eventType == EventType.ASSIST) {
+        result.add(_TimelineGroupedItem(
+          id: e.id,
+          eventType: e.eventType,
+          minute: e.minute,
+          isHome: isHome,
+          playerName: pName,
+          runningScore: "$homeScore - $awayScore",
+        ));
+        consumedIds.add(e.id);
+      } else {
+        result.add(_TimelineGroupedItem(
+          id: e.id,
+          eventType: e.eventType,
+          minute: e.minute,
+          isHome: isHome,
+          playerName: pName,
+          runningScore: "$homeScore - $awayScore",
+        ));
+        consumedIds.add(e.id);
+      }
+    }
+
+    return result;
+  }
+
   Widget _buildHalfHeader(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -995,25 +1075,48 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     );
   }
 
-  Widget _buildTimelineEventRow(MatchEvent event) {
-    final isHome = event.teamId == _currentMatch?.homeTeamId;
-    final pId = event.playerId ?? event.childProfileId;
-    final pName = pId != null ? (_playerNamesCache[pId] ?? 'match.player_placeholder'.tr(namedArgs: {'id': pId.length > 4 ? pId.substring(0, 4) : pId})) : 'match.player_generic'.tr();
+  Widget _buildTimelineEventRow(_TimelineGroupedItem item) {
+    final isHome = item.isHome;
 
     String emoji = '⚽';
-    String typeLabel = '';
-    if (event.eventType == EventType.GOAL) {
-      emoji = '⚽';
-      typeLabel = 'match.event_type_goal'.tr();
-    } else if (event.eventType == EventType.YELLOW_CARD) {
-      emoji = '🟨';
-      typeLabel = 'match.event_type_yellow'.tr();
-    } else if (event.eventType == EventType.RED_CARD) {
-      emoji = '🟥';
-      typeLabel = 'match.event_type_red'.tr();
-    } else if (event.eventType == EventType.SUBSTITUTE) {
-      emoji = '🔄';
-      typeLabel = 'match.event_type_sub'.tr();
+    if (item.eventType == EventType.YELLOW_CARD) emoji = '🟨';
+    if (item.eventType == EventType.RED_CARD) emoji = '🟥';
+    if (item.eventType == EventType.SUBSTITUTE) emoji = '🔄';
+
+    final bool isGoal = item.eventType == EventType.GOAL || item.eventType == EventType.PENALTY_GOAL;
+
+    Widget buildScoreBadge() {
+      if (!isGoal) return const SizedBox.shrink();
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isHome ? PremiumTheme.neonGreen : Colors.white12,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          item.runningScore,
+          style: TextStyle(
+            color: isHome ? Colors.black : Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 11,
+          ),
+        ),
+      );
+    }
+
+    Widget buildMinuteBadge() {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          "${item.minute}'",
+          style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10),
+        ),
+      );
     }
 
     final contentWidget = Row(
@@ -1021,61 +1124,39 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (isHome) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              "${event.minute}'",
-              style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 10),
-            ),
-          ),
+          buildMinuteBadge(),
           const SizedBox(width: 8),
-          Text(emoji, style: const TextStyle(fontSize: 15)),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                pName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              Text(
-                typeLabel,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
-              ),
-            ],
+          Text(emoji, style: const TextStyle(fontSize: 14)),
+          buildScoreBadge(),
+          const SizedBox(width: 6),
+          Text(
+            item.playerName,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
           ),
+          if (item.assistantName != null) ...[
+            const SizedBox(width: 4),
+            Text(
+              "(${item.assistantName})",
+              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ],
         ] else ...[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                pName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              Text(
-                typeLabel,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          Text(emoji, style: const TextStyle(fontSize: 15)),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(6),
+          if (item.assistantName != null) ...[
+            Text(
+              "(${item.assistantName})",
+              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
             ),
-            child: Text(
-              "${event.minute}'",
-              style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10),
-            ),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            item.playerName,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
           ),
+          const SizedBox(width: 6),
+          buildScoreBadge(),
+          Text(emoji, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 8),
+          buildMinuteBadge(),
         ],
       ],
     );
@@ -1088,9 +1169,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.01),
+              color: Colors.white.withOpacity(0.02),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.03)),
+              border: Border.all(color: Colors.white.withOpacity(0.04)),
             ),
             child: contentWidget,
           ),
@@ -1114,7 +1195,10 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                   ),
                 );
                 if (confirm == true) {
-                  await context.read<MatchProvider>().deleteMatchEvent(widget.matchId, event.id);
+                  await context.read<MatchProvider>().deleteMatchEvent(widget.matchId, item.id);
+                  if (item.secondaryId != null) {
+                    await context.read<MatchProvider>().deleteMatchEvent(widget.matchId, item.secondaryId!);
+                  }
                   await _autoSyncScoreFromEvents();
                 }
               },
