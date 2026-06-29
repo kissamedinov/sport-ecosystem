@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -67,9 +66,10 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     _tabController = TabController(
         length: isOrganizer ? 3 : 2, vsync: this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshMatchDetails();
-      context.read<MatchProvider>().fetchMatchEvents(widget.matchId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshMatchDetails();
+      await context.read<MatchProvider>().fetchMatchEvents(widget.matchId);
+      await _autoSyncScoreFromEvents();
       _loadPlayerNames();
       if (widget.myTournamentTeamId != null) {
         context
@@ -77,6 +77,36 @@ class _MatchReportScreenState extends State<MatchReportScreen>
             .fetchSquad(widget.myTournamentTeamId!);
       }
     });
+  }
+
+  Future<void> _autoSyncScoreFromEvents() async {
+    if (!mounted) return;
+    final events = context.read<MatchProvider>().currentMatchEvents;
+    int homeGoals = 0;
+    int awayGoals = 0;
+
+    for (final e in events) {
+      if (e.eventType == EventType.GOAL) {
+        if (e.teamId == _currentMatch?.homeTeamId) {
+          homeGoals++;
+        } else if (e.teamId == _currentMatch?.awayTeamId) {
+          awayGoals++;
+        }
+      }
+    }
+
+    setState(() {
+      _homeScoreController.text = homeGoals.toString();
+      _awayScoreController.text = awayGoals.toString();
+    });
+
+    try {
+      await context.read<TournamentProvider>().updateMatchResult(
+        widget.matchId,
+        homeGoals,
+        awayGoals,
+      );
+    } catch (_) {}
   }
 
   Future<void> _refreshMatchDetails() async {
@@ -807,7 +837,6 @@ class _MatchReportScreenState extends State<MatchReportScreen>
   Future<void> _submitPlayerStats() async {
     final matchProvider = context.read<MatchProvider>();
     int totalEvents = 0;
-    int successCount = 0;
 
     _playerStats.forEach((pid, stats) {
       totalEvents += (stats['goals'] as int) + 
@@ -838,7 +867,6 @@ class _MatchReportScreenState extends State<MatchReportScreen>
               'child_profile_id': pid,
               'team_id': widget.myTeamId,
             });
-            successCount++;
           }
         }
 
@@ -894,6 +922,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
               );
               if (result != null) {
                 await context.read<MatchProvider>().addMatchEvent(widget.matchId, result);
+                await _autoSyncScoreFromEvents();
               }
             },
             child: Row(
@@ -1086,6 +1115,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 );
                 if (confirm == true) {
                   await context.read<MatchProvider>().deleteMatchEvent(widget.matchId, event.id);
+                  await _autoSyncScoreFromEvents();
                 }
               },
             ),

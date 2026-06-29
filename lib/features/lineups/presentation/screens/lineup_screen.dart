@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/premium_theme.dart';
 import 'package:mobile/features/teams/data/models/player_team.dart';
+import 'package:mobile/features/lineups/providers/lineup_provider.dart';
+import 'package:mobile/features/lineups/models/lineup.dart';
 
 class LineupScreen extends StatefulWidget {
   final String? teamName;
@@ -10,6 +13,8 @@ class LineupScreen extends StatefulWidget {
   final DateTime? matchDate;
   final List<PlayerTeam> players;
   final String? format;
+  final String? matchId;
+  final String? teamId;
 
   const LineupScreen({
     super.key,
@@ -18,6 +23,8 @@ class LineupScreen extends StatefulWidget {
     this.matchDate,
     this.players = const [],
     this.format,
+    this.matchId,
+    this.teamId,
   });
 
   @override
@@ -275,12 +282,17 @@ class _LineupScreenState extends State<LineupScreen>
       _roster = widget.players.asMap().entries.map((entry) {
         final i = entry.key;
         final p = entry.value;
+        final actualId = p.childProfileId != null && p.childProfileId!.isNotEmpty 
+            ? p.childProfileId! 
+            : p.playerId;
         return _PlayerVM(
-          id: p.playerId,
+          id: actualId,
           number: p.jerseyNumber ?? (i + 1),
           name: p.player?.name ?? 'Player ${i + 1}',
           position: p.position ?? 'MID',
           rating: 7.0 + (i % 5) * 0.3,
+          playerId: p.playerId,
+          childProfileId: p.childProfileId,
         );
       }).toList();
     } else {
@@ -986,16 +998,100 @@ class _LineupScreenState extends State<LineupScreen>
             duration: const Duration(milliseconds: 300),
             child: ElevatedButton(
               onPressed: ready
-                  ? () {
+                  ? () async {
                       HapticFeedback.mediumImpact();
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: PremiumTheme.neonGreen,
-                        content: Text('team.lineup_submitted_msg'.tr(),
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ));
-                      Navigator.of(context).pop();
+                      if (widget.matchId != null && widget.teamId != null) {
+                        try {
+                          // Show loading indicator
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+                            ),
+                          );
+
+                          final flatPos = _getFlatPositions();
+                          final lineupPlayers = <LineupPlayer>[];
+                          int starterIndex = 0;
+                          for (final p in _roster) {
+                            final isSel = _selected.contains(p.id);
+                            final isSub = _subs.contains(p.id);
+                            if (isSel) {
+                              final posObj = starterIndex < flatPos.length ? flatPos[starterIndex] : null;
+                              lineupPlayers.add(LineupPlayer(
+                                playerId: p.playerId != null && p.playerId!.isNotEmpty && !p.playerId!.startsWith('mock') ? p.playerId : null,
+                                childProfileId: p.childProfileId != null && p.childProfileId!.isNotEmpty && !p.childProfileId!.startsWith('mock') ? p.childProfileId : null,
+                                isStarting: true,
+                                position: posObj != null ? posObj.label : p.position,
+                                jerseyNumber: p.number,
+                                posX: posObj?.x,
+                                posY: posObj?.y,
+                              ));
+                              starterIndex++;
+                            } else if (isSub) {
+                              lineupPlayers.add(LineupPlayer(
+                                playerId: p.playerId != null && p.playerId!.isNotEmpty && !p.playerId!.startsWith('mock') ? p.playerId : null,
+                                childProfileId: p.childProfileId != null && p.childProfileId!.isNotEmpty && !p.childProfileId!.startsWith('mock') ? p.childProfileId : null,
+                                isStarting: false,
+                                position: p.position,
+                                jerseyNumber: p.number,
+                              ));
+                            }
+                          }
+
+                          final lineupRequest = MatchLineup(
+                            id: '',
+                            matchId: widget.matchId!,
+                            teamId: widget.teamId!,
+                            status: LineupStatus.SUBMITTED,
+                            createdAt: DateTime.now(),
+                            players: lineupPlayers,
+                          );
+
+                          await context.read<LineupProvider>().submitLineup(
+                            widget.matchId!,
+                            lineupRequest,
+                          );
+
+                          // Close loading indicator
+                          if (mounted) Navigator.of(context).pop();
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: PremiumTheme.neonGreen,
+                              content: Text('team.lineup_submitted_msg'.tr(),
+                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ));
+                            Navigator.of(context).pop(true);
+                          }
+                        } catch (e) {
+                          // Close loading indicator
+                          if (mounted) Navigator.of(context).pop();
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(e.toString(),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ));
+                          }
+                        }
+                      } else {
+                        // Standard fallback behavior when not linked to a specific match
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          backgroundColor: PremiumTheme.neonGreen,
+                          content: Text('team.lineup_submitted_msg'.tr(),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w800)),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ));
+                        Navigator.of(context).pop(true);
+                      }
                     }
                   : null,
               style: ElevatedButton.styleFrom(
@@ -1051,12 +1147,16 @@ class _PlayerVM {
   final String name;
   final String position;
   final double rating;
+  final String? playerId;
+  final String? childProfileId;
   const _PlayerVM({
     required this.id,
     required this.number,
     required this.name,
     required this.position,
     required this.rating,
+    this.playerId,
+    this.childProfileId,
   });
 }
 

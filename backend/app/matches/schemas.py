@@ -33,12 +33,24 @@ class MatchBase(BaseModel):
 class MatchResponse(MatchBase):
     id: UUID
     status: MatchStatus
+    home_score: int = 0
+    away_score: int = 0
+    elapsed_seconds: int = 0
+    is_timer_running: bool = False
+    timer_updated_at: Optional[datetime] = None
     created_at: datetime
     result: Optional[MatchResultResponse] = None
     field_name: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class MatchLiveUpdate(BaseModel):
+    status: Optional[str] = None
+    home_score: Optional[int] = None
+    away_score: Optional[int] = None
+    elapsed_seconds: Optional[int] = None
+    is_timer_running: Optional[bool] = None
 
 class TournamentGroupBase(BaseModel):
     name: str

@@ -247,6 +247,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen> {
                           builder: (_) => LineupScreen(
                             teamName: _team.name,
                             players: activePlayers,
+                            teamId: _team.id,
                           ),
                         ),
                       );

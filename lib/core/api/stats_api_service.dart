@@ -50,4 +50,14 @@ class StatsApiService {
     final response = await _apiClient.get('/tournaments/$tournamentId/top-scorers');
     return (response.data as List).map((e) => TopScorer.fromJson(e)).toList();
   }
+
+  Future<Map<String, dynamic>> getMatchLiveState(String matchId) async {
+    final response = await _apiClient.get('/matches/$matchId/live');
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> updateMatchLiveState(String matchId, Map<String, dynamic> updateData) async {
+    final response = await _apiClient.patch('/matches/$matchId/live', data: updateData);
+    return response.data as Map<String, dynamic>;
+  }
 }

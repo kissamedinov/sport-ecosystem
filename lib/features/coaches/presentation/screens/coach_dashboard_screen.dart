@@ -11,6 +11,10 @@ import 'coach_teams_screen.dart';
 import 'coach_attendance_screen.dart';
 import 'package:mobile/features/clubs/presentation/screens/team_management_screen.dart';
 import 'package:mobile/features/teams/data/models/team.dart';
+import 'package:mobile/features/lineups/presentation/screens/lineup_screen.dart';
+import 'package:mobile/features/tournaments/presentation/screens/match_center_screen.dart';
+import 'package:mobile/features/teams/data/models/player_team.dart';
+import 'package:mobile/features/auth/data/models/user.dart';
 
 
 class CoachDashboardScreen extends StatefulWidget {
@@ -100,8 +104,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             (matches.first['status']?.toString().toUpperCase() == 'IN_PROGRESS')
         ? matches.first
         : null;
-    final needsLineup = matches.isNotEmpty && liveMatch == null
-        ? matches.first
+    final needsLineup = liveMatch == null
+        ? matches.firstWhere(
+            (m) => m is Map && m['lineup_submitted'] == false,
+            orElse: () => null,
+          ) as Map<String, dynamic>?
         : null;
 
     return RefreshIndicator(
@@ -116,10 +123,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           if (liveMatch != null)
             SliverToBoxAdapter(child: _buildLiveMatchCard(liveMatch)),
           if (needsLineup != null)
-            SliverToBoxAdapter(child: _buildLineupActionCard(needsLineup)),
+            SliverToBoxAdapter(child: _buildLineupActionCard(needsLineup, teams)),
           SliverToBoxAdapter(child: _buildActionGrid(teams)),
           SliverToBoxAdapter(child: _buildTeamsSection(teams)),
-          SliverToBoxAdapter(child: _buildUpcomingFixtures(matches)),
+          SliverToBoxAdapter(child: _buildUpcomingFixtures(matches, teams)),
           const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
         ],
       ),
@@ -762,7 +769,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   // ─── LINEUP ACTION CARD ───────────────────────────────────────────────────
 
-  Widget _buildLineupActionCard(Map<String, dynamic> match) {
+  Widget _buildLineupActionCard(Map<String, dynamic> match, List teams) {
     final homeTeam = match['home_team_name']?.toString() ?? '';
     final awayTeam = match['away_team_name']?.toString() ?? '';
     final scheduledAt = match['scheduled_at']?.toString() ?? '';
@@ -816,7 +823,49 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                final homeTeamId = match['home_team_id']?.toString();
+                final awayTeamId = match['away_team_id']?.toString();
+                final coachedTeamMap = teams.firstWhere(
+                  (t) => t['id']?.toString() == homeTeamId || t['id']?.toString() == awayTeamId,
+                  orElse: () => teams.isNotEmpty ? teams.first : null,
+                ) as Map<String, dynamic>?;
+
+                if (coachedTeamMap == null) return;
+
+                final coachedTeamId = coachedTeamMap['id']?.toString() ?? '';
+                final isHome = coachedTeamId == homeTeamId;
+                final myTeamName = coachedTeamMap['name']?.toString() ?? '';
+                final opponentName = isHome
+                    ? (match['away_team_name']?.toString() ?? 'Opponent')
+                    : (match['home_team_name']?.toString() ?? 'Opponent');
+
+                final playersRaw = coachedTeamMap['players'] as List? ?? [];
+                final List<PlayerTeam> players = playersRaw
+                    .map((p) => PlayerTeam.fromJson(Map<String, dynamic>.from(p as Map)))
+                    .toList();
+
+                final matchDateStr = match['scheduled_at']?.toString();
+                final matchDate = matchDateStr != null ? DateTime.tryParse(matchDateStr) : null;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MatchCenterScreen(
+                      matchId: match['id']?.toString() ?? '',
+                      tournamentId: match['tournament_id']?.toString(),
+                      coachedTeamId: coachedTeamId,
+                      coachedTeamName: myTeamName,
+                      players: players,
+                      lineupSubmitted: match['lineup_submitted'] == true,
+                    ),
+                  ),
+                ).then((value) {
+                  if (value == true) {
+                    _refresh();
+                  }
+                });
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -1098,7 +1147,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   // ─── UPCOMING FIXTURES ────────────────────────────────────────────────────
 
-  Widget _buildUpcomingFixtures(List matches) {
+  Widget _buildUpcomingFixtures(List matches, List teams) {
     final upcoming = matches
         .where(
           (m) => (m['status']?.toString().toUpperCase() ?? '') != 'IN_PROGRESS',
@@ -1130,7 +1179,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           if (upcoming.isEmpty)
             _buildEmptyFixtures()
           else
-            ...upcoming.map((m) => _buildFixtureRow(m)),
+            ...upcoming.map((m) => _buildFixtureRow(m, teams)),
         ],
       ),
     );
@@ -1154,11 +1203,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     );
   }
 
-  Widget _buildFixtureRow(Map<String, dynamic> match) {
-    final homeTeam = match['home_team_name']?.toString() ?? '';
-    final awayTeam = match['away_team_name']?.toString() ?? '';
+  Widget _buildFixtureRow(Map<String, dynamic> match, List teams) {
+    final coachedTeamIds = teams.map((t) => t['id']?.toString()).toSet();
+    final isHomeCoached = coachedTeamIds.contains(match['home_team_id']?.toString());
+
+    final homeTeam = match['home_team_name']?.toString() ?? 'Home';
+    final awayTeam = match['away_team_name']?.toString() ?? 'Away';
+    final opponentName = isHomeCoached ? awayTeam : homeTeam;
+    final myTeamName = isHomeCoached ? homeTeam : awayTeam;
+    final coachedTeamId = isHomeCoached
+        ? (match['home_team_id'] ?? '').toString()
+        : (match['away_team_id'] ?? '').toString();
+
     final scheduledAt = match['scheduled_at']?.toString() ?? '';
-    final location = match['location']?.toString() ?? 'Main';
+    final location = match['location']?.toString() ?? match['venue']?.toString() ?? 'Main Field';
     final pitch = match['pitch']?.toString() ?? '';
 
     DateTime? dt;
@@ -1175,89 +1233,117 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       pitch,
     ].where((s) => s.isNotEmpty).join(' · ');
 
+    final matchedTeam = teams.firstWhere(
+      (t) => t['id']?.toString() == coachedTeamId,
+      orElse: () => null,
+    );
+
+    List<PlayerTeam> players = [];
+    if (matchedTeam != null && matchedTeam['players'] != null) {
+      final playerList = matchedTeam['players'] as List;
+      players = playerList.map((p) {
+        return PlayerTeam(
+          id: p['profile_id']?.toString() ?? '',
+          teamId: coachedTeamId,
+          playerId: p['user_id']?.toString() ?? '',
+          joinedAt: DateTime.now(),
+          player: User(
+            id: p['user_id']?.toString() ?? '',
+            name: p['name']?.toString() ?? 'Player',
+            email: '',
+          ),
+          position: p['position']?.toString(),
+          jerseyNumber: p['jersey_number'] != null ? int.tryParse(p['jersey_number'].toString()) : null,
+        );
+      }).toList();
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: PremiumTheme.electricBlue.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dayName,
-                    style: const TextStyle(
-                      color: PremiumTheme.electricBlue,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  Text(
-                    dayNum,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      height: 1.1,
-                    ),
-                  ),
-                ],
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MatchCenterScreen(
+                matchId: match['id']?.toString() ?? '',
+                tournamentId: match['tournament_id']?.toString(),
+                coachedTeamId: coachedTeamId,
+                coachedTeamName: myTeamName,
+                players: players,
+                lineupSubmitted: match['lineup_submitted'] == true,
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: homeTeam,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' vs ',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
-                        ),
-                        TextSpan(
-                          text: awayTeam,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+          ).then((value) {
+            if (value == true) {
+              _refresh();
+            }
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: PremiumTheme.glassDecorationOf(context, radius: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: PremiumTheme.electricBlue.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      dayName,
+                      style: const TextStyle(
+                        color: PremiumTheme.electricBlue,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '$timeStr · $locationStr',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
-                  ),
-                ],
+                    Text(
+                      dayNum,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 20,
-            ),
-          ],
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'vs $opponentName',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '$timeStr · $locationStr',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );

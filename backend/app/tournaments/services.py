@@ -1043,6 +1043,9 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
     
+    match.home_score = home_score
+    match.away_score = away_score
+    
     # Update or create MatchResult
     result = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
     if not result:
@@ -1051,7 +1054,7 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
             home_score=home_score,
             away_score=away_score,
             status=ResultStatus.FINAL,
-            submitted_by=match.tournament.created_by # Organizer
+            submitted_by=match.tournament.created_by if match.tournament else match.id # Organizer or fallback
         )
         db.add(result)
     else:

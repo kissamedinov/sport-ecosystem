@@ -66,6 +66,12 @@ def get_tournament_matches(db: Session, tournament_id: UUID):
 def get_all_matches(db: Session):
     return db.query(Match).all()
 
+def get_match_by_id(db: Session, match_id: UUID):
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return match
+
 def submit_match_result(db: Session, match_id: UUID, result_in: MatchResultCreate, current_user: User):
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
@@ -183,8 +189,97 @@ def create_match_event(db: Session, match_id: UUID, event_in: MatchEventCreate, 
     )
     db.add(event)
     db.commit()
+
+    # Recalculate and sync scores for match and match_result
+    events = db.query(MatchEvent).filter(MatchEvent.match_id == match_id).all()
+    h_goals = sum(1 for e in events if e.event_type in [EventType.GOAL, EventType.PENALTY_GOAL] and str(e.team_id) == str(match.home_team_id))
+    a_goals = sum(1 for e in events if e.event_type in [EventType.GOAL, EventType.PENALTY_GOAL] and str(e.team_id) == str(match.away_team_id))
+    match.home_score = h_goals
+    match.away_score = a_goals
+    res = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
+    if res:
+        res.home_score = h_goals
+        res.away_score = a_goals
+    db.commit()
+
     db.refresh(event)
     return event
+
+def get_match_live_state(db: Session, match_id: UUID):
+    from datetime import datetime, timezone
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    
+    current_elapsed = match.elapsed_seconds or 0
+    if match.is_timer_running and match.timer_updated_at:
+        now = datetime.now(timezone.utc)
+        timer_start = match.timer_updated_at.replace(tzinfo=timezone.utc) if match.timer_updated_at.tzinfo is None else match.timer_updated_at
+        delta = int((now - timer_start).total_seconds())
+        if delta > 0:
+            current_elapsed += delta
+
+    events = db.query(MatchEvent).filter(MatchEvent.match_id == match_id).order_by(MatchEvent.minute.desc()).all()
+
+    return {
+        "id": str(match.id),
+        "status": match.status,
+        "home_score": match.home_score or 0,
+        "away_score": match.away_score or 0,
+        "elapsed_seconds": current_elapsed,
+        "is_timer_running": match.is_timer_running,
+        "timer_updated_at": match.timer_updated_at.isoformat() if match.timer_updated_at else None,
+        "events": [
+            {
+                "id": str(e.id),
+                "event_type": e.event_type,
+                "minute": e.minute,
+                "team_id": str(e.team_id),
+                "player_id": str(e.player_id) if e.player_id else None,
+                "child_profile_id": str(e.child_profile_id) if e.child_profile_id else None,
+            } for e in events
+        ]
+    }
+
+def update_match_live_state(db: Session, match_id: UUID, update_data: dict):
+    from datetime import datetime, timezone
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    now = datetime.now(timezone.utc)
+
+    if "status" in update_data and update_data["status"] is not None:
+        match.status = update_data["status"]
+
+    if "home_score" in update_data and update_data["home_score"] is not None:
+        match.home_score = update_data["home_score"]
+
+    if "away_score" in update_data and update_data["away_score"] is not None:
+        match.away_score = update_data["away_score"]
+
+    if "is_timer_running" in update_data and update_data["is_timer_running"] is not None:
+        new_running = update_data["is_timer_running"]
+        if match.is_timer_running and not new_running:
+            # Pausing timer: accumulate elapsed time
+            if match.timer_updated_at:
+                timer_start = match.timer_updated_at.replace(tzinfo=timezone.utc) if match.timer_updated_at.tzinfo is None else match.timer_updated_at
+                delta = int((now - timer_start).total_seconds())
+                if delta > 0:
+                    match.elapsed_seconds = (match.elapsed_seconds or 0) + delta
+            match.is_timer_running = False
+            match.timer_updated_at = now
+        elif not match.is_timer_running and new_running:
+            # Starting/resuming timer
+            match.is_timer_running = True
+            match.timer_updated_at = now
+
+    if "elapsed_seconds" in update_data and update_data["elapsed_seconds"] is not None:
+        match.elapsed_seconds = update_data["elapsed_seconds"]
+        match.timer_updated_at = now
+
+    db.commit()
+    return get_match_live_state(db, match_id)
 
 def create_match_award(db: Session, match_id: UUID, award_in: MatchAwardCreate, current_user: User):
     match = db.query(Match).filter(Match.id == match_id).first()
@@ -348,8 +443,23 @@ def delete_match_event(db: Session, event_id: UUID):
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
+    match_id = event.match_id
     db.delete(event)
     db.commit()
+
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if match:
+        events = db.query(MatchEvent).filter(MatchEvent.match_id == match_id).all()
+        h_goals = sum(1 for e in events if e.event_type in [EventType.GOAL, EventType.PENALTY_GOAL] and str(e.team_id) == str(match.home_team_id))
+        a_goals = sum(1 for e in events if e.event_type in [EventType.GOAL, EventType.PENALTY_GOAL] and str(e.team_id) == str(match.away_team_id))
+        match.home_score = h_goals
+        match.away_score = a_goals
+        res = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
+        if res:
+            res.home_score = h_goals
+            res.away_score = a_goals
+        db.commit()
+
     return {"message": "Event deleted successfully"}
 
 def get_player_stats(db: Session, player_id: UUID):

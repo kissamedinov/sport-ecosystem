@@ -101,6 +101,10 @@ def get_all_matches(
         return services.get_tournament_matches(db, tournament_id)
     return services.get_all_matches(db)
 
+@router.get("/matches/{id}", response_model=schemas.MatchResponse)
+def get_match_by_id(id: UUID, db: Session = Depends(get_db)):
+    return services.get_match_by_id(db, id)
+
 @router.post("/matches/{id}/submit-result")
 def submit_result(
     id: UUID,
@@ -130,6 +134,19 @@ def create_match_event(
     current_user: User = Depends(require_match_reporter)
 ):
     return services.create_match_event(db, id, event_in, current_user)
+
+@router.get("/matches/{id}/live")
+def get_match_live_state(id: UUID, db: Session = Depends(get_db)):
+    return services.get_match_live_state(db, id)
+
+@router.patch("/matches/{id}/live")
+def update_match_live_state(
+    id: UUID,
+    update_in: schemas.MatchLiveUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_match_reporter)
+):
+    return services.update_match_live_state(db, id, update_in.dict(exclude_unset=True))
 
 @router.get("/matches/{id}/events", response_model=List[schemas.MatchEventResponse])
 def get_match_events(id: UUID, db: Session = Depends(get_db)):

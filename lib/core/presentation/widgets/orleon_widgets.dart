@@ -449,7 +449,7 @@ class OrleonFixtureRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'vs $opponent',
+                  opponent.startsWith('vs ') ? opponent : 'vs $opponent',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 15,

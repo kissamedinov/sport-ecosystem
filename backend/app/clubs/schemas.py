@@ -199,6 +199,7 @@ class CoachMatchResponse(BaseModel):
     away_team_id: Optional[UUID] = None
     scheduled_at: Optional[datetime] = None
     tournament_format: Optional[str] = None
+    lineup_submitted: Optional[bool] = False
 
 class CoachPerformanceStats(BaseModel):
     matches_played: int = 0

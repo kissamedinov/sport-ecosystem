@@ -1137,7 +1137,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                             ),
                           ),
                           Text(
-                            (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? '${match.homeScore ?? 0}' : '-',
+                            (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? '${match.homeScore}' : '-',
                             style: TextStyle(
                               color: (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? cs.onSurface : cs.onSurface.withValues(alpha: 0.3),
                               fontWeight: FontWeight.w900,
@@ -1165,7 +1165,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                             ),
                           ),
                           Text(
-                            (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? '${match.awayScore ?? 0}' : '-',
+                            (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? '${match.awayScore}' : '-',
                             style: TextStyle(
                               color: (match.status.toLowerCase() == 'finished' || match.status == 'LIVE') ? cs.onSurface : cs.onSurface.withValues(alpha: 0.3),
                               fontWeight: FontWeight.w900,

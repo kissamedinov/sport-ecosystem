@@ -14,6 +14,7 @@ import '../../coaches/presentation/screens/coach_planner_screen.dart';
 import '../../stats/presentation/screens/performance_screen.dart';
 import '../../lineups/presentation/screens/lineup_screen.dart';
 import '../../tournaments/presentation/screens/tournament_announcements_screen.dart';
+import '../../tournaments/presentation/screens/match_center_screen.dart';
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
 import '../../clubs/presentation/screens/team_management_screen.dart';
 import '../../teams/data/models/team.dart';
@@ -224,7 +225,7 @@ class _HomeTab extends StatelessWidget {
               SliverToBoxAdapter(
                 child: OrleonSectionHeader(title: 'coach.upcoming_fixtures'.tr()),
               ),
-              SliverToBoxAdapter(child: _FixturesList(matches: matches)),
+              SliverToBoxAdapter(child: _FixturesList(matches: matches, teams: teams)),
               SliverToBoxAdapter(
                 child: OrleonSectionHeader(title: 'coach.trainings_this_week'.tr()),
               ),
@@ -719,12 +720,13 @@ class _LineupAlertCard extends StatelessWidget {
           GestureDetector(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => LineupScreen(
-                  teamName: myTeamName,
-                  opponent: opponentName,
-                  matchDate: matchDate,
+                builder: (_) => MatchCenterScreen(
+                  matchId: match['id']?.toString() ?? '',
+                  tournamentId: match['tournament_id']?.toString(),
+                  coachedTeamId: coachedTeamId,
+                  coachedTeamName: myTeamName,
                   players: players,
-                  format: match['tournament_format']?.toString(),
+                  lineupSubmitted: match['lineup_submitted'] == true,
                 ),
               ),
             ),
@@ -906,7 +908,8 @@ class _TeamsList extends StatelessWidget {
 /// ─────────────────────────── FIXTURES ───────────────────────────
 class _FixturesList extends StatelessWidget {
   final List matches;
-  const _FixturesList({required this.matches});
+  final List teams;
+  const _FixturesList({required this.matches, required this.teams});
 
   @override
   Widget build(BuildContext context) {
@@ -916,22 +919,83 @@ class _FixturesList extends StatelessWidget {
         label: 'coach.no_upcoming_fixtures'.tr(),
       );
     }
+    final coachedTeamIds = teams.map((t) => t['id']?.toString()).toSet();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: matches.take(3).map((m) {
+        children: matches.take(5).map((m) {
           final match = (m as Map).cast<String, dynamic>();
           final d = _parseDate(match['scheduled_at'] ?? match['date']);
+
+          final isHomeCoached = coachedTeamIds.contains(match['home_team_id']?.toString());
+          final String rawOpponent = (match['opponent'] != null && match['opponent'].toString().isNotEmpty && match['opponent'].toString() != 'Opponent')
+              ? match['opponent'].toString()
+              : (isHomeCoached 
+                  ? (match['away_team_name'] ?? 'Opponent').toString() 
+                  : (match['home_team_name'] ?? 'Opponent').toString());
+          final String opponentName = rawOpponent.startsWith('vs ') ? rawOpponent.substring(3) : rawOpponent;
+
+          final String myTeamName = isHomeCoached 
+              ? (match['home_team_name'] ?? 'My Team').toString() 
+              : (match['away_team_name'] ?? 'My Team').toString();
+
+          final String coachedTeamId = isHomeCoached
+              ? (match['home_team_id'] ?? '').toString()
+              : (match['away_team_id'] ?? '').toString();
+
+          final DateTime? matchDate = match['scheduled_at'] != null 
+              ? DateTime.tryParse(match['scheduled_at'].toString()) 
+              : null;
+
+          final matchedTeam = teams.firstWhere(
+            (t) => t['id']?.toString() == coachedTeamId,
+            orElse: () => null,
+          );
+
+          List<PlayerTeam> players = [];
+          if (matchedTeam != null && matchedTeam['players'] != null) {
+            final playerList = matchedTeam['players'] as List;
+            players = playerList.map((p) {
+              return PlayerTeam(
+                id: p['profile_id']?.toString() ?? '',
+                teamId: coachedTeamId,
+                playerId: p['user_id']?.toString() ?? '',
+                joinedAt: DateTime.now(),
+                player: User(
+                  id: p['user_id']?.toString() ?? '',
+                  name: p['name']?.toString() ?? 'Player',
+                  email: '',
+                ),
+                position: p['position']?.toString(),
+                jerseyNumber: p['jersey_number'] != null ? int.tryParse(p['jersey_number'].toString()) : null,
+              );
+            }).toList();
+          }
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: OrleonFixtureRow(
-              opponent: (match['opponent'] ?? 'Opponent').toString(),
+              opponent: "vs $opponentName",
               day: d.$1,
               month: d.$2,
               time: d.$3,
               venue: (match['venue'] ?? match['location'])?.toString(),
-              competition: match['competition']?.toString(),
-              onTap: () {},
+              competition: match['tournament_name']?.toString() ?? match['competition']?.toString(),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => MatchCenterScreen(
+                      matchId: match['id']?.toString() ?? '',
+                      tournamentId: match['tournament_id']?.toString(),
+                      coachedTeamId: coachedTeamId,
+                      coachedTeamName: myTeamName,
+                      players: players,
+                      lineupSubmitted: match['lineup_submitted'] == true,
+                    ),
+                  ),
+                );
+              },
             ),
           );
         }).toList(),

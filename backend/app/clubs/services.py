@@ -902,6 +902,13 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                 ).order_by(Match.match_date.asc()).limit(5).all()
                 
                 for m in future_matches:
+                    from app.matches.models import MatchLineup
+                    coached_team_id = m.home_team_id if m.home_team_id in team_ids else m.away_team_id
+                    lineup_exists = db.query(MatchLineup).filter(
+                        MatchLineup.match_id == m.id,
+                        MatchLineup.team_id == coached_team_id
+                    ).first() is not None
+
                     match_responses.append(schemas.CoachMatchResponse(
                         id=m.id,
                         tournament_name=m.tournament.name if (m.tournament and hasattr(m.tournament, 'name')) else "Friendly",
@@ -910,7 +917,8 @@ def get_coach_dashboard(db: Session, coach_id: UUID) -> schemas.CoachDashboardRe
                         home_team_id=m.home_team_id,
                         away_team_id=m.away_team_id,
                         scheduled_at=m.match_date,
-                        tournament_format=m.division.format if (m.division and m.division.format) else (m.tournament.format if (m.tournament and hasattr(m.tournament, 'format')) else None)
+                        tournament_format=m.division.format if (m.division and m.division.format) else (m.tournament.format if (m.tournament and hasattr(m.tournament, 'format')) else None),
+                        lineup_submitted=lineup_exists
                     ))
             except Exception as me:
                 print(f"Error fetching match data: {me}")

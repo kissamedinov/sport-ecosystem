@@ -44,7 +44,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLineup();
+    _loadInitialData();
   }
 
   @override
@@ -53,23 +53,53 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
     super.dispose();
   }
 
-  Future<void> _loadLineup() async {
+  Future<void> _loadInitialData() async {
     final lineup = await _lineupRepo.fetchTeamLineup(widget.matchId, widget.teamId);
-    setState(() {
-      _lineup = lineup;
-      _lineupLoading = false;
+    try {
+      final liveState = await _statsApi.getMatchLiveState(widget.matchId);
+      setState(() {
+        _lineup = lineup;
+        _lineupLoading = false;
+        _seconds = liveState['elapsed_seconds'] as int? ?? 0;
+        _homeScore = liveState['home_score'] as int? ?? 0;
+        _awayScore = liveState['away_score'] as int? ?? 0;
+        _isRunning = liveState['is_timer_running'] as bool? ?? false;
+        if (_isRunning) {
+          _startLocalTicker();
+        }
+      });
+    } catch (_) {
+      setState(() {
+        _lineup = lineup;
+        _lineupLoading = false;
+      });
+    }
+  }
+
+  void _startLocalTicker() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _seconds++);
     });
   }
 
-  void _toggleTimer() {
-    if (_isRunning) {
-      _timer?.cancel();
+  Future<void> _toggleTimer() async {
+    final newRunning = !_isRunning;
+    setState(() => _isRunning = newRunning);
+    if (newRunning) {
+      _startLocalTicker();
     } else {
-      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        setState(() => _seconds++);
-      });
+      _timer?.cancel();
     }
-    setState(() => _isRunning = !_isRunning);
+    try {
+      await _statsApi.updateMatchLiveState(widget.matchId, {
+        'is_timer_running': newRunning,
+        'elapsed_seconds': _seconds,
+        'status': 'LIVE',
+      });
+    } catch (e) {
+      debugPrint("Error syncing timer: $e");
+    }
   }
 
   String get _timeDisplay {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,14 +16,26 @@ import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
+import '../../../teams/data/models/player_team.dart';
+import '../../../lineups/presentation/screens/lineup_screen.dart';
+import '../../../auth/providers/auth_provider.dart';
+
 class MatchCenterScreen extends StatefulWidget {
   final String matchId;
-  final String tournamentId;
+  final String? tournamentId;
+  final String? coachedTeamId;
+  final String? coachedTeamName;
+  final List<PlayerTeam> players;
+  final bool? lineupSubmitted;
 
   const MatchCenterScreen({
     Key? key,
     required this.matchId,
-    required this.tournamentId,
+    this.tournamentId,
+    this.coachedTeamId,
+    this.coachedTeamName,
+    this.players = const [],
+    this.lineupSubmitted,
   }) : super(key: key);
 
   @override
@@ -48,10 +61,13 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
 
   /// Map of childProfileId / playerId -> display name
   final Map<String, String> _playerNamesCache = {};
+  Timer? _liveSyncTimer;
+  bool? _lineupSubmittedState;
 
   @override
   void initState() {
     super.initState();
+    _lineupSubmittedState = widget.lineupSubmitted;
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (mounted) {
@@ -60,6 +76,27 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
     });
     _matchRepository = MatchRepository(ApiClient());
     _loadMatchData();
+    _startLiveSyncTimer();
+  }
+
+  void _startLiveSyncTimer() {
+    _liveSyncTimer?.cancel();
+    _liveSyncTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (mounted && _match != null) {
+        _refreshLiveState();
+      }
+    });
+  }
+
+  Future<void> _refreshLiveState() async {
+    try {
+      final matchData = await _matchRepository.getMatchById(widget.matchId);
+      if (mounted) {
+        setState(() {
+          _match = matchData;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadMatchData() async {
@@ -67,12 +104,16 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       final matchData = await _matchRepository.getMatchById(widget.matchId);
       setState(() {
         _match = matchData;
+        if (widget.coachedTeamId != null && matchData.awayTeamId == widget.coachedTeamId) {
+          _viewHomeLineup = false;
+        }
       });
       // Fetch lineups
       if (mounted) {
         final lineupProvider = context.read<LineupProvider>();
         if (matchData.homeTeamId != null) lineupProvider.fetchTeamLineup(widget.matchId, matchData.homeTeamId!);
         if (matchData.awayTeamId != null) lineupProvider.fetchTeamLineup(widget.matchId, matchData.awayTeamId!);
+        if (widget.coachedTeamId != null) lineupProvider.fetchTeamLineup(widget.matchId, widget.coachedTeamId!);
       }
       
       // Fetch team names
@@ -178,6 +219,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
 
   @override
   void dispose() {
+    _liveSyncTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -377,18 +419,83 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final user = context.watch<AuthProvider>().user;
+    final bool isCoach = widget.coachedTeamId != null || (user?.roles?.any((r) => r == 'COACH' || r == 'TEAM_OWNER') ?? false);
+
+    return Column(
       children: [
-        _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), () {
-          _tabController.animateTo(1);
-        }),
-        const SizedBox(width: 24),
-        _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), null),
-        const SizedBox(width: 24),
-        _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), () {
-          _shareMatchCard();
-        }),
+        if (isCoach && widget.coachedTeamId != null) ...[
+          GestureDetector(
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LineupScreen(
+                    matchId: widget.matchId,
+                    teamId: widget.coachedTeamId,
+                    teamName: widget.coachedTeamName ?? _homeTeamName,
+                    opponent: _awayTeamName,
+                    players: widget.players,
+                  ),
+                ),
+              );
+              if (result == true || result != null) {
+                setState(() => _lineupSubmittedState = true);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: (_lineupSubmittedState == true)
+                    ? PremiumTheme.electricBlue
+                    : PremiumTheme.amber,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: (_lineupSubmittedState == true ? PremiumTheme.electricBlue : PremiumTheme.amber).withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    (_lineupSubmittedState == true) ? Icons.edit_note_rounded : Icons.assignment_turned_in_rounded,
+                    color: Colors.black,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    (_lineupSubmittedState == true) ? 'Изменить заявку' : 'Подать заявку (Submit Squad)',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), () {
+              _tabController.animateTo(1);
+            }),
+            const SizedBox(width: 24),
+            _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), null),
+            const SizedBox(width: 24),
+            _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), () {
+              _shareMatchCard();
+            }),
+          ],
+        ),
       ],
     );
   }
@@ -474,7 +581,15 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   Widget _buildLineupsTab(MatchModel match) {
     final lineupProvider = context.watch<LineupProvider>();
     final targetTeamId = _viewHomeLineup ? match.homeTeamId : match.awayTeamId;
-    final lineup = targetTeamId != null ? lineupProvider.getLineupForMatch(widget.matchId, targetTeamId) : null;
+    MatchLineup? lineup = targetTeamId != null ? lineupProvider.getLineupForMatch(widget.matchId, targetTeamId) : null;
+    if (lineup == null && widget.coachedTeamId != null) {
+      final isCoachedTarget = (_viewHomeLineup && match.homeTeamId == widget.coachedTeamId) ||
+          (!_viewHomeLineup && match.awayTeamId == widget.coachedTeamId) ||
+          (match.homeTeamId == null || match.awayTeamId == null);
+      if (isCoachedTarget) {
+        lineup = lineupProvider.getLineupForMatch(widget.matchId, widget.coachedTeamId!);
+      }
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -607,10 +722,34 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
             }
 
             // Fallback layout based on default position groupings
-            final gks = starters.where((p) => p.position == 'GK').toList();
-            final dfs = starters.where((p) => p.position == 'DF').toList();
-            final mfs = starters.where((p) => p.position == 'MF').toList();
-            final fws = starters.where((p) => p.position == 'FW').toList();
+            bool isDef(String? pos) {
+              if (pos == null) return false;
+              final u = pos.toUpperCase();
+              return u.startsWith('DEF') || u.startsWith('DF') || u == 'CB' || u == 'LB' || u == 'RB';
+            }
+            bool isMid(String? pos) {
+              if (pos == null) return false;
+              final u = pos.toUpperCase();
+              return u.startsWith('MID') || u.startsWith('MF') || u == 'CM' || u == 'CAM' || u == 'CDM' || u == 'DM' || u == 'LM' || u == 'RM';
+            }
+            bool isFwd(String? pos) {
+              if (pos == null) return false;
+              final u = pos.toUpperCase();
+              return u.startsWith('FW') || u == 'ST' || u == 'LW' || u == 'RW';
+            }
+
+            final gks = starters.where((p) => p.position?.toUpperCase() == 'GK').toList();
+            final dfs = starters.where((p) => isDef(p.position)).toList();
+            final mfs = starters.where((p) => isMid(p.position)).toList();
+            final fws = starters.where((p) => isFwd(p.position)).toList();
+
+            // Catch any unclassified starters
+            String pKey(LineupPlayer p) => p.childProfileId ?? p.playerId ?? p.jerseyNumber?.toString() ?? '';
+            final categorizedIds = {...gks, ...dfs, ...mfs, ...fws}.map((p) => pKey(p)).toSet();
+            final unclassified = starters.where((p) => !categorizedIds.contains(pKey(p))).toList();
+            if (unclassified.isNotEmpty) {
+              mfs.addAll(unclassified);
+            }
 
             return Stack(
               children: [
@@ -630,13 +769,13 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
                   ),
                 ),
                 // GK position
-                _positionPlayers(gks, h * 0.85, w),
+                _positionPlayers(gks, h * 0.78, w),
                 // DF positions
-                _positionPlayers(dfs, h * 0.65, w),
+                _positionPlayers(dfs, h * 0.56, w),
                 // MF positions
-                _positionPlayers(mfs, h * 0.40, w),
+                _positionPlayers(mfs, h * 0.34, w),
                 // FW positions
-                _positionPlayers(fws, h * 0.15, w),
+                _positionPlayers(fws, h * 0.12, w),
               ],
             );
           },
