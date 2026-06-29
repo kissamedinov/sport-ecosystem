@@ -1253,3 +1253,25 @@ class _PulsingLiveDotState extends State<_PulsingLiveDot>
     );
   }
 }
+
+class _TimelineGroupedItem {
+  final String id;
+  final String? secondaryId;
+  final EventType eventType;
+  final int minute;
+  final bool isHome;
+  final String playerName;
+  final String? assistantName;
+  final String runningScore;
+
+  _TimelineGroupedItem({
+    required this.id,
+    this.secondaryId,
+    required this.eventType,
+    required this.minute,
+    required this.isHome,
+    required this.playerName,
+    this.assistantName,
+    required this.runningScore,
+  });
+}
