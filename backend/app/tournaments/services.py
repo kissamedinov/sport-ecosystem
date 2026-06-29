@@ -1391,104 +1391,143 @@ def get_tournament_squad(db: Session, tt_id: UUID):
     ]
 
 def get_tournament_leaderboards(db: Session, tournament_id: UUID):
-    from sqlalchemy import func, desc
-    from app.tournaments.models import TournamentPlayerStats, TournamentDivision, TournamentSquad, TournamentTeam
-    from app.users.models import PlayerProfile
+    from sqlalchemy import func, desc, or_
+    from app.tournaments.models import Tournament, TournamentDivision, TournamentSquad, TournamentTeam
+    from app.matches.models import Match, MatchEvent, EventType, MatchPlayerStats
+    from app.users.models import PlayerProfile, User
+    from app.clubs.models import ChildProfile
     from app.teams.models import Team
     
-    divisions = db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == tournament_id).all()
-    
-    if not divisions:
+    tournament = db.query(Tournament).filter(Tournament.id == tournament_id).first()
+    if not tournament:
         return []
-    
+        
+    divisions = db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == tournament_id).all()
+    if not divisions:
+        class VirtualDiv:
+            def __init__(self, id, name):
+                self.id = id
+                self.name = name
+        divisions = [VirtualDiv(tournament.id, tournament.name)]
+
     final_result = []
-
-    def format_player_data(stats_list, div_id):
-        result = []
-        for stat in stats_list:
-            if stat[1] == 0:
-                continue
-            player = db.query(PlayerProfile).filter(PlayerProfile.id == stat.player_profile_id).first()
-            if not player:
-                continue
-            
-            squad_entry = db.query(TournamentSquad).join(TournamentTeam).filter(
-                TournamentSquad.player_profile_id == stat.player_profile_id,
-                TournamentTeam.tournament_id == tournament_id
-            ).first()
-            
-            team_name = "Unknown"
-            if squad_entry and squad_entry.tournament_team:
-                team = db.query(Team).filter(Team.id == squad_entry.tournament_team.team_id).first()
-                if team:
-                    team_name = team.name
-
-            user_name = "Unknown Player"
-            if player.user:
-                user_name = player.user.name or f"{player.user.first_name} {player.user.last_name}"
-                
-            result.append({
-                "player_id": str(stat.player_profile_id),
-                "name": user_name,
-                "team_name": team_name,
-                "value": int(stat[1])
-            })
-        return result
 
     for div in divisions:
         div_id = div.id
+        if hasattr(div, 'tournament_edition_id'):
+            matches = db.query(Match).filter(Match.tournament_id == tournament_id, Match.division_id == div_id).all()
+        else:
+            matches = db.query(Match).filter(Match.tournament_id == tournament_id).all()
+            
+        if not matches:
+            matches = db.query(Match).filter(Match.tournament_id == tournament_id).all()
+            
+        match_ids = [m.id for m in matches]
         
-        top_scorers = db.query(
-            TournamentPlayerStats.player_profile_id,
-            func.sum(TournamentPlayerStats.goals).label('total_goals')
-        ).filter(
-            TournamentPlayerStats.division_id == div_id
-        ).group_by(
-            TournamentPlayerStats.player_profile_id
-        ).order_by(
-            desc('total_goals')
-        ).limit(10).all()
+        player_goals = {}
+        player_assists = {}
+        player_team_map = {}
+        
+        if match_ids:
+            events = db.query(MatchEvent).filter(MatchEvent.match_id.in_(match_ids)).all()
+            for e in events:
+                pid = e.child_profile_id or e.player_id
+                if not pid:
+                    continue
+                pid_str = str(pid)
+                if e.team_id:
+                    player_team_map[pid_str] = str(e.team_id)
+                    
+                if e.event_type in [EventType.GOAL, EventType.PENALTY_GOAL]:
+                    player_goals[pid_str] = player_goals.get(pid_str, 0) + 1
+                elif e.event_type == EventType.ASSIST:
+                    player_assists[pid_str] = player_assists.get(pid_str, 0) + 1
+                    
+            pstats = db.query(MatchPlayerStats).filter(MatchPlayerStats.match_id.in_(match_ids)).all()
+            for ps in pstats:
+                pid = ps.child_profile_id or ps.player_id
+                if not pid:
+                    continue
+                pid_str = str(pid)
+                if ps.team_id:
+                    player_team_map[pid_str] = str(ps.team_id)
+                if ps.goals:
+                    player_goals[pid_str] = max(player_goals.get(pid_str, 0), ps.goals)
+                if ps.assists:
+                    player_assists[pid_str] = max(player_assists.get(pid_str, 0), ps.assists)
 
-        top_assists = db.query(
-            TournamentPlayerStats.player_profile_id,
-            func.sum(TournamentPlayerStats.assists).label('total_assists')
-        ).filter(
-            TournamentPlayerStats.division_id == div_id
-        ).group_by(
-            TournamentPlayerStats.player_profile_id
-        ).order_by(
-            desc('total_assists')
-        ).limit(10).all()
+        def resolve_player_info(pid_str, val):
+            try:
+                pid_uuid = UUID(pid_str)
+            except Exception:
+                return None
+                
+            name = "Unknown Player"
+            child = db.query(ChildProfile).filter(ChildProfile.id == pid_uuid).first()
+            if child:
+                name = f"{child.first_name} {child.last_name}"
+            else:
+                user = db.query(User).filter(User.id == pid_uuid).first()
+                if user:
+                    name = user.name or f"{user.first_name} {user.last_name}"
+                else:
+                    prof = db.query(PlayerProfile).filter(PlayerProfile.id == pid_uuid).first()
+                    if prof and prof.user:
+                        name = prof.user.name or f"{prof.user.first_name} {prof.user.last_name}"
 
-        top_clean_sheets = db.query(
-            TournamentPlayerStats.player_profile_id,
-            func.sum(TournamentPlayerStats.clean_sheets).label('total_clean_sheets')
-        ).filter(
-            TournamentPlayerStats.division_id == div_id
-        ).group_by(
-            TournamentPlayerStats.player_profile_id
-        ).order_by(
-            desc('total_clean_sheets')
-        ).limit(10).all()
+            team_name = "Team"
+            t_id_str = player_team_map.get(pid_str)
+            if t_id_str:
+                try:
+                    team = db.query(Team).filter(Team.id == UUID(t_id_str)).first()
+                    if team:
+                        team_name = team.name
+                except Exception:
+                    pass
 
-        top_goal_plus_pass = db.query(
-            TournamentPlayerStats.player_profile_id,
-            (func.sum(TournamentPlayerStats.goals) + func.sum(TournamentPlayerStats.assists)).label('total_ga')
-        ).filter(
-            TournamentPlayerStats.division_id == div_id
-        ).group_by(
-            TournamentPlayerStats.player_profile_id
-        ).order_by(
-            desc('total_ga')
-        ).limit(10).all()
+            return {
+                "player_id": pid_str,
+                "name": name,
+                "team_name": team_name,
+                "value": int(val)
+            }
+
+        scorers_list = []
+        for pid_str, goals in sorted(player_goals.items(), key=lambda x: x[1], reverse=True):
+            if goals > 0:
+                info = resolve_player_info(pid_str, goals)
+                if info:
+                    scorers_list.append(info)
+        scorers_list = scorers_list[:10]
+
+        assists_list = []
+        for pid_str, assists in sorted(player_assists.items(), key=lambda x: x[1], reverse=True):
+            if assists > 0:
+                info = resolve_player_info(pid_str, assists)
+                if info:
+                    assists_list.append(info)
+        assists_list = assists_list[:10]
+
+        ga_map = {}
+        all_pids = set(player_goals.keys()).union(set(player_assists.keys()))
+        for pid_str in all_pids:
+            ga_map[pid_str] = player_goals.get(pid_str, 0) + player_assists.get(pid_str, 0)
+
+        ga_list = []
+        for pid_str, ga in sorted(ga_map.items(), key=lambda x: x[1], reverse=True):
+            if ga > 0:
+                info = resolve_player_info(pid_str, ga)
+                if info:
+                    ga_list.append(info)
+        ga_list = ga_list[:10]
 
         final_result.append({
             "division_id": str(div.id),
-            "division_name": div.name,
-            "scorers": format_player_data(top_scorers, div_id),
-            "assists": format_player_data(top_assists, div_id),
-            "clean_sheets": format_player_data(top_clean_sheets, div_id),
-            "goal_plus_pass": format_player_data(top_goal_plus_pass, div_id)
+            "division_name": getattr(div, 'name', 'Основной Дивизион'),
+            "scorers": scorers_list,
+            "assists": assists_list,
+            "clean_sheets": [],
+            "goal_plus_pass": ga_list
         })
 
     return final_result

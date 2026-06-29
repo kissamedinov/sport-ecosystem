@@ -188,6 +188,20 @@ def create_match_event(db: Session, match_id: UUID, event_in: MatchEventCreate, 
         created_by=current_user.id
     )
     db.add(event)
+
+    # Automatically create ASSIST event if assistant is provided
+    if event_in.event_type in [EventType.GOAL, EventType.PENALTY_GOAL] and (event_in.assistant_player_id or event_in.assistant_child_profile_id):
+        assist_event = MatchEvent(
+            match_id=match_id,
+            team_id=event_in.team_id,
+            player_id=event_in.assistant_player_id,
+            child_profile_id=event_in.assistant_child_profile_id,
+            event_type=EventType.ASSIST,
+            minute=event_in.minute,
+            created_by=current_user.id
+        )
+        db.add(assist_event)
+
     db.commit()
 
     # Recalculate and sync scores for match and match_result

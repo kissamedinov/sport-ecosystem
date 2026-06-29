@@ -87,7 +87,8 @@ class MatchEventBase(BaseModel):
     child_profile_id: Optional[UUID] = None
 
 class MatchEventCreate(MatchEventBase):
-    pass
+    assistant_player_id: Optional[UUID] = None
+    assistant_child_profile_id: Optional[UUID] = None
 
 class MatchEventResponse(MatchEventBase):
     id: UUID

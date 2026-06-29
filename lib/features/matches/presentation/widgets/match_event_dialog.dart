@@ -35,6 +35,17 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
   String? _lineupWarning;
   String? _selectedPlayerId;
   String? _selectedChildProfileId;
+  String? _selectedAssistantPlayerId;
+  String? _selectedAssistantChildProfileId;
+
+  String _formatPlayerName(dynamic p) {
+    final jersey = p['jersey_number'] ?? p['number'] ?? p['jerseyNumber'] ?? p['player']?['jersey_number'];
+    final name = p['player_name'] ?? p['player']?['name'] ?? p['name'] ?? 'match.no_name'.tr();
+    if (jersey != null && jersey.toString().isNotEmpty) {
+      return '$jersey. $name';
+    }
+    return name;
+  }
 
   @override
   void initState() {
@@ -60,6 +71,8 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
       _lineupPlayers = [];
       _selectedPlayerId = null;
       _selectedChildProfileId = null;
+      _selectedAssistantPlayerId = null;
+      _selectedAssistantChildProfileId = null;
     });
 
     try {
@@ -69,7 +82,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
       final playersResponse = await apiClient.get('/teams/$_selectedTeamId/players');
       List<dynamic> fetchedTeamPlayers = [];
       if (playersResponse.statusCode == 200 && playersResponse.data is List) {
-        fetchedTeamPlayers = playersResponse.data;
+        fetchedTeamPlayers = List<dynamic>.from(playersResponse.data);
       }
 
       // 2. Fetch match lineup
@@ -90,10 +103,21 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
 
       if (!mounted) return;
 
+      // Merge jersey numbers into team players
+      for (var tp in fetchedTeamPlayers) {
+        final matchLp = lineupPlayersList.firstWhere((lp) => 
+          (tp['player_id'] != null && lp['player_id'] == tp['player_id']) ||
+          (tp['child_profile_id'] != null && lp['child_profile_id'] == tp['child_profile_id']),
+          orElse: () => null,
+        );
+        if (matchLp != null && matchLp['jersey_number'] != null) {
+          tp['jersey_number'] = matchLp['jersey_number'];
+        }
+      }
+
       setState(() {
         _teamPlayers = fetchedTeamPlayers;
         if (hasLineup) {
-          // Filter team players to only include those in the lineup
           _lineupPlayers = fetchedTeamPlayers.where((tp) {
             final tpPlayerId = tp['player_id'];
             final tpChildId = tp['child_profile_id'];
@@ -310,7 +334,7 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
                                 ),
                                 items: _lineupPlayers.map<DropdownMenuItem<String>>((p) {
                                   final id = p['player_id'] ?? p['child_profile_id'] ?? '';
-                                  final name = p['player_name'] ?? p['player']?['name'] ?? 'match.no_name'.tr();
+                                  final name = _formatPlayerName(p);
                                   return DropdownMenuItem<String>(
                                     value: id,
                                     child: Text(name, overflow: TextOverflow.ellipsis),
@@ -338,6 +362,70 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
                   style: const TextStyle(color: Colors.orangeAccent, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ],
+
+              // Optional Assist Selector for Goal Events
+              if (_selectedType == 'GOAL') ...[
+                const SizedBox(height: 16),
+                Text(
+                  'ГОЛЕВАЯ ПЕРЕДАЧА (АССИСТ)',
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      dropdownColor: const Color(0xFF162832),
+                      value: _selectedAssistantPlayerId ?? _selectedAssistantChildProfileId,
+                      hint: const Text('Без голевой передачи', style: TextStyle(color: Colors.white54, fontSize: 12), overflow: TextOverflow.ellipsis),
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Без голевой передачи (Без ассиста)', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                        ),
+                        ..._lineupPlayers.where((p) {
+                          final id = p['player_id'] ?? p['child_profile_id'] ?? '';
+                          final goalId = _selectedPlayerId ?? _selectedChildProfileId;
+                          return id != goalId;
+                        }).map<DropdownMenuItem<String>>((p) {
+                          final id = p['player_id'] ?? p['child_profile_id'] ?? '';
+                          final name = _formatPlayerName(p);
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(name, overflow: TextOverflow.ellipsis),
+                          );
+                        }),
+                      ],
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == null) {
+                            _selectedAssistantPlayerId = null;
+                            _selectedAssistantChildProfileId = null;
+                          } else {
+                            final pObj = _lineupPlayers.firstWhere((p) => (p['player_id'] == val || p['child_profile_id'] == val));
+                            _selectedAssistantPlayerId = pObj['player_id'];
+                            _selectedAssistantChildProfileId = pObj['child_profile_id'];
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 28),
 
               // Action Buttons
@@ -373,6 +461,8 @@ class _MatchEventDialogState extends State<MatchEventDialog> {
                                 'minute': int.tryParse(_minuteController.text) ?? 0,
                                 'player_id': _selectedPlayerId,
                                 'child_profile_id': _selectedChildProfileId,
+                                'assistant_player_id': _selectedAssistantPlayerId,
+                                'assistant_child_profile_id': _selectedAssistantChildProfileId,
                               });
                             },
                       child: AnimatedContainer(
