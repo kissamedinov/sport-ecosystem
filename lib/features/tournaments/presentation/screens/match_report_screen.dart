@@ -1119,6 +1119,26 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       );
     }
 
+    final Widget playerNamesCol = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: isHome ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      children: [
+        Text(
+          item.playerName,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        ),
+        if (item.assistantName != null) ...[
+          const SizedBox(height: 1),
+          Text(
+            "пас: ${item.assistantName}",
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 10.5, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ],
+    );
+
     final contentWidget = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1129,41 +1149,9 @@ class _MatchReportScreenState extends State<MatchReportScreen>
           Text(emoji, style: const TextStyle(fontSize: 14)),
           buildScoreBadge(),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              item.playerName,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ),
-          if (item.assistantName != null) ...[
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                "(${item.assistantName})",
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-            ),
-          ],
+          Flexible(child: playerNamesCol),
         ] else ...[
-          if (item.assistantName != null) ...[
-            Flexible(
-              child: Text(
-                "(${item.assistantName})",
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-            ),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-            child: Text(
-              item.playerName,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ),
+          Flexible(child: playerNamesCol),
           const SizedBox(width: 6),
           buildScoreBadge(),
           Text(emoji, style: const TextStyle(fontSize: 14)),
