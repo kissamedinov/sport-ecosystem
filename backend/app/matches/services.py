@@ -161,22 +161,9 @@ def create_match_event(db: Session, match_id: UUID, event_in: MatchEventCreate, 
     if event_in.minute < 0 or event_in.minute > 120:
         raise HTTPException(status_code=400, detail="Minute must be between 0 and 120")
 
-    # Validate player/child is in match teams
-    is_in_match = False
-    if event_in.player_id:
-        # Check lineups
-        is_in_match = db.query(MatchLineupPlayer).join(MatchLineup).filter(
-            MatchLineup.match_id == match_id,
-            MatchLineupPlayer.player_id == event_in.player_id
-        ).first() is not None
-    elif event_in.child_profile_id:
-        is_in_match = db.query(MatchLineupPlayer).join(MatchLineup).filter(
-            MatchLineup.match_id == match_id,
-            MatchLineupPlayer.child_profile_id == event_in.child_profile_id
-        ).first() is not None
-    
-    if not is_in_match:
-        raise HTTPException(status_code=400, detail="Player/Child not found in match lineups")
+    # Player/Child validation (allow any valid player or child ID)
+    if not event_in.player_id and not event_in.child_profile_id:
+        raise HTTPException(status_code=400, detail="Player or child profile must be specified")
 
     event = MatchEvent(
         match_id=match_id,
@@ -215,6 +202,14 @@ def create_match_event(db: Session, match_id: UUID, event_in: MatchEventCreate, 
         res.home_score = h_goals
         res.away_score = a_goals
     db.commit()
+
+    if match.tournament_id:
+        try:
+            from app.tournaments.services import update_team_standing
+            update_team_standing(db, match.tournament_id, match.home_team_id)
+            update_team_standing(db, match.tournament_id, match.away_team_id)
+        except Exception as ex:
+            print(f"Standings sync warning: {ex}")
 
     db.refresh(event)
     return event
@@ -473,6 +468,14 @@ def delete_match_event(db: Session, event_id: UUID):
             res.home_score = h_goals
             res.away_score = a_goals
         db.commit()
+
+        if match.tournament_id:
+            try:
+                from app.tournaments.services import update_team_standing
+                update_team_standing(db, match.tournament_id, match.home_team_id)
+                update_team_standing(db, match.tournament_id, match.away_team_id)
+            except Exception as ex:
+                print(f"Standings sync warning: {ex}")
 
     return {"message": "Event deleted successfully"}
 
