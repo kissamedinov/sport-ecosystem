@@ -1072,6 +1072,49 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         break;
     }
 
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Time column
+        Container(
+          width: 32,
+          margin: const EdgeInsets.only(top: 2),
+          child: Text(
+            "${item.minute}'",
+            style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+        ),
+        // Line & node column
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: iconColor.withOpacity(0.5), width: 1.5),
+              ),
+              child: Icon(icon, size: 14, color: iconColor),
+            ),
+            if (!isLast)
+              Container(
+                width: 1.5,
+                height: 48,
+                color: Colors.white10,
+              ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        // Content details
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161F37).withOpacity(0.3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.04)),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
