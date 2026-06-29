@@ -1129,28 +1129,40 @@ class _MatchReportScreenState extends State<MatchReportScreen>
           Text(emoji, style: const TextStyle(fontSize: 14)),
           buildScoreBadge(),
           const SizedBox(width: 6),
-          Text(
-            item.playerName,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+          Flexible(
+            child: Text(
+              item.playerName,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ),
           if (item.assistantName != null) ...[
             const SizedBox(width: 4),
-            Text(
-              "(${item.assistantName})",
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
+            Flexible(
+              child: Text(
+                "(${item.assistantName})",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
+              ),
             ),
           ],
         ] else ...[
           if (item.assistantName != null) ...[
-            Text(
-              "(${item.assistantName})",
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
+            Flexible(
+              child: Text(
+                "(${item.assistantName})",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, fontWeight: FontWeight.w500),
+              ),
             ),
             const SizedBox(width: 4),
           ],
-          Text(
-            item.playerName,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+          Flexible(
+            child: Text(
+              item.playerName,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ),
           const SizedBox(width: 6),
           buildScoreBadge(),
@@ -1168,6 +1180,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * (_isOrganizer ? 0.78 : 0.88)),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.02),
               borderRadius: BorderRadius.circular(12),

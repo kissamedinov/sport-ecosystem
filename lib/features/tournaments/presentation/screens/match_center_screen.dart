@@ -930,8 +930,10 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         if (snapshot.hasError) {
           return Center(child: Text('Ошибка: ${snapshot.error}', style: const TextStyle(color: Colors.white54)));
         }
-        final events = snapshot.data ?? [];
-        if (events.isEmpty) {
+        final rawEvents = snapshot.data ?? [];
+        final groupedItems = _groupEventsForMatchCenter(rawEvents, match);
+
+        if (groupedItems.isEmpty) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -947,32 +949,101 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           );
         }
 
-        // Sort events by minute
-        events.sort((a, b) => a.minute.compareTo(b.minute));
-
         return ListView.builder(
           padding: const EdgeInsets.all(24),
-          itemCount: events.length,
+          itemCount: groupedItems.length,
           itemBuilder: (context, index) {
-            final event = events[index];
-            return _buildTimelineEventItem(event, index == events.length - 1);
+            final item = groupedItems[index];
+            return _buildTimelineEventItem(item, index == groupedItems.length - 1);
           },
         );
       },
     );
   }
 
-  Widget _buildTimelineEventItem(MatchEvent event, bool isLast) {
+  List<_MatchCenterGroupedItem> _groupEventsForMatchCenter(List<MatchEvent> events, MatchModel match) {
+    final sortedEvents = List<MatchEvent>.from(events)..sort((a, b) => a.minute.compareTo(b.minute));
+    final List<_MatchCenterGroupedItem> result = [];
+    final Set<String> consumedIds = {};
+
+    int homeScore = 0;
+    int awayScore = 0;
+
+    for (var i = 0; i < sortedEvents.length; i++) {
+      final e = sortedEvents[i];
+      if (consumedIds.contains(e.id)) continue;
+
+      final isHome = e.teamId == match.homeTeamId;
+      final key = e.childProfileId ?? e.playerId ?? '';
+      final pName = _playerNamesCache[key] ?? (key.isNotEmpty ? 'Player' : 'Unknown');
+
+      if (e.eventType == EventType.GOAL || e.eventType == EventType.PENALTY_GOAL) {
+        if (isHome) homeScore++; else awayScore++;
+
+        MatchEvent? assistEvent;
+        for (var j = 0; j < sortedEvents.length; j++) {
+          final candidate = sortedEvents[j];
+          if (!consumedIds.contains(candidate.id) &&
+              candidate.eventType == EventType.ASSIST &&
+              candidate.minute == e.minute &&
+              candidate.teamId == e.teamId &&
+              candidate.id != e.id) {
+            assistEvent = candidate;
+            break;
+          }
+        }
+
+        String? assistName;
+        if (assistEvent != null) {
+          consumedIds.add(assistEvent.id);
+          final aKey = assistEvent.childProfileId ?? assistEvent.playerId ?? '';
+          assistName = _playerNamesCache[aKey];
+        }
+
+        result.add(_MatchCenterGroupedItem(
+          eventType: e.eventType,
+          minute: e.minute,
+          playerName: pName,
+          assistantName: assistName,
+          runningScore: "$homeScore - $awayScore",
+          isHome: isHome,
+        ));
+        consumedIds.add(e.id);
+      } else if (e.eventType == EventType.ASSIST) {
+        result.add(_MatchCenterGroupedItem(
+          eventType: e.eventType,
+          minute: e.minute,
+          playerName: pName,
+          runningScore: "$homeScore - $awayScore",
+          isHome: isHome,
+        ));
+        consumedIds.add(e.id);
+      } else {
+        result.add(_MatchCenterGroupedItem(
+          eventType: e.eventType,
+          minute: e.minute,
+          playerName: pName,
+          runningScore: "$homeScore - $awayScore",
+          isHome: isHome,
+        ));
+        consumedIds.add(e.id);
+      }
+    }
+
+    return result;
+  }
+
+  Widget _buildTimelineEventItem(_MatchCenterGroupedItem item, bool isLast) {
     IconData icon = Icons.sports_soccer;
     Color iconColor = Colors.white54;
     String titleText = '';
 
-    switch (event.eventType) {
+    switch (item.eventType) {
       case EventType.GOAL:
       case EventType.PENALTY_GOAL:
         icon = Icons.sports_soccer;
         iconColor = const Color(0xFF00E676);
-        titleText = event.eventType == EventType.PENALTY_GOAL ? 'Penalty goal! ⚽️' : 'Гол! ⚽️';
+        titleText = item.eventType == EventType.PENALTY_GOAL ? 'Penalty goal! ⚽️ (${item.runningScore})' : 'Гол! ⚽️ (${item.runningScore})';
         break;
       case EventType.YELLOW_CARD:
         icon = Icons.portrait_rounded;
@@ -1001,9 +1072,10 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         break;
     }
 
-    // Resolve player name from cache (indexed by childProfileId or playerId)
-    final key = event.childProfileId ?? event.playerId ?? '';
-    final playerName = _playerNamesCache[key] ?? (key.isNotEmpty ? 'Player' : 'Unknown');
+    String displayPlayer = item.playerName;
+    if (item.assistantName != null) {
+      displayPlayer += ' (${item.assistantName})';
+    }
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1013,7 +1085,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           width: 32,
           margin: const EdgeInsets.only(top: 2),
           child: Text(
-            "${event.minute}'",
+            "${item.minute}'",
             style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 13),
           ),
         ),
@@ -1057,8 +1129,8 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  playerName,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  displayPlayer,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
               ],
             ),
@@ -1102,4 +1174,22 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       ],
     );
   }
+}
+
+class _MatchCenterGroupedItem {
+  final EventType eventType;
+  final int minute;
+  final String playerName;
+  final String? assistantName;
+  final String runningScore;
+  final bool isHome;
+
+  _MatchCenterGroupedItem({
+    required this.eventType,
+    required this.minute,
+    required this.playerName,
+    this.assistantName,
+    required this.runningScore,
+    required this.isHome,
+  });
 }
