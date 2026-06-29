@@ -1417,10 +1417,13 @@ def get_tournament_leaderboards(db: Session, tournament_id: UUID):
         if hasattr(div, 'tournament_edition_id'):
             matches = db.query(Match).filter(Match.tournament_id == tournament_id, Match.division_id == div_id).all()
             if not matches:
-                from app.tournaments.models import TournamentGroup
-                group_ids = [g.id for g in db.query(TournamentGroup).filter(TournamentGroup.division_id == div_id).all()]
-                if group_ids:
-                    matches = db.query(Match).filter(Match.tournament_id == tournament_id, Match.group_id.in_(group_ids)).all()
+                div_teams = db.query(TournamentTeam).filter(TournamentTeam.division_id == div_id).all()
+                div_team_ids = [tt.team_id for tt in div_teams]
+                if div_team_ids:
+                    matches = db.query(Match).filter(
+                        Match.tournament_id == tournament_id,
+                        or_(Match.home_team_id.in_(div_team_ids), Match.away_team_id.in_(div_team_ids))
+                    ).all()
         else:
             matches = db.query(Match).filter(Match.tournament_id == tournament_id).all()
             
