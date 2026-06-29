@@ -210,6 +210,7 @@ class _TournamentLeaderboardScreenState extends State<TournamentLeaderboardScree
           teamName: item['team_name'],
           rank: index + 1,
           value: item['value'] ?? 0,
+          displayValue: item['display_value'],
           icon: icon,
           highlightColor: color,
         );

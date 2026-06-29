@@ -1523,6 +1523,9 @@ def get_tournament_leaderboards(db: Session, tournament_id: UUID):
             if ga > 0:
                 info = resolve_player_info(pid_str, ga)
                 if info:
+                    g = player_goals.get(pid_str, 0)
+                    a = player_assists.get(pid_str, 0)
+                    info["display_value"] = f"{ga} ({g}+{a})"
                     ga_list.append(info)
         ga_list = ga_list[:10]
 

@@ -6,6 +6,7 @@ class LeaderboardItem extends StatelessWidget {
   final String? teamName;
   final int rank;
   final int value;
+  final String? displayValue;
   final IconData icon;
   final Color highlightColor;
 
@@ -15,6 +16,7 @@ class LeaderboardItem extends StatelessWidget {
     this.teamName,
     required this.rank,
     required this.value,
+    this.displayValue,
     this.icon = Icons.sports_soccer,
     this.highlightColor = PremiumTheme.neonGreen,
   });
@@ -77,7 +79,7 @@ class LeaderboardItem extends StatelessWidget {
                 Icon(icon, size: 12, color: highlightColor),
                 const SizedBox(width: 6),
                 Text(
-                  "$value",
+                  displayValue ?? "$value",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: highlightColor,
