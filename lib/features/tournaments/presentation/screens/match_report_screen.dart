@@ -86,7 +86,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     int awayGoals = 0;
 
     for (final e in events) {
-      if (e.eventType == EventType.GOAL) {
+      if (e.eventType == EventType.GOAL || e.eventType == EventType.PENALTY_GOAL) {
         if (e.teamId == _currentMatch?.homeTeamId) {
           homeGoals++;
         } else if (e.teamId == _currentMatch?.awayTeamId) {
@@ -106,6 +106,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         homeGoals,
         awayGoals,
       );
+      await _refreshMatchDetails();
     } catch (_) {}
   }
 
@@ -921,8 +922,15 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                 ),
               );
               if (result != null) {
-                await context.read<MatchProvider>().addMatchEvent(widget.matchId, result);
-                await _autoSyncScoreFromEvents();
+                final success = await context.read<MatchProvider>().addMatchEvent(widget.matchId, result);
+                if (success) {
+                  await _autoSyncScoreFromEvents();
+                } else if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(context.read<MatchProvider>().error ?? 'Failed to add event'),
+                    backgroundColor: Colors.red,
+                  ));
+                }
               }
             },
             child: Row(
@@ -987,7 +995,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
       final isHome = e.teamId == _currentMatch?.homeTeamId;
       final pId = e.playerId ?? e.childProfileId;
-      final pName = pId != null ? (_playerNamesCache[pId] ?? 'Игрок') : 'Игрок';
+      final pName = pId != null ? (_playerNamesCache[pId] ?? 'match.player_placeholder'.tr()) : 'match.player_placeholder'.tr();
 
       if (e.eventType == EventType.GOAL || e.eventType == EventType.PENALTY_GOAL) {
         if (isHome) homeScore++; else awayScore++;
@@ -1012,7 +1020,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
           secId = assistEvent.id;
           final aId = assistEvent.playerId ?? assistEvent.childProfileId;
           if (aId != null) {
-            assistName = _playerNamesCache[aId] ?? 'Ассистент';
+            assistName = _playerNamesCache[aId] ?? 'match.assistant_placeholder'.tr();
           }
         }
 
@@ -1131,7 +1139,7 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         if (item.assistantName != null) ...[
           const SizedBox(height: 1),
           Text(
-            "пас: ${item.assistantName}",
+            'match.pass_label'.tr(namedArgs: {'name': item.assistantName!}),
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 10.5, fontWeight: FontWeight.w500),
           ),

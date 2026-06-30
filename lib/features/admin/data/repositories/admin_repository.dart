@@ -18,8 +18,12 @@ class AdminRepository {
     await _apiClient.post('/clubs/admin/requests/$requestId/reject');
   }
 
-  // Add more admin methods as needed (e.g., tournament series management)
   Future<void> createTournamentSeries(Map<String, dynamic> seriesData) async {
     await _apiClient.post('/tournaments/series', data: seriesData);
+  }
+
+  Future<List<dynamic>> getAllUsers() async {
+    final response = await _apiClient.get('/users/all');
+    return response.data as List<dynamic>;
   }
 }

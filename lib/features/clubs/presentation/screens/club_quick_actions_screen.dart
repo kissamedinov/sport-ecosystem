@@ -78,7 +78,7 @@ class ClubQuickActionsScreen extends StatelessWidget {
                         title: 'nav.add_academy'.tr(),
                         subtitle: 'nav.add_academy_sub'.tr(),
                         accent: _kAmber,
-                        onTap: clubId == null ? null : () => _showCreateAcademySheet(context, clubId),
+                        onTap: clubId == null ? null : () => showCreateAcademySheet(context, clubId),
                       ),
                     ],
                   );
@@ -183,7 +183,7 @@ class ClubQuickActionsScreen extends StatelessWidget {
     );
   }
 
-  void _showCreateAcademySheet(BuildContext rootCtx, String clubId) {
+  static void showCreateAcademySheet(BuildContext rootCtx, String clubId) {
     final nameCtrl    = TextEditingController();
     final cityCtrl    = TextEditingController();
     final addressCtrl = TextEditingController();

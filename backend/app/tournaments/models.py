@@ -113,6 +113,7 @@ class Tournament(Base):
     points_for_loss = Column(Integer, default=0)
     
     status = Column(String, default="upcoming", nullable=True)
+    has_placement_matches = Column(Boolean, default=False, nullable=True)
     history_data = Column(String, nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())

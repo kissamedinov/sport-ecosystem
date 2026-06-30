@@ -10,6 +10,7 @@ import '../../../auth/providers/auth_provider.dart';
 import 'package:mobile/features/admin/presentation/screens/admin_hub_screen.dart';
 import 'create_child_profile_screen.dart';
 import 'invite_member_screen.dart';
+import 'club_quick_actions_screen.dart';
 import '../../../notifications/providers/notification_provider.dart';
 import '../../../notifications/presentation/screens/notification_screen.dart';
 import '../../../media/presentation/screens/media_gallery_screen.dart';
@@ -2014,40 +2015,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen> {
   }
 
   void _showCreateAcademyDialog(BuildContext context) {
-    final nameController = TextEditingController();
-    final cityController = TextEditingController();
-    final addressController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: PremiumTheme.surfaceCard(context),
-        title: Text('club.add_academy_title'.tr()),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nameController, decoration: InputDecoration(labelText: 'common.name'.tr())),
-            TextField(controller: cityController, decoration: InputDecoration(labelText: 'common.city'.tr())),
-            TextField(controller: addressController, decoration: InputDecoration(labelText: 'common.address'.tr())),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('common.cancel'.tr())),
-          ElevatedButton(
-            onPressed: () async {
-              final clubId = context.read<ClubProvider>().dashboard?.club.id;
-              if (clubId != null) {
-                final success = await context.read<ClubProvider>().createAcademy(
-                  clubId, nameController.text, cityController.text, addressController.text,
-                );
-                if (success && context.mounted) Navigator.pop(context);
-              }
-            },
-            child: Text('club.create'.tr()),
-          ),
-        ],
-      ),
-    );
+    final clubId = context.read<ClubProvider>().dashboard?.club.id;
+    if (clubId != null) {
+      ClubQuickActionsScreen.showCreateAcademySheet(context, clubId);
+    }
   }
 
   void _showCreateTeamDialog(BuildContext context) {

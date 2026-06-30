@@ -56,6 +56,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   TimeOfDay _endTime = const TimeOfDay(hour: 21, minute: 0);
 
   bool _isLoading = false;
+  bool _hasPlacementMatches = false;
 
   final List<Map<String, dynamic>> _divisions = [];
   final List<String> _deletedDivisionIds = [];
@@ -148,6 +149,8 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         final dt = DateTime.parse(endStr);
         _endTime = TimeOfDay(hour: dt.hour, minute: dt.minute);
     }
+    
+    _hasPlacementMatches = t?.hasPlacementMatches ?? false;
     
     if (widget.initialTournament != null) {
       _loadExistingDivisions();
@@ -280,6 +283,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       'age_category': _selectedAge,
       'allowed_age_categories': _allowedAgesController.text,
       'surface_type': _selectedSurface,
+      'has_placement_matches': _hasPlacementMatches,
       'season': _selectedSeason,
       'year': _selectedYear,
       'num_fields': _numFields,
@@ -458,6 +462,17 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                 child: Column(
                   children: [
                     _buildDropdown('tournament.format_row'.tr(), _selectedFormat, _formats, (v) => setState(() => _selectedFormat = v!), cs),
+                    if (_selectedFormat == 'GROUP_STAGE') ...[
+                      const SizedBox(height: 16),
+                      SwitchListTile(
+                        title: Text('tournament.has_placement_matches'.tr(), style: TextStyle(color: cs.onSurface, fontSize: 13, fontWeight: FontWeight.w500)),
+                        subtitle: Text('tournament.has_placement_matches_subtitle'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 11)),
+                        value: _hasPlacementMatches,
+                        activeColor: PremiumTheme.neonGreen,
+                        contentPadding: EdgeInsets.zero,
+                        onChanged: (val) => setState(() => _hasPlacementMatches = val),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     _buildDropdown('tournament.surface'.tr(), _selectedSurface, _surfaces, (v) => setState(() => _selectedSurface = v!), cs),
                   ],
@@ -569,12 +584,12 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         }
       }
       
-      final name = 'Дивизион $ageCategory';
+      final name = '${"tournament.division".tr()} $ageCategory';
       final exists = _divisions.any((div) => div['name'] == name);
       if (exists) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Дивизион $ageCategory уже добавлен'),
+            content: Text('tournament.division_already_added'.tr(namedArgs: {'age': ageCategory})),
             backgroundColor: PremiumTheme.danger,
           ),
         );
@@ -630,7 +645,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
           child: Text(
-            'Быстрый выбор возраста (авто-создание группы):',
+            'tournament.quick_age_selection'.tr(),
             style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6), fontSize: 11, fontWeight: FontWeight.w500),
           ),
         ),

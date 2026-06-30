@@ -4,14 +4,30 @@ import '../data/repositories/admin_repository.dart';
 class AdminProvider extends ChangeNotifier {
   final AdminRepository _repository;
   List<dynamic> _requests = [];
+  List<dynamic> _users = [];
   bool _isLoading = false;
   String? _error;
 
   AdminProvider(this._repository);
 
   List<dynamic> get requests => _requests;
+  List<dynamic> get users => _users;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  Future<void> fetchAllUsers() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _users = await _repository.getAllUsers();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchClubRequests() async {
     _isLoading = true;

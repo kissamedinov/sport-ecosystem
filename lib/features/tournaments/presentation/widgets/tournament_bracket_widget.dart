@@ -25,7 +25,7 @@ class TournamentBracketWidget extends StatelessWidget {
               Icon(Icons.account_tree_outlined, size: 48, color: Colors.white.withOpacity(0.3)),
               const SizedBox(height: 12),
               Text(
-                'Сетка плей-офф пока не создана',
+                'tournament.bracket_not_created'.tr(),
                 style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
               ),
             ],
@@ -82,15 +82,15 @@ class TournamentBracketWidget extends StatelessWidget {
                   // Round name in Russian
                   String roundTitle;
                   if (roundNum == maxRound) {
-                    roundTitle = 'Финал';
+                    roundTitle = 'tournament.round_final'.tr();
                   } else if (roundNum == maxRound - 1) {
-                    roundTitle = 'Полуфинал';
+                    roundTitle = 'tournament.round_semifinal'.tr();
                   } else if (roundNum == maxRound - 2) {
-                    roundTitle = 'Четвертьфинал';
+                    roundTitle = 'tournament.round_quarterfinal'.tr();
                   } else if (roundNum == maxRound - 3) {
-                    roundTitle = '1/8 финала';
+                    roundTitle = 'tournament.round_round_of_16'.tr();
                   } else {
-                    roundTitle = 'Раунд $roundNum';
+                    roundTitle = 'tournament.round_number_label'.tr(namedArgs: {'num': roundNum.toString()});
                   }
 
                   // Math to calculate padding & gaps to align tree branches
@@ -206,7 +206,7 @@ class TournamentBracketWidget extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          match.homeTeamName ?? 'Ожидается победитель',
+                          match.homeTeamName ?? 'tournament.awaiting_winner'.tr(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -248,7 +248,7 @@ class TournamentBracketWidget extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          match.awayTeamName ?? 'Ожидается победитель',
+                          match.awayTeamName ?? 'tournament.awaiting_winner'.tr(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -297,7 +297,7 @@ class TournamentBracketWidget extends StatelessWidget {
                   )
                 else
                   Text(
-                    isFinished ? 'Завершен' : (match.matchDate != null ? DateFormat('dd.MM HH:mm').format(match.matchDate!.toLocal()) : 'Не запланирован'),
+                    isFinished ? 'match.status_finished'.tr() : (match.matchDate != null ? DateFormat('dd.MM HH:mm').format(match.matchDate!.toLocal()) : 'match.not_scheduled'.tr()),
                     style: TextStyle(
                       color: isFinished ? Colors.white54 : Colors.blueAccent,
                       fontSize: 9,

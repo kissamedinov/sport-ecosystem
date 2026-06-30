@@ -34,6 +34,7 @@ class TournamentBase(BaseModel):
     series_id: Optional[UUID] = None
     year: Optional[int] = None
     season: Optional[Season] = None
+    has_placement_matches: Optional[bool] = False
 
 class TournamentCreate(TournamentBase):
     pass
@@ -58,6 +59,7 @@ class TournamentUpdate(BaseModel):
     points_for_draw: Optional[int] = None
     points_for_loss: Optional[int] = None
     surface_type: Optional[SurfaceType] = None
+    has_placement_matches: Optional[bool] = None
     year: Optional[int] = None
     season: Optional[Season] = None
 

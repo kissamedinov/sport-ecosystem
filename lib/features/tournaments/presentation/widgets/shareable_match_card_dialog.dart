@@ -55,7 +55,7 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Карточка сохранена: $filePath'),
+              content: Text('match.card_saved'.tr(namedArgs: {'path': filePath})),
               backgroundColor: const Color(0xFF00E676),
             ),
           );
@@ -67,7 +67,7 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Не удалось сохранить: $e'),
+            content: Text('match.save_failed'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -82,22 +82,22 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
   void _copyTextReport() {
     final dateStr = widget.matchDate != null 
         ? DateFormat('dd.MM.yyyy HH:mm').format(widget.matchDate!.toLocal()) 
-        : 'Не запланирован';
+        : 'match.not_scheduled'.tr();
     
     final report = '''
-🏆 РЕЗУЛЬТАТ МАТЧА 🏆
+${'match.share_match_result_header'.tr()}
 ⚔️ ${widget.homeTeamName} vs ${widget.awayTeamName}
-⚽ Счет: ${widget.homeScore} - ${widget.awayScore}
-🕒 Статус: ${widget.status == 'FINISHED' ? 'Завершен' : 'В игре'}
-📅 Дата: $dateStr
-🚀 Отправлено из Sport Ecosystem!
+${'match.share_score'.tr(namedArgs: {'score': '${widget.homeScore} - ${widget.awayScore}'})}
+${'match.share_status'.tr(namedArgs: {'status': widget.status == 'FINISHED' ? 'match.status_finished'.tr() : 'match.status_in_progress'.tr()})}
+${'match.share_date'.tr(namedArgs: {'date': dateStr})}
+${'match.share_footer'.tr()}
 ''';
 
     Clipboard.setData(ClipboardData(text: report));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Текстовый отчет скопирован в буфер обмена'),
-        backgroundColor: Color(0xFF2979FF),
+      SnackBar(
+        content: Text('match.report_copied'.tr()),
+        backgroundColor: const Color(0xFF2979FF),
       ),
     );
   }
@@ -130,9 +130,9 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Поделиться матчем',
-                    style: TextStyle(
+                  Text(
+                    'match.share_match'.tr(),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -190,9 +190,9 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                             )
                           : const Icon(Icons.download_rounded, size: 20),
-                      label: const Text(
-                        'Скачать',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      label: Text(
+                        'match.download'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -211,9 +211,9 @@ class _ShareableMatchCardDialogState extends State<ShareableMatchCardDialog> {
                         ),
                       ),
                       icon: const Icon(Icons.copy_rounded, size: 20),
-                      label: const Text(
-                        'Копировать',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      label: Text(
+                        'common.copy'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

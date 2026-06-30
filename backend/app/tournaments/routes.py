@@ -136,6 +136,10 @@ def get_tournament_matches(id: UUID, db: Session = Depends(get_db)):
 def generate_schedule(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
     return services.generate_tournament_schedule(db, id)
 
+@router.post("/{id}/generate-playoffs")
+def generate_playoffs(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
+    return services.generate_playoffs_from_groups(db, id)
+
 @router.post("/{id}/finalize-schedule")
 def finalize_schedule(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
     return services.finalize_tournament_schedule(db, id)

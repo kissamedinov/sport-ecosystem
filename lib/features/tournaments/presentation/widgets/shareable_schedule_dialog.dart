@@ -92,7 +92,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Расписание успешно сохранено в: $filePath'),
+              content: Text('tournament.schedule_saved'.tr(namedArgs: {'path': filePath})),
               backgroundColor: const Color(0xFF00E676),
             ),
           );
@@ -104,7 +104,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Не удалось экспортировать расписание: $e'),
+            content: Text('tournament.schedule_export_failed'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -121,12 +121,12 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     if (_selectedDate == null) {
       return AlertDialog(
         backgroundColor: PremiumTheme.surfaceCard(context),
-        title: const Text('Экспорт расписания', style: TextStyle(color: Colors.white)),
-        content: const Text('Нет доступных дат с запланированными матчами.', style: TextStyle(color: Colors.white70)),
+        title: Text('tournament.export_schedule_title'.tr(), style: const TextStyle(color: Colors.white)),
+        content: Text('tournament.no_dates_scheduled'.tr(), style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Закрыть', style: TextStyle(color: PremiumTheme.neonGreen)),
+            child: Text('common.close'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen)),
           ),
         ],
       );
@@ -145,7 +145,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     // Group matches by fieldName
     final Map<String, List<TournamentMatch>> fieldGroups = {};
     for (var m in matchesOfDay) {
-      final fName = m.fieldName ?? 'Поле 1';
+      final fName = m.fieldName ?? 'tournament.field_default'.tr(namedArgs: {'num': '1'});
       fieldGroups.putIfAbsent(fName, () => []).add(m);
     }
     
@@ -173,9 +173,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Поделиться расписанием',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  'tournament.share_schedule'.tr(),
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white70),
@@ -188,7 +188,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             // Date picker dropdown
             Row(
               children: [
-                const Text('Выберите день: ', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text('tournament.select_day'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 12)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
@@ -258,7 +258,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.tournament.format == 'KNOCKOUT' ? 'ПЛЕЙ-ОФФ СЕТКА' : 'ЧЕМПИОНАТ / ГРУППОВОЙ ЭТАП',
+                          widget.tournament.format == 'KNOCKOUT' ? 'tournament.playoff_bracket_caps'.tr() : 'tournament.championship_group_stage_caps'.tr(),
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.5),
                             fontWeight: FontWeight.bold,
@@ -289,9 +289,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
 
                         // Fields display
                         if (sortedFields.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Text('Нет запланированных матчей на этот день', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Text('tournament.no_matches_scheduled_day'.tr(), style: const TextStyle(color: Colors.white54, fontSize: 12)),
                           )
                         else if (sortedFields.length == 1)
                           // Single field vertical list
@@ -388,9 +388,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                           )
                         : const Icon(Icons.download_rounded, size: 18),
-                    label: const Text(
-                      'Скачать расписание (PNG)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    label: Text(
+                      'tournament.download_schedule_png'.tr(),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ),
                 ),
@@ -439,7 +439,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        match.homeTeamName ?? 'Ожидается победитель',
+                        match.homeTeamName ?? 'tournament.awaiting_winner'.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -458,7 +458,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        match.awayTeamName ?? 'Ожидается победитель',
+                        match.awayTeamName ?? 'tournament.awaiting_winner'.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

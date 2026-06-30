@@ -67,6 +67,9 @@ class Tournament {
   @JsonKey(name: 'points_for_loss')
   final int pointsForLoss;
 
+  @JsonKey(name: 'has_placement_matches')
+  final bool hasPlacementMatches;
+
   Tournament({
     required this.id,
     required this.name,
@@ -101,6 +104,7 @@ class Tournament {
     this.pointsForWin = 3,
     this.pointsForDraw = 1,
     this.pointsForLoss = 0,
+    this.hasPlacementMatches = false,
   });
 
   factory Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);

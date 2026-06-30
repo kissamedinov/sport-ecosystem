@@ -41,6 +41,7 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
   pointsForWin: (json['points_for_win'] as num?)?.toInt() ?? 3,
   pointsForDraw: (json['points_for_draw'] as num?)?.toInt() ?? 1,
   pointsForLoss: (json['points_for_loss'] as num?)?.toInt() ?? 0,
+  hasPlacementMatches: json['has_placement_matches'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
@@ -78,4 +79,5 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'points_for_win': instance.pointsForWin,
       'points_for_draw': instance.pointsForDraw,
       'points_for_loss': instance.pointsForLoss,
+      'has_placement_matches': instance.hasPlacementMatches,
     };

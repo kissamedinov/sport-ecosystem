@@ -88,7 +88,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Пожелания по времени: ${reg.team.name}',
+                      'tournament.time_pref_title'.tr(namedArgs: {'team': reg.team.name}),
                       style: TextStyle(color: cs.onSurface, fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -100,21 +100,21 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   RadioListTile<String?>(
                     value: null,
                     groupValue: currentPref,
-                    title: const Text('Без ограничений (любое время)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    title: Text('tournament.no_restrictions'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     activeColor: PremiumTheme.neonGreen,
                     onChanged: (val) => setDialogState(() => currentPref = val),
                   ),
                   RadioListTile<String?>(
                     value: 'morning',
                     groupValue: currentPref,
-                    title: const Text('Только утром (до 13:00)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    title: Text('tournament.morning_only'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     activeColor: PremiumTheme.neonGreen,
                     onChanged: (val) => setDialogState(() => currentPref = val),
                   ),
                   RadioListTile<String?>(
                     value: 'afternoon',
                     groupValue: currentPref,
-                    title: const Text('Только днём/вечером (после 13:00)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    title: Text('tournament.afternoon_only'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     activeColor: PremiumTheme.neonGreen,
                     onChanged: (val) => setDialogState(() => currentPref = val),
                   ),
@@ -123,7 +123,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Отмена', style: TextStyle(color: Colors.white54)),
+                  child: Text('common.cancel'.tr(), style: const TextStyle(color: Colors.white54)),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -157,13 +157,13 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(success ? 'Пожелания успешно сохранены!' : 'Не удалось сохранить пожелания'),
+                          content: Text(success ? 'tournament.pref_saved'.tr() : 'tournament.pref_save_failed'.tr()),
                           backgroundColor: success ? const Color(0xFF00E676) : Colors.redAccent,
                         ),
                       );
                     }
                   },
-                  child: const Text('Сохранить', style: TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
+                  child: Text('common.save'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -583,7 +583,16 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
               children: [
                 Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
                 Text(
-                  'Format: ${format ?? 'Standard'} • Requirement: Born $birthYear${canSeeFee ? ' • Fee: ${entryFee ?? 0} ₸' : ''}',
+                  canSeeFee
+                      ? 'tournament.requirement_born_fee'.tr(namedArgs: {
+                          'format': format ?? 'Standard',
+                          'year': birthYear.toString(),
+                          'fee': (entryFee ?? 0).toString(),
+                        })
+                      : 'tournament.requirement_born'.tr(namedArgs: {
+                          'format': format ?? 'Standard',
+                          'year': birthYear.toString(),
+                        }),
                   style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.4))
                 ),
               ],
@@ -685,7 +694,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     final button = ElevatedButton.icon(
       onPressed: () => _shareTournamentSchedule(context, matches, tournament),
       icon: const Icon(Icons.share_rounded, size: 14),
-      label: const Text('Поделиться расписанием', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+      label: Text('tournament.share_schedule'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: PremiumTheme.neonGreen,
         foregroundColor: Colors.black,
@@ -727,11 +736,11 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                     if (isKnockout)
                       Row(
                         children: [
-                          _buildViewTabButton('Сетка плей-офф', _showBracketView, () {
+                          _buildViewTabButton('tournament.playoff_bracket'.tr(), _showBracketView, () {
                             setState(() => _showBracketView = true);
                           }),
                           const SizedBox(width: 12),
-                          _buildViewTabButton('Список матчей', !_showBracketView, () {
+                          _buildViewTabButton('tournament.match_list'.tr(), !_showBracketView, () {
                             setState(() => _showBracketView = false);
                           }),
                         ],
@@ -1551,9 +1560,9 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           SizedBox(width: 28, child: Text('#', style: headerStyle)),
           const SizedBox(width: 12),
           Expanded(child: Text('tournament.team_header'.tr().toUpperCase(), style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          SizedBox(width: 35, child: Text('И', textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          SizedBox(width: 45, child: Text('Г', textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          SizedBox(width: 35, child: Text('О', textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 35, child: Text('tournament.mp_header'.tr().toUpperCase(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 45, child: Text('tournament.gd_header'.tr().toUpperCase(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(width: 35, child: Text('tournament.pts_header'.tr().toUpperCase(), textAlign: TextAlign.center, style: headerStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
@@ -1625,7 +1634,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${s.wins}В ${s.draws}Н ${s.losses}П',
+                  '${s.wins}${"tournament.win_short".tr()} ${s.draws}${"tournament.draw_short".tr()} ${s.losses}${"tournament.loss_short".tr()}',
                   style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.3),
                     fontSize: 9,
@@ -1793,7 +1802,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                       (d) => d['id'] == reg.divisionId,
                                       orElse: () => <String, dynamic>{},
                                     );
-                                    final divName = div['name'] ?? 'Дивизион';
+                                    final divName = div['name'] ?? 'tournament.division'.tr();
                                     return Text(
                                       divName,
                                       style: TextStyle(fontSize: 11, color: PremiumTheme.neonGreen.withValues(alpha: 0.8), fontWeight: FontWeight.bold),
@@ -1905,7 +1914,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                       (d) => d['id'] == reg.divisionId,
                                       orElse: () => <String, dynamic>{},
                                     );
-                                    final divName = div['name'] ?? 'Дивизион';
+                                    final divName = div['name'] ?? 'tournament.division'.tr();
                                     return Text(
                                       divName,
                                       style: TextStyle(fontSize: 10, color: PremiumTheme.neonGreen.withValues(alpha: 0.8), fontWeight: FontWeight.bold),
@@ -1926,7 +1935,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                                   }
                                 } catch (_) {}
                                 if (pref == null) return const SizedBox.shrink();
-                                final label = pref == 'morning' ? 'Только утро' : 'Только вечер/день';
+                                final label = pref == 'morning' ? 'tournament.morning_pref'.tr() : 'tournament.afternoon_pref'.tr();
                                 return Container(
                                   margin: const EdgeInsets.only(top: 4),
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

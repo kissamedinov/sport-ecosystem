@@ -28,12 +28,17 @@ if "matches" in tables:
             cursor.execute(f"ALTER TABLE matches ADD COLUMN {col_name} {col_type}")
 
     conn.commit()
-    print("Migration done!")
-else:
-    print("Table 'matches' does not exist yet. Running create_all...")
-    from app.database import engine, Base
-    import app.matches.models
-    Base.metadata.create_all(bind=engine)
-    print("Created all tables!")
+    print("Matches table migration done!")
+
+if "tournaments" in tables:
+    cursor.execute("PRAGMA table_info(tournaments)")
+    columns = [row[1] for row in cursor.fetchall()]
+    print("Tournaments columns:", columns)
+    
+    if "has_placement_matches" not in columns:
+        print("Adding column has_placement_matches to tournaments table...")
+        cursor.execute("ALTER TABLE tournaments ADD COLUMN has_placement_matches BOOLEAN DEFAULT 0")
+        conn.commit()
+        print("Tournaments table migration done!")
 
 conn.close()

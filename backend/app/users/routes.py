@@ -42,6 +42,24 @@ def get_user_club_name(db: Session, user_id: UUID) -> Optional[str]:
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+@router.get("/all", response_model=List[schemas.UserResponse])
+def get_all_users(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    users = db.query(models.User).all()
+    res_list = []
+    for u in users:
+        stmt = select(models.UserRole.role).where(models.UserRole.user_id == u.id)
+        roles_list = db.execute(stmt).scalars().all()
+        roles = [r.value for r in roles_list]
+        res_list.append({
+            **u.__dict__,
+            "roles": roles,
+            "role": roles[0] if roles else "PLAYER_ADULT"
+        })
+    return res_list
+
 @router.get("/my-children", response_model=List[schemas.UserResponse])
 def get_my_children(
     current_user: models.User = Depends(require_parent),

@@ -1072,6 +1072,7 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
                 detail="Playoff matches must have a winner. Draw scores are not allowed."
             )
         winner_id = match.home_team_id if home_score > away_score else match.away_team_id
+        loser_id = match.away_team_id if home_score > away_score else match.home_team_id
         
         next_match = db.query(Match).filter(Match.id == match.next_match_id).first()
         if next_match:
@@ -1081,6 +1082,19 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
                 else:
                     next_match.away_team_id = winner_id
                 db.add(next_match)
+                
+                # If there is a 3rd place match (same round as next_match, position = next_match.position + 1)
+                third_place_match = db.query(Match).filter(
+                    Match.tournament_id == match.tournament_id,
+                    Match.round_number == next_match.round_number,
+                    Match.bracket_position == next_match.bracket_position + 1
+                ).first()
+                if third_place_match:
+                    if match.bracket_position % 2 == 0:
+                        third_place_match.home_team_id = loser_id
+                    else:
+                        third_place_match.away_team_id = loser_id
+                    db.add(third_place_match)
                 
     db.commit()
     
@@ -1553,3 +1567,224 @@ def remove_from_tournament_squad(db: Session, tt_id: UUID, profile_id: UUID, cur
     ).delete()
     db.commit()
     return {"message": "Player removed from squad"}
+
+def generate_playoffs_from_groups(db: Session, tournament_id: UUID):
+    import json
+    import uuid
+    from datetime import timedelta, datetime
+    from app.tournaments.models import TournamentGroup
+    from app.matches.models import Match, MatchStatus
+    from app.tournaments.models import TournamentStandings
+    
+    tournament = get_tournament_by_id(db, tournament_id)
+    if tournament.format != TournamentFormat.GROUP_STAGE:
+        raise HTTPException(status_code=400, detail="Playoffs can only be generated for GROUP_STAGE tournaments")
+        
+    # Check if all group stage matches are finished
+    group_matches = db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.isnot(None)
+    ).all()
+    
+    if not group_matches:
+        raise HTTPException(status_code=400, detail="No group stage matches found")
+        
+    for m in group_matches:
+        if m.status != MatchStatus.FINISHED:
+            raise HTTPException(
+                status_code=400, 
+                detail="Not all group stage matches are finished. Please finish all group matches before generating playoffs."
+            )
+            
+    # Get groups
+    groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
+    if len(groups) != 2:
+        raise HTTPException(status_code=400, detail="Playoff generation is currently optimized for exactly 2 groups")
+        
+    # Calculate group standings and sort
+    group_standings = {}
+    for grp in groups:
+        standings = db.query(TournamentStandings).filter(
+            TournamentStandings.tournament_id == tournament_id,
+            TournamentStandings.group_id == grp.id
+        ).order_by(
+            TournamentStandings.points.desc(),
+            TournamentStandings.goal_difference.desc(),
+            TournamentStandings.goals_for.desc()
+        ).all()
+        if len(standings) < 2:
+            raise HTTPException(status_code=400, detail=f"Group {grp.name} must have at least 2 teams")
+        group_standings[grp.id] = [s.team_id for s in standings]
+        
+    # We sort groups alphabetically to distinguish Group A and Group B
+    sorted_groups = sorted(groups, key=lambda g: g.name)
+    group_a_id = sorted_groups[0].id
+    group_b_id = sorted_groups[1].id
+    
+    # Seeding
+    A1_id = group_standings[group_a_id][0]
+    A2_id = group_standings[group_a_id][1]
+    B1_id = group_standings[group_b_id][0]
+    B2_id = group_standings[group_b_id][1]
+    
+    # Calculate start time for playoffs: 1 day after the last group match
+    last_match_date = max(m.match_date for m in group_matches if m.match_date is not None)
+    playoff_start_date = last_match_date + timedelta(days=1)
+    # Reset to default tournament start hour if available
+    if tournament.start_time:
+        playoff_start_date = datetime.combine(playoff_start_date.date(), tournament.start_time.time())
+    else:
+        playoff_start_date = datetime.combine(playoff_start_date.date(), datetime.min.time() + timedelta(hours=9)) # 9:00 AM
+        
+    match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    
+    # Fields config
+    field_ids = []
+    if getattr(tournament, "field_ids", None):
+        try:
+            field_ids = json.loads(tournament.field_ids)
+        except:
+            pass
+    num_fields = len(field_ids) if field_ids else tournament.num_fields
+    if num_fields < 1: num_fields = 1
+    
+    # Clean up existing playoff matches (group_id = None)
+    db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.is_(None)
+    ).delete(synchronize_session=False)
+    db.commit()
+    
+    # Create SF and Final matches
+    sf1_id = uuid.uuid4()
+    sf2_id = uuid.uuid4()
+    final_id = uuid.uuid4()
+    third_place_id = uuid.uuid4()
+    
+    sf1_field = uuid.UUID(field_ids[0]) if field_ids else None
+    sf2_field = uuid.UUID(field_ids[1 % num_fields]) if field_ids else None
+    
+    sf1_time = playoff_start_date
+    # SF2 played after SF1 on same field, or same time on different field
+    if num_fields > 1:
+        sf2_time = playoff_start_date
+    else:
+        sf2_time = playoff_start_date + timedelta(minutes=match_duration)
+        
+    division_id = group_matches[0].division_id if group_matches else None
+    
+    # SF 1: A1 vs B2
+    sf1 = Match(
+        id=sf1_id,
+        tournament_id=tournament_id,
+        division_id=division_id,
+        home_team_id=A1_id,
+        away_team_id=B2_id,
+        match_date=sf1_time,
+        field_id=sf1_field,
+        status=MatchStatus.DRAFT,
+        round_number=1,
+        bracket_position=0,
+        next_match_id=final_id
+    )
+    # SF 2: B1 vs A2
+    sf2 = Match(
+        id=sf2_id,
+        tournament_id=tournament_id,
+        division_id=division_id,
+        home_team_id=B1_id,
+        away_team_id=A2_id,
+        match_date=sf2_time,
+        field_id=sf2_field,
+        status=MatchStatus.DRAFT,
+        round_number=1,
+        bracket_position=1,
+        next_match_id=final_id
+    )
+    
+    # Final and 3rd place: next day
+    final_date = playoff_start_date + timedelta(days=1)
+    if tournament.start_time:
+        final_date = datetime.combine(final_date.date(), tournament.start_time.time())
+    else:
+        final_date = datetime.combine(final_date.date(), datetime.min.time() + timedelta(hours=10)) # 10:00 AM
+        
+    final_match = Match(
+        id=final_id,
+        tournament_id=tournament_id,
+        division_id=division_id,
+        home_team_id=None,
+        away_team_id=None,
+        match_date=final_date + timedelta(minutes=match_duration),
+        field_id=sf1_field,
+        status=MatchStatus.DRAFT,
+        round_number=2,
+        bracket_position=0
+    )
+    
+    third_place_match = Match(
+        id=third_place_id,
+        tournament_id=tournament_id,
+        division_id=division_id,
+        home_team_id=None,
+        away_team_id=None,
+        match_date=final_date,
+        field_id=sf1_field,
+        status=MatchStatus.DRAFT,
+        round_number=2,
+        bracket_position=1
+    )
+    
+    db.add_all([sf1, sf2, final_match, third_place_match])
+    
+    # Placement/consolation matches
+    placement_matches_created = 0
+    if getattr(tournament, "has_placement_matches", False):
+        # 5th place match: A3 vs B3
+        if len(group_standings[group_a_id]) >= 3 and len(group_standings[group_b_id]) >= 3:
+            A3_id = group_standings[group_a_id][2]
+            B3_id = group_standings[group_b_id][2]
+            m5 = Match(
+                id=uuid.uuid4(),
+                tournament_id=tournament_id,
+                division_id=division_id,
+                home_team_id=A3_id,
+                away_team_id=B3_id,
+                match_date=sf1_time,
+                field_id=uuid.UUID(field_ids[2 % num_fields]) if num_fields > 2 and field_ids else sf1_field,
+                status=MatchStatus.DRAFT,
+                round_number=1,
+                bracket_position=2
+            )
+            db.add(m5)
+            placement_matches_created += 1
+            
+        # 7th place match: A4 vs B4
+        if len(group_standings[group_a_id]) >= 4 and len(group_standings[group_b_id]) >= 4:
+            A4_id = group_standings[group_a_id][3]
+            B4_id = group_standings[group_b_id][3]
+            m7 = Match(
+                id=uuid.uuid4(),
+                tournament_id=tournament_id,
+                division_id=division_id,
+                home_team_id=A4_id,
+                away_team_id=B4_id,
+                match_date=sf2_time,
+                field_id=uuid.UUID(field_ids[3 % num_fields]) if num_fields > 3 and field_ids else sf2_field,
+                status=MatchStatus.DRAFT,
+                round_number=1,
+                bracket_position=3
+            )
+            db.add(m7)
+            placement_matches_created += 1
+            
+    db.commit()
+    
+    return {
+        "status": "success",
+        "message": "Playoffs successfully generated from Group Stage standings.",
+        "sf_count": 2,
+        "final_count": 1,
+        "third_place_count": 1,
+        "placement_matches_count": placement_matches_created
+    }

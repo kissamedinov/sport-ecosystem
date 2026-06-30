@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobile/features/clubs/presentation/screens/admin_requests_screen.dart';
+import 'admin_tournaments_screen.dart';
+import 'admin_users_screen.dart';
+import 'admin_settings_screen.dart';
 
 class AdminHubScreen extends StatelessWidget {
   const AdminHubScreen({super.key});
@@ -41,29 +44,21 @@ class AdminHubScreen extends StatelessWidget {
               'admin.tournament_moderation'.tr(),
               Icons.emoji_events_rounded,
               Colors.orange,
-              () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('admin.coming_soon'.tr(namedArgs: {'feature': 'admin.tournament_moderation'.tr()}))),
-                );
-              },
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminTournamentsScreen())),
             ),
             _buildAdminCard(
               context,
               'admin.user_management'.tr(),
               Icons.people_alt_rounded,
               Colors.green,
-              () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('admin.coming_soon'.tr(namedArgs: {'feature': 'admin.user_management'.tr()}))),
-                );
-              },
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
             ),
             _buildAdminCard(
               context,
               'admin.system_settings'.tr(),
               Icons.settings_suggest_rounded,
               Colors.purple,
-              () {},
+              () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
             ),
           ],
         ),

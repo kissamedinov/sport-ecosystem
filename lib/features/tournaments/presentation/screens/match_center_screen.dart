@@ -56,8 +56,8 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   bool _viewHomeLineup = true;
 
   final GlobalKey _repaintKey = GlobalKey();
-  String _homeTeamName = 'КОМАНДА ХОЗЯЕВ';
-  String _awayTeamName = 'КОМАНДА ГОСТЕЙ';
+  String _homeTeamName = '';
+  String _awayTeamName = '';
 
   /// Map of childProfileId / playerId -> display name
   final Map<String, String> _playerNamesCache = {};
@@ -67,6 +67,8 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
+    _homeTeamName = 'tournament.home_team_label'.tr();
+    _awayTeamName = 'tournament.away_team_label'.tr();
     _lineupSubmittedState = widget.lineupSubmitted;
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
@@ -209,7 +211,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка экспорта карточки: $e'),
+            content: Text('tournament.card_export_error'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -248,7 +250,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
         ),
         body: Center(
           child: Text(
-            'Ошибка загрузки матча: ${_matchError ?? "Неизвестная ошибка"}',
+            'tournament.error_loading_match'.tr(namedArgs: {'error': _matchError ?? 'common.no_data'.tr()}),
             style: const TextStyle(color: Colors.white70),
           ),
         ),
@@ -468,7 +470,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    (_lineupSubmittedState == true) ? 'Изменить заявку' : 'Подать заявку (Submit Squad)',
+                    (_lineupSubmittedState == true) ? 'tournament.edit_lineup'.tr() : 'tournament.submit_lineup_btn'.tr(),
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 13,
@@ -619,13 +621,13 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white.withOpacity(0.05)),
               ),
-              child: const Column(
+              child: Column(
                 children: [
-                  Icon(Icons.groups_outlined, size: 48, color: Colors.white24),
+                  const Icon(Icons.groups_outlined, size: 48, color: Colors.white24),
                   const SizedBox(height: 12),
                   Text(
-                    'Состав команды еще не отправлен',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                    'tournament.no_lineup'.tr(),
+                    style: const TextStyle(color: Colors.white54, fontSize: 13),
                   ),
                 ],
               ),
@@ -854,20 +856,20 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'СТАРТОВЫЙ СОСТАВ',
-          style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.0),
+        Text(
+          'tournament.starting_xi_label'.tr().toUpperCase(),
+          style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.0),
         ),
         const SizedBox(height: 8),
         ...starters.map((p) => _buildPlayerListItem(p)),
         const SizedBox(height: 16),
-        const Text(
-          'ЗАПАСНЫЕ ИГРОКИ',
-          style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.0),
+        Text(
+          'tournament.substitute_label'.tr().toUpperCase(),
+          style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1.0),
         ),
         const SizedBox(height: 8),
         if (bench.isEmpty)
-          const Text('Нет запасных игроков', style: TextStyle(color: Colors.white30, fontSize: 11))
+          Text('tournament.no_reserve_players'.tr(), style: const TextStyle(color: Colors.white30, fontSize: 11))
         else
           ...bench.map((p) => _buildPlayerListItem(p)),
       ],
@@ -928,7 +930,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           return const Center(child: CircularProgressIndicator(color: Color(0xFF00E676)));
         }
         if (snapshot.hasError) {
-          return Center(child: Text('Ошибка: ${snapshot.error}', style: const TextStyle(color: Colors.white54)));
+          return Center(child: Text('${'common.error'.tr()}: ${snapshot.error}', style: const TextStyle(color: Colors.white54)));
         }
         final rawEvents = snapshot.data ?? [];
         final groupedItems = _groupEventsForMatchCenter(rawEvents, match);
@@ -940,9 +942,9 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
               children: [
                 Icon(Icons.timeline_rounded, size: 48, color: Colors.white.withOpacity(0.2)),
                 const SizedBox(height: 12),
-                const Text(
-                  'Событий в матче пока нет',
-                  style: TextStyle(color: Colors.white30, fontSize: 13),
+                Text(
+                  'match.no_events_yet'.tr(),
+                  style: const TextStyle(color: Colors.white30, fontSize: 13),
                 ),
               ],
             ),
@@ -1043,32 +1045,32 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       case EventType.PENALTY_GOAL:
         icon = Icons.sports_soccer;
         iconColor = const Color(0xFF00E676);
-        titleText = item.eventType == EventType.PENALTY_GOAL ? 'Penalty goal! ⚽️ (${item.runningScore})' : 'Гол! ⚽️ (${item.runningScore})';
+        titleText = item.eventType == EventType.PENALTY_GOAL ? 'match.timeline_penalty_goal'.tr(namedArgs: {'score': item.runningScore}) : 'match.timeline_goal'.tr(namedArgs: {'score': item.runningScore});
         break;
       case EventType.YELLOW_CARD:
         icon = Icons.portrait_rounded;
         iconColor = const Color(0xFFFFD700);
-        titleText = 'Желтая карточка 🟨';
+        titleText = 'match.timeline_yellow_card'.tr();
         break;
       case EventType.RED_CARD:
         icon = Icons.portrait_rounded;
         iconColor = Colors.redAccent;
-        titleText = 'Красная карточка 🟥';
+        titleText = 'match.timeline_red_card'.tr();
         break;
       case EventType.ASSIST:
         icon = Icons.help_outline_rounded;
         iconColor = Colors.blueAccent;
-        titleText = 'Голевая передача 👟';
+        titleText = 'match.timeline_assist'.tr();
         break;
       case EventType.SAVE:
         icon = Icons.shield_outlined;
         iconColor = Colors.tealAccent;
-        titleText = 'Сейв 🧭';
+        titleText = 'match.timeline_save'.tr();
         break;
       case EventType.SUBSTITUTE:
         icon = Icons.swap_horiz_rounded;
         iconColor = Colors.orangeAccent;
-        titleText = 'Замена 🔄';
+        titleText = 'match.timeline_substitution'.tr();
         break;
     }
 
@@ -1130,7 +1132,7 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
                 if (item.assistantName != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    "пас: ${item.assistantName}",
+                    'match.pass_label'.tr(namedArgs: {'name': item.assistantName!}),
                     style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11, fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -1147,15 +1149,15 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
       padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
-          _buildInfoRow('Статус', match.status),
+          _buildInfoRow('match.status_label'.tr(), match.status == 'FINISHED' ? 'match.status_finished'.tr() : (match.status == 'LIVE' ? 'match.live'.tr() : 'match.status_scheduled'.tr())),
           const Divider(color: Colors.white10, height: 24),
-          _buildInfoRow('Дата матча', match.matchDate != null ? DateFormat('dd MMMM yyyy HH:mm').format(match.matchDate!.toLocal()) : 'Не определена'),
+          _buildInfoRow('match.date_label'.tr(), match.matchDate != null ? DateFormat('dd MMMM yyyy HH:mm').format(match.matchDate!.toLocal()) : 'match.not_defined'.tr()),
           const Divider(color: Colors.white10, height: 24),
-          _buildInfoRow('Раунд/Тур', match.roundNumber != null ? '${match.roundNumber}' : 'Не определен'),
+          _buildInfoRow('match.round_label'.tr(), match.roundNumber != null ? '${match.roundNumber}' : 'match.not_defined'.tr()),
           const Divider(color: Colors.white10, height: 24),
-          _buildInfoRow('Турнир ID', match.tournamentId ?? 'Не привязан'),
+          _buildInfoRow('match.tournament_id'.tr(), match.tournamentId ?? 'match.not_assigned'.tr()),
           const Divider(color: Colors.white10, height: 24),
-          _buildInfoRow('Дивизион ID', match.divisionId ?? 'Не привязан'),
+          _buildInfoRow('match.division_id'.tr(), match.divisionId ?? 'match.not_assigned'.tr()),
         ],
       ),
     );

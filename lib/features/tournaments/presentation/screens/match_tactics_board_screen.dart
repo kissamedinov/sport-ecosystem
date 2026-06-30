@@ -113,18 +113,18 @@ class _MatchTacticsBoardScreenState extends State<MatchTacticsBoardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Доска тактики',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        title: Text(
+          'match.tactics_board'.tr(),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context, _players);
             },
-            child: const Text(
-              'Готово',
-              style: TextStyle(color: Color(0xFF00E676), fontWeight: FontWeight.bold, fontSize: 16),
+            child: Text(
+              'common.done'.tr(),
+              style: const TextStyle(color: Color(0xFF00E676), fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
           const SizedBox(width: 8),
@@ -139,13 +139,13 @@ class _MatchTacticsBoardScreenState extends State<MatchTacticsBoardScreen> {
                   children: [
                     Icon(Icons.sports_soccer_rounded, size: 64, color: Colors.white.withOpacity(0.2)),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Нет игроков стартового состава',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      'match.no_starters'.tr(),
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Сначала выберите игроков стартового состава на предыдущем экране',
+                      'match.select_starters_first'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
                     ),
@@ -188,7 +188,7 @@ class _MatchTacticsBoardScreenState extends State<MatchTacticsBoardScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
                   child: Text(
-                    'Перетащите игроков пальцем по полю, чтобы настроить тактическую расстановку',
+                    'match.drag_players_hint'.tr(),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
                   ),

@@ -10,6 +10,7 @@ def migrate():
             ALTER TABLE matches ADD COLUMN IF NOT EXISTS elapsed_seconds INTEGER DEFAULT 0;
             ALTER TABLE matches ADD COLUMN IF NOT EXISTS is_timer_running BOOLEAN DEFAULT FALSE;
             ALTER TABLE matches ADD COLUMN IF NOT EXISTS timer_updated_at TIMESTAMP WITH TIME ZONE;
+            ALTER TABLE tournaments ADD COLUMN IF NOT EXISTS has_placement_matches BOOLEAN DEFAULT FALSE;
         """))
         conn.commit()
         
