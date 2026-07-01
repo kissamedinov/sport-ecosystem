@@ -13,6 +13,7 @@ import '../../../../core/api/api_client.dart';
 import '../../../tournaments/presentation/screens/match_center_screen.dart';
 import '../../../tournaments/presentation/screens/tournament_details_page.dart';
 import '../../../teams/presentation/screens/team_details_screen.dart';
+import '../../../clubs/presentation/screens/club_dashboard_screen.dart';
 
 
 class NotificationScreen extends StatefulWidget {
@@ -219,10 +220,85 @@ class _NotificationCard extends StatefulWidget {
 }
 
 class _NotificationCardState extends State<_NotificationCard> {
+  Map<String, String> _getLocalizedNotification(String title, String message, String lang) {
+    String localTitle = title;
+    String localMessage = message;
+
+    if (lang == 'ru') {
+      if (title == 'Invitation Accepted') {
+        localTitle = 'Приглашение принято';
+      } else if (title == 'Club Request Approved') {
+        localTitle = 'Заявка клуба одобрена';
+      } else if (title == 'Club Request Rejected') {
+        localTitle = 'Заявка клуба отклонена';
+      } else if (title == 'New Club Registration Request') {
+        localTitle = 'Новый запрос на регистрацию';
+      } else if (title == 'Match Scheduled! ⚽') {
+        localTitle = 'Матч запланирован! ⚽';
+      } else if (title == 'Match Result! 🏆') {
+        localTitle = 'Результат матча! 🏆';
+      }
+
+      if (message.contains('has accepted your invitation to join the club')) {
+        final name = message.split(' has accepted')[0];
+        localMessage = '$name принял ваше приглашение вступить в клуб.';
+      } else if (message.contains('Congratulations! Your request for \'')) {
+        final clubName = message.split('Congratulations! Your request for \'')[1].split('\' has been approved')[0];
+        localMessage = 'Поздравляем! Ваш запрос на создание клуба «$clubName» был одобрен. Теперь вы владелец.';
+      } else if (message.contains('We regret to inform you that your request for \'')) {
+        final clubName = message.split('We regret to inform you that your request for \'')[1].split('\' has been rejected')[0];
+        localMessage = 'К сожалению, ваш запрос на создание клуба «$clubName» был отклонен.';
+      } else if (message.contains('New match scheduled: ')) {
+        final matchTeams = message.replaceAll('New match scheduled: ', '');
+        localMessage = 'Запланирован новый матч: $matchTeams';
+      } else if (message.contains('Final score: ')) {
+        final score = message.replaceAll('Final score: ', '');
+        localMessage = 'Итоговый счет: $score';
+      }
+    } else if (lang == 'kk') {
+      if (title == 'Invitation Accepted') {
+        localTitle = 'Шақыру қабылданды';
+      } else if (title == 'Club Request Approved') {
+        localTitle = 'Клуб сұранысы мақұлданды';
+      } else if (title == 'Club Request Rejected') {
+        localTitle = 'Клуб сұранысы қабылданбады';
+      } else if (title == 'New Club Registration Request') {
+        localTitle = 'Клубты тіркеуге жаңа сұраныс';
+      } else if (title == 'Match Scheduled! ⚽') {
+        localTitle = 'Матч жоспарланды! ⚽';
+      } else if (title == 'Match Result! 🏆') {
+        localTitle = 'Матч нәтижесі! 🏆';
+      }
+
+      if (message.contains('has accepted your invitation to join the club')) {
+        final name = message.split(' has accepted')[0];
+        localMessage = '$name клубқа қосылу туралы шақыруыңызды қабылдады.';
+      } else if (message.contains('Congratulations! Your request for \'')) {
+        final clubName = message.split('Congratulations! Your request for \'')[1].split('\' has been approved')[0];
+        localMessage = 'Құттықтаймыз! «$clubName» клубын құру сұранысыңыз мақұлданды. Енді сіз иесіз.';
+      } else if (message.contains('We regret to inform you that your request for \'')) {
+        final clubName = message.split('We regret to inform you that your request for \'')[1].split('\' has been rejected')[0];
+        localMessage = 'Өкінішке орай, «$clubName» клубын құру сұранысыңыз қабылданбады.';
+      } else if (message.contains('New match scheduled: ')) {
+        final matchTeams = message.replaceAll('New match scheduled: ', '');
+        localMessage = 'Жаңа матч жоспарланды: $matchTeams';
+      } else if (message.contains('Final score: ')) {
+        final score = message.replaceAll('Final score: ', '');
+        localMessage = 'Қорытынды есеп: $score';
+      }
+    }
+
+    return {'title': localTitle, 'message': localMessage};
+  }
+
   @override
   Widget build(BuildContext context) {
     final notification = widget.notification;
     final cs = Theme.of(context).colorScheme;
+    final lang = context.locale.languageCode;
+    final localized = _getLocalizedNotification(notification.title, notification.message, lang);
+    final displayTitle = localized['title']!;
+    final displayMessage = localized['message']!;
     final isInvite = notification.type == 'TEAM_INVITE' || notification.type == 'PARENT_LINK_REQUEST';
     final isApprovalRequest = notification.title == 'Invitation Approval Required';
     final isUnread = !notification.isRead;
@@ -264,7 +340,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                         children: [
                           Expanded(
                             child: Text(
-                              notification.title,
+                              displayTitle,
                               style: TextStyle(
                                 fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 14,
@@ -286,7 +362,7 @@ class _NotificationCardState extends State<_NotificationCard> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        notification.message,
+                        displayMessage,
                         style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -347,7 +423,7 @@ class _NotificationCardState extends State<_NotificationCard> {
 
     if (entityId == null || entityId.isEmpty) return;
 
-    if (entityType == 'MATCH' || type == 'MATCH_SCHEDULED' || type == 'MATCH_RESULT' || type == 'PLAYER_SELECTED') {
+    if (entityType == 'MATCH' || type == 'MATCH_SCHEDULED' || type == 'MATCH_RESULT' || (type == 'PLAYER_SELECTED' && entityType == 'MATCH')) {
       _navigateToMatch(context, entityId);
     } else if (entityType == 'TOURNAMENT' || type.toString().contains('TOURNAMENT')) {
       Navigator.push(
