@@ -1095,9 +1095,26 @@ def get_tournament_groups(db: Session, tournament_id: UUID):
 
 def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, assignments: dict):
     from app.tournaments.models import TournamentGroup, TournamentGroupTeam, TournamentTeam
+    from app.matches.models import Match, MatchAward, MatchEvent, MatchPlayerStats, MatchLineup, MatchLineupPlayer, MatchResult
     import string
     
-    # 1. Clean existing groups
+    # 1. Clean existing matches and their dependencies
+    match_ids = [m.id for m in db.query(Match).filter(Match.tournament_id == tournament_id).all()]
+    if match_ids:
+        db.query(MatchAward).filter(MatchAward.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(MatchEvent).filter(MatchEvent.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(MatchPlayerStats).filter(MatchPlayerStats.match_id.in_(match_ids)).delete(synchronize_session=False)
+        
+        lineup_ids = [l.id for l in db.query(MatchLineup).filter(MatchLineup.match_id.in_(match_ids)).all()]
+        if lineup_ids:
+            db.query(MatchLineupPlayer).filter(MatchLineupPlayer.lineup_id.in_(lineup_ids)).delete(synchronize_session=False)
+            db.query(MatchLineup).filter(MatchLineup.id.in_(lineup_ids)).delete(synchronize_session=False)
+            
+        db.query(MatchResult).filter(MatchResult.match_id.in_(match_ids)).delete(synchronize_session=False)
+        db.query(Match).filter(Match.id.in_(match_ids)).delete(synchronize_session=False)
+        db.commit()
+        
+    # 2. Clean existing groups
     groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
     group_ids = [g.id for g in groups]
     if group_ids:
