@@ -806,6 +806,13 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
                 t = db.query(TournamentTeam).filter(TournamentTeam.id == gt.tournament_team_id).first()
                 if t:
                     group_teams[g.id].append(t)
+                    # Sync standings group_id just in case
+                    standing = db.query(TournamentStandings).filter(
+                        TournamentStandings.tournament_id == tournament_id,
+                        TournamentStandings.team_id == t.team_id
+                    ).first()
+                    if standing:
+                        standing.group_id = g.id
     else:
         # Randomize seeding
         random.shuffle(approved_teams)
@@ -827,6 +834,14 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
             new_gt = TournamentGroupTeam(group_id=group.id, tournament_team_id=team.id)
             db.add(new_gt)
             group_teams[group.id].append(team)
+            
+            # Sync standings group_id
+            standing = db.query(TournamentStandings).filter(
+                TournamentStandings.tournament_id == tournament_id,
+                TournamentStandings.team_id == team.team_id
+            ).first()
+            if standing:
+                standing.group_id = group.id
             
         db.flush()
     
@@ -1094,7 +1109,7 @@ def get_tournament_groups(db: Session, tournament_id: UUID):
     return res
 
 def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, assignments: dict):
-    from app.tournaments.models import TournamentGroup, TournamentGroupTeam, TournamentTeam
+    from app.tournaments.models import TournamentGroup, TournamentGroupTeam, TournamentTeam, TournamentStandings
     from app.matches.models import Match, MatchAward, MatchEvent, MatchPlayerStats, MatchLineup, MatchLineupPlayer, MatchResult
     import string
     
@@ -1149,6 +1164,14 @@ def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, as
             g_name = f"Group {string.ascii_uppercase[(idx % num_groups) % 26]}"
             g_obj = created_groups[g_name]
             db.add(TournamentGroupTeam(group_id=g_obj.id, tournament_team_id=team.id))
+            
+            # Sync standings group_id
+            standing = db.query(TournamentStandings).filter(
+                TournamentStandings.tournament_id == tournament_id,
+                TournamentStandings.team_id == team.team_id
+            ).first()
+            if standing:
+                standing.group_id = g_obj.id
     else:
         # Map of team_id -> TournamentTeam
         team_map = {str(t.team_id): t for t in approved_teams}
@@ -1160,6 +1183,14 @@ def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, as
                 team_reg = team_map.get(str(t_id))
                 if team_reg:
                     db.add(TournamentGroupTeam(group_id=g_obj.id, tournament_team_id=team_reg.id))
+                    
+                    # Sync standings group_id
+                    standing = db.query(TournamentStandings).filter(
+                        TournamentStandings.tournament_id == tournament_id,
+                        TournamentStandings.team_id == team_reg.team_id
+                    ).first()
+                    if standing:
+                        standing.group_id = g_obj.id
                     
     db.commit()
     return get_tournament_groups(db, tournament_id)
