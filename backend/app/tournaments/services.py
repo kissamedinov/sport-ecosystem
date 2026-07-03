@@ -844,6 +844,7 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
                 standing.group_id = group.id
             
         db.flush()
+    num_groups = len(groups)
     
     # Pre-fetch preferences for all approved teams
     team_prefs = {}
