@@ -20,6 +20,7 @@ class TournamentBracketWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Filter only playoff matches (no groupId)
     final playoffMatches = matches.where((m) => m.groupId == null).toList();
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (playoffMatches.isEmpty) {
       return Center(
@@ -28,11 +29,18 @@ class TournamentBracketWidget extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.account_tree_outlined, size: 48, color: Colors.white.withValues(alpha: 0.3)),
+              Icon(
+                Icons.account_tree_outlined,
+                size: 48,
+                color: isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3),
+              ),
               const SizedBox(height: 12),
               Text(
                 'tournament.bracket_not_created'.tr(),
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+                style: TextStyle(
+                  color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5),
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -46,11 +54,9 @@ class TournamentBracketWidget extends StatelessWidget {
     TournamentMatch? finalMatch = _findMatch(playoffMatches, 2, 0); // Final
     TournamentMatch? thirdPlace = _findMatch(playoffMatches, 2, 1); // 3rd place
 
-    // Placement matches (5-8)
-    TournamentMatch? sf5 = _findMatch(playoffMatches, 1, 2);
-    TournamentMatch? sf6 = _findMatch(playoffMatches, 1, 3);
-    TournamentMatch? fifth = _findMatch(playoffMatches, 2, 2);
-    TournamentMatch? seventh = _findMatch(playoffMatches, 2, 3);
+    // Direct placement matches (round 1, pos 2 and pos 3)
+    TournamentMatch? m5 = _findMatch(playoffMatches, 1, 2); // A3 vs B3 (for 5-6 place)
+    TournamentMatch? m7 = _findMatch(playoffMatches, 1, 3); // A4 vs B4 (for 7-8 place)
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -67,11 +73,11 @@ class TournamentBracketWidget extends StatelessWidget {
               const SizedBox(height: 20),
             ],
 
-            // === PLACEMENT: 5-8 ===
-            if (sf5 != null || sf6 != null || fifth != null || seventh != null) ...[
+            // === PLACEMENT: 5-8 (Direct matches side by side) ===
+            if (m5 != null || m7 != null) ...[
               _sectionLabel('📋 МАТЧИ ЗА МЕСТА 5-8'),
               const SizedBox(height: 12),
-              _buildPlacementBracket(context, sf5, sf6, fifth, seventh),
+              _buildPlacementBracket(context, m5, m7),
             ],
           ],
         ),
@@ -114,7 +120,7 @@ class TournamentBracketWidget extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                _matchLabel('1/2 финала'),
+                _matchLabel(context, '1/2 финала'),
                 if (sf1 != null) _buildCard(context, sf1, '1/2 финала', pos: 0),
                 const SizedBox(height: 8),
                 if (sf2 != null) _buildCard(context, sf2, '1/2 финала', pos: 1),
@@ -122,15 +128,15 @@ class TournamentBracketWidget extends StatelessWidget {
             ),
           ),
           // CENTER: connectors
-          _buildConnectors(),
+          _buildConnectors(context),
           // RIGHT: Final + 3rd
           Expanded(
             child: Column(
               children: [
-                _matchLabel('Финал'),
+                _matchLabel(context, 'Финал'),
                 if (final_ != null) _buildCard(context, final_, 'Финал 🏆', isFinal: true),
                 const SizedBox(height: 8),
-                _matchLabel('За 3 место'),
+                _matchLabel(context, 'За 3 место'),
                 if (third != null) _buildCard(context, third, 'За 3 место 🥉'),
               ],
             ),
@@ -142,49 +148,45 @@ class TournamentBracketWidget extends StatelessWidget {
 
   Widget _buildPlacementBracket(
     BuildContext context,
-    TournamentMatch? sf5,
-    TournamentMatch? sf6,
-    TournamentMatch? fifth,
-    TournamentMatch? seventh,
+    TournamentMatch? m5,
+    TournamentMatch? m7,
   ) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (m5 != null)
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _matchLabel('Полуфиналы 5-8'),
-                if (sf5 != null) _buildCard(context, sf5, '1/2 за 5-8', pos: 2),
-                const SizedBox(height: 8),
-                if (sf6 != null) _buildCard(context, sf6, '1/2 за 5-8', pos: 3),
+                _matchLabel(context, 'За 5-6 место'),
+                _buildCard(context, m5, 'За 5-6 место'),
               ],
             ),
           ),
-          _buildConnectors(),
+        if (m5 != null && m7 != null) const SizedBox(width: 16),
+        if (m7 != null)
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _matchLabel('За 5-6 место'),
-                if (fifth != null) _buildCard(context, fifth, 'За 5-6 место'),
-                const SizedBox(height: 8),
-                _matchLabel('За 7-8 место'),
-                if (seventh != null) _buildCard(context, seventh, 'За 7-8 место'),
+                _matchLabel(context, 'За 7-8 место'),
+                _buildCard(context, m7, 'За 7-8 место'),
               ],
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 
-  Widget _matchLabel(String text) {
+  Widget _matchLabel(BuildContext context, String text) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text.toUpperCase(),
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.4),
+          color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.4),
           fontSize: 9,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
@@ -193,11 +195,12 @@ class TournamentBracketWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildConnectors() {
+  Widget _buildConnectors(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return SizedBox(
       width: 32,
       child: CustomPaint(
-        painter: _ConnectorPainter(),
+        painter: _ConnectorPainter(isDark: isDark),
       ),
     );
   }
@@ -209,6 +212,7 @@ class TournamentBracketWidget extends StatelessWidget {
     bool isFinal = false,
     int? pos,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isFinished = match.status == 'FINISHED' || match.status == 'finished';
     final bool isLive = match.status == 'LIVE';
     final bool hasHomeWon = isFinished && match.homeScore > match.awayScore;
@@ -216,21 +220,22 @@ class TournamentBracketWidget extends StatelessWidget {
 
     String homeName = match.homeTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, true);
     String awayName = match.awayTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, false);
-    // Treat backend "Home Team" / "Away Team" as placeholder
+    
     if (homeName == 'Home Team') homeName = _placeholder(match.roundNumber, match.bracketPosition, true);
     if (awayName == 'Away Team') awayName = _placeholder(match.roundNumber, match.bracketPosition, false);
 
     final bool homeIsPlaceholder = match.homeTeamName == null || match.homeTeamName == 'Home Team';
     final bool awayIsPlaceholder = match.awayTeamName == null || match.awayTeamName == 'Away Team';
 
-    final Color cardBg = isFinal
-        ? const Color(0xFF1A2835)
-        : const Color(0xFF141E28);
-    final Color borderColor = isFinal
-        ? _neon.withValues(alpha: 0.3)
-        : isLive
-            ? _neon
-            : Colors.white.withValues(alpha: 0.08);
+    final Color cardBg = isDark
+        ? (isFinal ? const Color(0xFF1A2835) : const Color(0xFF141E28))
+        : (isFinal ? const Color(0xFFE8F5E9) : const Color(0xFFF5F7FA));
+
+    final Color borderColor = isLive
+        ? _neon
+        : isDark
+            ? (isFinal ? _neon.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.08))
+            : (isFinal ? _neon.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.06));
 
     final String dateStr = match.matchDate != null
         ? DateFormat('dd.MM HH:mm').format(match.matchDate!.toLocal())
@@ -255,9 +260,19 @@ class TournamentBracketWidget extends StatelessWidget {
           color: cardBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: borderColor, width: isFinal ? 1.5 : 1.0),
-          boxShadow: isFinal
-              ? [BoxShadow(color: _neon.withValues(alpha: 0.08), blurRadius: 12, spreadRadius: 0)]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+            if (isFinal)
+              BoxShadow(
+                color: _neon.withValues(alpha: isDark ? 0.08 : 0.05),
+                blurRadius: 12,
+                spreadRadius: 0,
+              )
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -267,7 +282,7 @@ class TournamentBracketWidget extends StatelessWidget {
             Text(
               stageLabel.toUpperCase(),
               style: TextStyle(
-                color: isFinal ? _neon : Colors.white.withValues(alpha: 0.35),
+                color: isFinal ? _neon : (isDark ? Colors.white.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.45)),
                 fontSize: 8,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.8,
@@ -275,7 +290,7 @@ class TournamentBracketWidget extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             // Home team row
-            _teamRow(homeName, isFinished ? '${match.homeScore}' : '–', homeIsPlaceholder, hasHomeWon),
+            _teamRow(context, homeName, isFinished ? '${match.homeScore}' : '–', homeIsPlaceholder, hasHomeWon),
             const SizedBox(height: 4),
             // Divider with score
             if (isFinished)
@@ -286,10 +301,13 @@ class TournamentBracketWidget extends StatelessWidget {
                 ),
               )
             else
-              Divider(color: Colors.white.withValues(alpha: 0.06), height: 8),
+              Divider(
+                color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.06),
+                height: 8,
+              ),
             const SizedBox(height: 4),
             // Away team row
-            _teamRow(awayName, isFinished ? '${match.awayScore}' : '–', awayIsPlaceholder, hasAwayWon),
+            _teamRow(context, awayName, isFinished ? '${match.awayScore}' : '–', awayIsPlaceholder, hasAwayWon),
             const SizedBox(height: 6),
             // Date row
             Row(
@@ -308,14 +326,17 @@ class TournamentBracketWidget extends StatelessWidget {
                   Text(
                     dateStr,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.35),
+                      color: isDark ? Colors.white.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.45),
                       fontSize: 9,
                     ),
                   ),
                 if (match.fieldName != null)
                   Text(
                     match.fieldName!,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 8),
+                    style: TextStyle(
+                      color: isDark ? Colors.white.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.35),
+                      fontSize: 8,
+                    ),
                   ),
               ],
             ),
@@ -325,13 +346,14 @@ class TournamentBracketWidget extends StatelessWidget {
     );
   }
 
-  Widget _teamRow(String name, String score, bool isPlaceholder, bool isWinner) {
+  Widget _teamRow(BuildContext context, String name, String score, bool isPlaceholder, bool isWinner) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Icon(
           isWinner ? Icons.star : Icons.shield_outlined,
           size: 12,
-          color: isWinner ? const Color(0xFFFFD700) : Colors.white.withValues(alpha: 0.3),
+          color: isWinner ? const Color(0xFFFFD700) : (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3)),
         ),
         const SizedBox(width: 6),
         Expanded(
@@ -341,10 +363,10 @@ class TournamentBracketWidget extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isPlaceholder
-                  ? Colors.white.withValues(alpha: 0.25)
+                  ? (isDark ? Colors.white.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.35))
                   : isWinner
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.8),
+                      ? (isDark ? Colors.white : Colors.black)
+                      : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
               fontSize: 11,
               fontWeight: isWinner ? FontWeight.w800 : FontWeight.w500,
               fontStyle: isPlaceholder ? FontStyle.italic : FontStyle.normal,
@@ -355,7 +377,9 @@ class TournamentBracketWidget extends StatelessWidget {
           Text(
             score,
             style: TextStyle(
-              color: isWinner ? const Color(0xFFFFD700) : Colors.white.withValues(alpha: 0.5),
+              color: isWinner
+                  ? const Color(0xFFFFD700)
+                  : (isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5)),
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
@@ -368,13 +392,11 @@ class TournamentBracketWidget extends StatelessWidget {
     if (round == 1) {
       if (pos == 0) return isHome ? 'A1' : 'B2';
       if (pos == 1) return isHome ? 'B1' : 'A2';
-      if (pos == 2) return isHome ? 'A3' : 'B4';
-      if (pos == 3) return isHome ? 'B3' : 'A4';
+      if (pos == 2) return isHome ? 'A3' : 'B3'; // Direct placement match for 5-6 place
+      if (pos == 3) return isHome ? 'A4' : 'B4'; // Direct placement match for 7-8 place
     } else if (round == 2) {
       if (pos == 0) return isHome ? 'Победитель ПФ1' : 'Победитель ПФ2';
       if (pos == 1) return isHome ? 'Проигравший ПФ1' : 'Проигравший ПФ2';
-      if (pos == 2) return isHome ? 'Победитель ПФ3' : 'Победитель ПФ4';
-      if (pos == 3) return isHome ? 'Проигравший ПФ3' : 'Проигравший ПФ4';
     }
     return 'TBD';
   }
@@ -382,10 +404,14 @@ class TournamentBracketWidget extends StatelessWidget {
 
 /// Simple bracket connector lines painter
 class _ConnectorPainter extends CustomPainter {
+  final bool isDark;
+
+  _ConnectorPainter({required this.isDark});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.15)
+      ..color = isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.12)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
@@ -413,8 +439,8 @@ String getPlayoffPlaceholderName(TournamentMatch match, bool isHome) {
   if (match.roundNumber == 1) {
     if (match.bracketPosition == 0) return isHome ? 'A1' : 'B2';
     if (match.bracketPosition == 1) return isHome ? 'B1' : 'A2';
-    if (match.bracketPosition == 2) return isHome ? 'A3' : 'B4';
-    if (match.bracketPosition == 3) return isHome ? 'B3' : 'A4';
+    if (match.bracketPosition == 2) return isHome ? 'A3' : 'B3';
+    if (match.bracketPosition == 3) return isHome ? 'A4' : 'B4';
   } else if (match.roundNumber == 2) {
     if (match.bracketPosition == 0) return isHome ? 'Победитель ПФ1' : 'Победитель ПФ2';
     if (match.bracketPosition == 1) return isHome ? 'Проигравший ПФ1' : 'Проигравший ПФ2';

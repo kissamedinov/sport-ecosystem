@@ -2806,18 +2806,16 @@ String _getMatchStageName(TournamentMatch match) {
   if (match.roundNumber == 1) {
     if (match.bracketPosition == 0 || match.bracketPosition == 1) {
       return '1/2 финала';
-    } else if (match.bracketPosition == 2 || match.bracketPosition == 3) {
-      return '1/2 за 5-8 м';
+    } else if (match.bracketPosition == 2) {
+      return 'За 5-6 место';
+    } else if (match.bracketPosition == 3) {
+      return 'За 7-8 место';
     }
   } else if (match.roundNumber == 2) {
     if (match.bracketPosition == 0) {
       return 'Финал 🏆';
     } else if (match.bracketPosition == 1) {
       return 'За 3 место 🥉';
-    } else if (match.bracketPosition == 2) {
-      return 'За 5-6 место';
-    } else if (match.bracketPosition == 3) {
-      return 'За 7-8 место';
     }
   }
   return 'Плей-офф';
