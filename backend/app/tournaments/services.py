@@ -1084,7 +1084,7 @@ def get_tournament_groups(db: Session, tournament_id: UUID):
                         "id": str(t_team.id),
                         "team_id": str(team_obj.id),
                         "name": team_obj.name,
-                        "logo_url": team_obj.logo_url
+                        "logo_url": None
                     })
         res.append({
             "id": str(g.id),
