@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:provider/provider.dart';
+import '../../providers/tournament_provider.dart';
+import '../../data/models/tournament_standing.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +32,20 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   DateTime? _selectedDate;
   bool _isSaving = false;
   final GlobalKey _repaintKey = GlobalKey();
+
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _containerBg => _isDark ? const Color(0xFF0B1519) : Colors.white;
+  Color get _itemBg => _isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.025);
+  Color get _itemBorderColor => _isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.06);
+  Color get _mainTextColor => _isDark ? Colors.white : Colors.black;
+  Color get _secondaryTextColor => _isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black.withValues(alpha: 0.7);
+  Color get _mutedTextColor => _isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.35);
+  Color get _dividerColor => _isDark ? Colors.white10 : Colors.black12;
+  Color get _shadowColor => _isDark ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.05);
+
+  Color get _dialogBg => _isDark ? const Color(0xFF122229) : Colors.white;
+  Color get _dialogTextColor => _isDark ? Colors.white : Colors.black87;
+  Color get _dialogBorder => _isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08);
 
   @override
   void initState() {
@@ -161,9 +178,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
           maxHeight: screenHeight * 0.85,
         ),
         decoration: BoxDecoration(
-          color: const Color(0xFF122229),
+          color: _dialogBg,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(color: _dialogBorder),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -175,10 +192,10 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
               children: [
                 Text(
                   'tournament.share_schedule'.tr(),
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: _dialogTextColor, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white70),
+                  icon: Icon(Icons.close, color: _dialogTextColor.withValues(alpha: 0.7)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -194,15 +211,15 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0B1519),
+                      color: _containerBg,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: _dialogBorder),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<DateTime>(
                         value: _selectedDate,
                         dropdownColor: const Color(0xFF122229),
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: _dialogTextColor, fontSize: 13, fontWeight: FontWeight.bold),
                         items: _availableDates.map((date) {
                           return DropdownMenuItem<DateTime>(
                             value: date,
@@ -232,7 +249,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0B1519),
+                      color: _containerBg,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.3), width: 1.5),
                       boxShadow: [
@@ -260,7 +277,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                         Text(
                           widget.tournament.format == 'KNOCKOUT' ? 'tournament.playoff_bracket_caps'.tr() : 'tournament.championship_group_stage_caps'.tr(),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: _secondaryTextColor.withValues(alpha: 0.5),
                             fontWeight: FontWeight.bold,
                             fontSize: 9,
                             letterSpacing: 1.5,
@@ -270,13 +287,13 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: _itemBg,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             DateFormat('dd MMMM yyyy', 'ru').format(_selectedDate!).toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: _mainTextColor,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -284,14 +301,14 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        const Divider(color: Colors.white10, height: 1),
+                        Divider(color: _dividerColor, height: 1),
                         const SizedBox(height: 20),
 
                         // Fields display
                         if (sortedFields.isEmpty)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: Text('tournament.no_matches_scheduled_day'.tr(), style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            child: Text('tournament.no_matches_scheduled_day'.tr(), style: TextStyle(color: _mutedTextColor, fontSize: 12)),
                           )
                         else if (sortedFields.length == 1)
                           // Single field vertical list
@@ -340,7 +357,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                             }).toList(),
                           ),
                         const SizedBox(height: 20),
-                        const Divider(color: Colors.white10, height: 1),
+                        Divider(color: _dividerColor, height: 1),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +367,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                             Text(
                               'SPORT ECOSYSTEM PLATFORM',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.3),
+                                color: _mutedTextColor,
                                 fontSize: 7,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.5,
@@ -405,13 +422,19 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   // 1-Field Layout Row
   Widget _buildMatchRow(TournamentMatch match) {
     final timeStr = match.matchDate != null ? DateFormat('HH:mm').format(match.matchDate!.toLocal()) : 'TBD';
+    final homePlaceholder = _getPlayoffPlaceholder(match, true);
+    final awayPlaceholder = _getPlayoffPlaceholder(match, false);
+    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : match.homeTeamName!;
+    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : match.awayTeamName!;
+    final isFinished = match.status == 'FINISHED';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: _itemBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
+        border: Border.all(color: _itemBorderColor),
       ),
       child: Row(
         children: [
@@ -419,7 +442,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withOpacity(0.1),
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -433,17 +456,27 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  _getMatchStageName(context, match).toUpperCase(),
+                  style: const TextStyle(
+                    color: PremiumTheme.neonGreen,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.shield, size: 12, color: Colors.white.withOpacity(0.4)),
+                    Icon(Icons.shield, size: 12, color: _mutedTextColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        match.homeTeamName ?? 'tournament.awaiting_winner'.tr(),
+                        homeName.toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: match.homeTeamName == null ? Colors.white24 : Colors.white70,
+                          color: match.homeTeamName == null ? _mutedTextColor.withValues(alpha: 0.5) : _secondaryTextColor,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -454,15 +487,15 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.shield_outlined, size: 12, color: Colors.white.withOpacity(0.4)),
+                    Icon(Icons.shield_outlined, size: 12, color: _mutedTextColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        match.awayTeamName ?? 'tournament.awaiting_winner'.tr(),
+                        awayName.toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: match.awayTeamName == null ? Colors.white24 : Colors.white70,
+                          color: match.awayTeamName == null ? _mutedTextColor.withValues(alpha: 0.5) : _secondaryTextColor,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -473,6 +506,30 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
               ],
             ),
           ),
+          const SizedBox(width: 12),
+          // Scores column
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                isFinished ? '${match.homeScore}' : '-',
+                style: TextStyle(
+                  color: isFinished ? PremiumTheme.neonGreen : _secondaryTextColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isFinished ? '${match.awayScore}' : '-',
+                style: TextStyle(
+                  color: isFinished ? PremiumTheme.neonGreen : _secondaryTextColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -481,14 +538,20 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   // Multi-Field Layout Card
   Widget _buildCompactMatchCard(TournamentMatch match) {
     final timeStr = match.matchDate != null ? DateFormat('HH:mm').format(match.matchDate!.toLocal()) : 'TBD';
+    final homePlaceholder = _getPlayoffPlaceholder(match, true);
+    final awayPlaceholder = _getPlayoffPlaceholder(match, false);
+    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : match.homeTeamName!;
+    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : match.awayTeamName!;
+    final isFinished = match.status == 'FINISHED';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       width: double.infinity,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: _itemBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
+        border: Border.all(color: _itemBorderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -498,33 +561,47 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             timeStr,
             style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.bold, fontSize: 10),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 2),
+          Text(
+            _getMatchStageName(context, match).toUpperCase(),
+            style: TextStyle(
+              color: _mutedTextColor.withValues(alpha: 0.6),
+              fontSize: 7,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
           // Home
           Text(
-            match.homeTeamName ?? 'TBD',
+            homeName.toUpperCase(),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: match.homeTeamName == null ? Colors.white24 : Colors.white70,
+              color: match.homeTeamName == null ? _mutedTextColor.withValues(alpha: 0.5) : _secondaryTextColor,
               fontSize: 9,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 2),
           Text(
-            'vs',
-            style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 7, fontStyle: FontStyle.italic),
+            isFinished ? '${match.homeScore} : ${match.awayScore}' : 'vs',
+            style: TextStyle(
+              color: isFinished ? PremiumTheme.neonGreen : _mutedTextColor,
+              fontSize: isFinished ? 9 : 7,
+              fontWeight: isFinished ? FontWeight.bold : FontWeight.normal,
+              fontStyle: isFinished ? FontStyle.normal : FontStyle.italic,
+            ),
           ),
           const SizedBox(height: 2),
           // Away
           Text(
-            match.awayTeamName ?? 'TBD',
+            awayName.toUpperCase(),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: match.awayTeamName == null ? Colors.white24 : Colors.white70,
+              color: match.awayTeamName == null ? _mutedTextColor.withValues(alpha: 0.5) : _secondaryTextColor,
               fontSize: 9,
               fontWeight: FontWeight.bold,
             ),
@@ -532,5 +609,71 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
         ],
       ),
     );
+  }
+  String _getPlayoffPlaceholder(TournamentMatch match, bool isHome) {
+    if (match.groupId != null) return 'Awaiting';
+    if (match.roundNumber == 1) {
+      if (match.bracketPosition == 0) {
+        return isHome ? "A1" : "B2";
+      } else if (match.bracketPosition == 1) {
+        return isHome ? "B1" : "A2";
+      } else if (match.bracketPosition == 2) {
+        return isHome ? "A3" : "B3";
+      } else if (match.bracketPosition == 3) {
+        return isHome ? "A4" : "B4";
+      }
+    } else if (match.roundNumber == 2) {
+      if (match.bracketPosition == 0) {
+        return isHome ? "Победитель ПФ1" : "Победитель ПФ2";
+      } else if (match.bracketPosition == 1) {
+        return isHome ? "Проигравший ПФ1" : "Проигравший ПФ2";
+      }
+    }
+    return 'Awaiting';
+  }
+  String _getMatchStageName(BuildContext context, TournamentMatch match) {
+    if (match.groupId != null) {
+      final provider = context.read<TournamentProvider>();
+      TournamentStanding? standing;
+      for (var s in provider.standings) {
+        if (s.groupId == match.groupId) {
+          standing = s;
+          break;
+        }
+      }
+      // Extract just the letter/short label, not the full name (avoids "ГРУППА ГРУППА")
+      String groupLabel = 'А';
+      if (standing != null && standing.groupName != null) {
+        final gn = standing.groupName!.trim();
+        // If the name is long (UUID-like), take last character or split
+        if (gn.length > 6) {
+          groupLabel = gn.split('-').last.toUpperCase();
+          if (groupLabel.length > 3) groupLabel = groupLabel.substring(0, 1);
+        } else {
+          // Short name — take the last word
+          final parts = gn.split(RegExp(r'\s+'));
+          groupLabel = parts.last.toUpperCase();
+        }
+      }
+      return 'Группа $groupLabel';
+    }
+    if (match.roundNumber == 1) {
+      if (match.bracketPosition == 0 || match.bracketPosition == 1) {
+        return '1/2 финала';
+      } else if (match.bracketPosition == 2 || match.bracketPosition == 3) {
+        return '1/2 за 5-8 м';
+      }
+    } else if (match.roundNumber == 2) {
+      if (match.bracketPosition == 0) {
+        return 'Финал 🏆';
+      } else if (match.bracketPosition == 1) {
+        return 'За 3 место 🥉';
+      } else if (match.bracketPosition == 2) {
+        return 'За 5-6 место';
+      } else if (match.bracketPosition == 3) {
+        return 'За 7-8 место';
+      }
+    }
+    return 'Плей-офф';
   }
 }

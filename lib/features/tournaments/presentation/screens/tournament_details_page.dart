@@ -39,6 +39,7 @@ class TournamentDetailsPage extends StatefulWidget {
 }
 
 class _TournamentDetailsPageState extends State<TournamentDetailsPage> with SingleTickerProviderStateMixin {
+  static final Map<String, String> _groupLettersMap = {};
   late TabController _tabController;
   bool _showBracketView = true;
   String? _selectedStandingsDivisionId;
@@ -718,7 +719,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
     final hasDraft = matches.any((m) => m.status == 'DRAFT');
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
     final tournament = provider.selectedTournament;
-    final isKnockout = tournament?.format == 'KNOCKOUT';
+    final isKnockout = tournament?.format == 'KNOCKOUT' || tournament?.format == 'GROUP_STAGE';
 
     return Column(
       children: [
@@ -769,7 +770,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
         else if (isKnockout && _showBracketView)
           Expanded(
             child: TournamentBracketWidget(
-              matches: matches,
+              matches: matches.where((m) => m.groupId == null).toList(),
               tournamentId: widget.tournamentId,
             ),
           )
@@ -949,7 +950,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   return ListTile(
                     leading: Icon(Icons.group, color: cs.onSurface.withValues(alpha: 0.4)),
                     title: Text(team.teamName ?? 'Team', style: TextStyle(color: cs.onSurface, fontSize: 14)),
-                    subtitle: Text('tournament.current_group'.tr(namedArgs: {'group': team.groupId?.toString().split("-").last.toUpperCase() ?? "A"}), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
+                    subtitle: Text('tournament.current_group'.tr(namedArgs: {'group': _cleanGroupName(team.groupName, team.groupId)}), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
                     onTap: () async {
                       Navigator.pop(context);
                       final success = await provider.swapTeams(widget.tournamentId, teamToSwap.teamId, team.teamId);
@@ -1051,6 +1052,22 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       dateStr,
                       style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.bold),
                     ),
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: cs.onSurface.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        _getMatchStageName(match).toUpperCase(),
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.5),
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 if (match.status == 'finished' || match.status == 'FINISHED')
@@ -1135,7 +1152,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              (match.homeTeamName ?? 'Home Team').toUpperCase(),
+                              ((match.homeTeamName == null || match.homeTeamName == 'Home Team') ? _getPlayoffPlaceholderName(match, true) : match.homeTeamName!).toUpperCase(),
                               style: TextStyle(
                                 color: memberTeam?.teamId == match.homeTeamId ? PremiumTheme.accent(context) : cs.onSurface,
                                 fontSize: 13,
@@ -1163,7 +1180,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              (match.awayTeamName ?? 'Away Team').toUpperCase(),
+                              ((match.awayTeamName == null || match.awayTeamName == 'Away Team') ? _getPlayoffPlaceholderName(match, false) : match.awayTeamName!).toUpperCase(),
                               style: TextStyle(
                                 color: memberTeam?.teamId == match.awayTeamId ? PremiumTheme.accent(context) : cs.onSurface,
                                 fontSize: 13,
@@ -1375,36 +1392,63 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           if (isGroupStage) {
             final groupedStandings = <String?, List<TournamentStanding>>{};
             for (var s in filteredStandings) {
-              groupedStandings.putIfAbsent(s.groupId, () => []).add(s);
+              final key = s.groupName ?? s.groupId;
+              groupedStandings.putIfAbsent(key, () => []).add(s);
+            }
+
+            final sortedGroupKeys = groupedStandings.keys.toList()..sort((a, b) => (a ?? '').compareTo(b ?? ''));
+            _groupLettersMap.clear();
+            for (int i = 0; i < sortedGroupKeys.length; i++) {
+              final key = sortedGroupKeys[i];
+              if (key != null) {
+                _groupLettersMap[key] = String.fromCharCode(65 + i);
+              }
             }
 
             return Column(
-              children: groupedStandings.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle('tournament.group_prefix'.tr(namedArgs: {'group': entry.key?.toString().split("-").last.toUpperCase() ?? "A"}), Icons.grid_view),
-                    const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: PremiumTheme.surfaceCard(context),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...sortedGroupKeys.asMap().entries.map((entry) {
+                  final groupKey = entry.value;
+                  final groupLetter = _groupLettersMap[groupKey] ?? 'A';
+                  final standingsList = groupedStandings[groupKey]!;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle('tournament.group_prefix'.tr(namedArgs: {'group': groupLetter}), Icons.grid_view),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: PremiumTheme.surfaceCard(context),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildStandingsHeader(),
+                            const Divider(height: 1, thickness: 1),
+                            ...standingsList.asMap().entries.map((item) {
+                              return _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT'));
+                            }),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          _buildStandingsHeader(),
-                          const Divider(height: 1, thickness: 1),
-                          ...entry.value.asMap().entries.map((item) {
-                            return _buildStandingsRow(item.key + 1, item.value, canSwap: _isOrganizer && provider.matches.any((m) => m.status == 'DRAFT'));
-                          }),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                );
-              }).toList(),
+                      const SizedBox(height: 24),
+                    ],
+                  );
+                }).toList(),
+                const SizedBox(height: 16),
+                _buildSectionTitle('tournament.playoff_bracket'.tr(), Icons.account_tree_outlined),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 440,
+                  child: TournamentBracketWidget(
+                    matches: provider.matches.where((m) => m.groupId == null).toList(),
+                    tournamentId: widget.tournamentId,
+                  ),
+                ),
+              ],
             );
           }
 
@@ -2706,4 +2750,75 @@ class _DirectAddTeamBottomSheetState extends State<_DirectAddTeamBottomSheet> {
       ),
     );
   }
+}
+
+String _cleanGroupName(String? groupName, String? groupId) {
+  if (groupId != null && _TournamentDetailsPageState._groupLettersMap.containsKey(groupId)) {
+    return _TournamentDetailsPageState._groupLettersMap[groupId]!;
+  }
+  if (groupName != null && _TournamentDetailsPageState._groupLettersMap.containsKey(groupName)) {
+    return _TournamentDetailsPageState._groupLettersMap[groupName]!;
+  }
+  final name = groupName ?? groupId;
+  if (name == null) return "A";
+  final upper = name.toUpperCase();
+  if (upper.startsWith("GROUP") || upper.startsWith("ГРУППА")) {
+    final parts = name.split(" ");
+    if (parts.length > 1) {
+      final letter = parts.last.toUpperCase();
+      if (letter == "A" || letter == "А") return "A";
+      if (letter == "B" || letter == "Б") return "B";
+      return letter;
+    }
+  }
+  if (name.length > 8) {
+    return name.split("-").last.toUpperCase();
+  }
+  return name.toUpperCase();
+}
+
+String _getPlayoffPlaceholderName(TournamentMatch match, bool isHome) {
+  if (match.roundNumber == 1) {
+    if (match.bracketPosition == 0) {
+      return isHome ? "A1" : "B2";
+    } else if (match.bracketPosition == 1) {
+      return isHome ? "B1" : "A2";
+    } else if (match.bracketPosition == 2) {
+      return isHome ? "A3" : "B3";
+    } else if (match.bracketPosition == 3) {
+      return isHome ? "A4" : "B4";
+    }
+  } else if (match.roundNumber == 2) {
+    if (match.bracketPosition == 0) {
+      return isHome ? "Победитель ПФ1" : "Победитель ПФ2";
+    } else if (match.bracketPosition == 1) {
+      return isHome ? "Проигравший ПФ1" : "Проигравший ПФ2";
+    }
+  }
+  return 'tournament.awaiting_winner'.tr();
+}
+
+String _getMatchStageName(TournamentMatch match) {
+  if (match.groupId != null) {
+    final letter = _cleanGroupName(null, match.groupId);
+    return 'Группа $letter';
+  }
+  if (match.roundNumber == 1) {
+    if (match.bracketPosition == 0 || match.bracketPosition == 1) {
+      return '1/2 финала';
+    } else if (match.bracketPosition == 2 || match.bracketPosition == 3) {
+      return '1/2 за 5-8 м';
+    }
+  } else if (match.roundNumber == 2) {
+    if (match.bracketPosition == 0) {
+      return 'Финал 🏆';
+    } else if (match.bracketPosition == 1) {
+      return 'За 3 место 🥉';
+    } else if (match.bracketPosition == 2) {
+      return 'За 5-6 место';
+    } else if (match.bracketPosition == 3) {
+      return 'За 7-8 место';
+    }
+  }
+  return 'Плей-офф';
 }
