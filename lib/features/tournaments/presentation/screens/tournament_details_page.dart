@@ -22,6 +22,7 @@ import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../widgets/tournament_bracket_widget.dart';
 import '../widgets/shareable_schedule_dialog.dart';
 import 'match_center_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TournamentDetailsPage extends StatefulWidget {
   final String tournamentId;
@@ -1848,22 +1849,46 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             )),
 
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               _buildSectionTitle('tournament.registered_teams'.tr(), Icons.check_circle_outline),
-              ElevatedButton.icon(
-                onPressed: () => _showDirectAddTeamDialog(context, provider),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.15),
-                  foregroundColor: PremiumTheme.neonGreen,
-                  elevation: 0,
-                  minimumSize: const Size(0, 32),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                icon: const Icon(Icons.add, size: 14),
-                label: Text('tournament.add_team_directly'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (provider.selectedTournament?.format == 'GROUP_STAGE') ...[
+                    ElevatedButton.icon(
+                      onPressed: () => _showGroupDrawDialog(context, provider, approved),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber.withValues(alpha: 0.15),
+                        foregroundColor: Colors.amber,
+                        elevation: 0,
+                        minimumSize: const Size(0, 32),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.shuffle, size: 14),
+                      label: Text('tournament.group_draw'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  ElevatedButton.icon(
+                    onPressed: () => _showDirectAddTeamDialog(context, provider),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                      foregroundColor: PremiumTheme.neonGreen,
+                      elevation: 0,
+                      minimumSize: const Size(0, 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    icon: const Icon(Icons.add, size: 14),
+                    label: Text('tournament.add_team_directly'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -1975,6 +2000,208 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  void _showGroupDrawDialog(BuildContext context, TournamentProvider provider, List<TournamentTeamResponse> approvedTeams) {
+    final cs = Theme.of(context).colorScheme;
+    
+    final Map<String, String> teamGroups = {};
+    for (var reg in approvedTeams) {
+      teamGroups[reg.teamId] = 'Group A';
+    }
+
+    final Map<String, String> groupIdToName = {};
+    final uniqueGroupIds = provider.standings.map((s) => s.groupId).whereType<String>().toSet();
+    int grpIdx = 0;
+    for (var gId in uniqueGroupIds) {
+      groupIdToName[gId] = grpIdx == 0 ? 'Group A' : 'Group B';
+      grpIdx++;
+    }
+    
+    for (var reg in approvedTeams) {
+      final standing = provider.standings.firstWhere((s) => s.teamId == reg.teamId, orElse: () => TournamentStanding(
+        teamId: reg.teamId,
+        played: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0, goalDifference: 0, points: 0
+      ));
+      if (standing.groupId != null && groupIdToName.containsKey(standing.groupId)) {
+        teamGroups[reg.teamId] = groupIdToName[standing.groupId]!;
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: PremiumTheme.surfaceBase(context),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            void runAIDraw() {
+              final list = List<TournamentTeamResponse>.from(approvedTeams);
+              list.shuffle();
+              for (int i = 0; i < list.length; i++) {
+                final groupName = i < (list.length / 2) ? 'Group A' : 'Group B';
+                teamGroups[list[i].teamId] = groupName;
+              }
+              setDialogState(() {});
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                left: 20,
+                right: 20,
+                top: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.shuffle, color: PremiumTheme.neonGreen),
+                          const SizedBox(width: 12),
+                          Text(
+                            'tournament.group_draw'.tr(),
+                            style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: cs.onSurface),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: runAIDraw,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                          foregroundColor: PremiumTheme.neonGreen,
+                          elevation: 0,
+                          minimumSize: const Size(0, 32),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        icon: const Icon(Icons.auto_awesome, size: 14),
+                        label: Text('tournament.generate_with_ai'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Распределите команды по группам вручную или нажмите ИИ Жеребьевку:',
+                    style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5), fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: approvedTeams.length,
+                      itemBuilder: (context, idx) {
+                        final reg = approvedTeams[idx];
+                        final currentGroup = teamGroups[reg.teamId] ?? 'Group A';
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: PremiumTheme.surfaceCard(context),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  reg.team.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  ChoiceChip(
+                                    label: const Text('Группа А'),
+                                    selected: currentGroup == 'Group A',
+                                    selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                                    onSelected: (val) {
+                                      if (val) {
+                                        setDialogState(() {
+                                          teamGroups[reg.teamId] = 'Group A';
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ChoiceChip(
+                                    label: const Text('Группа B'),
+                                    selected: currentGroup == 'Group B',
+                                    selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                                    onSelected: (val) {
+                                      if (val) {
+                                        setDialogState(() {
+                                          teamGroups[reg.teamId] = 'Group B';
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            side: BorderSide(color: cs.onSurface.withValues(alpha: 0.1)),
+                          ),
+                          child: Text('common.cancel'.tr()),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final Map<String, List<String>> assignments = {
+                              'Group A': [],
+                              'Group B': [],
+                            };
+                            teamGroups.forEach((teamId, groupName) {
+                              assignments[groupName]?.add(teamId);
+                            });
+                            
+                            final success = await provider.drawGroups(widget.tournamentId, 2, assignments);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(success ? 'Жеребьевка успешно утверждена!' : 'Ошибка жеребьевки')),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: PremiumTheme.neonGreen,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text('tournament.approve_btn'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

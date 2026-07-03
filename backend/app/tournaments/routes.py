@@ -144,6 +144,19 @@ def generate_playoffs(id: UUID, db: Session = Depends(get_db), current_user: Use
 def finalize_schedule(id: UUID, db: Session = Depends(get_db), current_user: User = Depends(require_tournament_organizer)):
     return services.finalize_tournament_schedule(db, id)
 
+@router.get("/{id}/groups")
+def get_groups(id: UUID, db: Session = Depends(get_db)):
+    return services.get_tournament_groups(db, id)
+
+@router.post("/{id}/groups/draw")
+def draw_groups(
+    id: UUID, 
+    req: schemas.GroupDrawRequest, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.draw_tournament_groups(db, id, req.num_groups, req.assignments)
+
 @router.post("/{id}/swap-teams")
 def swap_teams(
     id: UUID,

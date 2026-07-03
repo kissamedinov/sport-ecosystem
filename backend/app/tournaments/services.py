@@ -794,28 +794,41 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
     num_fields = len(field_ids) if field_ids else tournament.num_fields
     if num_fields < 1: num_fields = 1
 
-    # Randomize seeding
-    random.shuffle(approved_teams)
-    
-    num_groups = max(1, num_teams // teams_per_group)
-    groups = []
-    import string
-    for i in range(num_groups):
-        group_name = f"Group {string.ascii_uppercase[i % 26]}"
-        new_group = TournamentGroup(tournament_id=tournament_id, name=group_name)
-        db.add(new_group)
-        groups.append(new_group)
-    
-    db.flush()
-    
-    group_teams = {g.id: [] for g in groups}
-    for i, team in enumerate(approved_teams):
-        group = groups[i % num_groups]
-        new_gt = TournamentGroupTeam(group_id=group.id, tournament_team_id=team.id)
-        db.add(new_gt)
-        group_teams[group.id].append(team)
+    # Check if groups already exist for this tournament
+    existing_groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
+    if existing_groups:
+        groups = existing_groups
+        group_teams = {}
+        for g in groups:
+            group_teams[g.id] = []
+            gt_entries = db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id == g.id).all()
+            for gt in gt_entries:
+                t = db.query(TournamentTeam).filter(TournamentTeam.id == gt.tournament_team_id).first()
+                if t:
+                    group_teams[g.id].append(t)
+    else:
+        # Randomize seeding
+        random.shuffle(approved_teams)
         
-    db.flush()
+        num_groups = max(1, num_teams // teams_per_group)
+        groups = []
+        import string
+        for i in range(num_groups):
+            group_name = f"Group {string.ascii_uppercase[i % 26]}"
+            new_group = TournamentGroup(tournament_id=tournament_id, name=group_name)
+            db.add(new_group)
+            groups.append(new_group)
+        
+        db.flush()
+        
+        group_teams = {g.id: [] for g in groups}
+        for i, team in enumerate(approved_teams):
+            group = groups[i % num_groups]
+            new_gt = TournamentGroupTeam(group_id=group.id, tournament_team_id=team.id)
+            db.add(new_gt)
+            group_teams[group.id].append(team)
+            
+        db.flush()
     
     # Pre-fetch preferences for all approved teams
     team_prefs = {}
@@ -859,8 +872,23 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
     # Merge group stage rounds to parallelize matches and prevent team overlaps
     max_rounds = max(len(rounds_of_group[g_id]) for g_id in group_teams.keys())
     slot_index = 0
+    base_start_time = tournament.start_time or tournament.start_date
+    if isinstance(base_start_time, str):
+        base_start_time = datetime.fromisoformat(base_start_time)
     
     for r in range(max_rounds):
+        # Cadence override: Round 3 (r = 2) must be scheduled on the second day (Day 2)
+        if r == 2:
+            current_time = base_start_time + timedelta(days=1)
+            if tournament.start_time:
+                current_time = datetime.combine(current_time.date(), tournament.start_time.time())
+            slot_index = 0
+        elif r == 0:
+            current_time = base_start_time
+            if tournament.start_time:
+                current_time = datetime.combine(current_time.date(), tournament.start_time.time())
+            slot_index = 0
+
         round_fixtures = []
         for g_id in group_teams.keys():
             if r < len(rounds_of_group[g_id]):
@@ -1037,6 +1065,87 @@ def swap_teams_in_groups(db: Session, tournament_id: UUID, team_a_id: UUID, team
                 
     db.commit()
     return {"message": "Teams swapped successfully and group matches recalculated."}
+
+def get_tournament_groups(db: Session, tournament_id: UUID):
+    from app.tournaments.models import TournamentGroup, TournamentGroupTeam, TournamentTeam
+    from app.teams.models import Team
+    
+    groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
+    res = []
+    for g in groups:
+        teams_res = []
+        gt_list = db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id == g.id).all()
+        for gt in gt_list:
+            t_team = db.query(TournamentTeam).filter(TournamentTeam.id == gt.tournament_team_id).first()
+            if t_team:
+                team_obj = db.query(Team).filter(Team.id == t_team.team_id).first()
+                if team_obj:
+                    teams_res.append({
+                        "id": str(t_team.id),
+                        "team_id": str(team_obj.id),
+                        "name": team_obj.name,
+                        "logo_url": team_obj.logo_url
+                    })
+        res.append({
+            "id": str(g.id),
+            "name": g.name,
+            "teams": teams_res
+        })
+    return res
+
+def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, assignments: dict):
+    from app.tournaments.models import TournamentGroup, TournamentGroupTeam, TournamentTeam
+    import string
+    
+    # 1. Clean existing groups
+    groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
+    group_ids = [g.id for g in groups]
+    if group_ids:
+        db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id.in_(group_ids)).delete(synchronize_session=False)
+        db.query(TournamentGroup).filter(TournamentGroup.id.in_(group_ids)).delete(synchronize_session=False)
+        db.commit()
+        
+    # 2. Get approved teams
+    approved_teams = db.query(TournamentTeam).filter(
+        TournamentTeam.tournament_id == tournament_id,
+        TournamentTeam.status == RegistrationStatus.APPROVED
+    ).all()
+    
+    if not approved_teams:
+        raise HTTPException(status_code=400, detail="No approved teams in this tournament to draw")
+        
+    # 3. Create Groups
+    created_groups = {}
+    for i in range(num_groups):
+        g_name = f"Group {string.ascii_uppercase[i % 26]}"
+        g_obj = TournamentGroup(tournament_id=tournament_id, name=g_name)
+        db.add(g_obj)
+        db.flush()
+        created_groups[g_name] = g_obj
+        
+    # 4. If assignments are not provided, distribute using AI/Smart Draw
+    if not assignments:
+        import random
+        shuffled = list(approved_teams)
+        random.shuffle(shuffled)
+        for idx, team in enumerate(shuffled):
+            g_name = f"Group {string.ascii_uppercase[(idx % num_groups) % 26]}"
+            g_obj = created_groups[g_name]
+            db.add(TournamentGroupTeam(group_id=g_obj.id, tournament_team_id=team.id))
+    else:
+        # Map of team_id -> TournamentTeam
+        team_map = {str(t.team_id): t for t in approved_teams}
+        for g_name, team_ids in assignments.items():
+            g_obj = created_groups.get(g_name)
+            if not g_obj:
+                continue
+            for t_id in team_ids:
+                team_reg = team_map.get(str(t_id))
+                if team_reg:
+                    db.add(TournamentGroupTeam(group_id=g_obj.id, tournament_team_id=team_reg.id))
+                    
+    db.commit()
+    return get_tournament_groups(db, tournament_id)
 
 def update_match_result(db: Session, match_id: UUID, home_score: int, away_score: int):
     match = db.query(Match).filter(Match.id == match_id).first()
@@ -1627,16 +1736,10 @@ def generate_playoffs_from_groups(db: Session, tournament_id: UUID):
     B1_id = group_standings[group_b_id][0]
     B2_id = group_standings[group_b_id][1]
     
-    # Calculate start time for playoffs: 1 day after the last group match
-    last_match_date = max(m.match_date for m in group_matches if m.match_date is not None)
-    playoff_start_date = last_match_date + timedelta(days=1)
-    # Reset to default tournament start hour if available
-    if tournament.start_time:
-        playoff_start_date = datetime.combine(playoff_start_date.date(), tournament.start_time.time())
-    else:
-        playoff_start_date = datetime.combine(playoff_start_date.date(), datetime.min.time() + timedelta(hours=9)) # 9:00 AM
-        
+    # Calculate start time for playoffs: same day afternoon
     match_duration = (tournament.match_half_duration * 2) + tournament.halftime_break_duration + tournament.break_between_matches
+    last_match_date = max(m.match_date for m in group_matches if m.match_date is not None)
+    playoff_start_date = last_match_date + timedelta(minutes=match_duration + 30)
     
     # Fields config
     field_ids = []
@@ -1702,12 +1805,8 @@ def generate_playoffs_from_groups(db: Session, tournament_id: UUID):
         next_match_id=final_id
     )
     
-    # Final and 3rd place: next day
-    final_date = playoff_start_date + timedelta(days=1)
-    if tournament.start_time:
-        final_date = datetime.combine(final_date.date(), tournament.start_time.time())
-    else:
-        final_date = datetime.combine(final_date.date(), datetime.min.time() + timedelta(hours=10)) # 10:00 AM
+    # Final and 3rd place: same day, 30 mins after Semifinals finish
+    final_date = playoff_start_date + timedelta(minutes=match_duration + 30)
         
     final_match = Match(
         id=final_id,

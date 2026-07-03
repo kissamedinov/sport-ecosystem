@@ -257,6 +257,20 @@ class TournamentProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> drawGroups(String tournamentId, int numGroups, Map<String, List<String>> assignments) async {
+    _setLoading(true);
+    try {
+      await _repository.drawGroups(tournamentId, numGroups, assignments);
+      await fetchTournamentStandings(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
   Future<void> fetchTournamentTeams(String tournamentId) async {
     _setLoading(true);
     try {

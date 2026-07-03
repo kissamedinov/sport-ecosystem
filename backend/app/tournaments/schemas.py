@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, computed_field
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import date, datetime
 from uuid import UUID
 from app.tournaments.models import TournamentFormat, AgeCategory, RegistrationStatus, SurfaceType, Season
@@ -102,6 +102,10 @@ class TournamentGroupResponse(BaseModel):
     teams: List[TournamentGroupTeamResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+class GroupDrawRequest(BaseModel):
+    num_groups: int = 2
+    assignments: Dict[str, List[UUID]] = {} # Group name -> list of team_ids
 
 class TournamentStandingsResponse(BaseModel):
     team_id: UUID

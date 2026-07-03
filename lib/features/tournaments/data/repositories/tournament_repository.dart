@@ -145,4 +145,16 @@ class TournamentRepository {
     final response = await _apiClient.patch('/tournaments/matches/$matchId', data: details);
     return TournamentMatch.fromJson(response.data);
   }
+
+  Future<void> drawGroups(String tournamentId, int numGroups, Map<String, List<String>> assignments) async {
+    await _apiClient.post('/tournaments/$tournamentId/groups/draw', data: {
+      'num_groups': numGroups,
+      'assignments': assignments,
+    });
+  }
+
+  Future<List<dynamic>> getGroups(String tournamentId) async {
+    final response = await _apiClient.get('/tournaments/$tournamentId/groups');
+    return response.data as List<dynamic>;
+  }
 }
