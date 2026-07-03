@@ -1,7 +1,4 @@
 import 'dart:io';
-import 'package:provider/provider.dart';
-import '../../providers/tournament_provider.dart';
-import '../../data/models/tournament_standing.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +43,23 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   Color get _dialogBg => _isDark ? const Color(0xFF122229) : Colors.white;
   Color get _dialogTextColor => _isDark ? Colors.white : Colors.black87;
   Color get _dialogBorder => _isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08);
+
+  /// Build a UUID→letter map from sorted unique group IDs in the matches list.
+  /// This exactly mirrors the logic in tournament_details_page.dart so letters are consistent.
+  Map<String, String> get _groupLetterMap {
+    final groupIds = widget.matches
+        .where((m) => m.groupId != null)
+        .map((m) => m.groupId!)
+        .toSet()
+        .toList()
+      ..sort();
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    final map = <String, String>{};
+    for (int i = 0; i < groupIds.length; i++) {
+      map[groupIds[i]] = letters[i < letters.length ? i : i % letters.length];
+    }
+    return map;
+  }
 
   @override
   void initState() {
@@ -633,29 +647,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   }
   String _getMatchStageName(BuildContext context, TournamentMatch match) {
     if (match.groupId != null) {
-      final provider = context.read<TournamentProvider>();
-      TournamentStanding? standing;
-      for (var s in provider.standings) {
-        if (s.groupId == match.groupId) {
-          standing = s;
-          break;
-        }
-      }
-      // Extract just the letter/short label, not the full name (avoids "ГРУППА ГРУППА")
-      String groupLabel = 'А';
-      if (standing != null && standing.groupName != null) {
-        final gn = standing.groupName!.trim();
-        // If the name is long (UUID-like), take last character or split
-        if (gn.length > 6) {
-          groupLabel = gn.split('-').last.toUpperCase();
-          if (groupLabel.length > 3) groupLabel = groupLabel.substring(0, 1);
-        } else {
-          // Short name — take the last word
-          final parts = gn.split(RegExp(r'\s+'));
-          groupLabel = parts.last.toUpperCase();
-        }
-      }
-      return 'Группа $groupLabel';
+      // Use the precomputed UUID→letter map (A, B, C...) built from sorted group IDs
+      final letter = _groupLetterMap[match.groupId] ?? 'A';
+      return 'Группа $letter';
     }
     if (match.roundNumber == 1) {
       if (match.bracketPosition == 0 || match.bracketPosition == 1) {
