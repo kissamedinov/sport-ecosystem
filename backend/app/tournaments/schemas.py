@@ -121,6 +121,7 @@ class TournamentStandingsResponse(BaseModel):
     goal_difference: int
     points: int
     group_id: Optional[UUID] = None
+    group_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -140,11 +141,15 @@ class TournamentMatchResponse(BaseModel):
     home_team_id: Optional[UUID] = None
     away_team_id: Optional[UUID] = None
     field_id: Optional[UUID] = None
+    field_name: Optional[str] = None
     match_date: Optional[datetime] = None
     status: TournamentMatchStatus = TournamentMatchStatus.SCHEDULED
     group_id: Optional[UUID] = None
     home_team_name: Optional[str] = None
     away_team_name: Optional[str] = None
+    round_number: Optional[int] = None
+    bracket_position: Optional[int] = None
+    next_match_id: Optional[UUID] = None
     
     # We'll use this to fetch scores from the nested result object
     result: Optional[MatchResultResponse] = None 

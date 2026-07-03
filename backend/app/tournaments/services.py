@@ -852,6 +852,7 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
         team_prefs[team.team_id] = get_team_time_preference(db, tournament_id, team.team_id)
         
     match_count = 0
+    all_match_starts = []
     # Timing config
     current_time = tournament.start_time or tournament.start_date
     if isinstance(current_time, str):
@@ -940,6 +941,7 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
                 "field_uuid": field_uuid,
                 "match_start": match_start
             })
+            all_match_starts.append(match_start)
             slot_index += 1
             
         # Map round_fixtures to slots_def respecting preferences
@@ -984,6 +986,120 @@ def generate_group_stage_schedule(db: Session, tournament_id: UUID, teams_per_gr
         # Pad slot_index to next clean multiple of num_fields for next round
         if slot_index % num_fields != 0:
             slot_index = ((slot_index // num_fields) + 1) * num_fields
+            
+    # Pre-create Playoff matches (Semis, Finals, Placements) if exactly 2 groups
+    if num_groups == 2:
+        import uuid
+        max_match_time = max(all_match_starts) if all_match_starts else current_time
+        playoff_start_date = max_match_time + timedelta(minutes=match_duration + 30)
+        
+        sf1_id = uuid.uuid4()
+        sf2_id = uuid.uuid4()
+        final_id = uuid.uuid4()
+        third_place_id = uuid.uuid4()
+        
+        sf1_field = uuid.UUID(field_ids[0]) if field_ids else None
+        sf2_field = uuid.UUID(field_ids[1 % num_fields]) if field_ids else None
+        
+        sf1_time = playoff_start_date
+        if num_fields > 1:
+            sf2_time = playoff_start_date
+        else:
+            sf2_time = playoff_start_date + timedelta(minutes=match_duration)
+            
+        division_id = approved_teams[0].division_id if approved_teams else None
+        
+        # SF 1: A1 vs B2
+        sf1 = Match(
+            id=sf1_id,
+            tournament_id=tournament_id,
+            division_id=division_id,
+            home_team_id=None,
+            away_team_id=None,
+            match_date=sf1_time,
+            field_id=sf1_field,
+            status=MatchStatus.DRAFT,
+            round_number=1,
+            bracket_position=0,
+            next_match_id=final_id
+        )
+        
+        # SF 2: B1 vs A2
+        sf2 = Match(
+            id=sf2_id,
+            tournament_id=tournament_id,
+            division_id=division_id,
+            home_team_id=None,
+            away_team_id=None,
+            match_date=sf2_time,
+            field_id=sf2_field,
+            status=MatchStatus.DRAFT,
+            round_number=1,
+            bracket_position=1,
+            next_match_id=final_id
+        )
+        
+        # Final and 3rd place: same day, 30 mins after Semifinals finish
+        final_date = playoff_start_date + timedelta(minutes=match_duration + 30)
+        
+        final_match = Match(
+            id=final_id,
+            tournament_id=tournament_id,
+            division_id=division_id,
+            home_team_id=None,
+            away_team_id=None,
+            match_date=final_date + timedelta(minutes=match_duration),
+            field_id=sf1_field,
+            status=MatchStatus.DRAFT,
+            round_number=2,
+            bracket_position=0
+        )
+        
+        third_place_match = Match(
+            id=third_place_id,
+            tournament_id=tournament_id,
+            division_id=division_id,
+            home_team_id=None,
+            away_team_id=None,
+            match_date=final_date,
+            field_id=sf1_field,
+            status=MatchStatus.DRAFT,
+            round_number=2,
+            bracket_position=1
+        )
+        
+        db.add_all([sf1, sf2, final_match, third_place_match])
+        
+        # Consolation/placement matches
+        if num_teams >= 6:
+            m5 = Match(
+                id=uuid.uuid4(),
+                tournament_id=tournament_id,
+                division_id=division_id,
+                home_team_id=None,
+                away_team_id=None,
+                match_date=sf1_time,
+                field_id=uuid.UUID(field_ids[2 % num_fields]) if num_fields > 2 and field_ids else sf1_field,
+                status=MatchStatus.DRAFT,
+                round_number=1,
+                bracket_position=2
+            )
+            db.add(m5)
+            
+        if num_teams >= 8:
+            m7 = Match(
+                id=uuid.uuid4(),
+                tournament_id=tournament_id,
+                division_id=division_id,
+                home_team_id=None,
+                away_team_id=None,
+                match_date=sf2_time,
+                field_id=uuid.UUID(field_ids[3 % num_fields]) if num_fields > 3 and field_ids else sf2_field,
+                status=MatchStatus.DRAFT,
+                round_number=1,
+                bracket_position=3
+            )
+            db.add(m7)
             
     db.commit()
     
@@ -1375,6 +1491,9 @@ def get_tournament_matches(db: Session, tournament_id: UUID):
         home_team = db.query(Team).filter(Team.id == m.home_team_id).first() if m.home_team_id else None
         away_team = db.query(Team).filter(Team.id == m.away_team_id).first() if m.away_team_id else None
         
+        # Fetch field name if available
+        from app.fields.models import Field
+        field = db.query(Field).filter(Field.id == m.field_id).first() if m.field_id else None
         # Convert to dict and add names
         match_dict = {
             "id": m.id,
@@ -1383,11 +1502,15 @@ def get_tournament_matches(db: Session, tournament_id: UUID):
             "home_team_id": m.home_team_id,
             "away_team_id": m.away_team_id,
             "field_id": m.field_id,
+            "field_name": field.name if field else None,
             "match_date": m.match_date,
             "status": m.status,
             "group_id": m.group_id,
-            "home_team_name": home_team.name if home_team else "Home Team",
-            "away_team_name": away_team.name if away_team else "Away Team",
+            "round_number": m.round_number,
+            "bracket_position": m.bracket_position,
+            "next_match_id": m.next_match_id,
+            "home_team_name": home_team.name if home_team else None,
+            "away_team_name": away_team.name if away_team else None,
             "result": m.result
         }
         result_list.append(match_dict)
@@ -1429,6 +1552,8 @@ def update_match_details(db: Session, match_id: UUID, details: dict):
     home_team = db.query(Team).filter(Team.id == match.home_team_id).first() if match.home_team_id else None
     away_team = db.query(Team).filter(Team.id == match.away_team_id).first() if match.away_team_id else None
     
+    from app.fields.models import Field
+    field = db.query(Field).filter(Field.id == match.field_id).first() if match.field_id else None
     return {
         "id": match.id,
         "tournament_id": match.tournament_id,
@@ -1436,11 +1561,15 @@ def update_match_details(db: Session, match_id: UUID, details: dict):
         "home_team_id": match.home_team_id,
         "away_team_id": match.away_team_id,
         "field_id": match.field_id,
+        "field_name": field.name if field else None,
         "match_date": match.match_date,
         "status": match.status,
         "group_id": match.group_id,
-        "home_team_name": home_team.name if home_team else "Home Team",
-        "away_team_name": away_team.name if away_team else "Away Team",
+        "round_number": match.round_number,
+        "bracket_position": match.bracket_position,
+        "next_match_id": match.next_match_id,
+        "home_team_name": home_team.name if home_team else None,
+        "away_team_name": away_team.name if away_team else None,
         "result": match.result
     }
 
