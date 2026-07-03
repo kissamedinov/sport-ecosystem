@@ -1394,6 +1394,56 @@ def get_tournament_matches(db: Session, tournament_id: UUID):
         
     return result_list
 
+def update_match_details(db: Session, match_id: UUID, details: dict):
+    from app.matches.models import Match
+    from app.teams.models import Team
+    from datetime import datetime
+    
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+        
+    if "field_id" in details:
+        f_id = details["field_id"]
+        if f_id and str(f_id).strip() != "":
+            try:
+                match.field_id = UUID(str(f_id).strip())
+            except ValueError:
+                match.field_id = None
+        else:
+            match.field_id = None
+            
+    if "match_date" in details:
+        m_date = details["match_date"]
+        if m_date:
+            if isinstance(m_date, str):
+                match.match_date = datetime.fromisoformat(m_date.replace("Z", "+00:00"))
+            else:
+                match.match_date = m_date
+        else:
+            match.match_date = None
+            
+    db.commit()
+    db.refresh(match)
+    
+    home_team = db.query(Team).filter(Team.id == match.home_team_id).first() if match.home_team_id else None
+    away_team = db.query(Team).filter(Team.id == match.away_team_id).first() if match.away_team_id else None
+    
+    return {
+        "id": match.id,
+        "tournament_id": match.tournament_id,
+        "division_id": match.division_id,
+        "home_team_id": match.home_team_id,
+        "away_team_id": match.away_team_id,
+        "field_id": match.field_id,
+        "match_date": match.match_date,
+        "status": match.status,
+        "group_id": match.group_id,
+        "home_team_name": home_team.name if home_team else "Home Team",
+        "away_team_name": away_team.name if away_team else "Away Team",
+        "result": match.result
+    }
+
 def add_player_to_tournament_squad(db: Session, tournament_team_id: UUID, player_id: UUID):
     profile = db.query(ChildProfile).filter(ChildProfile.linked_user_id == player_id).first()
     if not profile:

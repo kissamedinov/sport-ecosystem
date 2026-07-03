@@ -2120,30 +2120,52 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                               ),
                               Row(
                                 children: [
-                                  ChoiceChip(
-                                    label: const Text('Группа А'),
-                                    selected: currentGroup == 'Group A',
-                                    selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
-                                    onSelected: (val) {
-                                      if (val) {
-                                        setDialogState(() {
-                                          teamGroups[reg.teamId] = 'Group A';
-                                        });
-                                      }
+                                  GestureDetector(
+                                    onTap: () {
+                                      setDialogState(() {
+                                        teamGroups[reg.teamId] = 'Group A';
+                                      });
                                     },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: currentGroup == 'Group A' ? PremiumTheme.neonGreen : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: currentGroup == 'Group A' ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.2)),
+                                      ),
+                                      child: Text(
+                                        'Группа А',
+                                        style: TextStyle(
+                                          color: currentGroup == 'Group A' ? Colors.black : cs.onSurface.withValues(alpha: 0.7),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
-                                  ChoiceChip(
-                                    label: const Text('Группа B'),
-                                    selected: currentGroup == 'Group B',
-                                    selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
-                                    onSelected: (val) {
-                                      if (val) {
-                                        setDialogState(() {
-                                          teamGroups[reg.teamId] = 'Group B';
-                                        });
-                                      }
+                                  GestureDetector(
+                                    onTap: () {
+                                      setDialogState(() {
+                                        teamGroups[reg.teamId] = 'Group B';
+                                      });
                                     },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: currentGroup == 'Group B' ? PremiumTheme.neonGreen : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: currentGroup == 'Group B' ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.2)),
+                                      ),
+                                      child: Text(
+                                        'Группа B',
+                                        style: TextStyle(
+                                          color: currentGroup == 'Group B' ? Colors.black : cs.onSurface.withValues(alpha: 0.7),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

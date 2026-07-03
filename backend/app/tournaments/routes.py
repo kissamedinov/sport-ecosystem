@@ -177,6 +177,15 @@ def update_match_result(
 ):
     return services.update_match_result(db, match_id, home_score, away_score)
 
+@router.patch("/matches/{match_id}", response_model=schemas.TournamentMatchResponse)
+def update_match_details(
+    match_id: UUID,
+    details: Dict[str, Any] = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.update_match_details(db, match_id, details)
+
 #  Standings & Stats 
 
 @router.get("/{id}/standings", response_model=List[schemas.TournamentStandingsResponse])
