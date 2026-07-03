@@ -1477,7 +1477,8 @@ def get_tournament_standings(db: Session, tournament_id: UUID):
             "goals_against": s.goals_against,
             "goal_difference": s.goal_difference,
             "points": s.points,
-            "group_id": s.group_id
+            "group_id": s.group_id,
+            "group_name": s.group.name if s.group else None
         })
     return result
 
