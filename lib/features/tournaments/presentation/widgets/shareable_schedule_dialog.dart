@@ -219,7 +219,13 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             // Date picker dropdown
             Row(
               children: [
-                Text('tournament.select_day'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  'tournament.select_day'.tr(),
+                  style: TextStyle(
+                    color: _isDark ? Colors.white70 : Colors.black87,
+                    fontSize: 12,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
@@ -232,7 +238,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<DateTime>(
                         value: _selectedDate,
-                        dropdownColor: const Color(0xFF122229),
+                        dropdownColor: _dialogBg,
                         style: TextStyle(color: _dialogTextColor, fontSize: 13, fontWeight: FontWeight.bold),
                         items: _availableDates.map((date) {
                           return DropdownMenuItem<DateTime>(

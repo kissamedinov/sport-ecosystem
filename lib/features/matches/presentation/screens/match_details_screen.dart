@@ -129,24 +129,78 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     final user = context.watch<AuthProvider>().user;
     final isCoach = user?.roles?.any((r) => r == 'COACH' || r == 'TEAM_OWNER') ?? false;
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('match.match_center'.tr(), style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14)),
+        iconTheme: IconThemeData(color: onSurface),
+        title: Text(
+          'match.match_center'.tr(),
+          style: TextStyle(
+            color: onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            fontSize: 14,
+          ),
+        ),
         centerTitle: true,
+        actions: [
+          if (isCoach)
+            IconButton(
+              icon: const Icon(Icons.restart_alt, color: Colors.redAccent),
+              tooltip: 'Сбросить результат',
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: PremiumTheme.surfaceCard(context),
+                    title: const Text('Сброс результата матча', style: TextStyle(fontWeight: FontWeight.bold)),
+                    content: const Text('Вы действительно хотите отменить счет и сбросить сыгранный матч? Статистика команд обнулится.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text('Отмена', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Сбросить', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  final matchProvider = context.read<MatchProvider>();
+                  final success = await matchProvider.resetResult(widget.match.id);
+                  if (success && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Результат матча успешно сброшен'), backgroundColor: Colors.green),
+                    );
+                    context.read<TournamentProvider>().fetchTournamentDetails(widget.match.tournamentId ?? '');
+                    Navigator.pop(context);
+                  } else if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(matchProvider.error ?? 'Ошибка при сбросе результата'), backgroundColor: Colors.redAccent),
+                    );
+                  }
+                }
+              },
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            _buildScoreBoard(),
+            _buildScoreBoard(isDark, onSurface),
             const SizedBox(height: 12),
-            _buildTabSection(),
+            _buildTabSection(isDark, onSurface),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _buildSelectedTabContent(lineupProvider, isCoach),
+              child: _buildSelectedTabContent(lineupProvider, isCoach, isDark, onSurface),
             ),
           ],
         ),
@@ -154,7 +208,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildSelectedTabContent(LineupProvider lineupProvider, bool isCoach) {
+  Widget _buildSelectedTabContent(LineupProvider lineupProvider, bool isCoach, bool isDark, Color onSurface) {
     if (_selectedTabIndex == 0) {
       // Lineups Tab
       return Column(
@@ -166,6 +220,8 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             widget.match.homeTeamId != null ? lineupProvider.getLineupForMatch(widget.match.id, widget.match.homeTeamId!) : null,
             isCoach,
             true,
+            isDark,
+            onSurface,
           ),
           const SizedBox(height: 24),
           _buildLineupSection(
@@ -175,20 +231,22 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             widget.match.awayTeamId != null ? lineupProvider.getLineupForMatch(widget.match.id, widget.match.awayTeamId!) : null,
             isCoach,
             false,
+            isDark,
+            onSurface,
           ),
           const SizedBox(height: 100),
         ],
       );
     } else if (_selectedTabIndex == 1) {
       // Timeline Tab
-      return _buildTimelineSection();
+      return _buildTimelineSection(isDark, onSurface);
     } else {
       // Info / Details Tab
-      return _buildInfoSection();
+      return _buildInfoSection(isDark, onSurface);
     }
   }
 
-  Widget _buildTimelineSection() {
+  Widget _buildTimelineSection(bool isDark, Color onSurface) {
     final matchProvider = context.watch<MatchProvider>();
     final events = matchProvider.currentMatchEvents;
 
@@ -201,11 +259,18 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           padding: const EdgeInsets.symmetric(vertical: 40.0),
           child: Column(
             children: [
-              const Icon(Icons.flash_off_outlined, color: Colors.white12, size: 48),
+              Icon(
+                Icons.flash_off_outlined,
+                color: onSurface.withOpacity(0.12),
+                size: 48,
+              ),
               const SizedBox(height: 12),
               Text(
                 'match.no_events'.tr(),
-                style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+                style: TextStyle(
+                  color: onSurface.withOpacity(0.35),
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -216,28 +281,28 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     return Column(
       children: [
         if (firstHalfEvents.isNotEmpty) ...[
-          _buildHalfHeader('match.first_half'.tr()),
+          _buildHalfHeader('match.first_half'.tr(), isDark, onSurface),
           const SizedBox(height: 12),
-          ...firstHalfEvents.map((e) => _buildTimelineEventRow(e)),
+          ...firstHalfEvents.map((e) => _buildTimelineEventRow(e, isDark, onSurface)),
           const SizedBox(height: 24),
         ],
         if (secondHalfEvents.isNotEmpty) ...[
-          _buildHalfHeader('match.second_half'.tr()),
+          _buildHalfHeader('match.second_half'.tr(), isDark, onSurface),
           const SizedBox(height: 12),
-          ...secondHalfEvents.map((e) => _buildTimelineEventRow(e)),
+          ...secondHalfEvents.map((e) => _buildTimelineEventRow(e, isDark, onSurface)),
           const SizedBox(height: 48),
         ],
       ],
     );
   }
 
-  Widget _buildHalfHeader(String label) {
+  Widget _buildHalfHeader(String label, bool isDark, Color onSurface) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.02),
+        color: onSurface.withOpacity(0.03),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
+        border: Border.all(color: onSurface.withOpacity(0.06)),
       ),
       child: Center(
         child: Text(
@@ -253,7 +318,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildTimelineEventRow(MatchEvent event) {
+  Widget _buildTimelineEventRow(MatchEvent event, bool isDark, Color onSurface) {
     final isHome = event.teamId == widget.match.homeTeamId;
     final pId = event.playerId ?? event.childProfileId;
     final pName = pId != null ? (_playerNamesCache[pId] ?? 'match.player_placeholder'.tr(namedArgs: {'id': pId.length > 4 ? pId.substring(0, 4) : pId})) : 'match.player_generic'.tr();
@@ -282,7 +347,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: PremiumTheme.neonGreen.withOpacity(0.1),
+              color: PremiumTheme.neonGreen.withOpacity(0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -298,11 +363,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             children: [
               Text(
                 pName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(color: onSurface, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               Text(
                 typeLabel,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
+                style: TextStyle(color: onSurface.withOpacity(0.4), fontSize: 9),
               ),
             ],
           ),
@@ -312,11 +377,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             children: [
               Text(
                 pName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(color: onSurface, fontWeight: FontWeight.bold, fontSize: 12),
               ),
               Text(
                 typeLabel,
-                style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 9),
+                style: TextStyle(color: onSurface.withOpacity(0.4), fontSize: 9),
               ),
             ],
           ),
@@ -326,12 +391,12 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: onSurface.withOpacity(0.08),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               "${event.minute}'",
-              style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 10),
+              style: TextStyle(color: onSurface.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 10),
             ),
           ),
         ],
@@ -346,9 +411,9 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.01),
+              color: onSurface.withOpacity(0.02),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.03)),
+              border: Border.all(color: onSurface.withOpacity(0.04)),
             ),
             child: contentWidget,
           ),
@@ -357,31 +422,37 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(bool isDark, Color onSurface) {
     final homeForm = widget.match.homeTeamId != null ? _calculateTeamForm(widget.match.homeTeamId!) : <String>[];
     final awayForm = widget.match.awayTeamId != null ? _calculateTeamForm(widget.match.awayTeamId!) : <String>[];
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF122229),
+        color: PremiumTheme.surfaceCard(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: onSurface.withOpacity(0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('match.details_header'.tr(), style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1)),
+          Text(
+            'match.details_header'.tr(),
+            style: const TextStyle(color: PremiumTheme.neonGreen, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1),
+          ),
           const SizedBox(height: 16),
-          _buildInfoRow(Icons.calendar_today_rounded, 'match.date_time'.tr(), widget.match.matchDate?.toString().substring(0, 16) ?? 'TBD'),
+          _buildInfoRow(Icons.calendar_today_rounded, 'match.date_time'.tr(), widget.match.matchDate?.toString().substring(0, 16) ?? 'TBD', onSurface),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.location_on_outlined, 'match.arena_field'.tr(), widget.match.fieldName ?? 'ARENA CENTER'),
+          _buildInfoRow(Icons.location_on_outlined, 'match.arena_field'.tr(), widget.match.fieldName ?? 'ARENA CENTER', onSurface),
           const SizedBox(height: 12),
-          _buildInfoRow(Icons.info_outline, 'match.match_status'.tr(), widget.match.status),
+          _buildInfoRow(Icons.info_outline, 'match.match_status'.tr(), widget.match.status, onSurface),
           const SizedBox(height: 24),
-          const Divider(color: Colors.white10, height: 1),
+          Divider(color: onSurface.withOpacity(0.08), height: 1),
           const SizedBox(height: 20),
-          Text('match.team_form_title'.tr(), style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 0.5)),
+          Text(
+            'match.team_form_title'.tr(),
+            style: TextStyle(color: onSurface.withOpacity(0.54), fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 0.5),
+          ),
           const SizedBox(height: 16),
           // Home form row
           Row(
@@ -392,11 +463,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                   widget.homeTeamName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: onSurface.withOpacity(0.8), fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
               if (homeForm.isEmpty)
-                _buildEmptyForm()
+                _buildEmptyForm(onSurface)
               else
                 Row(children: homeForm.map((f) => _buildFormCircle(f)).toList()),
             ],
@@ -411,11 +482,11 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                   widget.awayTeamName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: onSurface.withOpacity(0.8), fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
               if (awayForm.isEmpty)
-                _buildEmptyForm()
+                _buildEmptyForm(onSurface)
               else
                 Row(children: awayForm.map((f) => _buildFormCircle(f)).toList()),
             ],
@@ -425,14 +496,14 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value, Color onSurface) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.white38),
+        Icon(icon, size: 16, color: onSurface.withOpacity(0.38)),
         const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+        Text(label, style: TextStyle(color: onSurface.withOpacity(0.38), fontSize: 12)),
         const Spacer(),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(value, style: TextStyle(color: onSurface, fontSize: 12, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -465,28 +536,22 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildEmptyForm() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.brown.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.brown.withOpacity(0.3)),
-      ),
-      child: const Text(
-        '—',
-        style: TextStyle(color: Colors.brown, fontSize: 11, fontWeight: FontWeight.bold),
-      ),
+  Widget _buildEmptyForm(Color onSurface) {
+    return Text(
+      '–',
+      style: TextStyle(color: onSurface.withOpacity(0.3), fontSize: 12, fontWeight: FontWeight.bold),
     );
   }
 
-  Widget _buildScoreBoard() {
+  Widget _buildScoreBoard(bool isDark, Color onSurface) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [PremiumTheme.surfaceBase(context), Colors.black],
+          colors: isDark 
+              ? [PremiumTheme.surfaceBase(context), Colors.black]
+              : [PremiumTheme.surfaceBase(context), Colors.white.withOpacity(0.92)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -496,41 +561,41 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(child: _buildTeamHeader(widget.homeTeamName, Colors.redAccent)),
-              _buildMiddleScore(),
-              Expanded(child: _buildTeamHeader(widget.awayTeamName, Colors.blueAccent)),
+              Expanded(child: _buildTeamHeader(widget.homeTeamName, Colors.redAccent, onSurface)),
+              _buildMiddleScore(isDark, onSurface),
+              Expanded(child: _buildTeamHeader(widget.awayTeamName, Colors.blueAccent, onSurface)),
             ],
           ),
           const SizedBox(height: 32),
-          _buildMatchMeta(),
+          _buildMatchMeta(onSurface),
           const SizedBox(height: 24),
-          _buildActionButtons(),
+          _buildActionButtons(isDark, onSurface),
         ],
       ),
     );
   }
 
-  Widget _buildMiddleScore() {
+  Widget _buildMiddleScore(bool isDark, Color onSurface) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: onSurface.withOpacity(0.04),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: onSurface.withOpacity(0.08)),
           ),
           child: Text(
             '${widget.match.homeScore} : ${widget.match.awayScore}',
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 2),
+            style: TextStyle(color: onSurface, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 2),
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: widget.match.status == 'LIVE' ? Colors.redAccent.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+            color: widget.match.status == 'LIVE' ? Colors.redAccent.withOpacity(0.12) : Colors.orange.withOpacity(0.12),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -547,7 +612,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildTeamHeader(String name, Color color) {
+  Widget _buildTeamHeader(String name, Color color, Color onSurface) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -559,7 +624,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: color.withOpacity(0.3), width: 2),
             boxShadow: [
-              BoxShadow(color: color.withOpacity(0.1), blurRadius: 20, spreadRadius: 2),
+              BoxShadow(color: color.withOpacity(0.08), blurRadius: 20, spreadRadius: 2),
             ],
           ),
           child: Icon(Icons.shield_rounded, size: 40, color: color),
@@ -570,49 +635,49 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+          style: TextStyle(color: onSurface, fontWeight: FontWeight.w900, fontSize: 13),
         ),
       ],
     );
   }
 
-  Widget _buildMatchMeta() {
+  Widget _buildMatchMeta(Color onSurface) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.calendar_today_rounded, size: 14, color: Colors.white38),
+        Icon(Icons.calendar_today_rounded, size: 14, color: onSurface.withOpacity(0.38)),
         const SizedBox(width: 8),
         Text(
           widget.match.matchDate?.toString().substring(0, 16) ?? 'match.time_tbd'.tr(),
-          style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
+          style: TextStyle(color: onSurface.withOpacity(0.38), fontSize: 12, fontWeight: FontWeight.w600),
         ),
         const SizedBox(width: 20),
-        const Icon(Icons.location_on_outlined, size: 14, color: Colors.white38),
+        Icon(Icons.location_on_outlined, size: 14, color: onSurface.withOpacity(0.38)),
         const SizedBox(width: 8),
         Text(
           'match.arena_center'.tr(),
-          style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.w600),
+          style: TextStyle(color: onSurface.withOpacity(0.38), fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(bool isDark, Color onSurface) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), () {
+        _buildCircleAction(Icons.analytics_outlined, 'match.stats'.tr(), onSurface, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => MatchEventsScreen(matchId: widget.match.id)));
         }),
         const SizedBox(width: 24),
-        _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), null),
+        _buildCircleAction(Icons.videocam_outlined, 'match.replay'.tr(), onSurface, null),
         const SizedBox(width: 24),
-        _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), null),
+        _buildCircleAction(Icons.share_outlined, 'match.share'.tr(), onSurface, null),
       ],
     );
   }
 
-  Widget _buildCircleAction(IconData icon, String label, VoidCallback? onTap) {
+  Widget _buildCircleAction(IconData icon, String label, Color onSurface, VoidCallback? onTap) {
     return Column(
       children: [
         GestureDetector(
@@ -620,20 +685,27 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: onSurface.withOpacity(0.04),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white10),
+              border: Border.all(color: onSurface.withOpacity(0.08)),
             ),
-            child: Icon(icon, color: onTap != null ? Colors.white : Colors.white24, size: 20),
+            child: Icon(icon, color: onTap != null ? onSurface : onSurface.withOpacity(0.24), size: 20),
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: TextStyle(color: onTap != null ? Colors.white54 : Colors.white24, fontSize: 9, fontWeight: FontWeight.w800)),
+        Text(
+          label,
+          style: TextStyle(
+            color: onTap != null ? onSurface.withOpacity(0.54) : onSurface.withOpacity(0.24),
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildTabSection() {
+  Widget _buildTabSection(bool isDark, Color onSurface) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
@@ -641,35 +713,35 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         children: [
           GestureDetector(
             onTap: () => setState(() => _selectedTabIndex = 0),
-            child: _buildTab('match.tab_lineups'.tr(), _selectedTabIndex == 0),
+            child: _buildTab('match.tab_lineups'.tr(), _selectedTabIndex == 0, onSurface),
           ),
           const SizedBox(width: 12),
           GestureDetector(
             onTap: () => setState(() => _selectedTabIndex = 1),
-            child: _buildTab('match.tab_timeline'.tr(), _selectedTabIndex == 1),
+            child: _buildTab('match.tab_timeline'.tr(), _selectedTabIndex == 1, onSurface),
           ),
           const SizedBox(width: 12),
           GestureDetector(
             onTap: () => setState(() => _selectedTabIndex = 2),
-            child: _buildTab('match.tab_details'.tr(), _selectedTabIndex == 2),
+            child: _buildTab('match.tab_details'.tr(), _selectedTabIndex == 2, onSurface),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTab(String label, bool active) {
+  Widget _buildTab(String label, bool active, Color onSurface) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: active ? PremiumTheme.neonGreen : Colors.transparent,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: active ? PremiumTheme.neonGreen : Colors.white10),
+        border: Border.all(color: active ? PremiumTheme.neonGreen : onSurface.withOpacity(0.08)),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: active ? Colors.black : Colors.white38,
+          color: active ? Colors.black : onSurface.withOpacity(0.38),
           fontSize: 11,
           fontWeight: FontWeight.w900,
           letterSpacing: 1,
@@ -678,7 +750,16 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
     );
   }
 
-  Widget _buildLineupSection(BuildContext context, String teamName, String teamId, MatchLineup? lineup, bool isCoach, bool isHome) {
+  Widget _buildLineupSection(
+    BuildContext context,
+    String teamName,
+    String teamId,
+    MatchLineup? lineup,
+    bool isCoach,
+    bool isHome,
+    bool isDark,
+    Color onSurface,
+  ) {
     final color = isHome ? Colors.redAccent : Colors.blueAccent;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -692,14 +773,17 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                 const SizedBox(width: 10),
                 Text(
                   '$teamName LINEUP',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  style: TextStyle(color: onSurface, fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
               ],
             ),
             if (lineup != null)
               const Icon(Icons.check_circle_rounded, color: PremiumTheme.neonGreen, size: 18)
             else
-              Text('match.pending'.tr(), style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.w800)),
+              Text(
+                'match.pending'.tr(),
+                style: TextStyle(color: onSurface.withOpacity(0.24), fontSize: 10, fontWeight: FontWeight.w800),
+              ),
           ],
         ),
         const SizedBox(height: 16),
@@ -708,15 +792,15 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.02),
+              color: onSurface.withOpacity(0.02),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: onSurface.withOpacity(0.05)),
             ),
             child: Column(
               children: [
-                const Icon(Icons.groups_3_outlined, color: Colors.white10, size: 40),
+                Icon(Icons.groups_3_outlined, color: onSurface.withOpacity(0.1), size: 40),
                 const SizedBox(height: 12),
-                Text('match.no_lineup'.tr(), style: const TextStyle(color: Colors.white24, fontSize: 12)),
+                Text('match.no_lineup'.tr(), style: TextStyle(color: onSurface.withOpacity(0.24), fontSize: 12)),
                 if (isCoach && teamId.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -729,7 +813,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: color.withOpacity(0.1),
+                      backgroundColor: color.withOpacity(0.12),
                       foregroundColor: color,
                       side: BorderSide(color: color.withOpacity(0.3)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -742,39 +826,38 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
             ),
           ),
         ] else
-          _buildLineupList(lineup),
+          _buildLineupList(lineup, onSurface),
       ],
     );
   }
 
-  Widget _buildLineupList(MatchLineup lineup) {
+  Widget _buildLineupList(MatchLineup lineup, Color onSurface) {
     final starters = lineup.players.where((p) => p.isStarting).toList();
     final bench = lineup.players.where((p) => !p.isStarting).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSquadCategory('match.starting_xi'.tr(), starters),
+        _buildSquadCategory('match.starting_xi'.tr(), starters, onSurface),
         const SizedBox(height: 16),
-        _buildSquadCategory('match.substitutes'.tr(), bench),
+        _buildSquadCategory('match.substitutes'.tr(), bench, onSurface),
       ],
     );
   }
 
-  Widget _buildSquadCategory(String title, List<LineupPlayer> players) {
+  Widget _buildSquadCategory(String title, List<LineupPlayer> players, Color onSurface) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+        Text(title, style: TextStyle(color: onSurface.withOpacity(0.38), fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
         const SizedBox(height: 8),
-        ...players.map((p) => _buildPlayerTile(p)),
+        ...players.map((p) => _buildPlayerTile(p, onSurface)),
       ],
     );
   }
 
-  Widget _buildPlayerTile(LineupPlayer p) {
+  Widget _buildPlayerTile(LineupPlayer p, Color onSurface) {
     final id = p.playerId ?? p.childProfileId ?? 'Unknown';
-    final onSurface = Theme.of(context).colorScheme.onSurface;
     final name = _playerNamesCache[id] ?? 'match.player_placeholder'.tr(namedArgs: {'id': id.length > 4 ? id.substring(0, 4) : id});
     
     return Container(
@@ -792,7 +875,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: PremiumTheme.neonGreen.withOpacity(0.1),
+            color: PremiumTheme.neonGreen.withOpacity(0.12),
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
@@ -803,13 +886,13 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
         ),
         title: Text(
           name,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          style: TextStyle(color: onSurface, fontWeight: FontWeight.w700, fontSize: 13),
         ),
         trailing: p.jerseyNumber != null 
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)),
-              child: Text('#${p.jerseyNumber}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10)),
+              decoration: BoxDecoration(color: onSurface.withOpacity(0.06), borderRadius: BorderRadius.circular(4)),
+              child: Text('#${p.jerseyNumber}', style: TextStyle(color: onSurface.withOpacity(0.7), fontWeight: FontWeight.w900, fontSize: 10)),
             )
           : null,
       ),
