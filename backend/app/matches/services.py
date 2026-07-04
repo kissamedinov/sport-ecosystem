@@ -132,6 +132,21 @@ def finalize_match_result(db: Session, match_id: UUID):
     update_standings(db, match.tournament_id, match.home_team_id)
     update_standings(db, match.tournament_id, match.away_team_id)
 
+    # Automatically handle live transitions to playoffs
+    if match.tournament_id:
+        if match.group_id is not None:
+            # Check if all group stage matches are finished
+            unfinished_count = db.query(Match).filter(
+                Match.tournament_id == match.tournament_id,
+                Match.group_id.isnot(None),
+                Match.status != MatchStatus.FINISHED
+            ).count()
+            if unfinished_count == 0:
+                seed_playoffs_automatically(db, match.tournament_id)
+        elif match.group_id is None and match.next_match_id is not None:
+            # Semifinal finished, transition winners and losers
+            update_next_playoff_match(db, match)
+
     # Trigger Notification for Match Result
     # Notify tournament owner
     tournament = db.query(Tournament).filter(Tournament.id == match.tournament_id).first()
@@ -146,6 +161,166 @@ def finalize_match_result(db: Session, match_id: UUID):
     )
 
     return {"message": "Result finalized, ratings and standings updated successfully"}
+
+def seed_playoffs_automatically(db: Session, tournament_id: UUID):
+    from app.tournaments.models import TournamentGroup, TournamentStandings
+    from app.matches.models import Match, MatchStatus
+    
+    # Get groups sorted alphabetically (Group A, Group B)
+    groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
+    if len(groups) != 2:
+        return
+        
+    sorted_groups = sorted(groups, key=lambda g: g.name)
+    group_a_id = sorted_groups[0].id
+    group_b_id = sorted_groups[1].id
+    
+    # Get standings for both groups
+    standings_a = db.query(TournamentStandings).filter(
+        TournamentStandings.tournament_id == tournament_id,
+        TournamentStandings.group_id == group_a_id
+    ).order_by(
+        TournamentStandings.points.desc(),
+        TournamentStandings.goal_difference.desc(),
+        TournamentStandings.goals_for.desc()
+    ).all()
+    
+    standings_b = db.query(TournamentStandings).filter(
+        TournamentStandings.tournament_id == tournament_id,
+        TournamentStandings.group_id == group_b_id
+    ).order_by(
+        TournamentStandings.points.desc(),
+        TournamentStandings.goal_difference.desc(),
+        TournamentStandings.goals_for.desc()
+    ).all()
+    
+    if len(standings_a) < 2 or len(standings_b) < 2:
+        return
+        
+    A1_id = standings_a[0].team_id
+    A2_id = standings_a[1].team_id
+    B1_id = standings_b[0].team_id
+    B2_id = standings_b[1].team_id
+    
+    # Update Semifinals:
+    # SF 1: A1 vs B2 (bracket_position=0)
+    sf1 = db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 1,
+        Match.bracket_position == 0
+    ).first()
+    if sf1:
+        sf1.home_team_id = A1_id
+        sf1.away_team_id = B2_id
+        sf1.status = MatchStatus.SCHEDULED
+        
+    # SF 2: B1 vs A2 (bracket_position=1)
+    sf2 = db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 1,
+        Match.bracket_position == 1
+    ).first()
+    if sf2:
+        sf2.home_team_id = B1_id
+        sf2.away_team_id = A2_id
+        sf2.status = MatchStatus.SCHEDULED
+        
+    # Update 5-6th Place: A3 vs B3 (bracket_position=2)
+    if len(standings_a) >= 3 and len(standings_b) >= 3:
+        m5 = db.query(Match).filter(
+            Match.tournament_id == tournament_id,
+            Match.group_id.is_(None),
+            Match.round_number == 1,
+            Match.bracket_position == 2
+        ).first()
+        if m5:
+            m5.home_team_id = standings_a[2].team_id
+            m5.away_team_id = standings_b[2].team_id
+            m5.status = MatchStatus.SCHEDULED
+            
+    # Update 7-8th Place: A4 vs B4 (bracket_position=3)
+    if len(standings_a) >= 4 and len(standings_b) >= 4:
+        m7 = db.query(Match).filter(
+            Match.tournament_id == tournament_id,
+            Match.group_id.is_(None),
+            Match.round_number == 1,
+            Match.bracket_position == 3
+        ).first()
+        if m7:
+            m7.home_team_id = standings_a[3].team_id
+            m7.away_team_id = standings_b[3].team_id
+            m7.status = MatchStatus.SCHEDULED
+            
+    db.commit()
+
+def update_next_playoff_match(db: Session, match: Match):
+    from app.matches.models import MatchResult, Match, MatchStatus
+    
+    result = db.query(MatchResult).filter(MatchResult.match_id == match.id).first()
+    if not result:
+        return
+        
+    winner_id = match.home_team_id if result.home_score >= result.away_score else match.away_team_id
+    loser_id = match.away_team_id if result.home_score >= result.away_score else match.home_team_id
+    
+    # Find Final and 3rd Place matches:
+    final_match = db.query(Match).filter(
+        Match.tournament_id == match.tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 2,
+        Match.bracket_position == 0
+    ).first()
+    
+    third_place_match = db.query(Match).filter(
+        Match.tournament_id == match.tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 2,
+        Match.bracket_position == 1
+    ).first()
+    
+    if match.bracket_position == 0:
+        # Semifinal 1: updates Home teams
+        if final_match:
+            final_match.home_team_id = winner_id
+        if third_place_match:
+            third_place_match.home_team_id = loser_id
+    elif match.bracket_position == 1:
+        # Semifinal 2: updates Away teams
+        if final_match:
+            final_match.away_team_id = winner_id
+        if third_place_match:
+            third_place_match.away_team_id = loser_id
+            
+    # Auto-activate when both teams are set
+    if final_match and final_match.home_team_id and final_match.away_team_id:
+        final_match.status = MatchStatus.SCHEDULED
+    if third_place_match and third_place_match.home_team_id and third_place_match.away_team_id:
+        third_place_match.status = MatchStatus.SCHEDULED
+            
+    db.commit()
+
+def reset_match_result(db: Session, match_id: UUID):
+    from app.matches.models import MatchResult, MatchStatus
+    from app.tournaments.standings_service import update_standings
+    
+    match = db.query(Match).filter(Match.id == match_id).first()
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+        
+    result = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
+    if result:
+        db.delete(result)
+        
+    match.status = MatchStatus.SCHEDULED
+    db.commit()
+    
+    if match.tournament_id:
+        update_standings(db, match.tournament_id, match.home_team_id)
+        update_standings(db, match.tournament_id, match.away_team_id)
+        
+    return {"message": "Match result reset successfully"}
 
 def get_tournament_groups(db: Session, tournament_id: UUID):
     return db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
