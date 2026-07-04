@@ -1250,6 +1250,8 @@ def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, as
     groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == tournament_id).all()
     group_ids = [g.id for g in groups]
     if group_ids:
+        db.query(TournamentStandings).filter(TournamentStandings.group_id.in_(group_ids)).update({TournamentStandings.group_id: None}, synchronize_session=False)
+        db.flush()
         db.query(TournamentGroupTeam).filter(TournamentGroupTeam.group_id.in_(group_ids)).delete(synchronize_session=False)
         db.query(TournamentGroup).filter(TournamentGroup.id.in_(group_ids)).delete(synchronize_session=False)
         db.commit()
