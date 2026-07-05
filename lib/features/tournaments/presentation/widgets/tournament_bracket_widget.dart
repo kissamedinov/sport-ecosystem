@@ -308,21 +308,11 @@ class TournamentBracketWidget extends StatelessWidget {
               hasHomeWon
             ),
             const SizedBox(height: 4),
-            // Divider with score
-            if (isFinished)
-              Center(
-                child: Text(
-                  match.homePenaltyScore != null && match.awayPenaltyScore != null
-                      ? '${match.homeScore} (${match.homePenaltyScore}) : ${match.awayScore} (${match.awayPenaltyScore})'
-                      : '${match.homeScore} : ${match.awayScore}',
-                  style: const TextStyle(color: _neon, fontSize: 11, fontWeight: FontWeight.w900),
-                ),
-              )
-            else
-              Divider(
-                color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.06),
-                height: 8,
-              ),
+            // Divider
+            Divider(
+              color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.06),
+              height: 8,
+            ),
             const SizedBox(height: 4),
             // Away team row
             _teamRow(

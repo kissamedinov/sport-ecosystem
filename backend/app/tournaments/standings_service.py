@@ -42,9 +42,10 @@ def update_standings(db: Session, tournament_id: UUID, team_id: UUID, division_i
         standing.group_id = group_id
         standing.division_id = division_id
         
-    # Recalculate everything from finalized matches
+    # Recalculate everything from finalized matches (group stage only)
     query = db.query(Match).join(MatchResult).filter(
         Match.tournament_id == tournament_id,
+        Match.group_id.isnot(None),
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id)),
         MatchResult.status == "FINAL"
     )

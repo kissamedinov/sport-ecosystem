@@ -19,5 +19,5 @@ for g in sorted(groups, key=lambda x: x.name):
     ).all()
     for idx, s in enumerate(standings, 1):
         team_name = db.execute(text("SELECT name FROM teams WHERE id = :tid"), {"tid": s.team_id}).scalar()
-        print(f"  {idx}. {team_name}: pts={s.points} gd={s.goal_difference} gf={s.goals_for}")
+        print(f"  {idx}. {team_name}: played={s.played} pts={s.points} gd={s.goal_difference} gf={s.goals_for}")
 db.close()
