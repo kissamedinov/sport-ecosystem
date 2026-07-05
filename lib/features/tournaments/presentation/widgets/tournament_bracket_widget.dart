@@ -371,7 +371,7 @@ class TournamentBracketWidget extends StatelessWidget {
 
   Widget _teamRow(BuildContext context, String name, String score, bool isPlaceholder, bool isWinner) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color winnerColor = isDark ? const Color(0xFF00E676) : const Color(0xFF1B5E20);
+    final Color winnerColor = isDark ? const Color(0xFFFFB300) : const Color(0xFFD97706);
     
     // Parse score to separate regular and penalty scores for cleaner presentation
     InlineSpan scoreSpan;
