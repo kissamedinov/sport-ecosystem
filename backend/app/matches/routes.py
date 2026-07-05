@@ -122,6 +122,14 @@ def finalize_result(
 ):
     return services.finalize_match_result(db, id)
 
+@router.post("/matches/{id}/reset-result")
+def reset_match_result(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("EDIT_MATCH_STATS"))
+):
+    return services.reset_match_result(db, id)
+
 @router.get("/tournaments/{id}/groups", response_model=List[schemas.TournamentGroupResponse])
 def get_tournament_groups(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_groups(db, id)

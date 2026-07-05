@@ -1,0 +1,16 @@
+from app.database import SessionLocal
+from app.matches.models import Match
+from app.teams.models import Team
+from uuid import UUID
+
+db = SessionLocal()
+T_ID = UUID('46bdeb91-c2cd-43b9-9a4e-35892b3d1652')
+
+matches = db.query(Match).filter(Match.tournament_id == T_ID).all()
+print(f"Matches in Juldyz Ball Cup: {len(matches)}")
+for m in matches:
+    h = db.query(Team).filter(Team.id == m.home_team_id).first()
+    a = db.query(Team).filter(Team.id == m.away_team_id).first()
+    print(f"  match_id={m.id} home={h.name if h else 'None'} ({m.home_score}) vs away={a.name if a else 'None'} ({m.away_score}) status={m.status}")
+
+db.close()

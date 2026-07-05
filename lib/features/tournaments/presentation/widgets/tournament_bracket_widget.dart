@@ -215,8 +215,16 @@ class TournamentBracketWidget extends StatelessWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isFinished = match.status == 'FINISHED' || match.status == 'finished';
     final bool isLive = match.status == 'LIVE';
-    final bool hasHomeWon = isFinished && match.homeScore > match.awayScore;
-    final bool hasAwayWon = isFinished && match.awayScore > match.homeScore;
+    final bool hasHomeWon = isFinished && (
+      match.homePenaltyScore != null && match.awayPenaltyScore != null
+        ? match.homePenaltyScore! > match.awayPenaltyScore!
+        : match.homeScore > match.awayScore
+    );
+    final bool hasAwayWon = isFinished && (
+      match.homePenaltyScore != null && match.awayPenaltyScore != null
+        ? match.awayPenaltyScore! > match.homePenaltyScore!
+        : match.awayScore > match.homeScore
+    );
 
     String homeName = match.homeTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, true);
     String awayName = match.awayTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, false);
@@ -290,13 +298,23 @@ class TournamentBracketWidget extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             // Home team row
-            _teamRow(context, homeName, isFinished ? '${match.homeScore}' : '–', homeIsPlaceholder, hasHomeWon),
+            _teamRow(
+              context, 
+              homeName, 
+              isFinished 
+                  ? '${match.homeScore}${match.homePenaltyScore != null ? ' (${match.homePenaltyScore})' : ''}' 
+                  : '–', 
+              homeIsPlaceholder, 
+              hasHomeWon
+            ),
             const SizedBox(height: 4),
             // Divider with score
             if (isFinished)
               Center(
                 child: Text(
-                  '${match.homeScore} : ${match.awayScore}',
+                  match.homePenaltyScore != null && match.awayPenaltyScore != null
+                      ? '${match.homeScore} (${match.homePenaltyScore}) : ${match.awayScore} (${match.awayPenaltyScore})'
+                      : '${match.homeScore} : ${match.awayScore}',
                   style: const TextStyle(color: _neon, fontSize: 11, fontWeight: FontWeight.w900),
                 ),
               )
@@ -307,7 +325,15 @@ class TournamentBracketWidget extends StatelessWidget {
               ),
             const SizedBox(height: 4),
             // Away team row
-            _teamRow(context, awayName, isFinished ? '${match.awayScore}' : '–', awayIsPlaceholder, hasAwayWon),
+            _teamRow(
+              context, 
+              awayName, 
+              isFinished 
+                  ? '${match.awayScore}${match.awayPenaltyScore != null ? ' (${match.awayPenaltyScore})' : ''}' 
+                  : '–', 
+              awayIsPlaceholder, 
+              hasAwayWon
+            ),
             const SizedBox(height: 6),
             // Date row
             Row(

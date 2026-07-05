@@ -197,10 +197,16 @@ class TournamentProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateMatchResult(String matchId, int homeScore, int awayScore) async {
+  Future<bool> updateMatchResult(String matchId, int homeScore, int awayScore, {int? homePenaltyScore, int? awayPenaltyScore}) async {
     _setLoading(true);
     try {
-      await _repository.updateMatchResult(matchId, homeScore, awayScore);
+      await _repository.updateMatchResult(
+        matchId, 
+        homeScore, 
+        awayScore, 
+        homePenaltyScore: homePenaltyScore, 
+        awayPenaltyScore: awayPenaltyScore
+      );
       if (_selectedTournament != null) {
         await fetchTournamentStandings(_selectedTournament!.id);
         await fetchTournamentMatches(_selectedTournament!.id);

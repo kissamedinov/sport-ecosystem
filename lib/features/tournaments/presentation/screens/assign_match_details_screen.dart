@@ -6,6 +6,7 @@ import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament_match.dart';
 import '../../providers/tournament_provider.dart';
+import '../../../../core/api/api_client.dart';
 
 class AssignMatchDetailsScreen extends StatefulWidget {
   final TournamentMatch match;
@@ -22,18 +23,84 @@ class AssignMatchDetailsScreen extends StatefulWidget {
 }
 
 class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
-  late TextEditingController _fieldController;
   late TextEditingController _refereeController;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
+  List<Map<String, dynamic>> _fields = [];
+  bool _loadingFields = false;
+  String? _selectedFieldIdOrName;
+
   @override
   void initState() {
     super.initState();
-    _fieldController = TextEditingController(text: widget.match.fieldId ?? '');
     _refereeController = TextEditingController(); // Assuming no referee_id in model yet
     _selectedDate = widget.match.matchDate;
     _selectedTime = widget.match.matchDate != null ? TimeOfDay.fromDateTime(widget.match.matchDate!) : null;
+    
+    // Resolve initial field selection
+    _selectedFieldIdOrName = widget.match.fieldId;
+    if (_selectedFieldIdOrName == null || _selectedFieldIdOrName!.isEmpty) {
+      _selectedFieldIdOrName = widget.match.fieldName;
+    }
+    
+    _fetchFields();
+  }
+
+  Future<void> _fetchFields() async {
+    setState(() => _loadingFields = true);
+    try {
+      final response = await context.read<ApiClient>().get('/fields');
+      final List<dynamic> data = response.data;
+      setState(() {
+        _fields = data.map((e) => Map<String, dynamic>.from(e)).toList();
+        
+        // Ensure initial selection is matched if found in DB fields by name
+        if (_selectedFieldIdOrName != null) {
+          final foundDbField = _fields.firstWhere(
+            (f) => f['id'].toString() == _selectedFieldIdOrName || f['name'] == _selectedFieldIdOrName,
+            orElse: () => {},
+          );
+          if (foundDbField.isNotEmpty) {
+            _selectedFieldIdOrName = foundDbField['id'].toString();
+          }
+        }
+      });
+    } catch (e) {
+      print("Error fetching fields: $e");
+    } finally {
+      setState(() => _loadingFields = false);
+    }
+  }
+
+  List<DropdownMenuItem<String>> _buildFieldDropdownItems(List<Map<String, dynamic>> dbFields, int numFields) {
+    final List<DropdownMenuItem<String>> items = [];
+    
+    // Add DB fields
+    for (var f in dbFields) {
+      items.add(
+        DropdownMenuItem(
+          value: f['id'].toString(),
+          child: Text(f['name'] ?? 'Поле', style: const TextStyle(fontSize: 14)),
+        ),
+      );
+    }
+    
+    // Add default fields if they aren't already represented
+    for (int i = 1; i <= numFields; i++) {
+      final defaultFieldName = "Поле $i";
+      final exists = dbFields.any((f) => (f['name'] as String?)?.toLowerCase() == defaultFieldName.toLowerCase());
+      if (!exists) {
+        items.add(
+          DropdownMenuItem(
+            value: defaultFieldName,
+            child: Text(defaultFieldName, style: const TextStyle(fontSize: 14)),
+          ),
+        );
+      }
+    }
+    
+    return items;
   }
 
   Future<void> _pickDate() async {
@@ -96,7 +163,7 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
       widget.tournamentId,
       widget.match.id,
       {
-        'field_id': _fieldController.text,
+        'field_id': _selectedFieldIdOrName,
         'match_date': finalDateTime?.toIso8601String(),
         'referee_name': _refereeController.text, // Mocking referee assignment
       },
@@ -132,10 +199,56 @@ class _AssignMatchDetailsScreenState extends State<AssignMatchDetailsScreen> {
             const SizedBox(height: 32),
             _buildSectionLabel('tournament.logistics'.tr()),
             const SizedBox(height: 16),
-            PremiumTextField(
-              controller: _fieldController,
-              label: 'tournament.field_court_name'.tr(),
-              icon: Icons.stadium_rounded,
+            Builder(
+              builder: (context) {
+                final tournament = context.read<TournamentProvider>().selectedTournament;
+                final int numFields = tournament?.numFields ?? 1;
+                final cs = Theme.of(context).colorScheme;
+
+                if (_loadingFields) {
+                  return const Center(child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+                  ));
+                }
+
+                // If initial selection is not in list of options, we add a fallback option to prevent crash
+                final dropdownItems = _buildFieldDropdownItems(_fields, numFields);
+                final hasSelected = dropdownItems.any((item) => item.value == _selectedFieldIdOrName);
+                if (!hasSelected && _selectedFieldIdOrName != null && _selectedFieldIdOrName!.isNotEmpty) {
+                  dropdownItems.add(
+                    DropdownMenuItem(
+                      value: _selectedFieldIdOrName,
+                      child: Text(_selectedFieldIdOrName!, style: const TextStyle(fontSize: 14)),
+                    ),
+                  );
+                }
+
+                return DropdownButtonFormField<String>(
+                  value: _selectedFieldIdOrName,
+                  dropdownColor: PremiumTheme.surfaceCard(context),
+                  style: TextStyle(color: cs.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'tournament.field_court_name'.tr(),
+                    prefixIcon: const Icon(Icons.stadium_rounded, color: PremiumTheme.neonGreen),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: cs.onSurface.withValues(alpha: 0.08)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: PremiumTheme.neonGreen),
+                    ),
+                  ),
+                  items: dropdownItems,
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedFieldIdOrName = val;
+                    });
+                  },
+                );
+              },
             ),
             const SizedBox(height: 16),
             PremiumTextField(

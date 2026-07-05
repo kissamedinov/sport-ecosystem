@@ -27,6 +27,10 @@ class MatchRepository {
     await _apiClient.patch('/matches/$matchId/finalize-result', data: resultData);
   }
 
+  Future<void> resetResult(String matchId) async {
+    await _apiClient.post('/matches/$matchId/reset-result');
+  }
+
   Future<void> createMatchEvent(String matchId, Map<String, dynamic> eventData) async {
     await _apiClient.post('/matches/$matchId/events', data: eventData);
   }

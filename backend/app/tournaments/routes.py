@@ -172,10 +172,12 @@ def update_match_result(
     match_id: UUID, 
     home_score: int, 
     away_score: int, 
+    home_penalty_score: Optional[int] = None,
+    away_penalty_score: Optional[int] = None,
     db: Session = Depends(get_db), 
     current_user: User = Depends(require_tournament_organizer)
 ):
-    return services.update_match_result(db, match_id, home_score, away_score)
+    return services.update_match_result(db, match_id, home_score, away_score, home_penalty_score, away_penalty_score)
 
 @router.patch("/matches/{match_id}", response_model=schemas.TournamentMatchResponse)
 def update_match_details(

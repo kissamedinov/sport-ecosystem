@@ -98,10 +98,12 @@ class TournamentRepository {
     return data.map((json) => TournamentStanding.fromJson(json)).toList();
   }
 
-  Future<TournamentMatch> updateMatchResult(String matchId, int homeScore, int awayScore) async {
+  Future<TournamentMatch> updateMatchResult(String matchId, int homeScore, int awayScore, {int? homePenaltyScore, int? awayPenaltyScore}) async {
     final response = await _apiClient.patch('/tournaments/matches/$matchId/result', queryParameters: {
       'home_score': homeScore,
       'away_score': awayScore,
+      if (homePenaltyScore != null) 'home_penalty_score': homePenaltyScore,
+      if (awayPenaltyScore != null) 'away_penalty_score': awayPenaltyScore,
     });
     return TournamentMatch.fromJson(response.data);
   }

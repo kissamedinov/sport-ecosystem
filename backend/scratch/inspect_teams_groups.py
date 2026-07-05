@@ -1,0 +1,24 @@
+from app.database import SessionLocal
+from app.tournaments.models import TournamentGroup, TournamentTeam
+from app.teams.models import Team
+from uuid import UUID
+
+db = SessionLocal()
+TOURNAMENT_ID = UUID('46bdeb91-c2cd-43b9-9a4e-35892b3d1652')
+
+# Get all groups
+groups = db.query(TournamentGroup).filter(TournamentGroup.tournament_id == TOURNAMENT_ID).all()
+print("Groups:")
+for g in groups:
+    print(f"Group: id={g.id} name={g.name}")
+    # Get teams in this group
+    tt_teams = db.query(TournamentTeam).filter(
+        TournamentTeam.tournament_id == TOURNAMENT_ID,
+        TournamentTeam.group_id == g.id
+    ).all()
+    print(f"  Teams count: {len(tt_teams)}")
+    for tt in tt_teams:
+        team = db.query(Team).filter(Team.id == tt.team_id).first()
+        print(f"    team_id={tt.team_id} name={team.name if team else 'Unknown'}")
+
+db.close()

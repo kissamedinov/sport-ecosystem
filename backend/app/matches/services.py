@@ -88,6 +88,8 @@ def submit_match_result(db: Session, match_id: UUID, result_in: MatchResultCreat
     if existing_result:
         existing_result.home_score = result_in.home_score
         existing_result.away_score = result_in.away_score
+        existing_result.home_penalty_score = result_in.home_penalty_score
+        existing_result.away_penalty_score = result_in.away_penalty_score
         existing_result.submitted_by = current_user.id
         existing_result.status = ResultStatus.SUBMITTED
     else:
@@ -95,6 +97,8 @@ def submit_match_result(db: Session, match_id: UUID, result_in: MatchResultCreat
             match_id=match_id,
             home_score=result_in.home_score,
             away_score=result_in.away_score,
+            home_penalty_score=result_in.home_penalty_score,
+            away_penalty_score=result_in.away_penalty_score,
             submitted_by=current_user.id,
             status=ResultStatus.SUBMITTED
         )
@@ -113,6 +117,10 @@ def finalize_match_result(db: Session, match_id: UUID):
     # Update match status
     match = db.query(Match).filter(Match.id == match_id).first()
     match.status = MatchStatus.FINISHED
+    match.home_score = result.home_score
+    match.away_score = result.away_score
+    match.home_penalty_score = result.home_penalty_score
+    match.away_penalty_score = result.away_penalty_score
     
     # Trigger ELO Rating update
     from app.teams.rating_service import update_team_ratings
@@ -152,7 +160,7 @@ def finalize_match_result(db: Session, match_id: UUID):
     tournament = db.query(Tournament).filter(Tournament.id == match.tournament_id).first()
     notification_service.create_notification(
         db,
-        user_ids=[tournament.owner_id],
+        user_ids=[tournament.created_by],
         notification_type=NotificationType.MATCH_RESULT,
         title="Match Result Finalized",
         message=f"Result finalized for {match.home_team_id} vs {match.away_team_id}",
@@ -253,6 +261,25 @@ def seed_playoffs_automatically(db: Session, tournament_id: UUID):
             m7.away_team_id = standings_b[3].team_id
             m7.status = MatchStatus.SCHEDULED
             
+    # Update Final and 3rd Place match statuses to SCHEDULED so they are visible
+    final_match = db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 2,
+        Match.bracket_position == 0
+    ).first()
+    if final_match:
+        final_match.status = MatchStatus.SCHEDULED
+
+    third_place_match = db.query(Match).filter(
+        Match.tournament_id == tournament_id,
+        Match.group_id.is_(None),
+        Match.round_number == 2,
+        Match.bracket_position == 1
+    ).first()
+    if third_place_match:
+        third_place_match.status = MatchStatus.SCHEDULED
+
     db.commit()
 
 def update_next_playoff_match(db: Session, match: Match):
@@ -262,8 +289,14 @@ def update_next_playoff_match(db: Session, match: Match):
     if not result:
         return
         
-    winner_id = match.home_team_id if result.home_score >= result.away_score else match.away_team_id
-    loser_id = match.away_team_id if result.home_score >= result.away_score else match.home_team_id
+    # Determine winner: use penalty score if present, else regular score
+    if result.home_penalty_score is not None and result.away_penalty_score is not None:
+        is_home_winner = result.home_penalty_score > result.away_penalty_score
+    else:
+        is_home_winner = result.home_score > result.away_score
+        
+    winner_id = match.home_team_id if is_home_winner else match.away_team_id
+    loser_id = match.away_team_id if is_home_winner else match.home_team_id
     
     # Find Final and 3rd Place matches:
     final_match = db.query(Match).filter(

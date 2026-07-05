@@ -7,6 +7,8 @@ from app.matches.models import MatchStatus, ResultStatus, EventType, LineupRole,
 class MatchResultBase(BaseModel):
     home_score: int = Field(..., ge=0)
     away_score: int = Field(..., ge=0)
+    home_penalty_score: Optional[int] = Field(None, ge=0)
+    away_penalty_score: Optional[int] = Field(None, ge=0)
 
 class MatchResultCreate(MatchResultBase):
     pass
@@ -35,6 +37,8 @@ class MatchResponse(MatchBase):
     status: MatchStatus
     home_score: int = 0
     away_score: int = 0
+    home_penalty_score: Optional[int] = None
+    away_penalty_score: Optional[int] = None
     elapsed_seconds: int = 0
     is_timer_running: bool = False
     timer_updated_at: Optional[datetime] = None
@@ -49,6 +53,8 @@ class MatchLiveUpdate(BaseModel):
     status: Optional[str] = None
     home_score: Optional[int] = None
     away_score: Optional[int] = None
+    home_penalty_score: Optional[int] = None
+    away_penalty_score: Optional[int] = None
     elapsed_seconds: Optional[int] = None
     is_timer_running: Optional[bool] = None
 

@@ -25,6 +25,8 @@ class TournamentStanding {
   final String? divisionName;
   @JsonKey(name: 'group_id')
   final String? groupId;
+  @JsonKey(name: 'group_name')
+  final String? groupName;
 
   TournamentStanding({
     required this.teamId,
@@ -40,6 +42,7 @@ class TournamentStanding {
     this.divisionId,
     this.divisionName,
     this.groupId,
+    this.groupName,
   });
 
   factory TournamentStanding.fromJson(Map<String, dynamic> json) => _$TournamentStandingFromJson(json);

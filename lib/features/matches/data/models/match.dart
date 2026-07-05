@@ -16,6 +16,10 @@ class MatchModel {
   final int? homeScore;
   @JsonKey(name: 'away_score')
   final int? awayScore;
+  @JsonKey(name: 'home_penalty_score')
+  final int? homePenaltyScore;
+  @JsonKey(name: 'away_penalty_score')
+  final int? awayPenaltyScore;
   @JsonKey(name: 'tournament_id')
   final String? tournamentId;
   @JsonKey(name: 'division_id')
@@ -36,6 +40,8 @@ class MatchModel {
     required this.status,
     this.homeScore,
     this.awayScore,
+    this.homePenaltyScore,
+    this.awayPenaltyScore,
     this.tournamentId,
     this.divisionId,
     this.groupId,

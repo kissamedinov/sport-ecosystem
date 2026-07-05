@@ -80,6 +80,19 @@ class MatchProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> resetResult(String matchId) async {
+    _setLoading(true);
+    try {
+      await _repository.resetResult(matchId);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> fetchMatchEvents(String matchId) async {
     _setLoading(true);
     _error = null;

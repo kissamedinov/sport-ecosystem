@@ -172,6 +172,24 @@ class TournamentMatchResponse(BaseModel):
             return self.result.away_score
         return 0
 
+    @computed_field
+    @property
+    def home_penalty_score(self) -> Optional[int]:
+        if self.result and isinstance(self.result, dict):
+            return self.result.get('home_penalty_score', None)
+        if hasattr(self.result, 'home_penalty_score'):
+            return self.result.home_penalty_score
+        return None
+
+    @computed_field
+    @property
+    def away_penalty_score(self) -> Optional[int]:
+        if self.result and isinstance(self.result, dict):
+            return self.result.get('away_penalty_score', None)
+        if hasattr(self.result, 'away_penalty_score'):
+            return self.result.away_penalty_score
+        return None
+
     model_config = ConfigDict(from_attributes=True)
 
 class TournamentTeamResponse(BaseModel):

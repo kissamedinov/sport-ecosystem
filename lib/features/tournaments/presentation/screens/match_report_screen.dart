@@ -41,12 +41,27 @@ class _MatchReportScreenState extends State<MatchReportScreen>
   late TabController _tabController;
   final _homeScoreController = TextEditingController(text: '0');
   final _awayScoreController = TextEditingController(text: '0');
+  final _homePenaltyController = TextEditingController(text: '0');
+  final _awayPenaltyController = TextEditingController(text: '0');
   bool _isSubmittingScore = false;
   bool _isUpdatingStatus = false;
   TournamentMatch? _currentMatch;
 
   final Map<String, String> _playerNamesCache = {};
   final Map<String, Map<String, dynamic>> _playerStats = {};
+
+  bool get _isPenaltyRequired {
+    if (_currentMatch == null) return false;
+    final isPlayoff = _currentMatch!.groupId == null || _currentMatch!.groupId!.isEmpty;
+    if (!isPlayoff) return false;
+    final homeScore = int.tryParse(_homeScoreController.text) ?? 0;
+    final awayScore = int.tryParse(_awayScoreController.text) ?? 0;
+    return homeScore == awayScore;
+  }
+
+  void _onScoreChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
@@ -57,10 +72,15 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         user?.roles?.contains('TOURNAMENT_ORGANIZER') == true ||
             user?.roles?.contains('ADMIN') == true;
 
+    _homeScoreController.addListener(_onScoreChanged);
+    _awayScoreController.addListener(_onScoreChanged);
+
     // Prefill scores
     if (_currentMatch != null) {
       _homeScoreController.text = _currentMatch!.homeScore.toString();
       _awayScoreController.text = _currentMatch!.awayScore.toString();
+      _homePenaltyController.text = (_currentMatch!.homePenaltyScore ?? 0).toString();
+      _awayPenaltyController.text = (_currentMatch!.awayPenaltyScore ?? 0).toString();
     }
 
     _tabController = TabController(
@@ -144,9 +164,13 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
   @override
   void dispose() {
+    _homeScoreController.removeListener(_onScoreChanged);
+    _awayScoreController.removeListener(_onScoreChanged);
     _tabController.dispose();
     _homeScoreController.dispose();
     _awayScoreController.dispose();
+    _homePenaltyController.dispose();
+    _awayPenaltyController.dispose();
     super.dispose();
   }
 
@@ -340,6 +364,38 @@ class _MatchReportScreenState extends State<MatchReportScreen>
                       ),
                     ],
                   ),
+                  if (_isPenaltyRequired) ...[
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Text(
+                        'ПЕНАЛЬТИ',
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 10,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildScoreInput(_homePenaltyController),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            ':',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildScoreInput(_awayPenaltyController),
+                        ),
+                      ],
+                    ),
+                  ],
                   if (_currentMatch?.status == 'SCHEDULED') ...[
                     const SizedBox(height: 20),
                     GestureDetector(
@@ -816,11 +872,30 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     final homeScore = int.tryParse(_homeScoreController.text) ?? 0;
     final awayScore = int.tryParse(_awayScoreController.text) ?? 0;
 
+    int? homePenalty;
+    int? awayPenalty;
+
+    if (_isPenaltyRequired) {
+      homePenalty = int.tryParse(_homePenaltyController.text) ?? 0;
+      awayPenalty = int.tryParse(_awayPenaltyController.text) ?? 0;
+
+      if (homePenalty == awayPenalty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Победитель по пенальти должен быть определен (счет серии не может быть равным)!'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ));
+        return;
+      }
+    }
+
     setState(() => _isSubmittingScore = true);
     final success = await context.read<TournamentProvider>().updateMatchResult(
           widget.matchId,
           homeScore,
           awayScore,
+          homePenaltyScore: homePenalty,
+          awayPenaltyScore: awayPenalty,
         );
     setState(() => _isSubmittingScore = false);
 

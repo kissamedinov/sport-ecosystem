@@ -532,7 +532,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                isFinished ? '${match.homeScore}' : '-',
+                isFinished ? '${match.homeScore}${match.homePenaltyScore != null ? ' (${match.homePenaltyScore})' : ''}' : '-',
                 style: TextStyle(
                   color: isFinished ? PremiumTheme.neonGreen : _secondaryTextColor,
                   fontWeight: FontWeight.bold,
@@ -541,7 +541,7 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
               ),
               const SizedBox(height: 6),
               Text(
-                isFinished ? '${match.awayScore}' : '-',
+                isFinished ? '${match.awayScore}${match.awayPenaltyScore != null ? ' (${match.awayPenaltyScore})' : ''}' : '-',
                 style: TextStyle(
                   color: isFinished ? PremiumTheme.neonGreen : _secondaryTextColor,
                   fontWeight: FontWeight.bold,
@@ -605,7 +605,11 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
           ),
           const SizedBox(height: 2),
           Text(
-            isFinished ? '${match.homeScore} : ${match.awayScore}' : 'vs',
+            isFinished
+                ? (match.homePenaltyScore != null && match.awayPenaltyScore != null
+                    ? '${match.homeScore} (${match.homePenaltyScore}) : ${match.awayScore} (${match.awayPenaltyScore})'
+                    : '${match.homeScore} : ${match.awayScore}')
+                : 'vs',
             style: TextStyle(
               color: isFinished ? PremiumTheme.neonGreen : _mutedTextColor,
               fontSize: isFinished ? 9 : 7,

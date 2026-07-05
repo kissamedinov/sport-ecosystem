@@ -1314,13 +1314,15 @@ def draw_tournament_groups(db: Session, tournament_id: UUID, num_groups: int, as
     db.commit()
     return get_tournament_groups(db, tournament_id)
 
-def update_match_result(db: Session, match_id: UUID, home_score: int, away_score: int):
+def update_match_result(db: Session, match_id: UUID, home_score: int, away_score: int, home_penalty_score: Optional[int] = None, away_penalty_score: Optional[int] = None):
     match = db.query(Match).filter(Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
     
     match.home_score = home_score
     match.away_score = away_score
+    match.home_penalty_score = home_penalty_score
+    match.away_penalty_score = away_penalty_score
     
     # Update or create MatchResult
     result = db.query(MatchResult).filter(MatchResult.match_id == match_id).first()
@@ -1329,6 +1331,8 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
             match_id=match_id,
             home_score=home_score,
             away_score=away_score,
+            home_penalty_score=home_penalty_score,
+            away_penalty_score=away_penalty_score,
             status=ResultStatus.FINAL,
             submitted_by=match.tournament.created_by if match.tournament else match.id # Organizer or fallback
         )
@@ -1336,6 +1340,8 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
     else:
         result.home_score = home_score
         result.away_score = away_score
+        result.home_penalty_score = home_penalty_score
+        result.away_penalty_score = away_penalty_score
         result.status = ResultStatus.FINAL
         
     match.status = MatchStatus.FINISHED
@@ -1343,12 +1349,17 @@ def update_match_result(db: Session, match_id: UUID, home_score: int, away_score
     # Automatic playoff advancement logic
     if match.next_match_id:
         if home_score == away_score:
-            raise HTTPException(
-                status_code=400,
-                detail="Playoff matches must have a winner. Draw scores are not allowed."
-            )
-        winner_id = match.home_team_id if home_score > away_score else match.away_team_id
-        loser_id = match.away_team_id if home_score > away_score else match.home_team_id
+            if home_penalty_score is None or away_penalty_score is None or home_penalty_score == away_penalty_score:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Playoff matches must have a winner. Draw scores require penalty shootout results."
+                )
+            is_home_winner = home_penalty_score > away_penalty_score
+        else:
+            is_home_winner = home_score > away_score
+            
+        winner_id = match.home_team_id if is_home_winner else match.away_team_id
+        loser_id = match.away_team_id if is_home_winner else match.home_team_id
         
         next_match = db.query(Match).filter(Match.id == match.next_match_id).first()
         if next_match:

@@ -370,7 +370,9 @@ class _MatchCenterScreenState extends State<MatchCenterScreen> with SingleTicker
           ),
           child: Text(
             isFinished || isLive
-                ? '${match.homeScore ?? 0} : ${match.awayScore ?? 0}'
+                ? (match.homePenaltyScore != null && match.awayPenaltyScore != null)
+                    ? '${match.homeScore ?? 0} (${match.homePenaltyScore}) : ${match.awayScore ?? 0} (${match.awayPenaltyScore})'
+                    : '${match.homeScore ?? 0} : ${match.awayScore ?? 0}'
                 : 'VS',
             style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white),
           ),
