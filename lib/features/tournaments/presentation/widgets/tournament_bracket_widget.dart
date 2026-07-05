@@ -250,7 +250,7 @@ class TournamentBracketWidget extends StatelessWidget {
         ? _neon
         : isDark
             ? (isFinal ? _neon.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.08))
-            : (isFinal ? _neon.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.06));
+            : (isFinal ? _neon.withValues(alpha: 0.45) : Colors.black.withValues(alpha: 0.12));
 
     final String dateStr = match.matchDate != null
         ? DateFormat('dd.MM HH:mm').format(match.matchDate!.toLocal())
@@ -371,6 +371,7 @@ class TournamentBracketWidget extends StatelessWidget {
 
   Widget _teamRow(BuildContext context, String name, String score, bool isPlaceholder, bool isWinner) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color winnerColor = isDark ? const Color(0xFF00E676) : const Color(0xFF1B5E20);
     
     // Parse score to separate regular and penalty scores for cleaner presentation
     InlineSpan scoreSpan;
@@ -386,7 +387,7 @@ class TournamentBracketWidget extends StatelessWidget {
               text: regVal,
               style: TextStyle(
                 color: isWinner
-                    ? const Color(0xFFFFD700)
+                    ? winnerColor
                     : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
                 fontSize: 13,
                 fontWeight: FontWeight.w900,
@@ -408,7 +409,7 @@ class TournamentBracketWidget extends StatelessWidget {
           text: score,
           style: TextStyle(
             color: isWinner
-                ? const Color(0xFFFFD700)
+                ? winnerColor
                 : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
             fontSize: 13,
             fontWeight: FontWeight.w900,
@@ -424,7 +425,7 @@ class TournamentBracketWidget extends StatelessWidget {
         Icon(
           isWinner ? Icons.star : Icons.shield_outlined,
           size: 13,
-          color: isWinner ? const Color(0xFFFFD700) : (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3)),
+          color: isWinner ? winnerColor : (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3)),
         ),
         const SizedBox(width: 6),
         Expanded(
