@@ -6,6 +6,12 @@ import '../screens/match_center_screen.dart';
 // Neon green accent
 const Color _neon = Color(0xFF00E676);
 
+String _cleanTeamName(String? name) {
+  if (name == null) return '';
+  final regExp = RegExp(r'\s*20\d{2}([-/]\d{2,4})?');
+  return name.replaceAll(regExp, '').trim();
+}
+
 class TournamentBracketWidget extends StatelessWidget {
   final List<TournamentMatch> matches;
   final String tournamentId;
@@ -226,11 +232,12 @@ class TournamentBracketWidget extends StatelessWidget {
         : match.awayScore > match.homeScore
     );
 
-    String homeName = match.homeTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, true);
-    String awayName = match.awayTeamName ?? _placeholder(match.roundNumber, match.bracketPosition, false);
-    
-    if (homeName == 'Home Team') homeName = _placeholder(match.roundNumber, match.bracketPosition, true);
-    if (awayName == 'Away Team') awayName = _placeholder(match.roundNumber, match.bracketPosition, false);
+    String homeName = match.homeTeamName != null && match.homeTeamName != 'Home Team'
+        ? _cleanTeamName(match.homeTeamName)
+        : _placeholder(match.roundNumber, match.bracketPosition, true);
+    String awayName = match.awayTeamName != null && match.awayTeamName != 'Away Team'
+        ? _cleanTeamName(match.awayTeamName)
+        : _placeholder(match.roundNumber, match.bracketPosition, false);
 
     final bool homeIsPlaceholder = match.homeTeamName == null || match.homeTeamName == 'Home Team';
     final bool awayIsPlaceholder = match.awayTeamName == null || match.awayTeamName == 'Away Team';
@@ -364,11 +371,59 @@ class TournamentBracketWidget extends StatelessWidget {
 
   Widget _teamRow(BuildContext context, String name, String score, bool isPlaceholder, bool isWinner) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Parse score to separate regular and penalty scores for cleaner presentation
+    InlineSpan scoreSpan;
+    if (!isPlaceholder) {
+      final regExp = RegExp(r'^(\d+)\s*(?:\((\d+)\))?$');
+      final match = regExp.firstMatch(score);
+      if (match != null) {
+        final regVal = match.group(1) ?? '0';
+        final penVal = match.group(2);
+        scoreSpan = TextSpan(
+          children: [
+            TextSpan(
+              text: regVal,
+              style: TextStyle(
+                color: isWinner
+                    ? const Color(0xFFFFD700)
+                    : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            if (penVal != null)
+              TextSpan(
+                text: ' ($penVal)',
+                style: TextStyle(
+                  color: isDark ? Colors.white.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.35),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
+        );
+      } else {
+        scoreSpan = TextSpan(
+          text: score,
+          style: TextStyle(
+            color: isWinner
+                ? const Color(0xFFFFD700)
+                : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+          ),
+        );
+      }
+    } else {
+      scoreSpan = const TextSpan();
+    }
+
     return Row(
       children: [
         Icon(
           isWinner ? Icons.star : Icons.shield_outlined,
-          size: 12,
+          size: 13,
           color: isWinner ? const Color(0xFFFFD700) : (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.3)),
         ),
         const SizedBox(width: 6),
@@ -383,23 +438,14 @@ class TournamentBracketWidget extends StatelessWidget {
                   : isWinner
                       ? (isDark ? Colors.white : Colors.black)
                       : (isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8)),
-              fontSize: 11,
-              fontWeight: isWinner ? FontWeight.w800 : FontWeight.w500,
+              fontSize: isPlaceholder ? 11 : 12.5,
+              fontWeight: isWinner ? FontWeight.w900 : (isPlaceholder ? FontWeight.normal : FontWeight.bold),
               fontStyle: isPlaceholder ? FontStyle.italic : FontStyle.normal,
             ),
           ),
         ),
         if (!isPlaceholder)
-          Text(
-            score,
-            style: TextStyle(
-              color: isWinner
-                  ? const Color(0xFFFFD700)
-                  : (isDark ? Colors.white.withValues(alpha: 0.5) : Colors.black.withValues(alpha: 0.5)),
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text.rich(scoreSpan),
       ],
     );
   }

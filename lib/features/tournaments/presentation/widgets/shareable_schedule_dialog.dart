@@ -10,6 +10,12 @@ import '../../data/models/tournament_match.dart';
 import '../../data/models/tournament.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
 
+String _cleanTeamName(String? name) {
+  if (name == null) return '';
+  final regExp = RegExp(r'\s*20\d{2}([-/]\d{2,4})?');
+  return name.replaceAll(regExp, '').trim();
+}
+
 class ShareableScheduleDialog extends StatefulWidget {
   final List<TournamentMatch> matches;
   final Tournament tournament;
@@ -444,8 +450,8 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     final timeStr = match.matchDate != null ? DateFormat('HH:mm').format(match.matchDate!.toLocal()) : 'TBD';
     final homePlaceholder = _getPlayoffPlaceholder(match, true);
     final awayPlaceholder = _getPlayoffPlaceholder(match, false);
-    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : match.homeTeamName!;
-    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : match.awayTeamName!;
+    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : _cleanTeamName(match.homeTeamName!);
+    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : _cleanTeamName(match.awayTeamName!);
     final isFinished = match.status == 'FINISHED';
 
     return Container(
@@ -560,8 +566,8 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     final timeStr = match.matchDate != null ? DateFormat('HH:mm').format(match.matchDate!.toLocal()) : 'TBD';
     final homePlaceholder = _getPlayoffPlaceholder(match, true);
     final awayPlaceholder = _getPlayoffPlaceholder(match, false);
-    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : match.homeTeamName!;
-    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : match.awayTeamName!;
+    final homeName = (match.homeTeamName == null || match.homeTeamName == 'Home Team') ? homePlaceholder : _cleanTeamName(match.homeTeamName!);
+    final awayName = (match.awayTeamName == null || match.awayTeamName == 'Away Team') ? awayPlaceholder : _cleanTeamName(match.awayTeamName!);
     final isFinished = match.status == 'FINISHED';
 
     return Container(
