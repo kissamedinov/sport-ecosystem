@@ -15,6 +15,7 @@ def update_standings(db: Session, tournament_id: UUID, team_id: UUID, division_i
     # Get team's group and division if not provided
     match_info = db.query(Match).filter(
         Match.tournament_id == tournament_id,
+        Match.group_id.isnot(None),
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id))
     ).first()
     
@@ -116,5 +117,6 @@ def get_standings(db: Session, tournament_id: UUID, group_id: Optional[UUID] = N
     # Pre-populate team name for the schema to avoid lazy loading issues
     for s in sorted_standings:
         s.team_name = s.team.name
+        s.group_name = s.group.name if s.group else None
         
     return sorted_standings
