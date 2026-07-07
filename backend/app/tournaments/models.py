@@ -124,6 +124,10 @@ class Tournament(Base):
     registrations = relationship("TournamentRegistration", back_populates="tournament", cascade="all, delete-orphan")
     creator = relationship("User", foreign_keys=[created_by])
 
+    @property
+    def series_name(self) -> Optional[str]:
+        return self.series.name if self.series else None
+
 class TournamentDivision(Base):
     __tablename__ = "tournament_divisions"
 
