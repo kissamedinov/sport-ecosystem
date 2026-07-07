@@ -372,4 +372,32 @@ class TournamentProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> updateTournamentSeries({
+    required String id,
+    String? name,
+    String? city,
+    String? description,
+    String? logoUrl,
+  }) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.updateTournamentSeries(id, {
+        if (name != null) 'name': name,
+        if (city != null) 'city': city,
+        if (description != null) 'description': description,
+        if (logoUrl != null) 'logo_url': logoUrl,
+      });
+      if (_selectedSeriesDetail != null && _selectedSeriesDetail!.id == id) {
+        await fetchTournamentSeriesDetail(id);
+      }
+      await fetchTournamentSeries();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
 }

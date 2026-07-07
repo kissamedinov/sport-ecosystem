@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/tournament_provider.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import 'create_tournament_screen.dart';
@@ -8,6 +9,7 @@ import 'tournament_details_page.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament_series.dart';
+import '../../data/models/tournament.dart';
 
 class TournamentSeriesDetailsScreen extends StatefulWidget {
   final String seriesId;
@@ -40,7 +42,9 @@ class _CreateSeriesTournamentButton extends StatelessWidget {
               builder: (context) => CreateTournamentScreen(seriesId: seriesId),
             ),
           ).then((_) {
-            context.read<TournamentProvider>().fetchTournamentSeriesDetail(seriesId);
+            if (context.mounted) {
+              context.read<TournamentProvider>().fetchTournamentSeriesDetail(seriesId);
+            }
           });
         },
       ),
@@ -123,12 +127,20 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
         elevation: 0,
         title: Text(
           detail.name.toUpperCase(),
-          style: const TextStyle(
-            letterSpacing: 2,
+          style: GoogleFonts.outfit(
+            letterSpacing: 1,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
+        actions: [
+          if (isOrganizer)
+            IconButton(
+              icon: const Icon(Icons.edit_note_rounded, color: PremiumTheme.neonGreen),
+              onPressed: () => _showEditSeriesDialog(context, detail),
+            ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -225,7 +237,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                 tabs: const [
                   Tab(text: 'Сезоны'),
                   Tab(text: 'Чемпионы'),
-                  Tab(text: 'Таблица'),
+                  Tab(text: 'Этапы'),
                   Tab(text: 'Игроки'),
                 ],
               ),
@@ -240,7 +252,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
               children: [
                 _buildSeasonsTab(detail, cs, isDark),
                 _buildChampionsTab(detail, cs, isDark),
-                _buildLeaderboardTab(detail, cs, isDark),
+                _buildStagesTab(detail, cs, isDark),
                 _buildPlayersTab(detail, cs, isDark),
               ],
             ),
@@ -410,88 +422,257 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
     );
   }
 
-  // 3. Leaderboard Tab
-  Widget _buildLeaderboardTab(TournamentSeriesDetail detail, ColorScheme cs, bool isDark) {
-    if (detail.teamLeaderboard.isEmpty) {
+  // 3. Stages (Timeline) Tab
+  Widget _buildStagesTab(TournamentSeriesDetail detail, ColorScheme cs, bool isDark) {
+    if (detail.editions.isEmpty) {
       return Center(
         child: Text(
-          'История игр команд пуста',
-          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+          'Этапы турниров не запланированы',
+          style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 14, fontWeight: FontWeight.w500),
         ),
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columnSpacing: 16,
-            horizontalMargin: 8,
-            columns: const [
-              DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Команда', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('И', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('В', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Н', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('П', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Мячи', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Очки', style: TextStyle(fontWeight: FontWeight.bold))),
-            ],
-            rows: List.generate(detail.teamLeaderboard.length, (index) {
-              final t = detail.teamLeaderboard[index];
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Text(
-                      '${index + 1}',
-                      style: TextStyle(
-                        color: index == 0 ? PremiumTheme.neonGreen : cs.onSurface,
-                        fontWeight: index == 0 ? FontWeight.bold : FontWeight.normal,
+    final sortedEditions = List<Tournament>.from(detail.editions);
+    sortedEditions.sort((a, b) => a.startDate.compareTo(b.startDate));
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      itemCount: sortedEditions.length,
+      itemBuilder: (context, index) {
+        final t = sortedEditions[index];
+        final isFinished = t.displayStatus == 'FINISHED';
+        final isActive = t.displayStatus == 'ACTIVE';
+
+        Color badgeColor = cs.onSurfaceVariant;
+        String statusLabel = 'Запланирован';
+        if (isActive) {
+          badgeColor = PremiumTheme.neonGreen;
+          statusLabel = 'В эфире';
+        } else if (isFinished) {
+          badgeColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
+          statusLabel = 'Завершен';
+        }
+
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Stepper Line and Circle
+              Column(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.15) : cs.onSurface.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isActive ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.2),
+                        width: 2,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${index + 1}',
+                        style: GoogleFonts.outfit(
+                          color: isActive ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  DataCell(
-                    Row(
-                      children: [
-                        if (t.logoUrl != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: Image.network(t.logoUrl!, width: 20, height: 20, fit: BoxFit.cover),
-                          )
-                        else
-                          const Icon(Icons.shield, size: 20, color: PremiumTheme.neonGreen),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.teamName,
-                          style: TextStyle(
-                            fontWeight: index == 0 ? FontWeight.bold : FontWeight.normal,
+                  if (index < sortedEditions.length - 1)
+                    Expanded(
+                      child: Container(
+                        width: 2,
+                        color: cs.onSurface.withValues(alpha: 0.1),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              // Stage Card Details
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: PremiumTheme.surfaceCard(context),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.06),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TournamentDetailsPage(tournamentId: t.id),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'ЭТАП ${index + 1}',
+                                      style: GoogleFonts.outfit(
+                                        color: PremiumTheme.neonGreen,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: badgeColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
+                                      ),
+                                      child: Text(
+                                        statusLabel.toUpperCase(),
+                                        style: GoogleFonts.outfit(
+                                          color: badgeColor,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  t.name,
+                                  style: GoogleFonts.outfit(
+                                    color: cs.onSurface,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_today_rounded, size: 12, color: cs.onSurfaceVariant),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${t.startDate} — ${t.endDate}',
+                                      style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11),
+                                    ),
+                                    const Spacer(),
+                                    Icon(Icons.location_on_rounded, size: 12, color: cs.onSurfaceVariant),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      t.location,
+                                      style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  DataCell(Text('${t.played}')),
-                  DataCell(Text('${t.wins}')),
-                  DataCell(Text('${t.draws}')),
-                  DataCell(Text('${t.losses}')),
-                  DataCell(Text('${t.goalsFor}-${t.goalsAgainst}')),
-                  DataCell(
-                    Text(
-                      '${t.points}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: index == 0 ? PremiumTheme.neonGreen : cs.onSurface,
                       ),
                     ),
                   ),
-                ],
-              );
-            }),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  void _showEditSeriesDialog(BuildContext context, TournamentSeriesDetail detail) {
+    final nameController = TextEditingController(text: detail.name);
+    final cityController = TextEditingController(text: detail.city);
+    final descController = TextEditingController(text: detail.description);
+    final logoController = TextEditingController(text: detail.logoUrl);
+    final cs = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(context),
+          title: Text(
+            'РЕДАКТИРОВАТЬ ЛИГУ (ЭГИДУ)',
+            style: GoogleFonts.outfit(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PremiumTextField(
+                  controller: nameController,
+                  label: 'Название Лиги/Серии',
+                  icon: Icons.emoji_events,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: cityController,
+                  label: 'Город',
+                  icon: Icons.location_on,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: descController,
+                  label: 'Описание лиги',
+                  icon: Icons.description,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: logoController,
+                  label: 'Ссылка на Логотип (URL)',
+                  icon: Icons.link,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Отмена', style: TextStyle(color: cs.onSurfaceVariant)),
+            ),
+            PremiumButton(
+              text: 'Сохранить',
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) return;
+                
+                final success = await context.read<TournamentProvider>().updateTournamentSeries(
+                  id: detail.id,
+                  name: nameController.text.trim(),
+                  city: cityController.text.trim(),
+                  description: descController.text.trim(),
+                  logoUrl: logoController.text.trim(),
+                );
+                
+                if (success && context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Лига успешно обновлена!')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
