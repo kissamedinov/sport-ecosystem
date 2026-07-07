@@ -82,6 +82,20 @@ def create_tournament_series(db: Session, series_in: TournamentSeriesCreate):
     db.refresh(new_series)
     return new_series
 
+def update_tournament_series(db: Session, series_id: UUID, series_in: schemas.TournamentSeriesUpdate):
+    series = db.query(TournamentSeries).filter(TournamentSeries.id == series_id).first()
+    if not series:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tournament Series not found"
+        )
+    update_data = series_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(series, field, value)
+    db.commit()
+    db.refresh(series)
+    return series
+
 def get_tournament_series(db: Session):
     return db.query(TournamentSeries).all()
 

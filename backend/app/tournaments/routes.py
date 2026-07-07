@@ -30,6 +30,15 @@ def get_tournament_series(db: Session = Depends(get_db)):
 def get_series_detail(id: UUID, db: Session = Depends(get_db)):
     return services.get_tournament_series_detail(db=db, series_id=id)
 
+@router.patch("/series/{id}", response_model=schemas.TournamentSeriesResponse)
+def update_tournament_series(
+    id: UUID,
+    series_in: schemas.TournamentSeriesUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tournament_organizer)
+):
+    return services.update_tournament_series(db=db, series_id=id, series_in=series_in)
+
 #  Editions (Tournaments) 
 
 @router.post("", response_model=schemas.TournamentResponse, status_code=status.HTTP_201_CREATED)

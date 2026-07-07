@@ -213,6 +213,12 @@ class TournamentSeriesBase(BaseModel):
 class TournamentSeriesCreate(TournamentSeriesBase):
     organizer_id: UUID
 
+class TournamentSeriesUpdate(BaseModel):
+    name: Optional[str] = None
+    city: Optional[str] = None
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+
 class TournamentSeriesResponse(TournamentSeriesBase):
     id: UUID
     organizer_id: UUID
