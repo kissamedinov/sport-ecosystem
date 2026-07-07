@@ -418,6 +418,8 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildContactTab(Tournament t) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final hasWhatsapp = t.whatsapp != null && t.whatsapp!.trim().isNotEmpty;
     final hasPhone = t.phone != null && t.phone!.trim().isNotEmpty;
     final hasInstagram = t.instagram != null && t.instagram!.trim().isNotEmpty;
@@ -427,19 +429,26 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('tournament.organizer_contacts_section'.tr(), Icons.contact_support),
+          _buildSectionTitle('tournament.organizer_contacts_section'.tr(), Icons.contact_support_rounded),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: PremiumTheme.surfaceCard(context),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: cs.onSurface.withValues(alpha: 0.06), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               children: [
                 if (hasWhatsapp)
                   _buildContactItem(
-                    Icons.message,
+                    Icons.message_rounded,
                     'WhatsApp',
                     t.whatsapp!,
                     onTap: () {
@@ -447,15 +456,15 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                       _launchURL('https://wa.me/$cleanPhone');
                     },
                   ),
-                if (hasWhatsapp && (hasPhone || hasInstagram)) Divider(color: cs.onSurface.withValues(alpha: 0.08)),
+                if (hasWhatsapp && (hasPhone || hasInstagram)) Divider(color: cs.onSurface.withValues(alpha: 0.06)),
                 if (hasPhone)
                   _buildContactItem(
-                    Icons.phone,
-                    'Phone Number',
+                    Icons.phone_rounded,
+                    'phone'.tr(),
                     t.phone!,
                     onTap: () => _launchURL('tel:${t.phone}'),
                   ),
-                if (hasPhone && hasInstagram) Divider(color: cs.onSurface.withValues(alpha: 0.08)),
+                if (hasPhone && hasInstagram) Divider(color: cs.onSurface.withValues(alpha: 0.06)),
                 if (hasInstagram)
                   _buildContactItem(
                     Icons.camera_alt_outlined,
@@ -469,26 +478,52 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 if (!hasWhatsapp && !hasPhone && !hasInstagram)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: Text('tournament.no_contact_info'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4)))),
+                    child: Center(
+                      child: Text(
+                        'tournament.no_contact_info'.tr(),
+                        style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontWeight: FontWeight.w500),
+                      ),
+                    ),
                   ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          _buildSectionTitle('tournament.location_section'.tr(), Icons.map),
+          _buildSectionTitle('tournament.location_section'.tr(), Icons.map_rounded),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: PremiumTheme.surfaceCard(context),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: cs.onSurface.withValues(alpha: 0.06), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
-                Icon(Icons.location_on, color: PremiumTheme.accent(context)),
-                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: PremiumTheme.neonGreen.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.location_on_rounded, color: PremiumTheme.neonGreen, size: 20),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Text(t.location, style: TextStyle(color: cs.onSurface)),
+                  child: Text(
+                    t.location,
+                    style: GoogleFonts.outfit(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -500,31 +535,50 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildContactItem(IconData icon, String label, String value, {required VoidCallback onTap}) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: PremiumTheme.accent(context).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: PremiumTheme.neonGreen.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: PremiumTheme.neonGreen, size: 20),
               ),
-              child: Icon(icon, color: PremiumTheme.accent(context), size: 20),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 11)),
-                Text(value, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
-              ],
-            ),
-            const Spacer(),
-            Icon(Icons.chevron_right, color: cs.onSurface.withValues(alpha: 0.2)),
-          ],
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.outfit(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: GoogleFonts.outfit(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Icon(Icons.arrow_forward_ios_rounded, color: cs.onSurfaceVariant, size: 14),
+            ],
+          ),
         ),
       ),
     );
@@ -536,12 +590,58 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
       padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: PremiumTheme.accent(context)),
+          Icon(icon, size: 16, color: PremiumTheme.neonGreen),
           const SizedBox(width: 8),
-          Text(title, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          Text(
+            title.toUpperCase(),
+            style: GoogleFonts.outfit(
+              color: cs.onSurfaceVariant,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  String _getFormatDisplay(String format) {
+    final lang = context.locale.languageCode;
+    final fmt = format.trim().toUpperCase();
+    if (fmt == 'GROUP_STAGE') {
+      if (lang == 'ru') return 'Групповой этап';
+      if (lang == 'kk') return 'Топтық кезең';
+      return 'Group Stage';
+    }
+    if (fmt == 'KNOCKOUT') {
+      if (lang == 'ru') return 'Плей-офф';
+      if (lang == 'kk') return 'Плей-офф';
+      return 'Knockout';
+    }
+    return format;
+  }
+
+  String _getSurfaceDisplay(String? surface) {
+    if (surface == null) return 'N/A';
+    final lang = context.locale.languageCode;
+    final surf = surface.trim().toUpperCase();
+    if (surf == 'ARTIFICIAL_TURF' || surf == 'ARTIFICIAL_GRASS') {
+      if (lang == 'ru') return 'Искусственный газон';
+      if (lang == 'kk') return 'Жасанды газон';
+      return 'Artificial Turf';
+    }
+    if (surf == 'NATURAL_GRASS') {
+      if (lang == 'ru') return 'Натуральный газон';
+      if (lang == 'kk') return 'Табиғи газон';
+      return 'Natural Grass';
+    }
+    if (surf == 'INDOOR' || surf == 'PARQUET') {
+      if (lang == 'ru') return 'Паркет / Зал';
+      if (lang == 'kk') return 'Паркет / Зал';
+      return 'Indoor / Parquet';
+    }
+    return surface;
   }
 
   Widget _buildDivisionCard(Map<String, dynamic> division, TournamentProvider provider) {
@@ -569,13 +669,29 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
     final registeredTeam = myRegisteredTeam;
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final isApproved = registeredTeam?.status == 'APPROVED';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: PremiumTheme.surfaceCard(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: registeredTeam != null
+              ? (isApproved ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.15))
+              : cs.onSurface.withValues(alpha: 0.06),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -583,28 +699,53 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
                 Text(
-                  canSeeFee
-                      ? 'tournament.requirement_born_fee'.tr(namedArgs: {
-                          'format': format ?? 'Standard',
-                          'year': birthYear.toString(),
-                          'fee': (entryFee ?? 0).toString(),
-                        })
-                      : 'tournament.requirement_born'.tr(namedArgs: {
-                          'format': format ?? 'Standard',
-                          'year': birthYear.toString(),
-                        }),
-                  style: TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.4))
+                  name,
+                  style: GoogleFonts.outfit(
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: cs.onSurface.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _getFormatDisplay(format),
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      canSeeFee
+                          ? 'Турнирный взнос: $entryFee ₸'
+                          : 'Требование: $birthYear г.р.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           if (registeredTeam != null)
             SizedBox(
-              height: 36,
+              height: 38,
               child: ElevatedButton(
-                onPressed: registeredTeam.status == 'APPROVED' ? () {
+                onPressed: isApproved ? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -617,35 +758,40 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                   );
                 } : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: registeredTeam.status == 'APPROVED'
-                    ? PremiumTheme.accent(context)
+                  backgroundColor: isApproved
+                    ? PremiumTheme.neonGreen
                     : cs.onSurface.withValues(alpha: 0.05),
-                  foregroundColor: registeredTeam.status == 'APPROVED'
+                  foregroundColor: isApproved
                     ? Colors.black
                     : cs.onSurface.withValues(alpha: 0.4),
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  registeredTeam.status == 'APPROVED'
-                    ? (canManageSquad ? 'tournament.manage_squad_btn'.tr() : 'tournament.view_squad_btn'.tr())
-                    : 'tournament.pending_btn'.tr(),
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)
+                  isApproved
+                    ? (canManageSquad ? 'СОСТАВ' : 'ПРОСМОТР')
+                    : 'В ОЖИДАНИИ',
+                  style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
               ),
             )
           else
             SizedBox(
-              height: 36,
+              height: 38,
               child: ElevatedButton(
                 onPressed: () => _showRegisterTeamDialog(context, division, birthYear),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: PremiumTheme.accent(context),
+                  backgroundColor: PremiumTheme.neonGreen,
                   foregroundColor: Colors.black,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('tournament.register_btn'.tr(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'РЕГИСТРАЦИЯ',
+                  style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
         ],
@@ -655,21 +801,29 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
   Widget _buildInfoGrid(Tournament t) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: PremiumTheme.surfaceCard(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurface.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.06), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _buildInfoRow(Icons.format_list_bulleted, 'tournament.format_row'.tr(), t.format),
-          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
-          _buildInfoRow(Icons.terrain, 'tournament.surface_row'.tr(), t.surfaceType ?? 'tournament.natural_grass'.tr()),
-          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
+          _buildInfoRow(Icons.format_list_bulleted, 'tournament.format_row'.tr(), _getFormatDisplay(t.format)),
+          Divider(color: cs.onSurface.withValues(alpha: 0.06)),
+          _buildInfoRow(Icons.terrain, 'tournament.surface_row'.tr(), _getSurfaceDisplay(t.surfaceType)),
+          Divider(color: cs.onSurface.withValues(alpha: 0.06)),
           _buildInfoRow(Icons.timer, 'tournament.match_time_row'.tr(), 'tournament.halves_suffix'.tr(namedArgs: {'min': t.matchHalfDuration.toString()})),
-          Divider(color: cs.onSurface.withValues(alpha: 0.08)),
+          Divider(color: cs.onSurface.withValues(alpha: 0.06)),
           _buildInfoRow(Icons.coffee, 'tournament.break_row'.tr(), 'tournament.rest_suffix'.tr(namedArgs: {'min': t.breakBetweenMatches.toString()})),
         ],
       ),
@@ -679,14 +833,35 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   Widget _buildInfoRow(IconData icon, String label, String value) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: PremiumTheme.accent(context)),
-          const SizedBox(width: 12),
-          Text(label, style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: 13)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: PremiumTheme.neonGreen.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 16, color: PremiumTheme.neonGreen),
+          ),
+          const SizedBox(width: 14),
+          Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: cs.onSurfaceVariant,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const Spacer(),
-          Text(value, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(
+            value,
+            style: GoogleFonts.outfit(
+              color: cs.onSurface,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );
