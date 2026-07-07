@@ -663,6 +663,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
 
     final bool canManageSquad = user?.roles?.any((r) =>
       ['COACH', 'TEAM_OWNER', 'TOURNAMENT_ORGANIZER', 'ADMIN', 'CLUB_OWNER', 'CLUB_MANAGER'].contains(r)) == true;
+    final bool canRegister = canManageSquad;
 
     final myTeamIds = context.read<TeamProvider>().myTeams.map((t) => t.id).toSet();
     
@@ -782,7 +783,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                 ),
               ),
             )
-          else
+          else if (canRegister)
             SizedBox(
               height: 38,
               child: ElevatedButton(
