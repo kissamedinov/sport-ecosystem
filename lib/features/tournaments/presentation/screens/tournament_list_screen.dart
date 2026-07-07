@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/tournament_provider.dart';
 import '../../../../features/academies/providers/academy_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
@@ -10,6 +11,59 @@ import 'tournament_series_details_screen.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament.dart';
+
+class GroupedTournamentItem {
+  final String? seriesId;
+  final String? seriesName;
+  final List<Tournament> tournaments;
+  final Tournament? singleTournament;
+
+  GroupedTournamentItem({
+    this.seriesId,
+    this.seriesName,
+    required this.tournaments,
+    this.singleTournament,
+  });
+
+  bool get isSeries => seriesId != null;
+
+  String get id => isSeries ? seriesId! : singleTournament!.id;
+  
+  String get name {
+    if (isSeries) return seriesName!;
+    return singleTournament!.name;
+  }
+
+  String? get logoUrl => isSeries
+      ? tournaments.firstWhere((t) => t.logoUrl != null && t.logoUrl!.isNotEmpty, orElse: () => tournaments.first).logoUrl
+      : singleTournament!.logoUrl;
+
+  String get location => isSeries ? tournaments.first.location : singleTournament!.location;
+
+  String get displayStatus {
+    if (isSeries) {
+      if (tournaments.any((t) => t.displayStatus == 'ACTIVE')) return 'ACTIVE';
+      if (tournaments.any((t) => t.displayStatus == 'UPCOMING' || t.displayStatus == 'REGISTRATION')) return 'UPCOMING';
+      return 'FINISHED';
+    }
+    return singleTournament!.displayStatus;
+  }
+
+  String get dateRange {
+    if (isSeries) {
+      if (tournaments.isEmpty) return '';
+      final sorted = List<Tournament>.from(tournaments);
+      sorted.sort((a, b) => a.startDate.compareTo(b.startDate));
+      final start = sorted.first.startDate;
+      final end = sorted.last.endDate;
+      return '$start — $end';
+    }
+    return '${singleTournament!.startDate} — ${singleTournament!.endDate}';
+  }
+
+  String get format => isSeries ? tournaments.first.format : singleTournament!.format;
+  String get ageCategory => isSeries ? '${tournaments.length} возр.' : singleTournament!.ageCategory;
+}
 
 class TournamentListScreen extends StatefulWidget {
   final int initialIndex;
@@ -98,44 +152,140 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
     return true; // Default to adult
   }
 
-  Widget _buildAgeToggle() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      child: Row(
-        children: [
-          _buildAgeChip('ADULT', _showAdults, () {
-            if (!_showAdults) {
-              setState(() => _showAdults = true);
-            }
-          }),
-          const SizedBox(width: 8),
-          _buildAgeChip('YOUTH', !_showAdults, () {
-            if (_showAdults) {
-              setState(() => _showAdults = false);
-            }
-          }),
-        ],
-      ),
-    );
+  List<GroupedTournamentItem> _groupTournaments(List<Tournament> list) {
+    final List<GroupedTournamentItem> grouped = [];
+    final Map<String, List<Tournament>> seriesMap = {};
+    final List<String> seenOrder = [];
+    
+    for (final t in list) {
+      if (t.seriesId != null && t.seriesId!.isNotEmpty) {
+        if (!seriesMap.containsKey(t.seriesId!)) {
+          seenOrder.add('series:${t.seriesId}');
+        }
+        seriesMap.putIfAbsent(t.seriesId!, () => []).add(t);
+      } else {
+        seenOrder.add('tourney:${t.id}');
+        seriesMap[t.id] = [t];
+      }
+    }
+    
+    for (final key in seenOrder) {
+      if (key.startsWith('series:')) {
+        final seriesId = key.substring(7);
+        final listInSeries = seriesMap[seriesId];
+        if (listInSeries != null && listInSeries.isNotEmpty) {
+          grouped.add(GroupedTournamentItem(
+            seriesId: seriesId,
+            seriesName: listInSeries.first.seriesName ?? listInSeries.first.name,
+            tournaments: listInSeries,
+          ));
+          seriesMap.remove(seriesId);
+        }
+      } else {
+        final tourneyId = key.substring(8);
+        final listInSeries = seriesMap[tourneyId];
+        if (listInSeries != null && listInSeries.isNotEmpty) {
+          grouped.add(GroupedTournamentItem(
+            tournaments: listInSeries,
+            singleTournament: listInSeries.first,
+          ));
+          seriesMap.remove(tourneyId);
+        }
+      }
+    }
+    
+    return grouped;
   }
 
-  Widget _buildAgeChip(String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildAgeToggle() {
     final cs = Theme.of(context).colorScheme;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) => onTap(),
-      backgroundColor: PremiumTheme.surfaceCard(context),
-      selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
-      labelStyle: TextStyle(
-        color: isSelected ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
-        fontSize: 11,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: PremiumTheme.surfaceCard(context),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: cs.onSurface.withValues(alpha: 0.06), width: 1.5),
       ),
-      showCheckmark: false,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (!_showAdults) {
+                  setState(() => _showAdults = true);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: _showAdults ? PremiumTheme.neonGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.emoji_people_rounded,
+                      size: 16,
+                      color: _showAdults ? Colors.black : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'ВЗРОСЛЫЕ'.tr(),
+                      style: GoogleFonts.outfit(
+                        color: _showAdults ? Colors.black : cs.onSurfaceVariant,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (_showAdults) {
+                  setState(() => _showAdults = false);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: !_showAdults ? PremiumTheme.neonGreen : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.child_care_rounded,
+                      size: 16,
+                      color: !_showAdults ? Colors.black : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'ДЕТСКИЕ'.tr(),
+                      style: GoogleFonts.outfit(
+                        color: !_showAdults ? Colors.black : cs.onSurfaceVariant,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -224,28 +374,30 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                     ? provider.tournaments
                     : provider.tournaments.where((t) => _showAdults ? _isAdultTournament(t) : !_isAdultTournament(t)).toList();
 
-                if (tournaments.isEmpty) {
+                final groupedItems = _groupTournaments(tournaments);
+
+                if (groupedItems.isEmpty) {
                   return _buildEmptyState();
                 }
 
-                final activeTournaments = tournaments.where((t) => t.displayStatus == 'ACTIVE').toList();
-                final upcomingTournaments = tournaments.where((t) => t.displayStatus != 'ACTIVE' && t.displayStatus != 'FINISHED').toList();
-                final finishedTournaments = tournaments.where((t) => t.displayStatus == 'FINISHED').toList();
+                final activeGrouped = groupedItems.where((g) => g.displayStatus == 'ACTIVE').toList();
+                final upcomingGrouped = groupedItems.where((g) => g.displayStatus != 'ACTIVE' && g.displayStatus != 'FINISHED').toList();
+                final finishedGrouped = groupedItems.where((g) => g.displayStatus == 'FINISHED').toList();
 
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                   children: [
-                    if (activeTournaments.isNotEmpty) ...[
+                    if (activeGrouped.isNotEmpty) ...[
                       _buildSectionTitle('tournament.status_active'.tr()),
-                      ...activeTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                      ...activeGrouped.map((item) => _buildTournamentCard(item, isChild)),
                     ],
-                    if (upcomingTournaments.isNotEmpty) ...[
+                    if (upcomingGrouped.isNotEmpty) ...[
                       _buildSectionTitle('tournament.status_upcoming'.tr()),
-                      ...upcomingTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                      ...upcomingGrouped.map((item) => _buildTournamentCard(item, isChild)),
                     ],
-                    if (finishedTournaments.isNotEmpty) ...[
+                    if (finishedGrouped.isNotEmpty) ...[
                       _buildSectionTitle('tournament.status_finished'.tr()),
-                      ...finishedTournaments.map((t) => _buildTournamentCard(t, isChild)),
+                      ...finishedGrouped.map((item) => _buildTournamentCard(item, isChild)),
                     ],
                     const SizedBox(height: 180),
                   ],
@@ -261,35 +413,69 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   Widget _buildFilterBar() {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      height: 52,
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _kazakhstanCities.length,
         itemBuilder: (context, index) {
           final city = _kazakhstanCities[index];
           final isSelected = (_selectedCity ?? 'All Cities') == city;
+          final displayCity = index == 0 ? 'tournament.all_cities'.tr() : city;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(index == 0 ? 'tournament.all_cities'.tr() : city),
-              selected: isSelected,
-              onSelected: (val) {
-                setState(() => _selectedCity = val ? city : null);
+            padding: const EdgeInsets.only(right: 10),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _selectedCity = city == 'All Cities' ? null : city);
                 _refresh();
               },
-              backgroundColor: PremiumTheme.surfaceCard(context),
-              selectedColor: PremiumTheme.neonGreen.withValues(alpha: 0.2),
-              labelStyle: TextStyle(
-                color: isSelected ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              checkmarkColor: PremiumTheme.neonGreen,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: isSelected ? PremiumTheme.neonGreen.withValues(alpha: 0.5) : Colors.transparent),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: isSelected
+                      ? const LinearGradient(
+                          colors: [PremiumTheme.neonGreen, Color(0xFF00C853)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: isSelected ? null : PremiumTheme.surfaceCard(context),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.transparent
+                        : cs.onSurface.withValues(alpha: 0.08),
+                    width: 1.5,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: PremiumTheme.neonGreen.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isSelected) ...[
+                      const Icon(Icons.check_circle, color: Colors.black, size: 14),
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      displayCity,
+                      style: GoogleFonts.outfit(
+                        color: isSelected ? Colors.black : cs.onSurfaceVariant,
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -301,169 +487,285 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   Widget _buildSectionTitle(String title) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      padding: const EdgeInsets.only(bottom: 12, top: 12),
       child: Text(
-        title,
-        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+        title.toUpperCase(),
+        style: GoogleFonts.outfit(
+          color: cs.onSurfaceVariant,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.5,
+        ),
       ),
     );
   }
 
-  Widget _buildTournamentCard(dynamic tournament, bool isChild) {
+  Widget _buildTournamentCard(GroupedTournamentItem item, bool isChild) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final statusColor = tournament.displayStatus == 'ACTIVE'
+    final isActive = item.displayStatus == 'ACTIVE';
+    final isFinished = item.displayStatus == 'FINISHED';
+
+    final statusColor = isActive
         ? const Color(0xFF00E676)
-        : (tournament.displayStatus == 'FINISHED'
-            ? cs.onSurfaceVariant
-            : const Color(0xFF42A5F5));
+        : (isFinished
+            ? cs.onSurfaceVariant.withValues(alpha: 0.7)
+            : const Color(0xFF2979FF));
 
-    final cardBg = isDark
-        ? (tournament.displayStatus == 'ACTIVE'
-            ? const Color(0xFF0A1F0A)
-            : (tournament.displayStatus == 'FINISHED'
-                ? const Color(0xFF111418)
-                : const Color(0xFF0D1B2A)))
-        : PremiumTheme.surfaceCard(context);
+    final cardBg = PremiumTheme.surfaceCard(context);
 
-    final borderColor = isDark
-        ? (tournament.displayStatus == 'ACTIVE'
-            ? const Color(0xFF1B5E20)
-            : (tournament.displayStatus == 'FINISHED'
-                ? const Color(0xFF2A2F36)
-                : const Color(0xFF1E3A5F)))
-        : statusColor.withValues(alpha: 0.2);
+    final statusText = isActive
+        ? 'В ЭФИРЕ'
+        : (isFinished
+            ? 'ЗАВЕРШЕН'
+            : 'СКОРО');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => TournamentDetailsPage(tournamentId: tournament.id)),
-        ),
+        onTap: () {
+          if (item.isSeries) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TournamentSeriesDetailsScreen(seriesId: item.seriesId!)),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TournamentDetailsPage(tournamentId: item.singleTournament!.id)),
+            );
+          }
+        },
         child: Container(
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: borderColor, width: 1.5),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isActive
+                  ? PremiumTheme.neonGreen.withValues(alpha: 0.3)
+                  : cs.onSurface.withValues(alpha: 0.06),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
+              children: [
+                if (isActive)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: PremiumTheme.neonGreen.withValues(alpha: 0.08),
+                      ),
+                    ),
+                  ),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: statusColor.withValues(alpha: 0.25)),
-                      ),
-                      child: tournament.logoUrl != null && tournament.logoUrl!.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(tournament.logoUrl!, fit: BoxFit.cover),
-                            )
-                          : Icon(
-                              isChild ? Icons.star_rounded : Icons.emoji_events_rounded,
-                              color: statusColor,
-                              size: 22,
-                            ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
+                    Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            tournament.name.toUpperCase(),
-                            style: TextStyle(color: cs.onSurface, fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.5, height: 1.2),
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(Icons.location_on_rounded, size: 11, color: cs.onSurfaceVariant),
-                              const SizedBox(width: 3),
-                              Text(
-                                tournament.location,
-                                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                          // Logo / Trophy Container
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: isActive
+                                    ? [PremiumTheme.neonGreen.withValues(alpha: 0.2), PremiumTheme.neonGreen.withValues(alpha: 0.05)]
+                                    : [cs.onSurface.withValues(alpha: 0.05), cs.onSurface.withValues(alpha: 0.01)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: isActive
+                                    ? PremiumTheme.neonGreen.withValues(alpha: 0.3)
+                                    : cs.onSurface.withValues(alpha: 0.08),
+                                width: 1,
+                              ),
+                            ),
+                            child: item.logoUrl != null && item.logoUrl!.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(17),
+                                    child: Image.network(item.logoUrl!, fit: BoxFit.cover),
+                                  )
+                                : Icon(
+                                    item.isSeries
+                                        ? Icons.shield_rounded
+                                        : (isChild ? Icons.star_rounded : Icons.emoji_events_rounded),
+                                    color: isActive ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
+                                    size: 26,
+                                  ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (item.isSeries)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: PremiumTheme.electricBlue.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: PremiumTheme.electricBlue.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.shield, color: PremiumTheme.electricBlue, size: 10),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'ЛИГА / ЭГИДА',
+                                            style: GoogleFonts.outfit(
+                                              color: PremiumTheme.electricBlue,
+                                              fontSize: 8.5,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  item.name,
+                                  style: GoogleFonts.outfit(
+                                    color: cs.onSurface,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on_rounded, size: 13, color: cs.onSurfaceVariant.withValues(alpha: 0.8)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      item.location,
+                                      style: GoogleFonts.outfit(
+                                        color: cs.onSurfaceVariant,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Status Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+                            ),
+                            child: Text(
+                              statusText,
+                              style: GoogleFonts.outfit(
+                                color: isActive ? PremiumTheme.neonGreen : statusColor,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
+                    // Bottom Info Bar
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        color: cs.onSurface.withValues(alpha: 0.02),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: cs.onSurface.withValues(alpha: 0.04)),
                       ),
-                      child: Text(
-                        tournament.displayStatus,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1,
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                _buildInfoCell(Icons.calendar_today_rounded, item.isSeries ? 'Серия' : item.dateRange.split(' — ').first),
+                                const SizedBox(width: 8),
+                                _buildInfoCell(Icons.sports_soccer_rounded, item.format),
+                                const SizedBox(width: 8),
+                                _buildInfoCell(Icons.groups_rounded, item.ageCategory),
+                              ],
+                            ),
+                          ),
+                          Row(
+                             mainAxisSize: MainAxisSize.min,
+                             children: [
+                               Text(
+                                 'ПОДРОБНЕЕ',
+                                 style: GoogleFonts.outfit(
+                                   color: isActive ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
+                                   fontSize: 10,
+                                   fontWeight: FontWeight.w800,
+                                   letterSpacing: 0.8,
+                                 ),
+                               ),
+                               const SizedBox(width: 4),
+                               Icon(Icons.arrow_forward_ios_rounded, size: 10, color: isActive ? PremiumTheme.neonGreen : cs.onSurfaceVariant),
+                             ],
+                           ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: cs.onSurface.withValues(alpha: 0.04),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cs.onSurface.withValues(alpha: 0.06)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildInfoChip(Icons.calendar_today_rounded, tournament.startDate, statusColor),
-                    _buildInfoChip(Icons.sports_soccer_rounded, tournament.format, statusColor),
-                    _buildInfoChip(Icons.groups_rounded, tournament.ageCategory, statusColor),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'tournament.details'.tr(),
-                          style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.8),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 9, color: statusColor),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String value, Color color) {
+  Widget _buildInfoCell(IconData icon, String value) {
     final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 10, color: color.withValues(alpha: 0.6)),
-        const SizedBox(width: 4),
-        Text(
-          value,
-          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w600),
-        ),
-      ],
+    return Expanded(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.outfit(
+                color: cs.onSurfaceVariant,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -507,7 +809,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -515,29 +817,37 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             PremiumTheme.electricBlue.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: PremiumTheme.neonGreen.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          const Text('⭐', style: TextStyle(fontSize: 24)),
-          const SizedBox(width: 12),
+          const Text('⭐', style: TextStyle(fontSize: 28)),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'academy.hello_champion'.tr(namedArgs: {'name': name}),
-                  style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
-                ),
-                Text(
-                  'academy.representing'.tr(namedArgs: {'name': academyName.toUpperCase()}),
-                  style: const TextStyle(color: PremiumTheme.neonGreen, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  style: GoogleFonts.outfit(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 2),
                 Text(
+                  'academy.representing'.tr(namedArgs: {'name': academyName.toUpperCase()}),
+                  style: GoogleFonts.outfit(color: PremiumTheme.neonGreen, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                const SizedBox(height: 4),
+                Text(
                   'academy.ready_for_match'.tr(),
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                  style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -579,11 +889,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.emoji_events_outlined, color: cs.onSurfaceVariant, size: 48),
+            Icon(Icons.emoji_events_outlined, color: cs.onSurfaceVariant, size: 64),
             const SizedBox(height: 16),
             Text(
               'Нет созданных лиг под эгидой',
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+              style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -597,63 +907,90 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         final series = provider.seriesList[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: PremiumCard(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TournamentSeriesDetailsScreen(seriesId: series.id),
+          child: Container(
+            decoration: BoxDecoration(
+              color: PremiumTheme.surfaceCard(context),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: cs.onSurface.withValues(alpha: 0.06), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              );
-            },
-            child: Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: 0.03),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: cs.onSurface.withValues(alpha: isDark ? 0.06 : 0.1),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TournamentSeriesDetailsScreen(seriesId: series.id),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [cs.onSurface.withValues(alpha: 0.05), cs.onSurface.withValues(alpha: 0.01)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: cs.onSurface.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          child: series.logoUrl != null && series.logoUrl!.isNotEmpty
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(series.logoUrl!, fit: BoxFit.cover),
+                                )
+                              : const Icon(Icons.emoji_events_rounded, color: PremiumTheme.neonGreen, size: 26),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                series.name,
+                                style: GoogleFonts.outfit(
+                                  color: cs.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on_rounded, color: cs.onSurfaceVariant.withValues(alpha: 0.7), size: 13),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    series.city,
+                                    style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded, color: cs.onSurfaceVariant, size: 14),
+                      ],
                     ),
                   ),
-                  child: series.logoUrl != null && series.logoUrl!.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(series.logoUrl!, fit: BoxFit.cover),
-                        )
-                      : const Icon(Icons.emoji_events, color: PremiumTheme.neonGreen, size: 24),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        series.name,
-                        style: TextStyle(
-                          color: cs.onSurface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, color: cs.onSurfaceVariant, size: 12),
-                          const SizedBox(width: 4),
-                          Text(
-                            series.city,
-                            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
-              ],
+              ),
             ),
           ),
         );
