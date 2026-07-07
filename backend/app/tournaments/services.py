@@ -139,7 +139,7 @@ def get_tournament_series_detail(db: Session, series_id: UUID):
         for s in all_standings:
             if s.team_id not in team_stats:
                 team_name = db.execute(text("SELECT name FROM teams WHERE id = :team_id"), {"team_id": s.team_id}).scalar()
-                logo_url = db.execute(text("SELECT logo_url FROM teams WHERE id = :team_id"), {"team_id": s.team_id}).scalar()
+                logo_url = None
                 team_stats[s.team_id] = {
                     "team_id": s.team_id,
                     "team_name": team_name or "Unknown Team",
