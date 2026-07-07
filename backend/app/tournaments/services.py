@@ -1557,13 +1557,15 @@ def update_team_standing(db: Session, tournament_id: UUID, team_id: UUID):
     home_matches = db.query(Match).join(MatchResult).filter(
         Match.tournament_id == tournament_id,
         Match.home_team_id == team_id,
-        Match.status == MatchStatus.FINISHED
+        Match.status == MatchStatus.FINISHED,
+        Match.group_id.isnot(None)
     ).all()
     
     away_matches = db.query(Match).join(MatchResult).filter(
         Match.tournament_id == tournament_id,
         Match.away_team_id == team_id,
-        Match.status == MatchStatus.FINISHED
+        Match.status == MatchStatus.FINISHED,
+        Match.group_id.isnot(None)
     ).all()
     
     played = 0
