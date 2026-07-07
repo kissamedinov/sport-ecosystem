@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,7 +8,6 @@ import 'tournament_details_page.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament_series.dart';
-import '../../data/models/tournament.dart';
 
 class TournamentSeriesDetailsScreen extends StatefulWidget {
   final String seriesId;
@@ -58,7 +56,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TournamentProvider>().fetchTournamentSeriesDetail(widget.seriesId);
     });
@@ -235,9 +233,8 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
                 tabs: const [
-                  Tab(text: 'Сезоны'),
+                  Tab(text: 'Турниры'),
                   Tab(text: 'Чемпионы'),
-                  Tab(text: 'Этапы'),
                   Tab(text: 'Игроки'),
                 ],
               ),
@@ -252,7 +249,6 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
               children: [
                 _buildSeasonsTab(detail, cs, isDark),
                 _buildChampionsTab(detail, cs, isDark),
-                _buildStagesTab(detail, cs, isDark),
                 _buildPlayersTab(detail, cs, isDark),
               ],
             ),
@@ -370,6 +366,17 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: PremiumCard(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TournamentDetailsPage(
+                    tournamentId: c.tournamentId,
+                    initialTabIndex: 1,
+                  ),
+                ),
+              );
+            },
             child: Row(
               children: [
                 Icon(Icons.emoji_events, color: goldColor, size: 28),
@@ -422,181 +429,6 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
     );
   }
 
-  // 3. Stages (Timeline) Tab
-  Widget _buildStagesTab(TournamentSeriesDetail detail, ColorScheme cs, bool isDark) {
-    if (detail.editions.isEmpty) {
-      return Center(
-        child: Text(
-          'Этапы турниров не запланированы',
-          style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-      );
-    }
-
-    final sortedEditions = List<Tournament>.from(detail.editions);
-    sortedEditions.sort((a, b) => a.startDate.compareTo(b.startDate));
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      itemCount: sortedEditions.length,
-      itemBuilder: (context, index) {
-        final t = sortedEditions[index];
-        final isFinished = t.displayStatus == 'FINISHED';
-        final isActive = t.displayStatus == 'ACTIVE';
-
-        Color badgeColor = cs.onSurfaceVariant;
-        String statusLabel = 'Запланирован';
-        if (isActive) {
-          badgeColor = PremiumTheme.neonGreen;
-          statusLabel = 'В эфире';
-        } else if (isFinished) {
-          badgeColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
-          statusLabel = 'Завершен';
-        }
-
-        return IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Stepper Line and Circle
-              Column(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.15) : cs.onSurface.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isActive ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.2),
-                        width: 2,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: GoogleFonts.outfit(
-                          color: isActive ? PremiumTheme.neonGreen : cs.onSurfaceVariant,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (index < sortedEditions.length - 1)
-                    Expanded(
-                      child: Container(
-                        width: 2,
-                        color: cs.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 16),
-              // Stage Card Details
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: PremiumTheme.surfaceCard(context),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isActive ? PremiumTheme.neonGreen.withValues(alpha: 0.3) : cs.onSurface.withValues(alpha: 0.06),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TournamentDetailsPage(tournamentId: t.id),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'ЭТАП ${index + 1}',
-                                      style: GoogleFonts.outfit(
-                                        color: PremiumTheme.neonGreen,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10,
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: badgeColor.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
-                                      ),
-                                      child: Text(
-                                        statusLabel.toUpperCase(),
-                                        style: GoogleFonts.outfit(
-                                          color: badgeColor,
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  t.name,
-                                  style: GoogleFonts.outfit(
-                                    color: cs.onSurface,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today_rounded, size: 12, color: cs.onSurfaceVariant),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${t.startDate} — ${t.endDate}',
-                                      style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11),
-                                    ),
-                                    const Spacer(),
-                                    Icon(Icons.location_on_rounded, size: 12, color: cs.onSurfaceVariant),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      t.location,
-                                      style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   void _showEditSeriesDialog(BuildContext context, TournamentSeriesDetail detail) {
     final nameController = TextEditingController(text: detail.name);

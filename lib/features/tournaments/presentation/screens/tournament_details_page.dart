@@ -27,11 +27,13 @@ import 'package:google_fonts/google_fonts.dart';
 class TournamentDetailsPage extends StatefulWidget {
   final String tournamentId;
   final bool autoRegister;
+  final int initialTabIndex;
 
   const TournamentDetailsPage({
     super.key, 
     required this.tournamentId, 
     this.autoRegister = false,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -178,7 +180,11 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _isOrganizer ? 5 : 4, vsync: this);
+    _tabController = TabController(
+      length: _isOrganizer ? 5 : 4,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<TournamentProvider>();
       await provider.fetchTournamentDetails(widget.tournamentId);
