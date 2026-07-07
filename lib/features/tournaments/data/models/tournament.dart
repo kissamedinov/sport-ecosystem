@@ -27,6 +27,8 @@ class Tournament {
   final String? surfaceType;
   @JsonKey(name: 'series_name')
   final String? seriesName;
+  @JsonKey(name: 'series_id')
+  final String? seriesId;
   @JsonKey(name: 'num_fields')
   final int numFields;
   @JsonKey(name: 'match_half_duration')
@@ -84,6 +86,7 @@ class Tournament {
     this.teamsCount,
     this.surfaceType,
     this.seriesName,
+    this.seriesId,
     this.numFields = 1,
     this.matchHalfDuration = 20,
     this.halftimeBreakDuration = 5,

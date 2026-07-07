@@ -3,6 +3,7 @@ import '../models/tournament.dart';
 import '../models/tournament_match.dart';
 import '../models/tournament_standing.dart';
 import '../models/tournament_team_response.dart';
+import '../models/tournament_series.dart';
 
 class TournamentRepository {
   final ApiClient _apiClient;
@@ -158,5 +159,21 @@ class TournamentRepository {
   Future<List<dynamic>> getGroups(String tournamentId) async {
     final response = await _apiClient.get('/tournaments/$tournamentId/groups');
     return response.data as List<dynamic>;
+  }
+
+  Future<List<TournamentSeries>> getTournamentSeries() async {
+    final response = await _apiClient.get('/tournaments/series');
+    final List<dynamic> data = response.data;
+    return data.map((json) => TournamentSeries.fromJson(json)).toList();
+  }
+
+  Future<TournamentSeries> createTournamentSeries(Map<String, dynamic> seriesData) async {
+    final response = await _apiClient.post('/tournaments/series', data: seriesData);
+    return TournamentSeries.fromJson(response.data);
+  }
+
+  Future<TournamentSeriesDetail> getTournamentSeriesDetail(String seriesId) async {
+    final response = await _apiClient.get('/tournaments/series/$seriesId/details');
+    return TournamentSeriesDetail.fromJson(response.data);
   }
 }

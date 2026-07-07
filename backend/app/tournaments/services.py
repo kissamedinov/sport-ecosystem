@@ -85,6 +85,134 @@ def create_tournament_series(db: Session, series_in: TournamentSeriesCreate):
 def get_tournament_series(db: Session):
     return db.query(TournamentSeries).all()
 
+def get_tournament_series_detail(db: Session, series_id: UUID):
+    from app.stats.models import PlayerMatchStats
+    from sqlalchemy import text
+    
+    series = db.query(TournamentSeries).filter(TournamentSeries.id == series_id).first()
+    if not series:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tournament series not found"
+        )
+        
+    # Get all editions (tournaments) under this series
+    editions = db.query(Tournament).filter(Tournament.series_id == series_id).order_by(Tournament.start_date.desc()).all()
+    edition_ids = [e.id for e in editions]
+    
+    # Compile champions list
+    champions = []
+    for edition in editions:
+        # Get all divisions in this edition
+        divisions = db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == edition.id).all()
+        for div in divisions:
+            # Get standings for this division, sort to find the champion (#1 rank)
+            standings = db.query(TournamentStandings).filter(
+                TournamentStandings.tournament_id == edition.id,
+                TournamentStandings.division_id == div.id
+            ).all()
+            
+            if standings:
+                # Sort: points desc, goal_difference desc, goals_for desc
+                standings.sort(key=lambda s: (s.points or 0, s.goal_difference or 0, s.goals_for or 0), reverse=True)
+                champ_stand = standings[0]
+                
+                # Fetch team name
+                team_name = db.execute(text("SELECT name FROM teams WHERE id = :team_id"), {"team_id": champ_stand.team_id}).scalar()
+                
+                champions.append({
+                    "tournament_id": edition.id,
+                    "tournament_name": edition.name,
+                    "division_id": div.id,
+                    "division_name": div.name or f"U-{div.birth_year}",
+                    "team_id": champ_stand.team_id,
+                    "team_name": team_name or "Unknown Team",
+                    "year": edition.year,
+                    "season": edition.season.value if edition.season else None
+                })
+                
+    # Compile all-time team leaderboard
+    team_stats = {}
+    if edition_ids:
+        # Get all standings records for tournaments in this series
+        all_standings = db.query(TournamentStandings).filter(TournamentStandings.tournament_id.in_(edition_ids)).all()
+        for s in all_standings:
+            if s.team_id not in team_stats:
+                team_name = db.execute(text("SELECT name FROM teams WHERE id = :team_id"), {"team_id": s.team_id}).scalar()
+                logo_url = db.execute(text("SELECT logo_url FROM teams WHERE id = :team_id"), {"team_id": s.team_id}).scalar()
+                team_stats[s.team_id] = {
+                    "team_id": s.team_id,
+                    "team_name": team_name or "Unknown Team",
+                    "logo_url": logo_url,
+                    "played": 0,
+                    "wins": 0,
+                    "draws": 0,
+                    "losses": 0,
+                    "goals_for": 0,
+                    "goals_against": 0,
+                    "goal_difference": 0,
+                    "points": 0
+                }
+            
+            entry = team_stats[s.team_id]
+            entry["played"] += s.played or 0
+            entry["wins"] += s.wins or 0
+            entry["draws"] += s.draws or 0
+            entry["losses"] += s.losses or 0
+            entry["goals_for"] += s.goals_for or 0
+            entry["goals_against"] += s.goals_against or 0
+            entry["goal_difference"] += s.goal_difference or 0
+            entry["points"] += s.points or 0
+
+    team_leaderboard = list(team_stats.values())
+    # Sort leaderboard by points, then goal_difference, then wins
+    team_leaderboard.sort(key=lambda x: (x["points"], x["goal_difference"], x["wins"]), reverse=True)
+    
+    # Compile all-time player leaderboard (goals/assists)
+    player_stats = {}
+    if edition_ids:
+        # Get all match player stats for matches in these tournaments
+        match_player_stats = db.query(PlayerMatchStats).join(Match).filter(Match.tournament_id.in_(edition_ids)).all()
+        for ps in match_player_stats:
+            if ps.player_id not in player_stats:
+                player_name = db.execute(text("SELECT name FROM users WHERE id = :player_id"), {"player_id": ps.player_id}).scalar()
+                avatar_url = db.execute(text("SELECT avatar_url FROM users WHERE id = :player_id"), {"player_id": ps.player_id}).scalar()
+                player_stats[ps.player_id] = {
+                    "player_id": ps.player_id,
+                    "player_name": player_name or "Unknown Player",
+                    "avatar_url": avatar_url,
+                    "goals": 0,
+                    "assists": 0,
+                    "yellow_cards": 0,
+                    "red_cards": 0
+                }
+                
+            entry = player_stats[ps.player_id]
+            entry["goals"] += ps.goals or 0
+            entry["assists"] += ps.assists or 0
+            entry["yellow_cards"] += ps.yellow_cards or 0
+            entry["red_cards"] += ps.red_cards or 0
+            
+    player_leaderboard = list(player_stats.values())
+    # Sort players by goals desc, then assists desc
+    player_leaderboard.sort(key=lambda x: (x["goals"], x["assists"]), reverse=True)
+    # Cap leaderboard at top 20 players for performance and UI sanity
+    player_leaderboard = player_leaderboard[:20]
+
+    return {
+        "id": series.id,
+        "name": series.name,
+        "city": series.city,
+        "description": series.description,
+        "logo_url": series.logo_url,
+        "organizer_id": series.organizer_id,
+        "created_at": series.created_at,
+        "editions": editions,
+        "champions": champions,
+        "team_leaderboard": team_leaderboard,
+        "player_leaderboard": player_leaderboard
+    }
+
 def create_tournament_division(db: Session, division_in: TournamentDivisionCreate):
     new_division = TournamentDivision(**division_in.model_dump())
     db.add(new_division)

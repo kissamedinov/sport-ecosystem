@@ -15,7 +15,8 @@ import '../../../../features/auth/providers/auth_provider.dart';
 
 class CreateTournamentScreen extends StatefulWidget {
   final Tournament? initialTournament;
-  const CreateTournamentScreen({super.key, this.initialTournament});
+  final String? seriesId;
+  const CreateTournamentScreen({super.key, this.initialTournament, this.seriesId});
 
   @override
   State<CreateTournamentScreen> createState() => _CreateTournamentScreenState();
@@ -57,6 +58,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
 
   bool _isLoading = false;
   bool _hasPlacementMatches = false;
+  String? _selectedSeriesId;
 
   final List<Map<String, dynamic>> _divisions = [];
   final List<String> _deletedDivisionIds = [];
@@ -152,11 +154,17 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
     
     _hasPlacementMatches = t?.hasPlacementMatches ?? false;
     
+    _selectedSeriesId = widget.seriesId ?? t?.seriesId;
+
     if (widget.initialTournament != null) {
       _loadExistingDivisions();
     }
 
     _fetchFields();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TournamentProvider>().fetchTournamentSeries();
+    });
   }
 
   @override
@@ -301,6 +309,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       'instagram': _instagramController.text,
       'logo_url': finalLogoUrl,
       'field_ids': jsonEncode(_selectedFieldIds),
+      'series_id': _selectedSeriesId,
     };
 
     bool success;
@@ -420,7 +429,8 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                             Expanded(child: _buildDropdown('tournament.season'.tr(), _selectedSeason, _seasons,
                                 (v) => setState(() => _selectedSeason = v!), cs)),
                         ]
-                    )
+                    ),
+                    _buildSeriesDropdown(cs),
                   ],
                 ),
               ),
@@ -826,6 +836,35 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       decoration: PremiumTheme.inputDecorationOf(context, label),
       items: items.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
       onChanged: onChanged,
+    );
+  }
+
+  Widget _buildSeriesDropdown(ColorScheme cs) {
+    final provider = context.watch<TournamentProvider>();
+    if (provider.seriesList.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String?>(
+          value: _selectedSeriesId,
+          dropdownColor: PremiumTheme.surfaceCard(context),
+          style: TextStyle(color: cs.onSurface, fontSize: 14),
+          decoration: PremiumTheme.inputDecorationOf(context, 'Лига (Эгида) / Серия'),
+          items: [
+            const DropdownMenuItem<String?>(
+              value: null,
+              child: Text('Без лиги (индивидуальный кубок)'),
+            ),
+            ...provider.seriesList.map((s) => DropdownMenuItem<String?>(
+              value: s.id,
+              child: Text(s.name),
+            )),
+          ],
+          onChanged: (v) => setState(() => _selectedSeriesId = v),
+        ),
+      ],
     );
   }
 

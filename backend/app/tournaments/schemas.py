@@ -62,6 +62,7 @@ class TournamentUpdate(BaseModel):
     has_placement_matches: Optional[bool] = None
     year: Optional[int] = None
     season: Optional[Season] = None
+    series_id: Optional[UUID] = None
 
 class TournamentResponse(TournamentBase):
     id: UUID
@@ -300,5 +301,53 @@ class TournamentSquadMemberResponse(TournamentSquadMemberBase):
     id: UUID
     tournament_team_id: UUID
     player_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class SeriesChampionInfo(BaseModel):
+    tournament_id: UUID
+    tournament_name: str
+    division_id: UUID
+    division_name: str
+    team_id: UUID
+    team_name: str
+    year: Optional[int] = None
+    season: Optional[str] = None
+
+class SeriesTeamLeaderboardEntry(BaseModel):
+    team_id: UUID
+    team_name: str
+    logo_url: Optional[str] = None
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    goal_difference: int
+    points: int
+
+class SeriesPlayerStatsEntry(BaseModel):
+    player_id: UUID
+    player_name: str
+    avatar_url: Optional[str] = None
+    goals: int
+    assists: int
+    yellow_cards: int
+    red_cards: int
+
+class TournamentSeriesDetailResponse(BaseModel):
+    id: UUID
+    name: str
+    city: str
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+    organizer_id: UUID
+    created_at: datetime
+    
+    editions: List[TournamentResponse] = []
+    champions: List[SeriesChampionInfo] = []
+    team_leaderboard: List[SeriesTeamLeaderboardEntry] = []
+    player_leaderboard: List[SeriesPlayerStatsEntry] = []
 
     model_config = ConfigDict(from_attributes=True)

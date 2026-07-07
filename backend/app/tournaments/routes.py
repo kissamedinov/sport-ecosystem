@@ -26,6 +26,10 @@ def create_series(
 def get_tournament_series(db: Session = Depends(get_db)):
     return services.get_tournament_series(db=db)
 
+@router.get("/series/{id}/details", response_model=schemas.TournamentSeriesDetailResponse)
+def get_series_detail(id: UUID, db: Session = Depends(get_db)):
+    return services.get_tournament_series_detail(db=db, series_id=id)
+
 #  Editions (Tournaments) 
 
 @router.post("", response_model=schemas.TournamentResponse, status_code=status.HTTP_201_CREATED)

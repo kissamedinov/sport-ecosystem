@@ -4,6 +4,7 @@ import '../data/models/tournament.dart';
 import '../data/models/tournament_match.dart';
 import '../data/models/tournament_standing.dart';
 import '../data/models/tournament_team_response.dart';
+import '../data/models/tournament_series.dart';
 
 class TournamentProvider extends ChangeNotifier {
   final TournamentRepository _repository;
@@ -16,6 +17,8 @@ class TournamentProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _divisions = [];
   List<Map<String, dynamic>> _playerAwards = [];
   List<TournamentTeamResponse> _registeredTeams = [];
+  List<TournamentSeries> _seriesList = [];
+  TournamentSeriesDetail? _selectedSeriesDetail;
   
   bool _isLoading = false;
   String? _error;
@@ -32,6 +35,8 @@ class TournamentProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get divisions => _divisions;
   List<Map<String, dynamic>> get playerAwards => _playerAwards;
   List<TournamentTeamResponse> get registeredTeams => _registeredTeams;
+  List<TournamentSeries> get seriesList => _seriesList;
+  TournamentSeriesDetail? get selectedSeriesDetail => _selectedSeriesDetail;
   bool get isLoading => _isLoading;
   String? get error => _error;
   String? get aiReport => _aiReport;
@@ -309,6 +314,57 @@ class TournamentProvider extends ChangeNotifier {
       await _repository.updateMatchDetails(matchId, details);
       await fetchTournamentMatches(tournamentId);
       _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<void> fetchTournamentSeries() async {
+    _setLoading(true);
+    _error = null;
+    try {
+      _seriesList = await _repository.getTournamentSeries();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> fetchTournamentSeriesDetail(String seriesId) async {
+    _setLoading(true);
+    _error = null;
+    _selectedSeriesDetail = null;
+    try {
+      _selectedSeriesDetail = await _repository.getTournamentSeriesDetail(seriesId);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> createTournamentSeries({
+    required String name,
+    required String city,
+    String? description,
+    String? logoUrl,
+    required String organizerId,
+  }) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.createTournamentSeries({
+        'name': name,
+        'city': city,
+        'description': description,
+        'logo_url': logoUrl,
+        'organizer_id': organizerId,
+      });
+      await fetchTournamentSeries();
       return true;
     } catch (e) {
       _error = e.toString();

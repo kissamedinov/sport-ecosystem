@@ -6,6 +6,7 @@ import '../../../../features/academies/providers/academy_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 import 'create_tournament_screen.dart';
 import 'tournament_details_page.dart';
+import 'tournament_series_details_screen.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament.dart';
@@ -31,9 +32,10 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialIndex);
+    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
+        setState(() {});
         _refresh();
       }
     });
@@ -56,11 +58,15 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       user.roles?.contains('PLAYER_YOUTH') == true
     );
 
-    context.read<TournamentProvider>().fetchTournaments(
-      city: _selectedCity == 'All Cities' ? null : _selectedCity,
-      year: _selectedYear,
-      mine: isChild ? true : (_tabController.index == 1),
-    );
+    if (_tabController.index == 2) {
+      context.read<TournamentProvider>().fetchTournamentSeries();
+    } else {
+      context.read<TournamentProvider>().fetchTournaments(
+        city: _selectedCity == 'All Cities' ? null : _selectedCity,
+        year: _selectedYear,
+        mine: isChild ? true : (_tabController.index == 1),
+      );
+    }
   }
 
   @override
@@ -165,6 +171,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
           tabs: [
             Tab(text: 'tournament.explore'.tr()),
             Tab(text: 'tournament.my_events'.tr()),
+            Tab(text: 'Лиги (Эгиды)'),
           ],
         ),
         actions: [
@@ -177,10 +184,14 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       floatingActionButton: canCreate ? FloatingActionButton(
         backgroundColor: PremiumTheme.neonGreen,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateTournamentScreen()),
-          ).then((_) => _refresh());
+          if (_tabController.index == 2) {
+            _showCreateSeriesDialog(context);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateTournamentScreen()),
+            ).then((_) => _refresh());
+          }
         },
         child: const Icon(Icons.add, color: Colors.black),
       ) : null,
@@ -190,7 +201,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             _buildChildGreeting(user.name),
             const SizedBox(height: 10),
           ],
-          if (!isChild) ...[
+          if (!isChild && _tabController.index < 2) ...[
             _buildFilterBar(),
             _buildAgeToggle(),
           ],
@@ -202,6 +213,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 }
                 if (provider.error != null) {
                   return _buildErrorState(provider.error!);
+                }
+
+                if (_tabController.index == 2) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  return _buildSeriesTab(provider, cs, isDark);
                 }
 
                 final tournaments = isChild
@@ -554,6 +570,175 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSeriesTab(TournamentProvider provider, ColorScheme cs, bool isDark) {
+    if (provider.seriesList.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.emoji_events_outlined, color: cs.onSurfaceVariant, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              'Нет созданных лиг под эгидой',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+      itemCount: provider.seriesList.length,
+      itemBuilder: (context, index) {
+        final series = provider.seriesList[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: PremiumCard(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TournamentSeriesDetailsScreen(seriesId: series.id),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: cs.onSurface.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: cs.onSurface.withValues(alpha: isDark ? 0.06 : 0.1),
+                    ),
+                  ),
+                  child: series.logoUrl != null && series.logoUrl!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(series.logoUrl!, fit: BoxFit.cover),
+                        )
+                      : const Icon(Icons.emoji_events, color: PremiumTheme.neonGreen, size: 24),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        series.name,
+                        style: TextStyle(
+                          color: cs.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, color: cs.onSurfaceVariant, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            series.city,
+                            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCreateSeriesDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final cityController = TextEditingController(text: 'Astana');
+    final descController = TextEditingController();
+    final logoController = TextEditingController();
+    final cs = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(context),
+          title: Text(
+            'СОЗДАТЬ ЛИГУ (ЭГИДУ)',
+            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PremiumTextField(
+                  controller: nameController,
+                  label: 'Название Лиги/Серии',
+                  icon: Icons.emoji_events,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: cityController,
+                  label: 'Город',
+                  icon: Icons.location_on,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: descController,
+                  label: 'Описание лиги',
+                  icon: Icons.description,
+                ),
+                const SizedBox(height: 16),
+                PremiumTextField(
+                  controller: logoController,
+                  label: 'Ссылка на Логотип (URL)',
+                  icon: Icons.link,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Отмена', style: TextStyle(color: cs.onSurfaceVariant)),
+            ),
+            PremiumButton(
+              text: 'Создать',
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) return;
+                
+                final user = context.read<AuthProvider>().user;
+                if (user == null) return;
+                
+                final success = await context.read<TournamentProvider>().createTournamentSeries(
+                  name: nameController.text.trim(),
+                  city: cityController.text.trim(),
+                  description: descController.text.trim(),
+                  logoUrl: logoController.text.trim(),
+                  organizerId: user.id,
+                );
+                
+                if (success) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Лига успешно создана!')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

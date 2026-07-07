@@ -20,6 +20,7 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
   teamsCount: (json['teams_count'] as num?)?.toInt(),
   surfaceType: json['surface_type'] as String?,
   seriesName: json['series_name'] as String?,
+  seriesId: json['series_id'] as String?,
   numFields: (json['num_fields'] as num?)?.toInt() ?? 1,
   matchHalfDuration: (json['match_half_duration'] as num?)?.toInt() ?? 20,
   halftimeBreakDuration:
@@ -59,6 +60,7 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'status': instance.status,
       'surface_type': instance.surfaceType,
       'series_name': instance.seriesName,
+      'series_id': instance.seriesId,
       'num_fields': instance.numFields,
       'match_half_duration': instance.matchHalfDuration,
       'halftime_break_duration': instance.halftimeBreakDuration,
