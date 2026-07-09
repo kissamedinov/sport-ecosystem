@@ -17,7 +17,7 @@ import '../../coaches/presentation/screens/coach_performance_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../stats/presentation/screens/performance_screen.dart';
 import '../../lineups/presentation/screens/lineup_screen.dart';
-import '../../tournaments/presentation/screens/tournament_announcements_screen.dart';
+import '../../tournaments/presentation/screens/tournament_list_screen.dart';
 import '../../tournaments/presentation/screens/match_center_screen.dart';
 import 'package:mobile/features/profile/presentation/screens/profile_screen.dart';
 import '../../clubs/presentation/screens/team_management_screen.dart';
@@ -412,7 +412,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
     final pages = <Widget>[
       const _HomeTab(),
       const CoachTeamsScreen(embedded: true),
-      const TournamentAnnouncementsScreen(),
+      const TournamentListScreen(),
       const ProfileScreen(),
     ];
 
@@ -1632,8 +1632,8 @@ class _CoachBottomNav extends StatelessWidget {
             _CoachFab(active: fabActive, onTap: onFabTap),
             Expanded(
               child: _NavItem(
-                icon: Icons.event_available_rounded,
-                label: 'nav.events'.tr(),
+                icon: Icons.emoji_events_rounded,
+                label: 'nav.tournaments'.tr(),
                 active: index == 2,
                 onTap: () => onChanged(2),
               ),
