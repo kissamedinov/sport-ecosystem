@@ -7,6 +7,8 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../tournaments/data/models/tournament_match.dart';
+import '../../../tournaments/providers/tournament_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'match_details_screen.dart';
 
 class LobbyMatch {
@@ -122,6 +124,7 @@ class MatchListScreen extends StatefulWidget {
 
 class _MatchListScreenState extends State<MatchListScreen> {
   late List<LobbyMatch> _lobbies;
+  String? _selectedTournamentId;
 
   // Pre-configured mock stats for specific players
   final Map<String, PlayerMiniStats> _playerStatsMock = {
@@ -299,6 +302,14 @@ class _MatchListScreenState extends State<MatchListScreen> {
     super.initState();
     _lobbies = [];
     _loadLobbies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<AuthProvider>().user;
+      final roles = user?.roles?.map((r) => r.toUpperCase()).toList() ?? [];
+      final isOrganizer = roles.contains('TOURNAMENT_ORGANIZER') || roles.contains('ADMIN');
+      if (isOrganizer) {
+        context.read<TournamentProvider>().fetchTournaments(mine: true);
+      }
+    });
   }
 
   List<LobbyMatch> _getDefaultLobbies() {
@@ -418,7 +429,22 @@ class _MatchListScreenState extends State<MatchListScreen> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
     final role = user?.roles?.first.toUpperCase() ?? 'PLAYER_ADULT';
-    final isAdultPlayer = role == 'PLAYER_ADULT' || role == 'USER' || (!['PARENT', 'COACH', 'FIELD_OWNER'].contains(role));
+    final roles = user?.roles?.map((r) => r.toUpperCase()).toList() ?? [];
+    final isOrganizer = roles.contains('TOURNAMENT_ORGANIZER') || roles.contains('ADMIN');
+    final isAdultPlayer = !isOrganizer && (role == 'PLAYER_ADULT' || role == 'USER' || (!['PARENT', 'COACH', 'FIELD_OWNER'].contains(role)));
+
+    final provider = context.watch<TournamentProvider>();
+    final cs = Theme.of(context).colorScheme;
+
+    if (isOrganizer) {
+      final tournaments = provider.tournaments;
+      if (tournaments.isNotEmpty && _selectedTournamentId == null) {
+        _selectedTournamentId = tournaments.first.id.toString();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<TournamentProvider>().fetchTournamentMatches(_selectedTournamentId!);
+        });
+      }
+    }
 
     return Scaffold(
       backgroundColor: PremiumTheme.surfaceBase(context),
@@ -431,42 +457,46 @@ class _MatchListScreenState extends State<MatchListScreen> {
         ),
         centerTitle: true,
       ),
-      body: isAdultPlayer 
-          ? ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
-              itemCount: _lobbies.length,
-              itemBuilder: (context, index) {
-                return _buildLobbyCard(context, _lobbies[index]);
-              },
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
-              itemCount: 8,
-              itemBuilder: (context, index) {
-                final isLive = index < 3;
-                final isMyTeam = index % 3 == 0;
-                
-                return _buildMatchCard(context, index, isLive, isMyTeam);
-              },
-            ),
-      floatingActionButton: isAdultPlayer
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 100.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: PremiumTheme.neonShadow(color: PremiumTheme.neonGreen, opacity: 0.4),
-                ),
-                child: FloatingActionButton(
-                  backgroundColor: PremiumTheme.neonGreen,
-                  foregroundColor: Colors.black,
-                  shape: const CircleBorder(),
-                  onPressed: () => _showCreateLobbySheet(context),
-                  child: const Icon(Icons.add_rounded, size: 28),
-                ),
-              ),
-            )
-          : null,
+      body: isOrganizer
+          ? _buildOrganizerMatchesView(provider, cs)
+          : (isAdultPlayer 
+              ? ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+                  itemCount: _lobbies.length,
+                  itemBuilder: (context, index) {
+                    return _buildLobbyCard(context, _lobbies[index]);
+                  },
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+                  itemCount: 8,
+                  itemBuilder: (context, index) {
+                    final isLive = index < 3;
+                    final isMyTeam = index % 3 == 0;
+                    
+                    return _buildMatchCard(context, index, isLive, isMyTeam);
+                  },
+                )),
+      floatingActionButton: isOrganizer
+          ? null
+          : (isAdultPlayer
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 100.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: PremiumTheme.neonShadow(color: PremiumTheme.neonGreen, opacity: 0.4),
+                    ),
+                    child: FloatingActionButton(
+                      backgroundColor: PremiumTheme.neonGreen,
+                      foregroundColor: Colors.black,
+                      shape: const CircleBorder(),
+                      onPressed: () => _showCreateLobbySheet(context),
+                      child: const Icon(Icons.add_rounded, size: 28),
+                    ),
+                  ),
+                )
+              : null),
     );
   }
 
@@ -1745,6 +1775,9 @@ class _MatchListScreenState extends State<MatchListScreen> {
   }
 
   String _getTitleForRole(String role) {
+    if (role == 'TOURNAMENT_ORGANIZER' || role == 'ADMIN') {
+      return 'Управление матчами';
+    }
     switch (role) {
       case 'PARENT':
         return 'match.children_matches'.tr();
@@ -1755,6 +1788,264 @@ class _MatchListScreenState extends State<MatchListScreen> {
       default:
         return 'match.live_matches'.tr();
     }
+  }
+
+  Widget _buildOrganizerMatchesView(TournamentProvider provider, ColorScheme cs) {
+    return Column(
+      children: [
+        _buildTournamentDropdown(provider, cs),
+        Expanded(
+          child: provider.isLoading
+              ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
+              : provider.matches.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Матчей пока не запланировано',
+                        style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 13),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+                      itemCount: provider.matches.length,
+                      itemBuilder: (context, index) {
+                        final match = provider.matches[index];
+                        return _buildOrganizerMatchCard(match, provider, cs);
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTournamentDropdown(TournamentProvider provider, ColorScheme cs) {
+    final tournaments = provider.tournaments;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: PremiumTheme.surfaceCard(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _selectedTournamentId,
+            dropdownColor: PremiumTheme.surfaceCard(context),
+            isExpanded: true,
+            hint: Text('Выберите турнир', style: TextStyle(color: cs.onSurfaceVariant)),
+            items: tournaments.map((t) {
+              return DropdownMenuItem<String>(
+                value: t.id.toString(),
+                child: Text(t.name, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) {
+                setState(() {
+                  _selectedTournamentId = val;
+                });
+                provider.fetchTournamentMatches(val);
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrganizerMatchCard(TournamentMatch match, TournamentProvider provider, ColorScheme cs) {
+    final homeScore = match.homeScore;
+    final awayScore = match.awayScore;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PremiumCard(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  match.fieldName ?? 'Поле не указано',
+                  style: GoogleFonts.outfit(fontSize: 10, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: match.status.toUpperCase() == 'LIVE'
+                        ? PremiumTheme.neonGreen.withValues(alpha: 0.1)
+                        : cs.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: match.status.toUpperCase() == 'LIVE'
+                          ? PremiumTheme.neonGreen.withValues(alpha: 0.2)
+                          : cs.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Text(
+                    match.status.toUpperCase(),
+                    style: GoogleFonts.outfit(
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      color: match.status.toUpperCase() == 'LIVE'
+                          ? PremiumTheme.neonGreen
+                          : cs.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        match.homeTeamName ?? 'Хозяева',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: cs.onSurface),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildQuickAdjustButton(
+                            icon: Icons.remove,
+                            onTap: () {
+                              if (homeScore > 0) {
+                                provider.quickUpdateMatchResult(_selectedTournamentId!, match.id.toString(), homeScore - 1, awayScore);
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '$homeScore',
+                            style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, color: cs.onSurface),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildQuickAdjustButton(
+                            icon: Icons.add,
+                            onTap: () {
+                              provider.quickUpdateMatchResult(_selectedTournamentId!, match.id.toString(), homeScore + 1, awayScore);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 40,
+                  width: 1,
+                  color: cs.onSurface.withValues(alpha: 0.08),
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        match.awayTeamName ?? 'Гости',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: cs.onSurface),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildQuickAdjustButton(
+                            icon: Icons.remove,
+                            onTap: () {
+                              if (awayScore > 0) {
+                                provider.quickUpdateMatchResult(_selectedTournamentId!, match.id.toString(), homeScore, awayScore - 1);
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '$awayScore',
+                            style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, color: cs.onSurface),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildQuickAdjustButton(
+                            icon: Icons.add,
+                            onTap: () {
+                              provider.quickUpdateMatchResult(_selectedTournamentId!, match.id.toString(), homeScore, awayScore + 1);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(height: 1),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildQuickStatusButton('SCHEDULED', 'ОЖИДАНИЕ', match, provider, cs),
+                _buildQuickStatusButton('LIVE', 'В ЭФИРЕ', match, provider, cs),
+                _buildQuickStatusButton('FINISHED', 'ЗАВЕРШЕН', match, provider, cs),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAdjustButton({required IconData icon, required VoidCallback onTap}) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.onSurface.withValues(alpha: 0.04),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          child: Icon(icon, size: 16, color: cs.onSurface),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickStatusButton(String status, String label, TournamentMatch match, TournamentProvider provider, ColorScheme cs) {
+    final isSelected = match.status.toUpperCase() == status;
+    return GestureDetector(
+      onTap: () {
+        if (!isSelected) {
+          provider.updateMatchDetails(_selectedTournamentId!, match.id.toString(), {'status': status.toLowerCase()});
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? PremiumTheme.neonGreen : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? PremiumTheme.neonGreen : cs.onSurface.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            color: isSelected ? Colors.black : cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
   }
 }
 
