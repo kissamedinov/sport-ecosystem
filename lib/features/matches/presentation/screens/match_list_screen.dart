@@ -8,6 +8,7 @@ import 'package:mobile/core/presentation/widgets/premium_widgets.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../tournaments/data/models/tournament_match.dart';
 import '../../../tournaments/providers/tournament_provider.dart';
+import '../../../tournaments/presentation/screens/match_center_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'match_details_screen.dart';
 
@@ -1795,7 +1796,7 @@ class _MatchListScreenState extends State<MatchListScreen> {
       children: [
         _buildTournamentDropdown(provider, cs),
         Expanded(
-          child: provider.isLoading
+          child: provider.isLoading && provider.matches.isEmpty
               ? const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen))
               : provider.matches.isEmpty
                   ? Center(
@@ -1861,6 +1862,17 @@ class _MatchListScreenState extends State<MatchListScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: PremiumCard(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MatchCenterScreen(
+                matchId: match.id.toString(),
+                tournamentId: _selectedTournamentId,
+              ),
+            ),
+          );
+        },
         child: Column(
           children: [
             Row(
