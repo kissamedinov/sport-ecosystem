@@ -198,6 +198,11 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
         }
       }
     }
+    grouped.sort((a, b) {
+      if (a.isSeries && !b.isSeries) return -1;
+      if (!a.isSeries && b.isSeries) return 1;
+      return 0;
+    });
     
     return grouped;
   }
