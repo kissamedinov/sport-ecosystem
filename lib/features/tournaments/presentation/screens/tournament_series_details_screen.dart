@@ -55,6 +55,22 @@ class _CreateSeriesTournamentButton extends StatelessWidget {
 class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  String _getFormatDisplay(String format) {
+    final lang = context.locale.languageCode;
+    final fmt = format.trim().toUpperCase();
+    if (fmt == 'GROUP_STAGE') {
+      if (lang == 'ru') return 'Групповой этап';
+      if (lang == 'kk') return 'Топтық кезең';
+      return 'Group Stage';
+    }
+    if (fmt == 'KNOCKOUT') {
+      if (lang == 'ru') return 'Плей-офф';
+      if (lang == 'kk') return 'Плей-офф';
+      return 'Knockout';
+    }
+    return format;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -551,7 +567,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          t.format.toUpperCase(),
+                          _getFormatDisplay(t.format),
                           style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
