@@ -1921,5 +1921,27 @@
         "roles": "Striker is the fast counter-attacking finisher. Three CBs maintain structure and communicate."
       }
     }
+  },
+  "league_details": {
+    "tabs_tournaments": "Tournaments",
+    "tabs_champions": "Champions",
+    "tabs_players": "Players",
+    "no_tournaments_in_league": "There are no tournaments in this league yet",
+    "edit_league": "EDIT LEAGUE",
+    "league_name": "League/Series Name",
+    "city": "City",
+    "league_description": "League Description",
+    "logo_url": "Logo Link (URL)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "league_updated_success": "League updated successfully!",
+    "current_and_upcoming": "CURRENT & UPCOMING",
+    "past_tournaments": "PAST TOURNAMENTS",
+    "status_live": "Live",
+    "status_upcoming_badge": "Upcoming",
+    "status_finished_badge": "Finished",
+    "stat_live": "Live",
+    "stat_upcoming": "Upcoming",
+    "stat_past": "Past"
   }
 }

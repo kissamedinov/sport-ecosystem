@@ -1921,5 +1921,27 @@
         "roles": "Нападающий — быстрый контратакующий финишёр. Тройка ЦЗ держит структуру и общается."
       }
     }
+  },
+  "league_details": {
+    "tabs_tournaments": "Турниры",
+    "tabs_champions": "Чемпионы",
+    "tabs_players": "Игроки",
+    "no_tournaments_in_league": "В этой лиге пока нет турниров",
+    "edit_league": "РЕДАКТИРОВАТЬ ЛИГУ (ЭГИДУ)",
+    "league_name": "Название Лиги/Серии",
+    "city": "Город",
+    "league_description": "Описание лиги",
+    "logo_url": "Ссылка на Логотип (URL)",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "league_updated_success": "Лига успешно обновлена!",
+    "current_and_upcoming": "ТЕКУЩИЕ И ПРЕДСТОЯЩИЕ",
+    "past_tournaments": "ПРОШЕДШИЕ ТУРНИРЫ",
+    "status_live": "В эфире",
+    "status_upcoming_badge": "Предстоит",
+    "status_finished_badge": "Завершен",
+    "stat_live": "В эфире",
+    "stat_upcoming": "Будущих",
+    "stat_past": "Прошедших"
   }
 }

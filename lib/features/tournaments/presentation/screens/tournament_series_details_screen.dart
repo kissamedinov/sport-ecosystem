@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/tournament_provider.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'create_tournament_screen.dart';
 import 'tournament_details_page.dart';
 import '../../../../core/theme/premium_theme.dart';
@@ -233,11 +234,11 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                         const SizedBox(height: 10),
                         Row(
                           children: [
-                            _buildStatLabel('В эфире', detail.editions.where((t) => t.displayStatus == 'ACTIVE').length, PremiumTheme.neonGreen, cs),
+                            _buildStatLabel('league_details.stat_live'.tr(), detail.editions.where((t) => t.displayStatus == 'ACTIVE').length, PremiumTheme.neonGreen, cs),
                             const SizedBox(width: 10),
-                            _buildStatLabel('Будущих', detail.editions.where((t) => t.displayStatus != 'ACTIVE' && t.displayStatus != 'FINISHED').length, Colors.lightBlueAccent, cs),
+                            _buildStatLabel('league_details.stat_upcoming'.tr(), detail.editions.where((t) => t.displayStatus != 'ACTIVE' && t.displayStatus != 'FINISHED').length, Colors.lightBlueAccent, cs),
                             const SizedBox(width: 10),
-                            _buildStatLabel('Прошедших', detail.editions.where((t) => t.displayStatus == 'FINISHED').length, cs.onSurfaceVariant.withValues(alpha: 0.6), cs),
+                            _buildStatLabel('league_details.stat_past'.tr(), detail.editions.where((t) => t.displayStatus == 'FINISHED').length, cs.onSurfaceVariant.withValues(alpha: 0.6), cs),
                           ],
                         ),
                       ],
@@ -271,10 +272,10 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                 unselectedLabelColor: cs.onSurfaceVariant,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
-                tabs: const [
-                  Tab(text: 'Турниры'),
-                  Tab(text: 'Чемпионы'),
-                  Tab(text: 'Игроки'),
+                tabs: [
+                  Tab(text: 'league_details.tabs_tournaments'.tr()),
+                  Tab(text: 'league_details.tabs_champions'.tr()),
+                  Tab(text: 'league_details.tabs_players'.tr()),
                 ],
               ),
             ),
@@ -332,7 +333,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'В этой лиге пока нет турниров',
+                'league_details.no_tournaments_in_league'.tr(),
                 style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 14),
               ),
               const SizedBox(height: 16),
@@ -361,13 +362,13 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
       children: [
         _CreateSeriesTournamentButton(seriesId: detail.id),
         if (activeAndUpcoming.isNotEmpty) ...[
-          _buildListSectionTitle('ТЕКУЩИЕ И ПРЕДСТОЯЩИЕ', activeAndUpcoming.length, cs),
+          _buildListSectionTitle('league_details.current_and_upcoming'.tr(), activeAndUpcoming.length, cs),
           const SizedBox(height: 8),
           ...activeAndUpcoming.map((t) => _buildTournamentListItem(t, cs, isDark)),
           const SizedBox(height: 16),
         ],
         if (finished.isNotEmpty) ...[
-          _buildListSectionTitle('ПРОШЕДШИЕ ТУРНИРЫ', finished.length, cs),
+          _buildListSectionTitle('league_details.past_tournaments'.tr(), finished.length, cs),
           const SizedBox(height: 8),
           ...finished.map((t) => _buildTournamentListItem(t, cs, isDark)),
           const SizedBox(height: 16),
@@ -416,13 +417,13 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
     final isActive = t.displayStatus == 'ACTIVE';
 
     Color statusColor = cs.onSurfaceVariant;
-    String statusText = 'Предстоит';
+    String statusText = 'league_details.status_upcoming_badge'.tr();
     if (isActive) {
       statusColor = PremiumTheme.neonGreen;
-      statusText = 'В эфире';
+      statusText = 'league_details.status_live'.tr();
     } else if (isFinished) {
       statusColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
-      statusText = 'Завершен';
+      statusText = 'league_details.status_finished_badge'.tr();
     }
 
     return Padding(
@@ -655,7 +656,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
         return AlertDialog(
           backgroundColor: PremiumTheme.surfaceCard(context),
           title: Text(
-            'РЕДАКТИРОВАТЬ ЛИГУ (ЭГИДУ)',
+            'league_details.edit_league'.tr(),
             style: GoogleFonts.outfit(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5),
           ),
           content: SingleChildScrollView(
@@ -664,25 +665,25 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
               children: [
                 PremiumTextField(
                   controller: nameController,
-                  label: 'Название Лиги/Серии',
+                  label: 'league_details.league_name'.tr(),
                   icon: Icons.emoji_events,
                 ),
                 const SizedBox(height: 16),
                 PremiumTextField(
                   controller: cityController,
-                  label: 'Город',
+                  label: 'league_details.city'.tr(),
                   icon: Icons.location_on,
                 ),
                 const SizedBox(height: 16),
                 PremiumTextField(
                   controller: descController,
-                  label: 'Описание лиги',
+                  label: 'league_details.league_description'.tr(),
                   icon: Icons.description,
                 ),
                 const SizedBox(height: 16),
                 PremiumTextField(
                   controller: logoController,
-                  label: 'Ссылка на Логотип (URL)',
+                  label: 'league_details.logo_url'.tr(),
                   icon: Icons.link,
                 ),
               ],
@@ -691,10 +692,10 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Отмена', style: TextStyle(color: cs.onSurfaceVariant)),
+              child: Text('league_details.cancel'.tr(), style: TextStyle(color: cs.onSurfaceVariant)),
             ),
             PremiumButton(
-              text: 'Сохранить',
+              text: 'league_details.save'.tr(),
               onPressed: () async {
                 if (nameController.text.trim().isEmpty) return;
                 
@@ -709,7 +710,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                 if (success && context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Лига успешно обновлена!')),
+                    SnackBar(content: Text('league_details.league_updated_success'.tr())),
                   );
                 }
               },

@@ -1922,5 +1922,27 @@
         "roles": "Шабуылдаушы — жылдам қарсы шабуылдаушы финишер. Үш ОҚ құрылымды ұстап, сөйлеседі."
       }
     }
+  },
+  "league_details": {
+    "tabs_tournaments": "Турнирлер",
+    "tabs_champions": "Чемпиондар",
+    "tabs_players": "Ойыншылар",
+    "no_tournaments_in_league": "Бұл лигада әлі турнирлер жоқ",
+    "edit_league": "ЛИГАНЫ РЕДАКЦИЯЛАУ",
+    "league_name": "Лига/Серия атауы",
+    "city": "Қала",
+    "league_description": "Лига сипаттамасы",
+    "logo_url": "Логотип сілтемесі (URL)",
+    "cancel": "Бас тарту",
+    "save": "Сақтау",
+    "league_updated_success": "Лига сәтті жаңартылды!",
+    "current_and_upcoming": "АҒЫМДАҒЫ ЖӘНЕ БОЛАШАҚ",
+    "past_tournaments": "ӨТКЕН ТУРНИРЛЕР",
+    "status_live": "Эфирде",
+    "status_upcoming_badge": "Жоспарланған",
+    "status_finished_badge": "Аяқталды",
+    "stat_live": "Эфирде",
+    "stat_upcoming": "Болашақ",
+    "stat_past": "Өткен"
   }
 }
