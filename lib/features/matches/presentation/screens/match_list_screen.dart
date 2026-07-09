@@ -9,6 +9,7 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../../tournaments/data/models/tournament_match.dart';
 import '../../../tournaments/providers/tournament_provider.dart';
 import '../../../tournaments/presentation/screens/match_center_screen.dart';
+import '../../../tournaments/presentation/screens/match_report_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'match_details_screen.dart';
 
@@ -2005,6 +2006,38 @@ class _MatchListScreenState extends State<MatchListScreen> {
                 _buildQuickStatusButton('SCHEDULED', 'ОЖИДАНИЕ', match, provider, cs),
                 _buildQuickStatusButton('LIVE', 'В ЭФИРЕ', match, provider, cs),
                 _buildQuickStatusButton('FINISHED', 'ЗАВЕРШЕН', match, provider, cs),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MatchReportScreen(
+                          matchId: match.id.toString(),
+                          tournamentId: _selectedTournamentId!,
+                          match: match,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: Colors.blueAccent.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      'СЧЕТ',
+                      style: GoogleFonts.outfit(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.lightBlueAccent,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
