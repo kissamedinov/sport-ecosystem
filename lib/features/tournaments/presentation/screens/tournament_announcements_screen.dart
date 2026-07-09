@@ -8,7 +8,8 @@ import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 
 class TournamentAnnouncementsScreen extends StatefulWidget {
-  const TournamentAnnouncementsScreen({super.key});
+  final bool embedded;
+  const TournamentAnnouncementsScreen({super.key, this.embedded = false});
 
   @override
   State<TournamentAnnouncementsScreen> createState() => _TournamentAnnouncementsScreenState();
@@ -26,24 +27,17 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: PremiumTheme.surfaceBase(context),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('tournament.announcements_title'.tr(), style: const TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 14)),
-      ),
-      body: Consumer<TournamentProvider>(
-        builder: (context, provider, _) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
-          }
+    final bodyWidget = Consumer<TournamentProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
+        }
 
-          final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
+        final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
 
-          if (announcements.isEmpty) {
-            return Center(child: Text('tournament.no_announcements'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
-          }
+        if (announcements.isEmpty) {
+          return Center(child: Text('tournament.no_announcements'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
+        }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -56,8 +50,21 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
               return _buildAnnouncementCard(context, t);
             },
           );
-        },
+      },
+    );
+
+    if (widget.embedded) {
+      return bodyWidget;
+    }
+
+    return Scaffold(
+      backgroundColor: PremiumTheme.surfaceBase(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('tournament.announcements_title'.tr(), style: const TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 14)),
       ),
+      body: bodyWidget,
     );
   }
 

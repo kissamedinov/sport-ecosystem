@@ -11,6 +11,7 @@ import 'tournament_series_details_screen.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament.dart';
+import 'tournament_announcements_screen.dart';
 
 class GroupedTournamentItem {
   final String? seriesId;
@@ -86,7 +87,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialIndex);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialIndex);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         setState(() {});
@@ -324,6 +325,7 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
             Tab(text: 'tournament.explore'.tr()),
             Tab(text: 'tournament.my_events'.tr()),
             Tab(text: 'Лиги (Эгиды)'),
+            Tab(text: 'tournament.announcements_title'.tr()),
           ],
         ),
         actions: [
@@ -370,6 +372,10 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
                 if (_tabController.index == 2) {
                   final isDark = Theme.of(context).brightness == Brightness.dark;
                   return _buildSeriesTab(provider, cs, isDark);
+                }
+
+                if (_tabController.index == 3) {
+                  return const TournamentAnnouncementsScreen(embedded: true);
                 }
 
                 final tournaments = isChild
