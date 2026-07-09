@@ -1,8 +1,14 @@
 from app.database import SessionLocal
 from app.tournaments.models import Tournament
+from sqlalchemy import text
 
 db = SessionLocal()
 try:
+    # Alter column size in DB
+    db.execute(text("ALTER TABLE tournaments ALTER COLUMN age_category TYPE character varying(50)"))
+    db.commit()
+    print("Database column altered successfully!")
+    
     t = db.query(Tournament).filter(Tournament.name == "Juldyz Ball CUP 2016-2017").first()
     if t:
         t.age_category = "2016-2017"
