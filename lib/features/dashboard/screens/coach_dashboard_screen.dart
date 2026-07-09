@@ -11,6 +11,10 @@ import '../../notifications/presentation/screens/notification_screen.dart';
 import '../../matches/presentation/screens/live_match_screen.dart';
 import '../../coaches/presentation/screens/coach_teams_screen.dart';
 import '../../coaches/presentation/screens/coach_planner_screen.dart';
+import '../../coaches/presentation/screens/coach_tactics_screen.dart';
+import '../../coaches/presentation/screens/coach_attendance_screen.dart';
+import '../../coaches/presentation/screens/coach_performance_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../stats/presentation/screens/performance_screen.dart';
 import '../../lineups/presentation/screens/lineup_screen.dart';
 import '../../tournaments/presentation/screens/tournament_announcements_screen.dart';
@@ -63,9 +67,16 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
 
   Future<void> _openLineup() async {
     setState(() => _fabActive = true);
+    _showCoachToolkit(context);
+    if (mounted) setState(() => _fabActive = false);
+  }
+
+  void _showCoachToolkit(BuildContext context) {
     final provider = context.read<ClubProvider>();
-    final dashboard = provider.coachDashboard;
-    final teams = dashboard != null ? (dashboard['teams'] as List? ?? []) : [];
+    final dashboard = provider.coachDashboard ?? {};
+    final teams = dashboard['teams'] as List? ?? [];
+    final perf = dashboard['performance_stats'] as Map<String, dynamic>? ?? {};
+    final topPerformers = dashboard['top_performers'] as List? ?? [];
     
     final matchedTeam = teams.isNotEmpty ? teams.first : null;
     String? myTeamName;
@@ -93,18 +104,307 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen>
       }
     }
 
-    await Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (_, _, _) => LineupScreen(
-          teamName: myTeamName,
-          players: players,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.75),
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0D1117),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.06),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: PremiumTheme.neonGreen.withValues(alpha: 0.12),
+                blurRadius: 28,
+                offset: const Offset(0, -6),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: PremiumTheme.neonGreen.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.flash_on, color: PremiumTheme.neonGreen, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ИНСТРУМЕНТЫ ТРЕНЕРА',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Быстрый доступ к управлению командой',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white30,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.3,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildToolCard(
+                        context,
+                        title: 'Тактическая доска',
+                        desc: 'Расстановки и схемы',
+                        icon: Icons.sports_soccer_rounded,
+                        color: PremiumTheme.neonGreen,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CoachTacticsScreen()),
+                          );
+                        },
+                      ),
+                      _buildToolCard(
+                        context,
+                        title: 'Посещаемость',
+                        desc: 'Журнал тренировок',
+                        icon: Icons.fact_check_rounded,
+                        color: const Color(0xFF00E676),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => CoachAttendanceScreen(teams: teams)),
+                          );
+                        },
+                      ),
+                      _buildToolCard(
+                        context,
+                        title: 'Планировщик',
+                        desc: 'Создать событие',
+                        icon: Icons.calendar_month_rounded,
+                        color: const Color(0xFF2979FF),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CoachPlannerScreen()),
+                          );
+                        },
+                      ),
+                      _buildToolCard(
+                        context,
+                        title: 'Эффективность',
+                        desc: 'Анализ и оценки',
+                        icon: Icons.analytics_rounded,
+                        color: const Color(0xFFFF9100),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CoachPerformanceScreen(
+                                perf: perf,
+                                topPerformers: topPerformers,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          PremiumTheme.neonGreen.withValues(alpha: 0.12),
+                          const Color(0xFF00E676).withValues(alpha: 0.04),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: PremiumTheme.neonGreen.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder: (_, _, _) => LineupScreen(
+                                teamName: myTeamName,
+                                players: players,
+                              ),
+                              transitionsBuilder: (_, a, _, c) =>
+                                  FadeTransition(opacity: a, child: c),
+                              transitionDuration: const Duration(milliseconds: 220),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(14),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: PremiumTheme.neonGreen.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.assignment_ind_rounded,
+                                  color: PremiumTheme.neonGreen,
+                                  size: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Заявка на матч',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Быстрый выбор состава на игру',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white54,
+                                        fontSize: 9,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                Icons.chevron_right_rounded,
+                                color: Colors.white54,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildToolCard(
+    BuildContext context, {
+    required String title,
+    required String desc,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: const Color(0xFF161B22).withValues(alpha: 0.5),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.04),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    desc,
+                    style: GoogleFonts.outfit(
+                      color: Colors.white30,
+                      fontSize: 8,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        transitionsBuilder: (_, a, _, c) =>
-            FadeTransition(opacity: a, child: c),
-        transitionDuration: const Duration(milliseconds: 220),
       ),
     );
-    if (mounted) setState(() => _fabActive = false);
   }
 
   @override
