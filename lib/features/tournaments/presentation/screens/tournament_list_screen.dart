@@ -115,6 +115,8 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
 
     if (_tabController.index == 2) {
       context.read<TournamentProvider>().fetchTournamentSeries();
+    } else if (_tabController.index == 3) {
+      context.read<TournamentProvider>().fetchTournaments();
     } else {
       context.read<TournamentProvider>().fetchTournaments(
         city: _selectedCity == 'All Cities' ? null : _selectedCity,

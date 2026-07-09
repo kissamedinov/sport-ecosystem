@@ -19,9 +19,11 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TournamentProvider>().fetchTournaments();
-    });
+    if (!widget.embedded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<TournamentProvider>().fetchTournaments();
+      });
+    }
   }
 
   @override
