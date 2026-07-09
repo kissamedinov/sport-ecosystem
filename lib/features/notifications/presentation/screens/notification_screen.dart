@@ -13,7 +13,6 @@ import '../../../../core/api/api_client.dart';
 import '../../../tournaments/presentation/screens/match_center_screen.dart';
 import '../../../tournaments/presentation/screens/tournament_details_page.dart';
 import '../../../teams/presentation/screens/team_details_screen.dart';
-import '../../../clubs/presentation/screens/club_dashboard_screen.dart';
 
 
 class NotificationScreen extends StatefulWidget {
@@ -446,8 +445,11 @@ class _NotificationCardState extends State<_NotificationCard> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+      builder: (context) => const PopScope(
+        canPop: false,
+        child: Center(
+          child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+        ),
       ),
     );
 

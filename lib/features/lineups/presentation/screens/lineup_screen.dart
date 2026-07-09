@@ -1006,8 +1006,11 @@ class _LineupScreenState extends State<LineupScreen>
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) => const Center(
-                              child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+                            builder: (context) => const PopScope(
+                              canPop: false,
+                              child: Center(
+                                child: CircularProgressIndicator(color: PremiumTheme.neonGreen),
+                              ),
                             ),
                           );
 
