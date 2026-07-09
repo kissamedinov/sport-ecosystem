@@ -89,7 +89,6 @@ class _MatchReportScreenState extends State<MatchReportScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _refreshMatchDetails();
       await context.read<MatchProvider>().fetchMatchEvents(widget.matchId);
-      await _autoSyncScoreFromEvents();
       _loadPlayerNames();
       if (widget.myTournamentTeamId != null) {
         context
@@ -138,6 +137,10 @@ class _MatchReportScreenState extends State<MatchReportScreen>
       if (mounted) {
         setState(() {
           _currentMatch = match;
+          _homeScoreController.text = match.homeScore.toString();
+          _awayScoreController.text = match.awayScore.toString();
+          _homePenaltyController.text = (match.homePenaltyScore ?? 0).toString();
+          _awayPenaltyController.text = (match.awayPenaltyScore ?? 0).toString();
         });
         _loadPlayerNames();
       }
