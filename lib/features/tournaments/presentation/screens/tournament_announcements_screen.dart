@@ -35,7 +35,27 @@ class _TournamentAnnouncementsScreenState extends State<TournamentAnnouncementsS
           return const Center(child: CircularProgressIndicator(color: PremiumTheme.neonGreen));
         }
 
-        final announcements = provider.tournaments.where((t) => t.status == 'upcoming' || t.status == 'scheduled').toList();
+        final announcements = provider.tournaments.where((t) {
+          final isUpcomingStatus = t.status.toLowerCase() == 'upcoming' || t.status.toLowerCase() == 'scheduled';
+          if (!isUpcomingStatus) return false;
+
+          final start = DateTime.tryParse(t.startDate);
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          
+          if (start == null) return false;
+          final startDateOnly = DateTime(start.year, start.month, start.day);
+          if (startDateOnly.isBefore(today)) return false;
+
+          if (t.registrationClose != null) {
+            final regClose = DateTime.tryParse(t.registrationClose!);
+            if (regClose != null) {
+              final regCloseOnly = DateTime(regClose.year, regClose.month, regClose.day);
+              if (regCloseOnly.isBefore(today)) return false;
+            }
+          }
+          return true;
+        }).toList();
 
         if (announcements.isEmpty) {
           return Center(child: Text('tournament.no_announcements'.tr(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4))));
