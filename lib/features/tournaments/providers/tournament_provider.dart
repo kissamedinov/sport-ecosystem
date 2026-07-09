@@ -400,4 +400,20 @@ class TournamentProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> quickUpdateMatchResult(String tournamentId, String matchId, int homeScore, int awayScore) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      await _repository.updateMatchResult(matchId, homeScore, awayScore);
+      await fetchTournamentMatches(tournamentId);
+      await fetchTournamentStandings(tournamentId);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
 }

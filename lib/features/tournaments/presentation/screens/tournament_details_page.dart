@@ -22,6 +22,8 @@ import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../widgets/tournament_bracket_widget.dart';
 import '../widgets/shareable_schedule_dialog.dart';
 import 'match_center_screen.dart';
+import 'tournament_registration_hub_screen.dart';
+import 'matchday_control_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TournamentDetailsPage extends StatefulWidget {
@@ -328,8 +330,115 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
           ],
           _buildSectionTitle('tournament.configuration'.tr(), Icons.settings),
           _buildInfoGrid(tournament),
+          if (_isOrganizer) ...[
+            const SizedBox(height: 24),
+            _buildSectionTitle('Управление турниром', Icons.admin_panel_settings),
+            const SizedBox(height: 12),
+            _buildOrganizerActionsGrid(tournament, provider),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildOrganizerActionsGrid(Tournament tournament, TournamentProvider provider) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                'Расписание',
+                'Авто-генерация матчей',
+                Icons.auto_awesome,
+                PremiumTheme.neonGreen,
+                () => _showGenerateScheduleDialog(tournament.id.toString(), provider),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionCard(
+                'Заявки команд',
+                'Хаб модерации',
+                Icons.people_outline,
+                Colors.lightBlueAccent,
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TournamentRegistrationHubScreen(tournamentId: tournament.id.toString()),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildActionCard(
+          'Быстрый счет (Matchday Control)',
+          'Управление счетом матчей в реальном времени',
+          Icons.flash_on,
+          Colors.orangeAccent,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MatchdayControlScreen(tournamentId: tournament.id.toString()),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showGenerateScheduleDialog(String tournamentId, TournamentProvider provider) {
+    final cs = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: PremiumTheme.surfaceCard(context),
+          title: Text(
+            'Генерация расписания',
+            style: GoogleFonts.outfit(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          content: Text(
+            'Внимание! Генерация расписания автоматически удалит все существующие матчи этого турнира и создаст новые. Вы уверены, что хотите продолжить?',
+            style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 13),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Отмена', style: TextStyle(color: cs.onSurfaceVariant)),
+            ),
+            PremiumButton(
+              text: 'Сгенерировать',
+              onPressed: () async {
+                Navigator.pop(context);
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                try {
+                  await provider.generateSchedule(tournamentId);
+                  if (provider.error != null) {
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(content: Text('Ошибка генерации: ${provider.error}')),
+                    );
+                  } else {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(content: Text('Расписание успешно сгенерировано!')),
+                    );
+                  }
+                } catch (e) {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text('Ошибка генерации: $e')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
