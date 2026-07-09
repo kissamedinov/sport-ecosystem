@@ -135,12 +135,14 @@ class _TournamentListScreenState extends State<TournamentListScreen> with Single
       return true;
     }
     
-    // Check if category is a 4-digit number (e.g. 2013)
-    final isYear = RegExp(r'^\d{4}$').hasMatch(category);
-    if (isYear) {
-      final year = int.tryParse(category);
-      if (year != null && year >= 2000 && year <= 2030) {
-        return false; // Youth birth year
+    // Check if category contains any 4-digit youth birth years (e.g. 2016-2017)
+    final matches = RegExp(r'\b\d{4}\b').allMatches(category);
+    if (matches.isNotEmpty) {
+      for (final m in matches) {
+        final year = int.tryParse(m.group(0) ?? '');
+        if (year != null && year >= 2000 && year <= 2030) {
+          return false; // Youth birth year
+        }
       }
     }
     
