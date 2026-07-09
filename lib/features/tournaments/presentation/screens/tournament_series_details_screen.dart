@@ -516,12 +516,20 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                   Row(
                     children: [
                       Icon(Icons.calendar_today_rounded, size: 12, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${t.startDate} — ${t.endDate}',
-                        style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${t.startDate} — ${t.endDate}',
+                          style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      const Spacer(),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
                       if (t.ageCategory.isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
