@@ -8,6 +8,7 @@ import 'tournament_details_page.dart';
 import '../../../../core/theme/premium_theme.dart';
 import '../../../../core/presentation/widgets/premium_widgets.dart';
 import '../../data/models/tournament_series.dart';
+import '../../data/models/tournament.dart';
 
 class TournamentSeriesDetailsScreen extends StatefulWidget {
   final String seriesId;
@@ -145,7 +146,35 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
           // Aegis Banner Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: PremiumCard(
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [
+                          PremiumTheme.surfaceCard(context),
+                          PremiumTheme.surfaceCard(context).withValues(alpha: 0.8),
+                        ]
+                      : [
+                          PremiumTheme.surfaceCard(context),
+                          PremiumTheme.surfaceCard(context).withValues(alpha: 0.95),
+                        ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: cs.onSurface.withValues(alpha: isDark ? 0.08 : 0.12),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
               child: Row(
                 children: [
                   Container(
@@ -201,6 +230,16 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            _buildStatLabel('В эфире', detail.editions.where((t) => t.displayStatus == 'ACTIVE').length, PremiumTheme.neonGreen, cs),
+                            const SizedBox(width: 10),
+                            _buildStatLabel('Будущих', detail.editions.where((t) => t.displayStatus != 'ACTIVE' && t.displayStatus != 'FINISHED').length, Colors.lightBlueAccent, cs),
+                            const SizedBox(width: 10),
+                            _buildStatLabel('Прошедших', detail.editions.where((t) => t.displayStatus == 'FINISHED').length, cs.onSurfaceVariant.withValues(alpha: 0.6), cs),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -258,6 +297,31 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
     );
   }
 
+  Widget _buildStatLabel(String label, int count, Color color, ColorScheme cs) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          '$count $label',
+          style: GoogleFonts.outfit(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
   // 1. Seasons Tab
   Widget _buildSeasonsTab(TournamentSeriesDetail detail, ColorScheme cs, bool isDark) {
     if (detail.editions.isEmpty) {
@@ -269,7 +333,7 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
             children: [
               Text(
                 'В этой лиге пока нет турниров',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 14),
               ),
               const SizedBox(height: 16),
               _CreateSeriesTournamentButton(seriesId: detail.id),
@@ -279,69 +343,217 @@ class _TournamentSeriesDetailsScreenState extends State<TournamentSeriesDetailsS
       );
     }
 
+    final activeAndUpcoming = detail.editions.where((t) => t.displayStatus == 'ACTIVE' || t.displayStatus != 'FINISHED').toList();
+    final finished = detail.editions.where((t) => t.displayStatus == 'FINISHED').toList();
+
+    // Sort active & upcoming so active is first, then closest start date
+    activeAndUpcoming.sort((a, b) {
+      if (a.displayStatus == 'ACTIVE' && b.displayStatus != 'ACTIVE') return -1;
+      if (b.displayStatus == 'ACTIVE' && a.displayStatus != 'ACTIVE') return 1;
+      return a.startDate.compareTo(b.startDate);
+    });
+
+    // Sort finished descending (most recent first)
+    finished.sort((a, b) => b.startDate.compareTo(a.startDate));
+
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       children: [
         _CreateSeriesTournamentButton(seriesId: detail.id),
-        ...detail.editions.map((t) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: PremiumCard(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TournamentDetailsPage(tournamentId: t.id),
-                  ),
-                );
-              },
-              child: Row(
+        if (activeAndUpcoming.isNotEmpty) ...[
+          _buildListSectionTitle('ТЕКУЩИЕ И ПРЕДСТОЯЩИЕ', activeAndUpcoming.length, cs),
+          const SizedBox(height: 8),
+          ...activeAndUpcoming.map((t) => _buildTournamentListItem(t, cs, isDark)),
+          const SizedBox(height: 16),
+        ],
+        if (finished.isNotEmpty) ...[
+          _buildListSectionTitle('ПРОШЕДШИЕ ТУРНИРЫ', finished.length, cs),
+          const SizedBox(height: 8),
+          ...finished.map((t) => _buildTournamentListItem(t, cs, isDark)),
+          const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildListSectionTitle(String title, int count, ColorScheme cs) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: cs.onSurface.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '$count',
+              style: GoogleFonts.outfit(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTournamentListItem(Tournament t, ColorScheme cs, bool isDark) {
+    final isFinished = t.displayStatus == 'FINISHED';
+    final isActive = t.displayStatus == 'ACTIVE';
+
+    Color statusColor = cs.onSurfaceVariant;
+    String statusText = 'Предстоит';
+    if (isActive) {
+      statusColor = PremiumTheme.neonGreen;
+      statusText = 'В эфире';
+    } else if (isFinished) {
+      statusColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
+      statusText = 'Завершен';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PremiumCard(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TournamentDetailsPage(tournamentId: t.id),
+            ),
+          );
+        },
+        child: Row(
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: cs.onSurface.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: cs.onSurface.withValues(alpha: isDark ? 0.06 : 0.1),
+                ),
+              ),
+              child: t.logoUrl != null && t.logoUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(t.logoUrl!, fit: BoxFit.cover),
+                    )
+                  : const Icon(Icons.sports_soccer, color: PremiumTheme.neonGreen, size: 26),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: cs.onSurface.withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: cs.onSurface.withValues(alpha: isDark ? 0.06 : 0.1),
-                      ),
-                    ),
-                    child: t.logoUrl != null && t.logoUrl!.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(t.logoUrl!, fit: BoxFit.cover),
-                          )
-                        : const Icon(Icons.sports_soccer, color: PremiumTheme.neonGreen, size: 24),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
                           t.name,
-                          style: TextStyle(
+                          style: GoogleFonts.outfit(
                             color: cs.onSurface,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 15,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Status Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isActive) ...[
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: PremiumTheme.neonGreen,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                            Text(
+                              statusText.toUpperCase(),
+                              style: GoogleFonts.outfit(
+                                color: statusColor,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today_rounded, size: 12, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${t.startDate} — ${t.endDate}',
+                        style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.w500),
+                      ),
+                      const Spacer(),
+                      if (t.ageCategory.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: cs.onSurface.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            t.ageCategory.contains('г.р') ? t.ageCategory : '${t.ageCategory} г.р.',
+                            style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${t.startDate} — ${t.endDate}',
-                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                        ),
+                        const SizedBox(width: 6),
                       ],
-                    ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cs.onSurface.withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          t.format.toUpperCase(),
+                          style: GoogleFonts.outfit(color: cs.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
-                  Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
                 ],
               ),
             ),
-          );
-        }),
-      ],
+          ],
+        ),
+      ),
     );
   }
 
