@@ -940,6 +940,8 @@
     "select_day": "Выберите день: ",
     "playoff_bracket_caps": "ПЛЕЙ-ОФФ СЕТКА",
     "championship_group_stage_caps": "ЧЕМПИОНАТ / ГРУППОВОЙ ЭТАП",
+    "championship_league_stage_caps": "ЧЕМПИОНАТ / ЛИГА",
+    "league_match_caps": "МАТЧ ЛИГИ",
     "no_matches_scheduled_day": "Нет запланированных матчей на этот день",
     "download_schedule_png": "Скачать расписание (PNG)",
     "awaiting_winner": "Ожидается победитель",

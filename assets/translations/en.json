@@ -940,6 +940,8 @@
     "select_day": "Select day: ",
     "playoff_bracket_caps": "PLAYOFF BRACKET",
     "championship_group_stage_caps": "CHAMPIONSHIP / GROUP STAGE",
+    "championship_league_stage_caps": "CHAMPIONSHIP / LEAGUE",
+    "league_match_caps": "LEAGUE MATCH",
     "no_matches_scheduled_day": "No matches scheduled for this day",
     "download_schedule_png": "Download Schedule (PNG)",
     "awaiting_winner": "Awaiting Winner",

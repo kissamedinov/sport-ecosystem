@@ -988,6 +988,8 @@
     "select_day": "Күнді таңдаңыз: ",
     "playoff_bracket_caps": "ПЛЕЙ-ОФФ ТОРЫ",
     "championship_group_stage_caps": "ЧЕМПИОНАТ / ТОПТЫҚ КЕЗЕҢ",
+    "championship_league_stage_caps": "ЧЕМПИОНАТ / ЛИГА",
+    "league_match_caps": "МАТЧ ЛИГИ",
     "no_matches_scheduled_day": "Бұл күнге жоспарланған матчтар жоқ",
     "download_schedule_png": "Кестені жүктеу (PNG)",
     "awaiting_winner": "Жеңімпаз күтілуде",

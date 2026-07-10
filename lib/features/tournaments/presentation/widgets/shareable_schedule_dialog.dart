@@ -317,7 +317,11 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.tournament.format == 'KNOCKOUT' ? 'tournament.playoff_bracket_caps'.tr() : 'tournament.championship_group_stage_caps'.tr(),
+                          widget.tournament.format == 'KNOCKOUT'
+                              ? 'tournament.playoff_bracket_caps'.tr()
+                              : (widget.tournament.format == 'LEAGUE'
+                                  ? 'tournament.championship_league_stage_caps'.tr()
+                                  : 'tournament.championship_group_stage_caps'.tr()),
                           style: TextStyle(
                             color: _secondaryTextColor.withValues(alpha: 0.5),
                             fontWeight: FontWeight.bold,
@@ -707,6 +711,9 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     return 'Awaiting';
   }
   String _getMatchStageName(BuildContext context, TournamentMatch match) {
+    if (widget.tournament.format.toUpperCase() == 'LEAGUE') {
+      return 'tournament.league_match_caps'.tr();
+    }
     if (match.groupId != null) {
       // Use the precomputed UUID→letter map (A, B, C...) built from sorted group IDs
       final letter = _groupLetterMap[match.groupId] ?? 'A';
