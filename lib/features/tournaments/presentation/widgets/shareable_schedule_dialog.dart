@@ -188,6 +188,22 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
     
     final sortedFields = fieldGroups.keys.toList()..sort();
 
+    final timeFormatter = DateFormat('yyyy-MM-dd HH:mm');
+    final uniqueTimesStr = matchesOfDay
+        .where((m) => m.matchDate != null)
+        .map((m) => timeFormatter.format(m.matchDate!.toLocal()))
+        .toSet()
+        .toList()
+      ..sort();
+
+    final Map<String, Map<String, TournamentMatch>> timeFieldMap = {};
+    for (final m in matchesOfDay) {
+      if (m.matchDate == null) continue;
+      final timeStr = timeFormatter.format(m.matchDate!.toLocal());
+      final fName = m.fieldName ?? 'tournament.field_default'.tr(namedArgs: {'num': '1'});
+      timeFieldMap.putIfAbsent(timeStr, () => {})[fName] = m;
+    }
+
     final screenHeight = MediaQuery.of(context).size.height;
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -344,43 +360,72 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
                             }).toList(),
                           )
                         else
-                          // Multi field grid columns
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: sortedFields.map((fName) {
-                              final fMatches = fieldGroups[fName]!;
-                              return Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      // Field Column Header
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          color: PremiumTheme.neonGreen.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: PremiumTheme.neonGreen.withOpacity(0.2)),
-                                        ),
-                                        child: Text(
-                                          fName.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: PremiumTheme.neonGreen,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 9,
-                                            letterSpacing: 0.5,
+                          // Multi field grid columns aligned by time slots
+                          Column(
+                            children: [
+                              // Header row
+                              Row(
+                                children: sortedFields.map((fName) {
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                      child: Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                          decoration: BoxDecoration(
+                                            color: PremiumTheme.neonGreen.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: PremiumTheme.neonGreen.withValues(alpha: 0.2)),
+                                          ),
+                                          child: Text(
+                                            fName.toUpperCase(),
+                                            style: const TextStyle(
+                                              color: PremiumTheme.neonGreen,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 9,
+                                              letterSpacing: 0.5,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 12),
-                                      // Match items
-                                      ...fMatches.map((match) => _buildCompactMatchCard(match)),
-                                    ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: 12),
+                              // Rows for each time slot
+                              ...uniqueTimesStr.map((timeStr) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: sortedFields.map((fName) {
+                                        final match = timeFieldMap[timeStr]?[fName];
+                                        if (match != null) {
+                                          return Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                              child: _buildCompactMatchCard(match),
+                                            ),
+                                          );
+                                        } else {
+                                          return Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                              child: Container(
+                                                margin: const EdgeInsets.only(bottom: 10),
+                                                child: const SizedBox.shrink(),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      }).toList(),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }),
+                            ],
                           ),
                         const SizedBox(height: 20),
                         Divider(color: _dividerColor, height: 1),
