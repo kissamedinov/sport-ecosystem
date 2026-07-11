@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -55,6 +56,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passCtrl = TextEditingController();
   final _dobCtrl = TextEditingController();
 
+  late TapGestureRecognizer _termsRecognizer;
+  late TapGestureRecognizer _privacyRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsRecognizer = TapGestureRecognizer()..onTap = _showTermsDialog;
+    _privacyRecognizer = TapGestureRecognizer()..onTap = _showPrivacyDialog;
+  }
+
   _RoleInfo get _currentRole =>
       _kRoles.firstWhere((r) => r.value == _selectedRole);
 
@@ -64,7 +75,125 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailCtrl.dispose();
     _passCtrl.dispose();
     _dobCtrl.dispose();
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
     super.dispose();
+  }
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => _buildPolicyDialog(
+        title: 'auth.terms'.tr(),
+        content: _termsOfServiceContent,
+      ),
+    );
+  }
+
+  void _showPrivacyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => _buildPolicyDialog(
+        title: 'auth.privacy_policy'.tr(),
+        content: _privacyPolicyContent,
+      ),
+    );
+  }
+
+  Widget _buildPolicyDialog({required String title, required String content}) {
+    final cs = Theme.of(context).colorScheme;
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F151B),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            )
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.description_outlined, color: _kGreen, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  content,
+                  style: GoogleFonts.outfit(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
+                ),
+              ),
+            ),
+            Divider(color: cs.onSurface.withValues(alpha: 0.08), height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: OrleonPrimaryButton(
+                label: 'common.close'.tr(),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String get _termsOfServiceContent {
+    return '1. Общие положения\n'
+        'Добро пожаловать в спортивную экосистему Orleon. Используя наше приложение, вы соглашаетесь с данными Условиями использования. Платформа Orleon предназначена для организации футбольных турниров, управления составами команд, бронирования спортивных площадок и просмотра результатов матчей.\n\n'
+        '2. Регистрация и роли\n'
+        'При регистрации вы выбираете роль (Игрок, Тренер, Организатор, Владелец поля и др.). Вы обязуетесь указывать достоверную информацию и нести ответственность за любые действия, совершаемые под вашей учетной записью.\n\n'
+        '3. Правила проведения турниров\n'
+        'Организаторы обязуются соблюдать регламент спортивных соревнований. Запрещается публикация заведомо ложных результатов матчей, оскорбительного контента или спама. Администрация оставляет за собой право блокировать нарушителей.\n\n'
+        '4. Изменение условий\n'
+        'Мы можем периодически обновлять Условия использования для улучшения качества платформы. Продолжая пользоваться Orleon, вы соглашаетесь с изменениями.';
+  }
+
+  String get _privacyPolicyContent {
+    return '1. Сбор информации\n'
+        'Мы собираем данные, которые вы предоставляете при регистрации: имя, адрес электронной почты, дату рождения, выбранную роль, а также аватар профиля. Эти данные необходимы для корректного отображения профилей, формирования составов на матчи и ведения турнирных таблиц.\n\n'
+        '2. Использование данных\n'
+        'Ваша персональная информация используется исключительно внутри платформы Orleon для обеспечения её основных функций (составление расписания, учет статистики голов, карточек и посещаемости, отправка уведомлений о заявках).\n\n'
+        '3. Доступ третьих лиц\n'
+        'Мы не продаем, не обмениваем и не передаем ваши личные данные сторонним лицам или рекламодателям. Все данные надежно защищены от несанкционированного доступа с использованием шифрования.\n\n'
+        '4. Согласие и удаление данных\n'
+        'Регистрируясь в приложении, вы даете согласие на обработку персональных данных. Вы можете запросить удаление своего аккаунта и связанных с ним данных в любой момент через настройки профиля.';
   }
 
   Future<void> _pickDate() async {
@@ -501,6 +630,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(text: 'auth.i_agree_to'.tr()),
                               TextSpan(
                                 text: 'auth.terms'.tr(),
+                                recognizer: _termsRecognizer,
                                 style: GoogleFonts.outfit(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -511,6 +641,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(text: 'auth.and'.tr()),
                               TextSpan(
                                 text: 'auth.privacy_policy'.tr(),
+                                recognizer: _privacyRecognizer,
                                 style: GoogleFonts.outfit(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
