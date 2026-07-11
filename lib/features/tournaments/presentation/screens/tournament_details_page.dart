@@ -1351,7 +1351,7 @@ class _TournamentDetailsPageState extends State<TournamentDetailsPage> with Sing
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        _getMatchStageName(match).toUpperCase(),
+                        _getMatchStageName(match, format: context.read<TournamentProvider>().selectedTournament?.format).toUpperCase(),
                         style: TextStyle(
                           color: cs.onSurface.withValues(alpha: 0.5),
                           fontSize: 8,
@@ -3093,7 +3093,10 @@ String _getPlayoffPlaceholderName(TournamentMatch match, bool isHome) {
   return 'tournament.awaiting_winner'.tr();
 }
 
-String _getMatchStageName(TournamentMatch match) {
+String _getMatchStageName(TournamentMatch match, {String? format}) {
+  if (format?.toUpperCase() == 'LEAGUE') {
+    return 'tournament.league_match_caps'.tr();
+  }
   if (match.groupId != null) {
     final letter = _cleanGroupName(null, match.groupId);
     return 'Группа $letter';

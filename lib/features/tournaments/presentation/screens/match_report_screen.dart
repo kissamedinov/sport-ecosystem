@@ -52,6 +52,10 @@ class _MatchReportScreenState extends State<MatchReportScreen>
 
   bool get _isPenaltyRequired {
     if (_currentMatch == null) return false;
+    final tournament = context.read<TournamentProvider>().selectedTournament;
+    if (tournament != null && tournament.format.toUpperCase() == 'LEAGUE') {
+      return false; // League format matches can end in a draw!
+    }
     final isPlayoff = _currentMatch!.groupId == null || _currentMatch!.groupId!.isEmpty;
     if (!isPlayoff) return false;
     final homeScore = int.tryParse(_homeScoreController.text) ?? 0;
@@ -87,6 +91,11 @@ class _MatchReportScreenState extends State<MatchReportScreen>
         length: isOrganizer ? 3 : 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await context.read<TournamentProvider>().fetchTournamentDetails(widget.tournamentId);
+      } catch (e) {
+        debugPrint("Error fetching tournament details: $e");
+      }
       await _refreshMatchDetails();
       await context.read<MatchProvider>().fetchMatchEvents(widget.matchId);
       _loadPlayerNames();
