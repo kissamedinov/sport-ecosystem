@@ -77,7 +77,9 @@
     "role_club_manager": "Club Manager",
     "role_organizer": "Organizer",
     "role_field_owner": "Field Owner",
-    "role_referee": "Referee"
+    "role_referee": "Referee",
+    "terms_content": "1. General Provisions\\nWelcome to the Orleon sports ecosystem. By using our application, you agree to these Terms of Service. The Orleon platform is designed for organizing football tournaments, managing team line-ups, booking sports fields, and viewing match results.\\n\\n2. Registration and Roles\\nDuring registration, you choose a role (Player, Coach, Organizer, Field Owner, etc.). You agree to provide accurate information and take responsibility for any activities performed under your account.\\n\\n3. Tournament Rules\\nOrganizers agree to comply with sports competition regulations. Publishing false match results, offensive content, or spam is prohibited. Administration reserves the right to block violators.\\n\\n4. Changes to Terms\\nWe may update the Terms of Service periodically to improve the platform quality. By continuing to use Orleon, you agree to the updates.",
+    "privacy_content": "1. Information Collection\\nWe collect the data you provide during registration: name, email address, date of birth, chosen role, and profile avatar. This data is required for displaying profiles, building match line-ups, and managing standings.\\n\\n2. Data Usage\\nYour personal information is used solely within the Orleon platform to support its core functions (scheduling, tracking goals, cards, attendance, and team application notifications).\\n\\n3. Third-Party Access\\nWe do not sell, trade, or transfer your personal data to outside parties or advertisers. All data is securely protected against unauthorized access using encryption.\\n\\n4. Consent and Data Deletion\\nBy registering in the app, you consent to the processing of personal data. You can request deletion of your account and associated data at any time via profile settings."
   },
   "profile": {
     "edit_profile": "Edit Profile",
