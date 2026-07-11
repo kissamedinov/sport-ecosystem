@@ -72,6 +72,7 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
   final List<String> _ages = [
     '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012',
     '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', 
+    '2011-2012', '2012-2013', '2013-2014', '2014-2015', '2015-2016', '2016-2017', '2017-2018',
     'U8', 'U9', 'U10', 'U11', 'U12', 'U13', 'U14', 'U15', 'U16', 'U17', 'U18',
     'ADULT'
   ];
@@ -485,6 +486,8 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
                     ],
                     const SizedBox(height: 16),
                     _buildDropdown('tournament.surface'.tr(), _selectedSurface, _surfaces, (v) => setState(() => _selectedSurface = v!), cs),
+                    const SizedBox(height: 16),
+                    _buildDropdown('tournament.age_category'.tr(), _selectedAge, _ages, (v) => setState(() => _selectedAge = v!), cs),
                   ],
                 ),
               ),
@@ -628,7 +631,20 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
         'name': _divisionNameController.text,
         'format': _divisionFormatController.text,
         'entry_fee': int.tryParse(_divisionFeeController.text) ?? 0,
-        'birth_year': _selectedDivisionAge == 'ADULT' ? 0 : int.parse(_selectedDivisionAge.startsWith('U') ? (DateTime.now().year - int.parse(_selectedDivisionAge.substring(1))).toString() : _selectedDivisionAge),
+        'birth_year': () {
+          final age = _selectedDivisionAge;
+          if (age == 'ADULT') return 0;
+          if (age.startsWith('U')) {
+            final numStr = age.substring(1);
+            final val = int.tryParse(numStr) ?? 10;
+            return DateTime.now().year - val;
+          }
+          if (age.contains('-')) {
+            final parts = age.split('-');
+            return int.tryParse(parts[0]) ?? 2015;
+          }
+          return int.tryParse(age) ?? 2015;
+        }(),
         'max_teams': int.tryParse(_divisionMaxTeamsController.text) ?? 10,
       });
       _divisionNameController.clear();
