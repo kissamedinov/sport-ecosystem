@@ -120,26 +120,57 @@ def get_tournament_series_detail(db: Session, series_id: UUID):
         # Get all divisions in this edition
         divisions = db.query(TournamentDivision).filter(TournamentDivision.tournament_edition_id == edition.id).all()
         for div in divisions:
-            # Get standings for this division, sort to find the champion (#1 rank)
-            standings = db.query(TournamentStandings).filter(
-                TournamentStandings.tournament_id == edition.id,
-                TournamentStandings.division_id == div.id
-            ).all()
+            from app.matches.models import Match, MatchResult
             
-            if standings:
-                # Sort: points desc, goal_difference desc, goals_for desc
-                standings.sort(key=lambda s: (s.points or 0, s.goal_difference or 0, s.goals_for or 0), reverse=True)
-                champ_stand = standings[0]
+            champion_team_id = None
+            fmt_str = str(edition.format).upper()
+            
+            # If the edition format is GROUP_STAGE or KNOCKOUT, try to find the playoff final winner
+            if 'GROUP_STAGE' in fmt_str or 'KNOCKOUT' in fmt_str:
+                final_match = db.query(Match).filter(
+                    Match.tournament_id == edition.id,
+                    Match.division_id == div.id,
+                    Match.group_id == None,
+                    Match.bracket_position == 0
+                ).order_by(Match.round_number.desc()).first()
                 
+                if final_match and final_match.status.upper() == 'FINISHED':
+                    res = final_match.result
+                    if res:
+                        h_score = res.home_score
+                        a_score = res.away_score
+                        h_pen = res.home_penalty_score or 0
+                        a_pen = res.away_penalty_score or 0
+                        if h_score > a_score:
+                            champion_team_id = final_match.home_team_id
+                        elif a_score > h_score:
+                            champion_team_id = final_match.away_team_id
+                        elif h_pen > a_pen:
+                            champion_team_id = final_match.home_team_id
+                        elif a_pen > h_pen:
+                            champion_team_id = final_match.away_team_id
+            
+            # Fallback to standings (for LEAGUE format, or if playoff final is not finished yet)
+            if not champion_team_id:
+                standings = db.query(TournamentStandings).filter(
+                    TournamentStandings.tournament_id == edition.id,
+                    TournamentStandings.division_id == div.id
+                ).all()
+                
+                if standings:
+                    standings.sort(key=lambda s: (s.points or 0, s.goal_difference or 0, s.goals_for or 0), reverse=True)
+                    champion_team_id = standings[0].team_id
+            
+            if champion_team_id:
                 # Fetch team name
-                team_name = db.execute(text("SELECT name FROM teams WHERE id = :team_id"), {"team_id": champ_stand.team_id}).scalar()
+                team_name = db.execute(text("SELECT name FROM teams WHERE id = :team_id"), {"team_id": champion_team_id}).scalar()
                 
                 champions.append({
                     "tournament_id": edition.id,
                     "tournament_name": edition.name,
                     "division_id": div.id,
                     "division_name": div.name or f"U-{div.birth_year}",
-                    "team_id": champ_stand.team_id,
+                    "team_id": champion_team_id,
                     "team_name": team_name or "Unknown Team",
                     "year": edition.year,
                     "season": edition.season.value if edition.season else None
