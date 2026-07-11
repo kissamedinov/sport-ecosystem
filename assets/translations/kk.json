@@ -114,6 +114,8 @@
     "role_admin": "Әкімші",
     "role_player": "Ойыншы",
     "role_parent": "Ата-ана",
+    "role_organizer": "Ұйымдастырушы",
+    "role_field_owner": "Алаң иесі",
     "personal_info": "ЖЕКЕ АҚПАРАТ",
     "contact_info": "БАЙЛАНЫС АҚПАРАТЫ",
     "bio_section": "БИО / СИПАТТАМА",

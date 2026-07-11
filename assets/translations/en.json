@@ -114,6 +114,8 @@
     "role_admin": "Administrator",
     "role_player": "Player",
     "role_parent": "Parent",
+    "role_organizer": "Organizer",
+    "role_field_owner": "Field Owner",
     "personal_info": "PERSONAL INFORMATION",
     "contact_info": "CONTACT INFORMATION",
     "bio_section": "BIO / DESCRIPTION",

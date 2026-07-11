@@ -114,6 +114,8 @@
     "role_admin": "Администратор",
     "role_player": "Игрок",
     "role_parent": "Родитель",
+    "role_organizer": "Организатор",
+    "role_field_owner": "Владелец поля",
     "personal_info": "ЛИЧНАЯ ИНФОРМАЦИЯ",
     "contact_info": "КОНТАКТНАЯ ИНФОРМАЦИЯ",
     "bio_section": "БИО / ОПИСАНИЕ",
