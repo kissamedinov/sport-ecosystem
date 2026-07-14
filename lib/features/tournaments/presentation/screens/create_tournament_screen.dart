@@ -343,16 +343,42 @@ class _CreateTournamentScreenState extends State<CreateTournamentScreen> {
       }
     } else {
       success = await provider.createTournament(data);
-      if (success && _divisions.isNotEmpty) {
-        // Create divisions for the new tournament
+      if (success) {
         final newTournament = provider.tournaments.first;
-        for (final div in _divisions) {
+        if (_divisions.isNotEmpty) {
+          // Create divisions for the new tournament
+          for (final div in _divisions) {
+            final divisionData = {
+              'name': div['name'],
+              'format': div['format'],
+              'entry_fee': div['entry_fee'],
+              'birth_year': div['birth_year'],
+              'max_teams': div['max_teams'],
+            };
+            await provider.createDivision(newTournament.id, divisionData);
+          }
+        } else {
+          // Auto-generate standard division matching tournament format/age
+          final age = _selectedAge;
+          int birthYear = 2015;
+          if (age != 'ADULT') {
+            if (age.startsWith('U')) {
+              final numStr = age.substring(1);
+              final val = int.tryParse(numStr) ?? 10;
+              birthYear = DateTime.now().year - val;
+            } else if (age.contains('-')) {
+              final parts = age.split('-');
+              birthYear = int.tryParse(parts[0]) ?? 2015;
+            } else {
+              birthYear = int.tryParse(age) ?? 2015;
+            }
+          }
           final divisionData = {
-            'name': div['name'],
-            'format': div['format'],
-            'entry_fee': div['entry_fee'],
-            'birth_year': div['birth_year'],
-            'max_teams': div['max_teams'],
+            'name': 'Standard Category',
+            'format': _selectedFormat,
+            'entry_fee': 0,
+            'birth_year': birthYear,
+            'max_teams': 16,
           };
           await provider.createDivision(newTournament.id, divisionData);
         }
