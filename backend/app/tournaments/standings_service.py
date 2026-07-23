@@ -12,12 +12,17 @@ def update_standings(db: Session, tournament_id: UUID, team_id: UUID, division_i
     if not tournament:
         return
 
+    is_league = tournament.format.upper() == 'LEAGUE'
+
     # Get team's group and division if not provided
-    match_info = db.query(Match).filter(
+    match_query = db.query(Match).filter(
         Match.tournament_id == tournament_id,
-        Match.group_id.isnot(None),
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id))
-    ).first()
+    )
+    if not is_league:
+        match_query = match_query.filter(Match.group_id.isnot(None))
+        
+    match_info = match_query.first()
     
     group_id = match_info.group_id if match_info else None
     if not division_id and match_info:
@@ -40,15 +45,18 @@ def update_standings(db: Session, tournament_id: UUID, team_id: UUID, division_i
         db.add(standing)
     else:
         standing.group_id = group_id
-        standing.division_id = division_id
+        if division_id:
+            standing.division_id = division_id
         
-    # Recalculate everything from finalized matches (group stage only)
+    # Recalculate everything from finalized matches (group stage or all league matches)
     query = db.query(Match).join(MatchResult).filter(
         Match.tournament_id == tournament_id,
-        Match.group_id.isnot(None),
         ((Match.home_team_id == team_id) | (Match.away_team_id == team_id)),
         MatchResult.status == "FINAL"
     )
+    if not is_league:
+        query = query.filter(Match.group_id.isnot(None))
+        
     if division_id:
         query = query.filter(Match.division_id == division_id)
         
@@ -106,9 +114,6 @@ def get_standings(db: Session, tournament_id: UUID, group_id: Optional[UUID] = N
     standings = query.all()
     
     # Sort: Primary: Points DESC, Secondary: GD DESC, Tertiary: GF DESC
-    # For H2H, we'd need to fetch matches between the tied teams, which is complex for a simple sort.
-    # We'll implement a basic multi-key sort first.
-    
     sorted_standings = sorted(
         standings,
         key=lambda s: (s.points, s.goal_difference, s.goals_for),
