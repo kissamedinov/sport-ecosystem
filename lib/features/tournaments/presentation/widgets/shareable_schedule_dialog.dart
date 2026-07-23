@@ -1,14 +1,13 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import '../../data/models/tournament_match.dart';
 import '../../data/models/tournament.dart';
 import 'package:mobile/core/theme/premium_theme.dart';
+
+import 'package:mobile/utils/file_saver/file_saver.dart';
 
 String _cleanTeamName(String? name) {
   if (name == null) return '';
@@ -70,30 +69,15 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
   @override
   void initState() {
     super.initState();
-    _extractDates();
-  }
-
-  void _extractDates() {
-    final List<DateTime> dates = [];
-    for (var m in widget.matches) {
-      if (m.matchDate != null) {
-        final date = DateTime(
-          m.matchDate!.toLocal().year,
-          m.matchDate!.toLocal().month,
-          m.matchDate!.toLocal().day,
-        );
-        if (!dates.contains(date)) {
-          dates.add(date);
-        }
-      }
+    final datesSet = widget.matches
+        .map((m) => m.matchDate)
+        .where((d) => d != null)
+        .map((d) => DateTime(d!.year, d.month, d.day))
+        .toSet();
+    _availableDates = datesSet.toList()..sort();
+    if (_availableDates.isNotEmpty) {
+      _selectedDate = _availableDates.first;
     }
-    dates.sort();
-    setState(() {
-      _availableDates = dates;
-      if (dates.isNotEmpty) {
-        _selectedDate = dates.first;
-      }
-    });
   }
 
   Future<void> _saveToStorage() async {
@@ -108,34 +92,18 @@ class _ShareableScheduleDialogState extends State<ShareableScheduleDialog> {
       if (byteData == null) return;
       Uint8List pngBytes = byteData.buffer.asUint8List();
 
-      Directory? dir;
-      if (Platform.isAndroid) {
-        dir = Directory('/storage/emulated/0/Download');
-        if (!await dir.exists()) {
-          dir = await getExternalStorageDirectory();
-        }
-      } else {
-        dir = await getApplicationDocumentsDirectory();
-      }
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+      final fileName = 'schedule_${widget.tournament.name}_${dateStr}_${DateTime.now().millisecondsSinceEpoch}.png'
+          .replaceAll(RegExp(r'[^\w\-_.]'), '_');
+      final filePath = await saveFileBytes(pngBytes, fileName);
 
-      if (dir != null) {
-        final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-        final fileName = 'schedule_${widget.tournament.name}_${dateStr}_${DateTime.now().millisecondsSinceEpoch}.png'
-            .replaceAll(RegExp(r'[^\w\-_.]'), '_');
-        final filePath = '${dir.path}/$fileName';
-        final file = File(filePath);
-        await file.writeAsBytes(pngBytes);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('tournament.schedule_saved'.tr(namedArgs: {'path': filePath})),
-              backgroundColor: const Color(0xFF00E676),
-            ),
-          );
-        }
-      } else {
-        throw Exception('Storage directory not available');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('tournament.schedule_saved'.tr(namedArgs: {'path': filePath})),
+            backgroundColor: const Color(0xFF00E676),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

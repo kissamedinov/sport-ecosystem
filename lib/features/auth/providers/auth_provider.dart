@@ -44,8 +44,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> tryAutoLogin() => checkAuthStatus();
-
   Future<bool> login(String email, String password) async {
     _setLoading(true);
     _error = null;
@@ -132,6 +130,28 @@ class AuthProvider extends ChangeNotifier {
       } catch (e) {
         // ignore errors
       }
+    }
+  }
+
+  Future<bool> deleteAccount() async {
+    _setLoading(true);
+    try {
+      await _repository.deleteAccount();
+      _user = null;
+      notifyListeners();
+      for (final callback in onLogoutCallbacks) {
+        try {
+          callback();
+        } catch (e) {
+          // ignore errors
+        }
+      }
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
     }
   }
 

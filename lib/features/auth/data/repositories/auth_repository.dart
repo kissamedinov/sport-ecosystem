@@ -38,6 +38,11 @@ class AuthRepository {
     await _tokenService.deleteTokens();
   }
 
+  Future<void> deleteAccount() async {
+    await _apiClient.delete('/users/me');
+    await _tokenService.deleteTokens();
+  }
+
   Future<List<dynamic>> getMyChildren() async {
     final response = await _apiClient.get('/users/my-children');
     return response.data;

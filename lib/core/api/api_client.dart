@@ -17,7 +17,10 @@ class ApiClient {
   late Dio _dio;
   final TokenService _tokenService = TokenService();
   
-  static const String baseUrl = 'http://207.154.222.151';
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://api.example.com',
+  );
 
   ApiClient() {
     _dio = Dio(

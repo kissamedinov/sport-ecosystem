@@ -306,6 +306,20 @@ def update_my_profile(
     }
 
 
+@router.delete("/me", status_code=status.HTTP_200_OK)
+def delete_my_account(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Deletes the current user's account and all associated data.
+    Required by Google Play Developer Policy.
+    """
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Account successfully deleted"}
+
+
 @router.patch("/{user_id}", response_model=schemas.UserResponse)
 def update_user_profile(
     user_id: UUID,

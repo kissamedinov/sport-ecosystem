@@ -105,13 +105,37 @@ app.include_router(clubs_router)
 app.include_router(quizzes_router)
 app.include_router(planner_router)
 
-# Ensure uploads directory exists
+from fastapi.responses import FileResponse
+
+# Ensure uploads and static_website directories exist
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
 
+if not os.path.exists("static_website"):
+    os.makedirs("static_website")
+
 # Mount uploads directory for static serving
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/static_site", StaticFiles(directory="static_website", html=True), name="static_site")
+
+@app.get("/privacy.html")
+@app.get("/privacy")
+def get_privacy_page():
+    privacy_path = os.path.join("static_website", "privacy.html")
+    if os.path.exists(privacy_path):
+        return FileResponse(privacy_path)
+    return {"message": "Privacy Policy page"}
+
+@app.get("/site")
+def get_landing_page():
+    index_path = os.path.join("static_website", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "OrleOn Landing Page"}
 
 @app.get("/")
 def read_root():
+    index_path = os.path.join("static_website", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {"message": "Welcome to the Sports Ecosystem API"}

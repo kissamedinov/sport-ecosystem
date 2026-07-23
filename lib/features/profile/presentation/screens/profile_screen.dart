@@ -21,6 +21,8 @@ import 'package:mobile/core/theme/premium_theme.dart';
 import 'package:mobile/features/settings/presentation/widgets/language_picker_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -79,6 +81,10 @@ class ProfileScreen extends StatelessWidget {
                     Navigator.pop(ctx);
                     LanguagePickerSheet.show(context);
                   }),
+                  _buildMenuItem(Icons.privacy_tip_outlined, 'Политика конфиденциальности', muted, () {
+                    Navigator.pop(ctx);
+                    launchUrl(Uri.parse('http://207.154.222.151/privacy.html'), mode: LaunchMode.externalApplication);
+                  }),
                   Divider(color: divider, height: 24),
                   _buildMenuItem(Icons.logout_rounded, 'profile.logout'.tr(), Colors.redAccent, () async {
                     Navigator.pop(ctx);
@@ -87,12 +93,52 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.of(context).pushReplacementNamed('/login');
                     }
                   }),
+                  _buildMenuItem(Icons.delete_forever_rounded, 'Удалить аккаунт', Colors.red, () {
+                    Navigator.pop(ctx);
+                    _confirmDeleteAccount(context, auth);
+                  }),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: PremiumTheme.surfaceCard(dialogCtx),
+        title: const Text('Удаление аккаунта', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Вы уверены, что хотите безвозвратно удалить свой аккаунт и все персональные данные? Это действие невозможно отменить.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Отмена', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogCtx);
+              final success = await auth.deleteAccount();
+              if (context.mounted) {
+                if (success) {
+                  Navigator.of(context).pushReplacementNamed('/login');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(auth.error ?? 'Ошибка при удалении аккаунта')),
+                  );
+                }
+              }
+            },
+            child: const Text('Удалить аккаунт', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 

@@ -1,34 +1,35 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenService {
   static const _keyToken = 'jwt_token';
   static const _keyRefreshToken = 'refresh_token';
   static const _keyOnboarding = 'onboarding_completed';
 
+  final _secureStorage = const FlutterSecureStorage();
+
   Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyToken, token);
+    await _secureStorage.write(key: _keyToken, value: token);
   }
 
   Future<void> saveRefreshToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyRefreshToken, token);
+    await _secureStorage.write(key: _keyRefreshToken, value: token);
   }
 
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyToken);
+    return await _secureStorage.read(key: _keyToken);
   }
 
   Future<String?> getRefreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyRefreshToken);
+    return await _secureStorage.read(key: _keyRefreshToken);
   }
 
   Future<void> deleteTokens() async {
+    await _secureStorage.delete(key: _keyToken);
+    await _secureStorage.delete(key: _keyRefreshToken);
+    
+    // Non-secure flag still stored in SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyToken);
-    await prefs.remove(_keyRefreshToken);
     await prefs.remove(_keyOnboarding);
   }
 

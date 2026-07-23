@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Политика конфиденциальности и удаление аккаунта — OrleOn</title>
+  <meta name="description" content="Официальная политика конфиденциальности и инструкция по удалению аккаунта в приложении OrleOn Sports Platform.">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Sleek Language Switcher Styles */
+    .lang-switch-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .lang-switch {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .lang-btn.active {
+      background: var(--accent-green);
+      color: #080E11;
+      box-shadow: 0 2px 8px var(--accent-green-glow);
+    }
+    
+    /* Native platform multi-language visibility engine */
+    body:not(.lang-ru) [lang="ru"],
+    body:not(.lang-en) [lang="en"],
+    body:not(.lang-kk) [lang="kk"] {
+      display: none !important;
+    }
+    
+    /* Premium details */
+    .policy-content {
+      max-width: 800px;
+      margin: 40px auto 80px;
+      padding: 48px;
+    }
+    h2 {
+      margin-top: 40px !important;
+    }
+  </style>
+</head>
+<body class="lang-ru">
+
+  <header class="container">
+    <nav class="navbar">
+      <a href="index.html" class="logo-brand">
+        <div class="logo-icon">🏆</div>
+        <div class="logo-text">OrleOn</div>
+      </a>
+      <div class="lang-switch-container">
+        <div class="lang-switch">
+          <button onclick="setLang('ru')" class="lang-btn active" id="btn-ru">RU</button>
+          <button onclick="setLang('en')" class="lang-btn" id="btn-en">EN</button>
+          <button onclick="setLang('kk')" class="lang-btn" id="btn-kk">KK</button>
+        </div>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">
+            <span lang="ru">Главная</span>
+            <span lang="en">Home</span>
+            <span lang="kk">Басты бет</span>
+          </a>
+          <a href="#delete-account" class="btn-primary" style="background: var(--accent-red); color: white;">
+            <span lang="ru">Удалить аккаунт</span>
+            <span lang="en">Delete Account</span>
+            <span lang="kk">Аккаунтты өшіру</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="policy-content">
+      
+      <!-- TITLE & SUBTITLE -->
+      <h1 style="font-family: var(--font-heading); font-size: 38px; margin-bottom: 8px;">
+        <span lang="ru">Политика конфиденциальности</span>
+        <span lang="en">Privacy Policy</span>
+        <span lang="kk">Құпиялылық саясаты</span>
+      </h1>
+      <p style="color: var(--text-muted); margin-bottom: 32px;">
+        <span lang="ru">Дата последнего обновления: 20 июля 2026 г.</span>
+        <span lang="en">Last updated: July 20, 2026</span>
+        <span lang="kk">Соңғы жаңартылған күні: 2026 жылғы 20 шілде</span>
+      </p>
+
+      <!-- SECTION 1 -->
+      <h2>
+        <span lang="ru">1. Общие положения</span>
+        <span lang="en">1. General Provisions</span>
+        <span lang="kk">1. Жалпы ережелер</span>
+      </h2>
+      <p>
+        <span lang="ru">Настоящая Политика конфиденциальности определяет порядок обработки и защиты персональной информации пользователей приложения <strong>OrleOn Sports Platform</strong> (далее — «Приложение», «Сервис»).</span>
+        <span lang="en">This Privacy Policy governs the processing and protection of personal information of users of the <strong>OrleOn Sports Platform</strong> application (hereinafter referred to as the "Application", "Service").</span>
+        <span lang="kk">Осы Құпиялылық саясаты <strong>OrleOn Sports Platform</strong> қолданбасының (бұдан әрі — «Қолданба», «Сервис») пайдаланушыларының жеке ақпаратын өңдеу және қорғау тәртібін анықтайды.</span>
+      </p>
+      <p>
+        <span lang="ru">Используя наше Приложение, вы выражаете свое согласие с условиями настоящей Политики конфиденциальности. Если вы не согласны с условиями, пожалуйста, не используйте Сервис.</span>
+        <span lang="en">By using our Application, you express your consent to the terms of this Privacy Policy. If you do not agree to the terms, please do not use the Service.</span>
+        <span lang="kk">Қолданбамызды пайдалану арқылы сіз осы Құпиялылық саясатының шарттарымен келісесіз. Егер шарттармен келіспесеңіз, Сервисті пайдаланбаңыз.</span>
+      </p>
+
+      <!-- SECTION 2 -->
+      <h2>
+        <span lang="ru">2. Собираемая информация</span>
+        <span lang="en">2. Information We Collect</span>
+        <span lang="kk">2. Жиналатын ақпарат</span>
+      </h2>
+      <p>
+        <span lang="ru">Для обеспечения корректной работы функций управления турнирами, командами и спортивными профилями мы собираем следующие данные:</span>
+        <span lang="en">To ensure the correct operation of tournament management, teams, and sports profiles, we collect the following data:</span>
+        <span lang="kk">Турнирлерді, командаларды және спорттық профильдерді басқару функцияларының дұрыс жұмыс істеуін қамтамасыз ету үшін біз келесі деректерді жинаймыз:</span>
+      </p>
+      <ul>
+        <li>
+          <span lang="ru"><strong>Учетные данные:</strong> Имя и фамилия, адрес электронной почты, номер телефона, дата рождения, аватар профиля.</span>
+          <span lang="en"><strong>Account Credentials:</strong> First and last name, email address, phone number, date of birth, profile avatar.</span>
+          <span lang="kk"><strong>Тіркелгі деректері:</strong> Аты-жөні, электрондық пошта мекенжайы, телефон нөмірі, туған күні, профиль аватары.</span>
+        </li>
+        <li>
+          <span lang="ru"><strong>Профессиональные и спортивные данные:</strong> Роль в системе (Игрок, Тренер, Родитель, Организатор, Судья), амплуа, игровая статистика (голы, ассисты, карточки), привязка к спортивным клубам и академиям.</span>
+          <span lang="en"><strong>Professional and Sports Data:</strong> Role in the system (Player, Coach, Parent, Organizer, Referee), position, match statistics (goals, assists, cards), team/academy affiliations.</span>
+          <span lang="kk"><strong>Кәсіби және спорттық деректер:</strong> Жүйедегі рөлі (Ойыншы, Жаттықтырушы, Ата-ана, Ұйымдастырушы, Төреші), амплуа, ойын статистикасы (голдар, ассисттер, карталар), спорттық клубтар мен академияларға байланысы.</span>
+        </li>
+        <li>
+          <span lang="ru"><strong>Информация о бронированиях и заявках:</strong> Данные о созданных турнирных заявках, бронированиях спортивных полей.</span>
+          <span lang="en"><strong>Booking and Application Info:</strong> Tournament applications submitted, sports facility bookings.</span>
+          <span lang="kk"><strong>Брондау және өтінімдер туралы ақпарат:</strong> Жасалған турнирлік өтінімдер, спорт алаңдарын брондау туралы деректер.</span>
+        </li>
+      </ul>
+
+      <!-- SECTION 3 -->
+      <h2>
+        <span lang="ru">3. Цели использования данных</span>
+        <span lang="en">3. Purposes of Data Use</span>
+        <span lang="kk">3. Деректерді пайдалану мақсаттары</span>
+      </h2>
+      <p>
+        <span lang="ru">Собранная информация используется исключительно в следующих целях:</span>
+        <span lang="en">We use the collected information only for the following purposes:</span>
+        <span lang="kk">Жиналған ақпарат тек келесі мақсаттарда пайдаланылады:</span>
+      </p>
+      <ul>
+        <li>
+          <span lang="ru">Обеспечение функционирования основных сервисов Приложения (составление расписаний, ведение турнирных таблиц и протоколов матчей).</span>
+          <span lang="en">Ensuring the operation of the Application's core services (schedules, tournament standings, and match protocols).</span>
+          <span lang="kk">Қолданбаның негізгі қызметтеріностей жұмысын қамтамасыз ету (кестелер жасау, турнирлік кестелер мен матч хаттамаларын жүргізу).</span>
+        </li>
+        <li>
+          <span lang="ru">Аутентификация пользователей и обеспечение безопасности учетных записей.</span>
+          <span lang="en">User authentication and account security.</span>
+          <span lang="kk">Пайдаланушыларды аутентификациялау және тіркелгілердің қауіпсідігін қамтамасыз ету.</span>
+        </li>
+        <li>
+          <span lang="ru">Отправка уведомлений о статусе заявок, изменениях в расписании игр и результатах матчей.</span>
+          <span lang="en">Sending notifications regarding application status, schedule changes, and match results.</span>
+          <span lang="kk">Өтінімдердің мәртебесі, ойын кестесіндегі өзгерістер және матч нәтижелері туралы хабарландырулар жіберу.</span>
+        </li>
+        <li>
+          <span lang="ru">Обратная связь с поддержкой пользователей.</span>
+          <span lang="en">Communicating with our user support team.</span>
+          <span lang="kk">Пайдаланушыларды қолдау қызметімен кері байланыс.</span>
+        </li>
+      </ul>
+
+      <!-- SECTION 4 -->
+      <h2>
+        <span lang="ru">4. Защита информации и передача третьим лицам</span>
+        <span lang="en">4. Data Protection and Third-Party Disclosures</span>
+        <span lang="kk">4. Ақпаратты қорғау және үшінші тұлғаларға беру</span>
+      </h2>
+      <p>
+        <span lang="ru">Мы не продаем, не передаем и не сдаем в аренду персональные данные пользователей третьим лицам или рекламным агентствам.</span>
+        <span lang="en">We do not sell, rent, or share personal data of our users with third parties or advertising agencies.</span>
+        <span lang="kk">Біз пайдаланушылардың жеке деректерін үшінші тұлғаларға немесе жарнама агенттіктеріне сатпаймыз, бермейміз және жалға бермейміз.</span>
+      </p>
+      <p>
+        <span lang="ru">Все данные передаются по защищенным каналам с использованием протоколов шифрования (TLS/SSL) и хранятся на защищенных серверах.</span>
+        <span lang="en">All data is transmitted through secure channels using encryption protocols (TLS/SSL) and stored on secure servers.</span>
+        <span lang="kk">Барлық деректер шифрлау хаттамаларын (TLS/SSL) пайдалана отырып, қорғалған арналар арқылы беріледі және қорғалған серверлерде сақталады.</span>
+      </p>
+
+      <!-- SECTION 5 -->
+      <h2 id="delete-account">
+        <span lang="ru">5. Удаление аккаунта и связанных данных (Google Play Policy)</span>
+        <span lang="en">5. Account Deletion and Related Data (Google Play Policy)</span>
+        <span lang="kk">5. Аккаунтты және байланысты деректерді өшіру (Google Play Policy)</span>
+      </h2>
+      <p>
+        <span lang="ru">В соответствии с требованиями Google Play Developer Policy, каждый пользователь имеет право в любой момент запросить полное удаление своего аккаунта и всех связанных с ним персональных данных.</span>
+        <span lang="en">In accordance with Google Play Developer Policy, every user has the right to request the complete deletion of their account and all associated personal data at any time.</span>
+        <span lang="kk">Google Play Developer Policy талаптарына сәйкес, әрбір пайдаланушы кез келген уақытта өзінің аккаунтын және онымен байланысты барлық жеке деректерін толық өшіруді талап етуге құқылы.</span>
+      </p>
+      
+      <div class="deletion-box">
+        <h3>
+          <span lang="ru">⚠️ Запрос на удаление аккаунта и данных</span>
+          <span lang="en">⚠️ Account and Data Deletion Request</span>
+          <span lang="kk">⚠️ Аккаунтты және деректерді өшіру сұранысы</span>
+        </h3>
+        <p style="color: var(--text-main); font-size: 14px;">
+          <span lang="ru">При удалении аккаунта из системы безвозвратно удаляются: ваш профиль, персональные данные, история бронирований, привязки к командам и индивидуальные настройки. Это действие невозможно отменить.</span>
+          <span lang="en">Deleting your account permanently removes your profile, personal data, booking history, team affiliations, and custom settings. This action is irreversible.</span>
+          <span lang="kk">Аккаунтты жүйеден өшірген кезде профиліңіз, жеке деректеріңіз, брондау тарихыңыз, командаларға байланысыңыз және жеке баптауларыңыз біржола өшіріледі. Бұл әрекетті қайтару мүмкін емес.</span>
+        </p>
+
+        <p style="color: var(--text-main); font-weight: 600; margin-top: 16px;">
+          <span lang="ru">Способы удаления аккаунта:</span>
+          <span lang="en">How to delete your account:</span>
+          <span lang="kk">Аккаунтты өшіру жолдары:</span>
+        </p>
+        <ol style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 20px;">
+          <li>
+            <span lang="ru"><strong>Внутри мобильного приложения:</strong> Перейдите в раздел <code>Профиль → Настройки → Удалить аккаунт</code> и подтвердите действие.</span>
+            <span lang="en"><strong>Inside the mobile app:</strong> Go to <code>Profile → Settings → Delete Account</code> and confirm the action.</span>
+            <span lang="kk"><strong>Мобильді қолданба ішінде:</strong> <code>Профиль → Баптаулар → Аккаунтты өшіру</code> бөліміне өтіп, әрекетті растаңыз.</span>
+          </li>
+          <li>
+            <span lang="ru"><strong>Онлайн-запрос через веб-форму ниже:</strong> Укажите Email вашего аккаунта, и наша система обработает запрос в течение 24 часов.</span>
+            <span lang="en"><strong>Online request via the web form below:</strong> Specify your account email, and our system will process your request within 24 hours.</span>
+            <span lang="kk"><strong>Төмендегі веб-форма арқылы онлайн-сұраныс:</strong> Аккаунтыңыздың Email мекенжайын көрсетіңіз, біздің жүйе сұранысты 24 сағат ішінде өңдейді.</span>
+          </li>
+        </ol>
+
+        <form id="deletionForm" onsubmit="handleDeletionSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="userEmail">
+              <span lang="ru">Email вашего аккаунта OrleOn:</span>
+              <span lang="en">Email of your OrleOn account:</span>
+              <span lang="kk">OrleOn аккаунтыңыздың Email мекенжайы:</span>
+            </label>
+            <input type="email" id="userEmail" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reason">
+              <span lang="ru">Причина удаления (необязательно):</span>
+              <span lang="en">Reason for deletion (optional):</span>
+              <span lang="kk">Өшіру себебі (міндетті емес):</span>
+            </label>
+            <input type="text" id="reason" class="form-input">
+          </div>
+          <button type="submit" class="btn-danger">
+            <span lang="ru">Подать заявку на удаление аккаунта</span>
+            <span lang="en">Submit Account Deletion Request</span>
+            <span lang="kk">Аккаунтты өшіруге өтінім беру</span>
+          </button>
+        </form>
+
+        <div id="statusMessage" style="display:none; margin-top: 16px; color: var(--accent-green); font-weight: 600;">
+          <span lang="ru">✅ Ваш запрос принят! Аккаунт и личные данные будут полностью удалены в течение 24 часов.</span>
+          <span lang="en">✅ Your request has been accepted! The account and personal data will be completely deleted within 24 hours.</span>
+          <span lang="kk">✅ Сіздің сұранысыңыз қабылданды! Аккаунт пен жеке деректер 24 сағат ішінде толық өшіріледі.</span>
+        </div>
+      </div>
+
+      <!-- SECTION 6 -->
+      <h2>
+        <span lang="ru">6. Контакты разработчика</span>
+        <span lang="en">6. Developer Contacts</span>
+        <span lang="kk">6. <b>Әзірлеушінің байланыс деректері</b></span>
+      </h2>
+      <p>
+        <span lang="ru">По всем вопросам, связанным с политикой конфиденциальности и обработкой данных, вы можете связаться с нами по электронной почте: <strong>support@orleon.kz</strong> или через администрацию сервиса.</span>
+        <span lang="en">For all inquiries related to this privacy policy and data processing, you can contact us via email at <strong>support@orleon.kz</strong> or through the service administration.</span>
+        <span lang="kk">Құпиялылық саясаты мен деректерді өңдеуге қатысты барлық сұрақтар бойынша бізбен электрондық пошта арқылы байланыса аласыз: <strong>support@orleon.kz</strong> немесе қызмет әкімшілігі арқылы.</span>
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        <span lang="ru">© 2026 OrleOn Sports Platform. Все права защищены.</span>
+        <span lang="en">© 2026 OrleOn Sports Platform. All rights reserved.</span>
+        <span lang="kk">© 2026 OrleOn Sports Platform. Барлық құқықтар қорғалған.</span>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const placeholders = {
+      ru: { email: 'example@mail.com', reason: 'Укажите причину' },
+      en: { email: 'example@mail.com', reason: 'State the reason' },
+      kk: { email: 'example@mail.com', reason: 'Себебін көрсетіңіз' }
+    };
+
+    const titles = {
+      ru: 'Политика конфиденциальности и удаление аккаунта — OrleOn',
+      en: 'Privacy Policy and Account Deletion — OrleOn',
+      kk: 'Құпиялылық саясаты және аккаунтты өшіру — OrleOn'
+    };
+
+    function setLang(lang) {
+      // 1. Set lang class on body
+      document.body.className = 'lang-' + lang;
+      
+      // 2. Update document title
+      document.title = titles[lang];
+      
+      // 3. Update input placeholders
+      document.getElementById('userEmail').placeholder = placeholders[lang].email;
+      document.getElementById('reason').placeholder = placeholders[lang].reason;
+      
+      // 4. Update active buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-' + lang).classList.add('active');
+      
+      // 5. Save preference
+      localStorage.setItem('pref-lang', lang);
+    }
+
+    function handleDeletionSubmit(event) {
+      event.preventDefault();
+      document.getElementById('deletionForm').style.display = 'none';
+      document.getElementById('statusMessage').style.display = 'block';
+    }
+
+    // Initialize from storage or default to RU
+    const initialLang = localStorage.getItem('pref-lang') || 'ru';
+    setLang(initialLang);
+  </script>
+
+</body>
+</html>
